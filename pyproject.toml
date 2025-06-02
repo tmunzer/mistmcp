@@ -1,0 +1,38 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mistmcp"
+version = "0.0.0"
+authors = [{name="Thomas Munzer", email="tmunzer@juniper.net"}]
+description = "MCP Server to provide Mist API Access to LLMs"
+keywords = ["Mist", "Juniper", "MCP", "LLM"]
+license = {text =  "MIT License"}
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Telecommunications Industry",
+    "Topic :: System :: Networking",
+    "Development Status :: 4 - Beta"
+]
+dependencies = [
+  "fastmcp",
+  "marvin",
+  "mcp[cli]>=1.9.2",
+  "mistapi>0.55.11",
+]
+
+[project.urls]
+"Source" = "https://github.com/tmunzer/mistmcp"
+"Bug Tracker" = "https://github.com/tmunzer/mistmcp/issues"
+
+[project.scripts]
+start = "mistmcp:start"

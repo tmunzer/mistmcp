@@ -1,0 +1,18 @@
+{
+    "mcpServers": {
+        "Mist MCP Server - STDIO": {
+            "command": "/Users/tmunzer/4_dev/mcp/test102/.venv/bin/python3",
+            "args": [
+                "-m",
+                "mistmcp"
+            ]
+        },
+        "Mist MCP Server - SH": {
+            "command": "npx",
+            "args": [
+                "mcp-remote",
+                "http://127.0.0.1:8000/mcp/"
+            ]
+        }
+    }
+}

@@ -1,0 +1,116 @@
+""""
+--------------------------------------------------------------------------------
+-------------------------------- Mist MCP SERVER -------------------------------
+
+    Written by: Thomas Munzer (tmunzer@juniper.net)
+    Github    : https://github.com/tmunzer/mistmcp
+
+    This package is licensed under the MIT License.
+
+--------------------------------------------------------------------------------
+"""
+import json
+import mistapi
+from fastmcp.server.dependencies import get_context
+from fastmcp.exceptions import ToolError
+from mistmcp.__server import mcp
+from mistmcp.__mistapi import apisession
+from pydantic import Field
+from typing import Annotated, Optional
+from uuid import UUID
+from enum import Enum
+
+
+
+
+class Client_type(Enum):
+    WIRELESS = "wireless"
+    WIRED = "wired"
+    NONE = None
+
+
+def add_tool():
+    mcp.add_tool(
+        fn=searchOrgClientFingerprints,
+        name="searchOrgClientFingerprints",
+        description="""Search Client Fingerprints""",
+        tags={"Orgs NAC Fingerprints"},
+        annotations={
+            "title": "searchOrgClientFingerprints",
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "openWorldHint": True
+        }
+    )
+
+def remove_tool():
+    mcp.remove_tool("searchOrgClientFingerprints")
+
+async def searchOrgClientFingerprints(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    family: Annotated[Optional[str], Field(description="""Device Category  of the client device""")] | None = None,
+    client_type: Annotated[Client_type, Field(description="""Whether client is wired or wireless""")] = Client_type.NONE,
+    model: Annotated[Optional[str], Field(description="""Model name of the client device""")] | None = None,
+    mfg: Annotated[Optional[str], Field(description="""Manufacturer name of the client device""")] | None = None,
+    os: Annotated[Optional[str], Field(description="""Operating System name and version of the client device""")] | None = None,
+    os_type: Annotated[Optional[str], Field(description="""Operating system name of the client device""")] | None = None,
+    mac: Annotated[Optional[str], Field(description="""MAC address of the client device""")] | None = None,
+    sort: Annotated[Optional[str], Field(description="""sort options, '-' prefix represents DESC order, default is wcid in ASC order""")] | None = None,
+    limit: Annotated[int, Field(default=100)] = 100,
+    start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
+    end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
+    duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
+    interval: Annotated[Optional[str], Field(description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.""")] | None = None,
+) -> dict:
+    """Search Client Fingerprints"""
+
+    response = mistapi.api.v1.sites.insights.searchOrgClientFingerprints(
+            apisession,
+            site_id=str(site_id),
+            family=family,
+            client_type=client_type.value,
+            model=model,
+            mfg=mfg,
+            os=os,
+            os_type=os_type,
+            mac=mac,
+            sort=sort,
+            limit=limit,
+            start=start,
+            end=end,
+            duration=duration,
+            interval=interval,
+    )
+    
+    
+    ctx = get_context()
+    
+    if response.status_code != 200:
+        error = {
+            "status_code": response.status_code,
+            "message": ""
+        }
+        if response.data:
+            await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
+            error["message"] =json.dumps(response.data)
+        elif response.status_code == 400:
+            await ctx.error(f"Got HTTP{response.status_code}")
+            error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
+        elif response.status_code == 401:
+            await ctx.error(f"Got HTTP{response.status_code}")
+            error["message"] =json.dumps("Unauthorized")
+        elif response.status_code == 403:
+            await ctx.error(f"Got HTTP{response.status_code}")
+            error["message"] =json.dumps("Unauthorized")
+        elif response.status_code == 401:
+            await ctx.error(f"Got HTTP{response.status_code}")
+            error["message"] =json.dumps("Permission Denied")
+        elif response.status_code == 404:
+            await ctx.error(f"Got HTTP{response.status_code}")
+            error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+        elif response.status_code == 429:
+            await ctx.error(f"Got HTTP{response.status_code}")
+            error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
+        raise ToolError(error)
+            
+    return response.data
