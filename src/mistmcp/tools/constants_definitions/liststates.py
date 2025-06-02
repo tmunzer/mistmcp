@@ -40,7 +40,7 @@ def remove_tool():
     mcp.remove_tool("listStates")
 
 async def listStates(
-    country_code: Annotated[str, Field(description="""Country code, in [two-character](/#operations/listCountryCodes)""")],
+    country_code: Annotated[str, Field(description="""Country code, in `listCountryCodes`""")],
 ) -> dict:
     """Get List of ISO States based on country code"""
 

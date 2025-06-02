@@ -27,7 +27,7 @@ def add_tool():
     mcp.add_tool(
         fn=searchOrgWiredClients,
         name="searchOrgWiredClients",
-        description="""Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)""",
+        description="""Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions]($e/Constants%20Events/listClientEventsDefinitions)""",
         tags={"Orgs Clients - Wired"},
         annotations={
             "title": "searchOrgWiredClients",
@@ -42,6 +42,8 @@ def remove_tool():
 
 async def searchOrgWiredClients(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    auth_state: Annotated[Optional[str], Field(description="""Authentication state""")] | None = None,
+    auth_method: Annotated[Optional[str], Field(description="""Authentication method""")] | None = None,
     site_id: Annotated[Optional[str], Field(description="""Site ID""")] | None = None,
     device_mac: Annotated[Optional[str], Field(description="""Device mac (Gateway/Switch) where the client has connected to""")] | None = None,
     mac: Annotated[Optional[str], Field(description="""Partial / full MAC address""")] | None = None,
@@ -50,8 +52,6 @@ async def searchOrgWiredClients(
     ip_address: Optional[str] | None = None,
     manufacture: Annotated[Optional[str], Field(description="""Client manufacturer""")] | None = None,
     text: Annotated[Optional[str], Field(description="""Partial / full MAC address, hostname or username""")] | None = None,
-    auth_state: Annotated[Optional[str], Field(description="""authentication state""")] | None = None,
-    auth_method: Annotated[Optional[str], Field(description="""authentication method""")] | None = None,
     nacrule_id: Annotated[Optional[str], Field(description="""nacrule_id""")] | None = None,
     dhcp_hostname: Annotated[Optional[str], Field(description="""DHCP Hostname""")] | None = None,
     dhcp_fqdn: Annotated[Optional[str], Field(description="""DHCP FQDN""")] | None = None,
@@ -63,11 +63,13 @@ async def searchOrgWiredClients(
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
 ) -> dict:
-    """Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)"""
+    """Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions]($e/Constants%20Events/listClientEventsDefinitions)"""
 
     response = mistapi.api.v1.orgs.wired_clients.searchOrgWiredClients(
             apisession,
             org_id=str(org_id),
+            auth_state=auth_state,
+            auth_method=auth_method,
             site_id=site_id,
             device_mac=device_mac,
             mac=mac,
@@ -76,8 +78,6 @@ async def searchOrgWiredClients(
             ip_address=ip_address,
             manufacture=manufacture,
             text=text,
-            auth_state=auth_state,
-            auth_method=auth_method,
             nacrule_id=nacrule_id,
             dhcp_hostname=dhcp_hostname,
             dhcp_fqdn=dhcp_fqdn,

@@ -31,7 +31,7 @@ def add_tool():
     mcp.add_tool(
         fn=listSiteSleImpactedAps,
         name="listSiteSleImpactedAps",
-        description="""For Wireless SLEs. Listimpacted APs optionally filtered by classifier and failure type""",
+        description="""For Wireless SLEs. List the impacted APs optionally filtered by classifier and failure type""",
         tags={"Sites SLEs"},
         annotations={
             "title": "listSiteSleImpactedAps",
@@ -48,13 +48,13 @@ async def listSiteSleImpactedAps(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     scope: Scope,
     scope_id: Annotated[UUID, Field(description="""ID of the Mist Scope""")],
-    metric: Annotated[str, Field(description="""Values from /api/v1/sites/{site_id}/sle/{scope}/{scope_id}/metrics""")],
+    metric: Annotated[str, Field(description="""values from listSiteSlesMetrics""")],
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
     classifier: Optional[str] | None = None,
 ) -> dict:
-    """For Wireless SLEs. Listimpacted APs optionally filtered by classifier and failure type"""
+    """For Wireless SLEs. List the impacted APs optionally filtered by classifier and failure type"""
 
     response = mistapi.api.v1.sites.sle.listSiteSleImpactedAps(
             apisession,

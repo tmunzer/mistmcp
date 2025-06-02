@@ -51,7 +51,7 @@ async def countSiteDeviceEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     distinct: Distinct = Distinct.MODEL,
     model: Optional[str] | None = None,
-    type: Annotated[Optional[str], Field(description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")] | None = None,
     type_code: Optional[str] | None = None,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,

@@ -25,12 +25,12 @@ from uuid import UUID
 
 def add_tool():
     mcp.add_tool(
-        fn=getSiteInsightMetrics,
-        name="getSiteInsightMetrics",
-        description="""Get Site Insight MetricsSee metrics possibilities at [List Insight Metrics]($e/Constants%20Definitions/listInsightMetrics)""",
-        tags={"Sites Insights"},
+        fn=searchOrgSystemEvents,
+        name="searchOrgSystemEvents",
+        description="""Search Org System Events""",
+        tags={"Orgs Events"},
         annotations={
-            "title": "getSiteInsightMetrics",
+            "title": "searchOrgSystemEvents",
             "readOnlyHint": True,
             "destructiveHint": False,
             "openWorldHint": True
@@ -38,30 +38,24 @@ def add_tool():
     )
 
 def remove_tool():
-    mcp.remove_tool("getSiteInsightMetrics")
+    mcp.remove_tool("searchOrgSystemEvents")
 
-async def getSiteInsightMetrics(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    metric: Annotated[str, Field(description="""See `listInsightMetrics` for available metrics""")],
+async def searchOrgSystemEvents(
+    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
-    interval: Annotated[Optional[str], Field(description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.""")] | None = None,
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1,default=1)] = 1,
 ) -> dict:
-    """Get Site Insight MetricsSee metrics possibilities at [List Insight Metrics]($e/Constants%20Definitions/listInsightMetrics)"""
+    """Search Org System Events"""
 
-    response = mistapi.api.v1.sites.insights.getSiteInsightMetrics(
+    response = mistapi.api.v1.orgs.events.searchOrgSystemEvents(
             apisession,
-            site_id=str(site_id),
-            metric=metric,
+            org_id=str(org_id),
+            limit=limit,
             start=start,
             end=end,
             duration=duration,
-            interval=interval,
-            limit=limit,
-            page=page,
     )
     
     

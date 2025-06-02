@@ -10,7 +10,7 @@
 --------------------------------------------------------------------------------
 """
 
-from .constants_definitions import listalarmdefinitions, listapchannels, listapleddefinition, listappcategorydefinitions, listappsubcategorydefinitions, listapplications, listcountrycodes, listfingerprinttypes, listgatewayapplications, listinsightmetrics, listsitelanguages, listlicensetypes, listmarvisclientversions, liststates, listtraffictypes, listwebhooktopics
+from .constants_definitions import listalarmdefinitions, listapchannels, listapleslversions, listapleddefinition, listappcategorydefinitions, listappsubcategorydefinitions, listapplications, listcountrycodes, listfingerprinttypes, listgatewayapplications, listinsightmetrics, listsitelanguages, listlicensetypes, listmarvisclientversions, liststates, listtraffictypes, listwebhooktopics
 from .constants_events import listclienteventsdefinitions, listdeviceeventsdefinitions, listmxedgeeventsdefinitions, listnaceventsdefinitions, listotherdeviceeventsdefinitions, listsystemeventsdefinitions
 from .constants_models import getgatewaydefaultconfig, listdevicemodels, listmxedgemodels, listsupportedotherdevicemodels
 from .orgs import getorg, searchorgevents
@@ -24,6 +24,7 @@ from .orgs_licenses import getorglicenseasyncclaimstatus, getorglicensessummary,
 from .orgs_clients___wireless import countorgwirelessclients, searchorgwirelessclientevents, searchorgwirelessclients, countorgwirelessclientssessions, searchorgwirelessclientsessions
 from .orgs_device_profiles import listorgdeviceprofiles, getorgdeviceprofile
 from .orgs_devices import listorgdevices, countorgdevices, countorgdeviceevents, searchorgdeviceevents, countorgdevicelastconfigs, searchorgdevicelastconfigs, listorgapsmacs, searchorgdevices, listorgdevicessummary, getorgjuniperdevicescommand
+from .orgs_events import countorgsystemevents, searchorgsystemevents
 from .orgs_evpn_topologies import listorgevpntopologies, getorgevpntopology
 from .orgs_gateway_templates import listorggatewaytemplates, getorggatewaytemplate
 from .orgs_guests import listorgguestauthorizations, countorgguestauthorizations, searchorgguestauthorization, getorgguestauthorization
@@ -31,7 +32,7 @@ from .orgs_idp_profiles import listorgidpprofiles, getorgidpprofile
 from .orgs_sles import getorgsitessle, getorgsle
 from .orgs_inventory import getorginventory, countorginventory, searchorginventory
 from .orgs_logs import listorgauditlogs, countorgauditlogs
-from .orgs_clients___marvis import listorgmarvisclientinvites, getorgmarvisclientinvite
+from .orgs_marvis_invites import listorgmarvisclientinvites, getorgmarvisclientinvite
 from .orgs_mxclusters import listorgmxedgeclusters, getorgmxedgecluster
 from .orgs_mxedges import listorgmxedges, countorgmxedges, countorgsitemxedgeevents, searchorgmistedgeevents, searchorgmxedges, getorgmxedgeupgradeinfo, getorgmxedge
 from .orgs_mxtunnels import listorgmxtunnels, getorgmxtunnel
@@ -96,7 +97,7 @@ from .sites_insights import getsiteinsightmetricsforclient, getsiteinsightmetric
 from .orgs_nac_fingerprints import countorgclientfingerprints, searchorgclientfingerprints
 from .sites_rogues import listsiterogueaps, listsiterogueclients, countsiterogueevents, searchsiterogueevents, getsiterogueap
 from .sites_maps import listsitemaps, getsitemap
-from .sites_maps___auto_placement import getsiteapautoplacement
+from .sites_maps___auto_placement import getsiteapautoorientation, getsiteapautoplacement
 from .sites_maps___auto_zone import getsitemapautozonestatus
 from .sites_mxedges import listsitemxedges, countsitemxedgeevents, searchsitemistedgeevents, getsitemxedge
 from .sites_clients___nac import countsitenacclients, countsitenacclientevents, searchsitenacclientevents, searchsitenacclients
@@ -131,5 +132,5 @@ from .sites_webhooks import listsitewebhooks, getsitewebhook, countsitewebhooksd
 from .sites_clients___wired import countsitewiredclients, searchsitewiredclients
 from .sites_wlans import listsitewlans, listsitewlanderived, getsitewlan
 from .sites_wxrules import listsitewxrules, listsitewxrulesderived, getsitewxrule
-from .sites_wxtags import listsitewxtags, getsiteapplicationlist, getsitewxtag, getsitecurrentmatchingclientsofawxtag
+from .sites_wxtags import listsitewxtags, getsiteapplicationlist, getsitewxtag
 from .sites_wxtunnels import listsitewxtunnels, getsitewxtunnel

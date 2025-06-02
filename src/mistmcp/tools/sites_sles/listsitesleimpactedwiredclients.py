@@ -50,7 +50,7 @@ async def listSiteSleImpactedWiredClients(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     scope: Scope,
     scope_id: Annotated[UUID, Field(description="""ID of the Mist Scope""")],
-    metric: Annotated[str, Field(description="""Values from /api/v1/sites/{site_id}/sle/{scope}/{scope_id}/metrics""")],
+    metric: Annotated[str, Field(description="""values from listSiteSlesMetrics""")],
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",

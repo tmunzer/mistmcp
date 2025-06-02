@@ -15,9 +15,6 @@ from fastmcp.server.dependencies import get_context
 from fastmcp.exceptions import ToolError
 from mistmcp.__server import mcp
 from mistmcp.__mistapi import apisession
-from pydantic import Field
-from typing import Annotated, Optional
-from uuid import UUID
 
 
 
@@ -25,12 +22,12 @@ from uuid import UUID
 
 def add_tool():
     mcp.add_tool(
-        fn=getSiteInsightMetrics,
-        name="getSiteInsightMetrics",
-        description="""Get Site Insight MetricsSee metrics possibilities at [List Insight Metrics]($e/Constants%20Definitions/listInsightMetrics)""",
-        tags={"Sites Insights"},
+        fn=listApLEslVersions,
+        name="listApLEslVersions",
+        description="""Get Available AP ESL Versions""",
+        tags={"Constants Definitions"},
         annotations={
-            "title": "getSiteInsightMetrics",
+            "title": "listApLEslVersions",
             "readOnlyHint": True,
             "destructiveHint": False,
             "openWorldHint": True
@@ -38,30 +35,13 @@ def add_tool():
     )
 
 def remove_tool():
-    mcp.remove_tool("getSiteInsightMetrics")
+    mcp.remove_tool("listApLEslVersions")
 
-async def getSiteInsightMetrics(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    metric: Annotated[str, Field(description="""See `listInsightMetrics` for available metrics""")],
-    start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
-    end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
-    duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
-    interval: Annotated[Optional[str], Field(description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.""")] | None = None,
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1,default=1)] = 1,
-) -> dict:
-    """Get Site Insight MetricsSee metrics possibilities at [List Insight Metrics]($e/Constants%20Definitions/listInsightMetrics)"""
+async def listApLEslVersions() -> dict:
+    """Get Available AP ESL Versions"""
 
-    response = mistapi.api.v1.sites.insights.getSiteInsightMetrics(
+    response = mistapi.api.v1.const.ap_esl_versions.listApLEslVersions(
             apisession,
-            site_id=str(site_id),
-            metric=metric,
-            start=start,
-            end=end,
-            duration=duration,
-            interval=interval,
-            limit=limit,
-            page=page,
     )
     
     

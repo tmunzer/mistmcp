@@ -25,12 +25,12 @@ from uuid import UUID
 
 def add_tool():
     mcp.add_tool(
-        fn=getOrgMarvisClientInvite,
-        name="getOrgMarvisClientInvite",
-        description="""Get Org Marvis Client Invite""",
-        tags={"Orgs Clients - Marvis"},
+        fn=getSiteApAutoOrientation,
+        name="getSiteApAutoOrientation",
+        description="""This API is called to view the current status of auto orient for a given map.""",
+        tags={"Sites Maps - Auto-placement"},
         annotations={
-            "title": "getOrgMarvisClientInvite",
+            "title": "getSiteApAutoOrientation",
             "readOnlyHint": True,
             "destructiveHint": False,
             "openWorldHint": True
@@ -38,18 +38,18 @@ def add_tool():
     )
 
 def remove_tool():
-    mcp.remove_tool("getOrgMarvisClientInvite")
+    mcp.remove_tool("getSiteApAutoOrientation")
 
-async def getOrgMarvisClientInvite(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    marvisinvite_id: Annotated[UUID, Field(description="""ID of the Mist Marvisinvite""")],
+async def getSiteApAutoOrientation(
+    map_id: Annotated[UUID, Field(description="""ID of the Mist Map""")],
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
 ) -> dict:
-    """Get Org Marvis Client Invite"""
+    """This API is called to view the current status of auto orient for a given map."""
 
-    response = mistapi.api.v1.orgs.marvisinvites.getOrgMarvisClientInvite(
+    response = mistapi.api.v1.sites.maps.getSiteApAutoOrientation(
             apisession,
-            org_id=str(org_id),
-            marvisinvite_id=str(marvisinvite_id),
+            map_id=str(map_id),
+            site_id=str(site_id),
     )
     
     

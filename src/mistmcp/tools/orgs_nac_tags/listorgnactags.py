@@ -43,6 +43,7 @@ class Match(Enum):
     CERT_SUB = "cert_sub"
     CERT_TEMPLATE = "cert_template"
     CLIENT_MAC = "client_mac"
+    HOSTNAME = "hostname"
     IDP_ROLE = "idp_role"
     INGRESS_VLAN = "ingress_vlan"
     MDM_STATUS = "mdm_status"

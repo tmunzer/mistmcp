@@ -52,7 +52,7 @@ async def countSiteMxEdgeEvents(
     distinct: Distinct = Distinct.MXEDGE_ID,
     mxedge_id: Annotated[Optional[str], Field(description="""Mist edge id""")] | None = None,
     mxcluster_id: Annotated[Optional[str], Field(description="""Mist edge cluster id""")] | None = None,
-    type: Annotated[Optional[str], Field(description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")] | None = None,
     service: Annotated[Optional[str], Field(description="""Service running on mist edge(mxagent, tunterm etc)""")] | None = None,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,

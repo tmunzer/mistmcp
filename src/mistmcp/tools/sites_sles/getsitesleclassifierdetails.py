@@ -52,10 +52,10 @@ async def getSiteSleClassifierDetails(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     scope: Scope,
     scope_id: Annotated[str, Field(description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`""")],
-    metric: Annotated[str, Field(description="""Values from listSiteSlesMetrics""")],
-    classifier: Annotated[str, Field(description="""Values from listSiteSlesMetrics""")],
-    start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] ,
-    end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")]  ,
+    metric: Annotated[str, Field(description="""values from listSiteSlesMetrics""")],
+    classifier: Annotated[str, Field(description="""values from listSiteSlesMetrics""")],
+    start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
+    end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
 ) -> dict:
     """Get SLE classifier details"""

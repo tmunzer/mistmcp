@@ -154,13 +154,13 @@ class McpToolsCategory(Enum):
 @mcp.tool(
     name="manageMcpTools",
     description="Used to reconfigure the MCP server and define a different list of tools based on the use case (monitor, troubleshooting, ...). IMPORTANT: This tool requires user confirmation after execution before proceeding with other actions.",
-    tags={"MCP Configuration"},
-    annotations={
+    tags={{"MCP Configuration"}},
+    annotations={{
         "title": "manageMcpTools",
         "readOnlyHint": False,
         "destructiveHint": False,
         "openWorldHint": False 
-    }
+    }}
 )
 async def manageMcpTools(
     enable_mcp_tools_categories:Annotated[list[McpToolsCategory], Field(description=\"\"\"Enable tools within the MCP based on the tool category\"\"\")] = [],
@@ -180,58 +180,58 @@ Do not use it except if it explicitly requested by the user, and ask the user co
 
      # Disable requested tools based on categories
     for tool in disable_mcp_tools_categories:
-        await ctx.info(f"{tool.value} -> Trying to unload the category tools")
+        await ctx.info(f"{{tool.value}} -> Trying to unload the category tools")
         # Check if category exists in available tools
         if not TOOLS_AVAILABLE.get(tool.value):
-            await ctx.warning(f"{tool.value} -> Unknown category")
+            await ctx.warning(f"{{tool.value}} -> Unknown category")
             continue
             
         # Load each tool in the category
         for module_name in TOOLS_AVAILABLE[tool.value]["tools"]:
-            import_name = f"mistmcp.tools.{tool.value}.{module_name}"
-            await ctx.debug(f"{tool.value} -> Category available")
-            await ctx.debug(f"{tool.value}.{module_name} -> Unloading the tool")
+            import_name = f"mistmcp.tools.{{tool.value}}.{{module_name}}"
+            await ctx.debug(f"{{tool.value}} -> Category available")
+            await ctx.debug(f"{{tool.value}}.{{module_name}} -> Unloading the tool")
             try:
                 # Import the module containing the tool
-                module = importlib.import_module(f"mistmcp.tools.{tool.value}")
-                await ctx.info(f"{import_name} -> module loaded")
+                module = importlib.import_module(f"mistmcp.tools.{{tool.value}}")
+                await ctx.info(f"{{import_name}} -> module loaded")
                 
                 # Add the tool to MCP server
                 getattr(module, module_name).remove_tool()
-                await ctx.info(f"{import_name} -> \"remove_tool()\" function triggered")
+                await ctx.info(f"{{module_name}} -> \\"remove_tool()\\" function triggered")
                 tools_disabled.append(module_name)
                 
             except (ImportError, AttributeError) as e:
                 # Handle errors during tool loading
-                await ctx.error(f"{import_name} -> failed to load the tool: {str(e)}")
+                await ctx.error(f"{{import_name}} -> failed to load the tool: {{str(e)}}")
                 continue
     
     # Enable requested tools based on categories
     for tool in enable_mcp_tools_categories:
-        await ctx.info(f"{tool.value} -> Trying to load the category tools")
+        await ctx.info(f"{{tool.value}} -> Trying to load the category tools")
         # Check if category exists in available tools
         if not TOOLS_AVAILABLE.get(tool.value):
-            await ctx.warning(f"{tool.value} -> Unknown category")
+            await ctx.warning(f"{{tool.value}} -> Unknown category")
             continue
             
         # Load each tool in the category
         for module_name in TOOLS_AVAILABLE[tool.value]["tools"]:
-            import_name = f"mistmcp.tools.{tool.value}.{module_name}"
-            await ctx.debug(f"{tool.value} -> Category available")
-            await ctx.debug(f"{tool.value}.{module_name} -> Loading the tool")
+            import_name = f"mistmcp.tools.{{tool.value}}.{{module_name}}"
+            await ctx.debug(f"{{tool.value}} -> Category available")
+            await ctx.debug(f"{{tool.value}}.{{module_name}} -> Loading the tool")
             try:
                 # Import the module containing the tool
-                module = importlib.import_module(f"mistmcp.tools.{tool.value}")
-                await ctx.info(f"{import_name} -> module loaded")
+                module = importlib.import_module(f"mistmcp.tools.{{tool.value}}")
+                await ctx.info(f"{{import_name}} -> module loaded")
                 
                 # Add the tool to MCP server
                 getattr(module, module_name).add_tool()
-                await ctx.info(f"{import_name} -> \"add_tool()\" function triggered")
+                await ctx.info(f"{{module_name}} -> \\"add_tool()\\" function triggered")
                 tools_enabled.append(module_name)
                 
             except (ImportError, AttributeError) as e:
                 # Handle errors during tool loading
-                await ctx.error(f"{import_name} -> failed to load the tool: {str(e)}")
+                await ctx.error(f"{{import_name}} -> failed to load the tool: {{str(e)}}")
                 continue
 
     # Add a small delay to ensure tools are registered with server
@@ -242,8 +242,8 @@ Do not use it except if it explicitly requested by the user, and ask the user co
     message = f\"\"\"
 🔧 MCP TOOLS CONFIGURATION COMPLETE 🔧
 
-Tools enabled: {', '.join(tools_enabled) if tools_enabled else 'None'}
-Tools disabled: {', '.join(tools_disabled) if tools_disabled else 'None'}
+Tools enabled: {{', '.join(tools_enabled) if tools_enabled else 'None'}}
+Tools disabled: {{', '.join(tools_disabled) if tools_disabled else 'None'}}
 
 ⚠️  IMPORTANT: STOP PROCESSING AND CONFIRM ⚠️
 
@@ -256,7 +256,7 @@ Do you want to proceed? (yes/no)
     # Return a message that forces the agent to stop and ask for confirmation
     return f\"\"\"⚠️ STOP: USER CONFIRMATION REQUIRED ⚠️
 
-{message}
+{{message}}
 
 This tool has completed its configuration. The agent MUST stop here and ask the user for explicit confirmation before proceeding with any other actions.
 
@@ -304,8 +304,6 @@ from mistmcp.__mistapi import apisession
 {enums}
 
 def add_tool():
-    ctx = get_context()
-    await ctx.info(f"{import_name} -> \"add_tool()\" function triggered")
     mcp.add_tool(
         fn={operationId},
         name="{operationId}",
@@ -320,8 +318,6 @@ def add_tool():
     )
 
 def remove_tool():
-    ctx = get_context()
-    await ctx.info(f"{import_name} -> \"remove_tool()\" function triggered")
     mcp.remove_tool("{operationId}")
 
 async def {operationId}({parameters}) -> dict:
@@ -441,11 +437,11 @@ def _process_params(endpoint_params: list, imports:dict, models:str, enums:str, 
             _add_import(imports, "pydantic", "Field")
             _add_import(imports, "typing", "Annotated")
             description = tmp_param["description"]
-            r = r"\[.*\]\(/#.*/([^\)]*)\)"
-            r_tmp = re.match(r, description)
+            r = r"\[.*\]\(\$e/.*/([^\)]*)\)"
+            r_tmp = re.findall(r, description)
             if r_tmp:
                 description = re.sub(r, f"`{r_tmp[0]}`", description)
-            annotations.append(f"description=\"\"\"{tmp_param['description'].replace('"', '\'').replace("\n", " ")}\"\"\"")
+            annotations.append(f"description=\"\"\"{description.replace('"', '\'').replace("\n", " ")}\"\"\"")
         elif tmp_param['name'].endswith("_id"):
             _add_import(imports, "pydantic", "Field")
             _add_import(imports, "typing", "Annotated")

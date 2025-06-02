@@ -25,12 +25,12 @@ from uuid import UUID
 
 def add_tool():
     mcp.add_tool(
-        fn=listOrgMarvisClientInvites,
-        name="listOrgMarvisClientInvites",
-        description="""List Org Marvis Client Invites""",
-        tags={"Orgs Clients - Marvis"},
+        fn=getOrgMarvisClientInvite,
+        name="getOrgMarvisClientInvite",
+        description="""Get Org Marvis Client Invite""",
+        tags={"Orgs Marvis Invites"},
         annotations={
-            "title": "listOrgMarvisClientInvites",
+            "title": "getOrgMarvisClientInvite",
             "readOnlyHint": True,
             "destructiveHint": False,
             "openWorldHint": True
@@ -38,16 +38,18 @@ def add_tool():
     )
 
 def remove_tool():
-    mcp.remove_tool("listOrgMarvisClientInvites")
+    mcp.remove_tool("getOrgMarvisClientInvite")
 
-async def listOrgMarvisClientInvites(
+async def getOrgMarvisClientInvite(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    marvisinvite_id: Annotated[UUID, Field(description="""ID of the Mist Marvisinvite""")],
 ) -> dict:
-    """List Org Marvis Client Invites"""
+    """Get Org Marvis Client Invite"""
 
-    response = mistapi.api.v1.orgs.marvisinvites.listOrgMarvisClientInvites(
+    response = mistapi.api.v1.orgs.marvisinvites.getOrgMarvisClientInvite(
             apisession,
             org_id=str(org_id),
+            marvisinvite_id=str(marvisinvite_id),
     )
     
     

@@ -52,7 +52,7 @@ async def listSiteSleMetricClassifiers(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     scope: Scope,
     scope_id: Annotated[str, Field(description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`""")],
-    metric: Annotated[str, Field(description="""Values from /api/v1/sites/{site_id}/sle/{scope}/{scope_id}/metrics""")],
+    metric: Annotated[str, Field(description="""values from listSiteSlesMetrics""")],
 ) -> dict:
     """List classifiers for a specific metric"""
 

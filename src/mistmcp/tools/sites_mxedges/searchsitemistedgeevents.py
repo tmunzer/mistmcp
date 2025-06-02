@@ -44,7 +44,7 @@ async def searchSiteMistEdgeEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     mxedge_id: Annotated[Optional[str], Field(description="""Mist edge id""")] | None = None,
     mxcluster_id: Annotated[Optional[str], Field(description="""Mist edge cluster id""")] | None = None,
-    type: Annotated[Optional[str], Field(description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")] | None = None,
     service: Annotated[Optional[str], Field(description="""Service running on mist edge(mxagent, tunterm etc)""")] | None = None,
     component: Annotated[Optional[str], Field(description="""Component like PS1, PS2""")] | None = None,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,

@@ -25,12 +25,12 @@ from uuid import UUID
 
 def add_tool():
     mcp.add_tool(
-        fn=getSiteCurrentMatchingClientsOfAWxTag,
-        name="getSiteCurrentMatchingClientsOfAWxTag",
-        description="""Get Current Matching Clients of a WXLAN Tag""",
-        tags={"Sites WxTags"},
+        fn=listOrgMarvisClientInvites,
+        name="listOrgMarvisClientInvites",
+        description="""List Org Marvis Client Invites""",
+        tags={"Orgs Marvis Invites"},
         annotations={
-            "title": "getSiteCurrentMatchingClientsOfAWxTag",
+            "title": "listOrgMarvisClientInvites",
             "readOnlyHint": True,
             "destructiveHint": False,
             "openWorldHint": True
@@ -38,18 +38,16 @@ def add_tool():
     )
 
 def remove_tool():
-    mcp.remove_tool("getSiteCurrentMatchingClientsOfAWxTag")
+    mcp.remove_tool("listOrgMarvisClientInvites")
 
-async def getSiteCurrentMatchingClientsOfAWxTag(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    wxtag_id: Annotated[UUID, Field(description="""ID of the Mist Wxtag""")],
+async def listOrgMarvisClientInvites(
+    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
 ) -> dict:
-    """Get Current Matching Clients of a WXLAN Tag"""
+    """List Org Marvis Client Invites"""
 
-    response = mistapi.api.v1.sites.wxtags.getSiteCurrentMatchingClientsOfAWxTag(
+    response = mistapi.api.v1.orgs.marvisinvites.listOrgMarvisClientInvites(
             apisession,
-            site_id=str(site_id),
-            wxtag_id=str(wxtag_id),
+            org_id=str(org_id),
     )
     
     

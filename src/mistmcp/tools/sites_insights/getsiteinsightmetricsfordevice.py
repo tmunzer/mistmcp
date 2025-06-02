@@ -27,7 +27,7 @@ def add_tool():
     mcp.add_tool(
         fn=getSiteInsightMetricsForDevice,
         name="getSiteInsightMetricsForDevice",
-        description="""Get AP Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)""",
+        description="""Get AP Insight MetricsSee metrics possibilities at [List Insight Metrics]($e/Constants%20Definitions/listInsightMetrics)""",
         tags={"Sites Insights"},
         annotations={
             "title": "getSiteInsightMetricsForDevice",
@@ -42,7 +42,7 @@ def remove_tool():
 
 async def getSiteInsightMetricsForDevice(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    metric: Annotated[str, Field(description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics""")],
+    metric: Annotated[str, Field(description="""See `listInsightMetrics` for available metrics""")],
     device_mac: str,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
@@ -51,7 +51,7 @@ async def getSiteInsightMetricsForDevice(
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1,default=1)] = 1,
 ) -> dict:
-    """Get AP Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)"""
+    """Get AP Insight MetricsSee metrics possibilities at [List Insight Metrics]($e/Constants%20Definitions/listInsightMetrics)"""
 
     response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForDevice(
             apisession,

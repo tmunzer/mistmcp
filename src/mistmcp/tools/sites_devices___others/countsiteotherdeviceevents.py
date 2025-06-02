@@ -50,7 +50,7 @@ def remove_tool():
 async def countSiteOtherDeviceEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     distinct: Distinct = Distinct.MAC,
-    type: Annotated[Optional[str], Field(description="""See  [List Device Events Definitions](/#operations/listOtherDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See  `listOtherDeviceEventsDefinitions`""")] | None = None,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",

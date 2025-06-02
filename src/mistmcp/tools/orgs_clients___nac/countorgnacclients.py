@@ -60,7 +60,7 @@ async def countOrgNacClients(
     distinct: Annotated[Distinct, Field(description="""NAC Policy Rule ID, if matched""")] = Distinct.TYPE,
     last_nacrule_id: Annotated[Optional[str], Field(description="""NAC Policy Rule ID, if matched""")] | None = None,
     nacrule_matched: Annotated[Optional[bool], Field(description="""NAC Policy Rule Matched""")] | None = None,
-    auth_type: Annotated[Optional[str], Field(description="""Authentication type, e.g. 'eap-tls', 'peap-tls', 'eap-ttls', 'eap-teap', 'mab', 'psk', 'device-auth'""")] | None = None,
+    auth_type: Annotated[Optional[str], Field(description="""Authentication type, e.g. 'eap-tls', 'eap-peap', 'eap-ttls', 'eap-teap', 'mab', 'psk', 'device-auth'""")] | None = None,
     last_vlan_id: Annotated[Optional[str], Field(description="""Vlan ID""")] | None = None,
     last_nas_vendor: Annotated[Optional[str], Field(description="""Vendor of NAS device""")] | None = None,
     idp_id: Annotated[Optional[str], Field(description="""SSO ID, if present and used""")] | None = None,

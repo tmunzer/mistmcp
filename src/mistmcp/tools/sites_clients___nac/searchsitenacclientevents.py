@@ -42,12 +42,12 @@ def remove_tool():
 
 async def searchSiteNacClientEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Annotated[Optional[str], Field(description="""See [List Device Events Definitions](/#operations/listNacEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See `listNacEventsDefinitions`""")] | None = None,
     nacrule_id: Annotated[Optional[UUID], Field(description="""NAC Policy Rule ID, if matched""")] | None = None,
     nacrule_matched: Annotated[Optional[bool], Field(description="""NAC Policy Rule Matched""")] | None = None,
     dryrun_nacrule_id: Annotated[Optional[str], Field(description="""NAC Policy Dry Run Rule ID, if present and matched""")] | None = None,
     dryrun_nacrule_matched: Annotated[Optional[bool], Field(description="""True - if dryrun rule present and matched with priority, False - if not matched or not present""")] | None = None,
-    auth_type: Annotated[Optional[str], Field(description="""Authentication type, e.g. 'eap-tls', 'peap-tls', 'eap-ttls', 'eap-teap', 'mab', 'psk', 'device-auth'""")] | None = None,
+    auth_type: Annotated[Optional[str], Field(description="""Authentication type, e.g. 'eap-tls', 'eap-peap', 'eap-ttls', 'eap-teap', 'mab', 'psk', 'device-auth'""")] | None = None,
     vlan: Annotated[Optional[int], Field(description="""Vlan ID""")] | None = None,
     nas_vendor: Annotated[Optional[str], Field(description="""Vendor of NAS device""")] | None = None,
     bssid: Annotated[Optional[str], Field(description="""BSSID""")] | None = None,

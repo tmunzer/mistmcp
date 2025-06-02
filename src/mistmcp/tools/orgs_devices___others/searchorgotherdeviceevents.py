@@ -47,7 +47,7 @@ async def searchOrgOtherDeviceEvents(
     device_mac: Annotated[Optional[str], Field(description="""MAC of attached device""")] | None = None,
     model: Annotated[Optional[str], Field(description="""Device model""")] | None = None,
     vendor: Annotated[Optional[str], Field(description="""Vendor name""")] | None = None,
-    type: Annotated[Optional[str], Field(description="""See  [List Device Events Definitions](/#operations/listOtherDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See  `listOtherDeviceEventsDefinitions`""")] | None = None,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",

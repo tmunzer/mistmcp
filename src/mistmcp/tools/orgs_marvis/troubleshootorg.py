@@ -34,7 +34,7 @@ def add_tool():
     mcp.add_tool(
         fn=troubleshootOrg,
         name="troubleshootOrg",
-        description="""Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license""",
+        description="""Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device]($e/Orgs%20Devices/searchOrgDevices)- [search Wireless Client]($e/Orgs%20Clients%20-%20Wireless/searchOrgWirelessClients)- [search Wired Client]($e/Orgs%20Clients%20-%20Wired/searchOrgWiredClients)- [search Wan Client]($e/Orgs%20Clients%20-%20Wan/searchOrgWanClients)**NOTE**: requires Marvis subscription license""",
         tags={"Orgs Marvis"},
         annotations={
             "title": "troubleshootOrg",
@@ -55,7 +55,7 @@ async def troubleshootOrg(
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     type: Annotated[Type, Field(description="""When troubleshooting site, type of network to troubleshoot""")] = Type.NONE,
 ) -> dict:
-    """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license"""
+    """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device]($e/Orgs%20Devices/searchOrgDevices)- [search Wireless Client]($e/Orgs%20Clients%20-%20Wireless/searchOrgWirelessClients)- [search Wired Client]($e/Orgs%20Clients%20-%20Wired/searchOrgWiredClients)- [search Wan Client]($e/Orgs%20Clients%20-%20Wan/searchOrgWanClients)**NOTE**: requires Marvis subscription license"""
 
     response = mistapi.api.v1.orgs.troubleshoot.troubleshootOrg(
             apisession,

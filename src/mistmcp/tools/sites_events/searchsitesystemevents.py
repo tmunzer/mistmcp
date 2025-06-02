@@ -27,7 +27,7 @@ def add_tool():
     mcp.add_tool(
         fn=searchSiteSystemEvents,
         name="searchSiteSystemEvents",
-        description="""Search System Events""",
+        description="""Search Site System Events""",
         tags={"Sites Events"},
         annotations={
             "title": "searchSiteSystemEvents",
@@ -42,13 +42,13 @@ def remove_tool():
 
 async def searchSiteSystemEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Annotated[Optional[str], Field(description="""See  [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See  `listDeviceEventsDefinitions`""")] | None = None,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
 ) -> dict:
-    """Search System Events"""
+    """Search Site System Events"""
 
     response = mistapi.api.v1.sites.events.searchSiteSystemEvents(
             apisession,

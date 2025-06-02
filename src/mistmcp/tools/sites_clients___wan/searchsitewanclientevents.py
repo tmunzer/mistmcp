@@ -42,7 +42,7 @@ def remove_tool():
 
 async def searchSiteWanClientEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Annotated[Optional[str], Field(description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")] | None = None,
     mac: Annotated[Optional[str], Field(description="""Partial / full MAC address""")] | None = None,
     hostname: Annotated[Optional[str], Field(description="""Partial / full hostname""")] | None = None,
     ip: Annotated[Optional[str], Field(description="""Client IP""")] | None = None,

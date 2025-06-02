@@ -42,7 +42,7 @@ def remove_tool():
 
 async def listSiteAnomalyEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    metric: Annotated[str, Field(description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics""")],
+    metric: Annotated[str, Field(description="""See `listInsightMetrics` for available metrics""")],
 ) -> dict:
     """List Site Anomaly Events"""
 

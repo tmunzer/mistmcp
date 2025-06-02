@@ -43,7 +43,7 @@ def remove_tool():
 async def getSiteAnomalyEventsForClient(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     client_mac: str,
-    metric: Annotated[str, Field(description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics""")],
+    metric: Annotated[str, Field(description="""See `listInsightMetrics` for available metrics""")],
 ) -> dict:
     """Get Client Anomaly Events"""
 

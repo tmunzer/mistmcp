@@ -16,7 +16,7 @@ from fastmcp.exceptions import ToolError
 from mistmcp.__server import mcp
 from mistmcp.__mistapi import apisession
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 
@@ -42,12 +42,14 @@ def remove_tool():
 
 async def getOrg128TRegistrationCommands(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    ttl: Annotated[Optional[int], Field(description="""duration for the token to stay valid. 1 - 365 in days, default is 365""")] | None = None,
 ) -> dict:
     """128T devices can be managed/adopted by Mist."""
 
     response = mistapi.api.v1.orgs.ssr.getOrg128TRegistrationCommands(
             apisession,
             org_id=str(org_id),
+            ttl=ttl,
     )
     
     

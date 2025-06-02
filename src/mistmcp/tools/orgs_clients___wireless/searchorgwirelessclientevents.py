@@ -58,7 +58,7 @@ def remove_tool():
 
 async def searchOrgWirelessClientEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Annotated[Optional[str], Field(description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")] | None = None,
     reason_code: Annotated[Optional[int], Field(description="""For assoc/disassoc events""")] | None = None,
     ssid: Annotated[Optional[str], Field(description="""SSID Name""")] | None = None,
     ap: Annotated[Optional[str], Field(description="""AP MAC""")] | None = None,

@@ -42,8 +42,8 @@ def remove_tool():
 
 async def getOrgSle(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    metric: Annotated[str, Field(description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics""")],
-    sle: Annotated[Optional[str], Field(description="""See [List Insight Metrics](/#operations/listInsightMetrics) for more details""")] | None = None,
+    metric: Annotated[str, Field(description="""See `listInsightMetrics` for available metrics""")],
+    sle: Annotated[Optional[str], Field(description="""See `listInsightMetrics` for more details""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
     interval: Annotated[Optional[str], Field(description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.""")] | None = None,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,

@@ -27,7 +27,7 @@ def add_tool():
     mcp.add_tool(
         fn=getSiteInsightMetricsForClient,
         name="getSiteInsightMetricsForClient",
-        description="""Get Client Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)""",
+        description="""Get Client Insight MetricsSee metrics possibilities at [List Insight Metrics]($e/Constants%20Definitions/listInsightMetrics)""",
         tags={"Sites Insights"},
         annotations={
             "title": "getSiteInsightMetricsForClient",
@@ -43,7 +43,7 @@ def remove_tool():
 async def getSiteInsightMetricsForClient(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     client_mac: str,
-    metric: Annotated[str, Field(description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics""")],
+    metric: Annotated[str, Field(description="""See `listInsightMetrics` for available metrics""")],
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
@@ -51,7 +51,7 @@ async def getSiteInsightMetricsForClient(
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1,default=1)] = 1,
 ) -> dict:
-    """Get Client Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)"""
+    """Get Client Insight MetricsSee metrics possibilities at [List Insight Metrics]($e/Constants%20Definitions/listInsightMetrics)"""
 
     response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForClient(
             apisession,

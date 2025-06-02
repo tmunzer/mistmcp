@@ -54,7 +54,7 @@ async def searchOrgDeviceEvents(
     device_type: Device_type = Device_type.AP,
     text: Annotated[Optional[str], Field(description="""Event message""")] | None = None,
     timestamp: Annotated[Optional[str], Field(description="""Event time""")] | None = None,
-    type: Annotated[Optional[str], Field(description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")] | None = None,
     last_by: Annotated[Optional[str], Field(description="""Return last/recent event for passed in field""")] | None = None,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,

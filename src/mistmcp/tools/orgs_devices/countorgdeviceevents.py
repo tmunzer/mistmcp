@@ -60,7 +60,7 @@ async def countOrgDeviceEvents(
     model: Annotated[Optional[str], Field(description="""Device model""")] | None = None,
     text: Annotated[Optional[str], Field(description="""Event message""")] | None = None,
     timestamp: Annotated[Optional[str], Field(description="""Event time""")] | None = None,
-    type: Annotated[Optional[str], Field(description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)""")] | None = None,
+    type: Annotated[Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")] | None = None,
     start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
     end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",

@@ -36,7 +36,7 @@ def add_tool():
     mcp.add_tool(
         fn=countOrgWiredClients,
         name="countOrgWiredClients",
-        description="""Count by Distinct Attributes of ClientsNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)""",
+        description="""Count by Distinct Attributes of ClientsNote: For list of available `type` values, please refer to [List Client Events Definitions]($e/Constants%20Events/listClientEventsDefinitions)""",
         tags={"Orgs Clients - Wired"},
         annotations={
             "title": "countOrgWiredClients",
@@ -57,7 +57,7 @@ async def countOrgWiredClients(
     duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
-    """Count by Distinct Attributes of ClientsNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)"""
+    """Count by Distinct Attributes of ClientsNote: For list of available `type` values, please refer to [List Client Events Definitions]($e/Constants%20Events/listClientEventsDefinitions)"""
 
     response = mistapi.api.v1.orgs.wired_clients.countOrgWiredClients(
             apisession,
