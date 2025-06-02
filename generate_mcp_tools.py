@@ -145,11 +145,13 @@ with importlib.resources.path("mistmcp", "tools.json") as json_path:
     with json_path.open() as json_file:
         TOOLS_AVAILABLE = json.load(json_file)
 
-TOOL_REMOVE_FCT = {{}}
-
 class McpToolsCategory(Enum):
 {enums}
 
+
+def snake_case(s: str) -> str:
+    \"\"\"Convert a string to snake_case format.\"\"\"
+    return s.lower().replace(" ", "_").replace("-", "_")
 
 @mcp.tool(
     name="manageMcpTools",
@@ -164,7 +166,6 @@ class McpToolsCategory(Enum):
 )
 async def manageMcpTools(
     enable_mcp_tools_categories:Annotated[list[McpToolsCategory], Field(description=\"\"\"Enable tools within the MCP based on the tool category\"\"\")] = [],
-    disable_mcp_tools_categories:Annotated[list[McpToolsCategory], Field(description=\"\"\"Disable tools within the MCP based on the tool category\"\"\")] = [],
     configuration_required:Annotated[Optional[bool], Field(description=\"\"\"
 This is to request the 'write' API endpoints, used to create or configure resources in the Mist Cloud. 
 Do not use it except if it explicitly requested by the user, and ask the user confirmation before using any 'write' tool!
@@ -172,88 +173,80 @@ Do not use it except if it explicitly requested by the user, and ask the user co
 )]=False,
 ) -> str:
     \"\"\"Select the list of tools provided by the MCP server\"\"\"
-    
-    # Get the MCP server context
+
+    # List of tools that should always be enabled
+    tools_enabled = ["manageMcpTools", "getSelf"]
+
+    # Get the MCP server context for logging and management
     ctx = get_context()
-    tools_enabled = []
-    tools_disabled = []
 
-     # Disable requested tools based on categories
-    for tool in disable_mcp_tools_categories:
-        await ctx.info(f"{{tool.value}} -> Trying to unload the category tools")
-        # Check if category exists in available tools
-        if not TOOLS_AVAILABLE.get(tool.value):
-            await ctx.warning(f"{{tool.value}} -> Unknown category")
+    # Get current list of registered tools
+    mcp_tools = await mcp.get_tools()
+
+    # ===== UNREGISTER TOOLS =====
+    await ctx.info(" UNREGISTERING TOOLS ".center(60, "="))
+    # Iterate through all currently registered tools
+    for _, mcp_tool in mcp_tools.items():
+        tool_name = mcp_tool.name
+        await ctx.info(f"{{tool_name}} -> checking if must be unregistered")
+        # Keep default tools, unregister everything else
+        if tool_name in tools_enabled:
+            await ctx.info(f"{{tool_name}} -> part if the default list. keeping it...")
             continue
-            
-        # Load each tool in the category
-        for module_name in TOOLS_AVAILABLE[tool.value]["tools"]:
-            import_name = f"mistmcp.tools.{{tool.value}}.{{module_name}}"
-            await ctx.debug(f"{{tool.value}} -> Category available")
-            await ctx.debug(f"{{tool.value}}.{{module_name}} -> Unloading the tool")
-            try:
-                # Import the module containing the tool
-                module = importlib.import_module(f"mistmcp.tools.{{tool.value}}")
-                await ctx.info(f"{{import_name}} -> module loaded")
-                
-                # Add the tool to MCP server
-                getattr(module, module_name).remove_tool()
-                await ctx.info(f"{{module_name}} -> \\"remove_tool()\\" function triggered")
-                tools_disabled.append(module_name)
-                
-            except (ImportError, AttributeError) as e:
-                # Handle errors during tool loading
-                await ctx.error(f"{{import_name}} -> failed to load the tool: {{str(e)}}")
-                continue
-    
-    # Enable requested tools based on categories
-    for tool in enable_mcp_tools_categories:
-        await ctx.info(f"{{tool.value}} -> Trying to load the category tools")
-        # Check if category exists in available tools
-        if not TOOLS_AVAILABLE.get(tool.value):
-            await ctx.warning(f"{{tool.value}} -> Unknown category")
+        else:
+            await ctx.debug(f"{{tool_name}} -> Unregistering the tool")
+            mcp.remove_tool(mcp_tool.name)
+            await ctx.info(f"{{tool_name}} -> `remove_tool()` function triggered")
+
+    # ===== REGISTER NEW TOOLS =====
+    await ctx.info(" REGISTERING TOOLS ".center(60, "="))
+    # Process each requested category
+    for category in enable_mcp_tools_categories:
+        await ctx.info(f" Processing {{category.value}} category".rjust(60, "-"))
+        await ctx.info(f"{{category.value}} -> enabling category")
+
+        # Verify category exists in available tools
+        if not TOOLS_AVAILABLE.get(category.value):
+            await ctx.warning(f"{{category.value}} -> Unknown category")
             continue
-            
-        # Load each tool in the category
-        for module_name in TOOLS_AVAILABLE[tool.value]["tools"]:
-            import_name = f"mistmcp.tools.{{tool.value}}.{{module_name}}"
-            await ctx.debug(f"{{tool.value}} -> Category available")
-            await ctx.debug(f"{{tool.value}}.{{module_name}} -> Loading the tool")
+
+        # Process each tool in the category
+        for tool in TOOLS_AVAILABLE[category.value]["tools"]:
+            import_name = f"mistmcp.tools.{{category.value}}.{{snake_case(tool)}}"
+            await ctx.debug(f"{{import_name}} -> Registering the tool")
             try:
-                # Import the module containing the tool
-                module = importlib.import_module(f"mistmcp.tools.{{tool.value}}")
+                # Dynamically import the module containing the tool
+                module = importlib.import_module(f"mistmcp.tools.{{category.value}}")
                 await ctx.info(f"{{import_name}} -> module loaded")
-                
-                # Add the tool to MCP server
-                getattr(module, module_name).add_tool()
-                await ctx.info(f"{{module_name}} -> \\"add_tool()\\" function triggered")
-                tools_enabled.append(module_name)
-                
+
+                # Register the tool with MCP
+                getattr(module, snake_case(tool)).add_tool()
+                await ctx.info(f"{{tool}} -> `add_tool()` function triggered")
+                tools_enabled.append(tool)
+
             except (ImportError, AttributeError) as e:
-                # Handle errors during tool loading
                 await ctx.error(f"{{import_name}} -> failed to load the tool: {{str(e)}}")
                 continue
 
-    # Add a small delay to ensure tools are registered with server
+    # Get final list of registered tools
+    mcp_tools = await mcp.get_tools()
+
+    # Add delays to ensure proper tool registration
     await asyncio.sleep(.5)
+    # Notify server that tool list has changed
     await ctx.session.send_tool_list_changed()
     await asyncio.sleep(.5)
-    # Log final list of enabled tools
+
+    # Create completion message
     message = f\"\"\"
 🔧 MCP TOOLS CONFIGURATION COMPLETE 🔧
 
-Tools enabled: {{', '.join(tools_enabled) if tools_enabled else 'None'}}
-Tools disabled: {{', '.join(tools_disabled) if tools_disabled else 'None'}}
+Tools enabled: {{", ".join(tools_enabled)}}
 
-⚠️  IMPORTANT: STOP PROCESSING AND CONFIRM ⚠️
-
-The MCP server tool configuration has been updated. Before proceeding with any further actions, please confirm that you want to continue with this new tool configuration.
-
-Do you want to proceed? (yes/no)
 \"\"\"
     await ctx.info(message)
-    
-    # Return a message that forces the agent to stop and ask for confirmation
+
+    # Return message requiring user confirmation before continuing
     return f\"\"\"⚠️ STOP: USER CONFIRMATION REQUIRED ⚠️
 
 {{message}}
@@ -673,7 +666,7 @@ def main():
                 root_functions[snake_case(snake_case(tag))].append(f"{snake_case(operation_id)}.add_tool()")
                 root_functions[snake_case(snake_case(tag))].append(f"TOOL_REMOVE_FCT.append({snake_case(operation_id)}.remove_tool)")
                 ## root_tag_defs
-                root_tag_defs[snake_case(snake_case(tag))]["tools"].append(snake_case(operation_id))
+                root_tag_defs[snake_case(snake_case(tag))]["tools"].append(operation_id)
 
     print("Generated tools grouped by tag:")
     for tag, files in tag_to_tools.items():
@@ -695,7 +688,6 @@ def main():
     with open(TOOLS_CONFIG_FILE, "w") as f:
         f.write(TOOLS_CONFIG_TEMPLATE.format(
                 enums="\n".join(root_enums),
-                root_tag_defs=json.dumps(root_tag_defs)
             ))
     
 if __name__ == "__main__":

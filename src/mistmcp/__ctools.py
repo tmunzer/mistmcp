@@ -25,8 +25,6 @@ with importlib.resources.path("mistmcp", "tools.json") as json_path:
     with json_path.open() as json_file:
         TOOLS_AVAILABLE = json.load(json_file)
 
-TOOLS_ENABLED = {}
-
 class McpToolsCategory(Enum):
     CONSTANTS_DEFINITIONS = "constants_definitions"
     CONSTANTS_EVENTS = "constants_events"
@@ -154,6 +152,10 @@ class McpToolsCategory(Enum):
     SITES_WXTUNNELS = "sites_wxtunnels"
 
 
+def snake_case(s: str) -> str:
+    """Convert a string to snake_case format."""
+    return s.lower().replace(" ", "_").replace("-", "_")
+
 @mcp.tool(
     name="manageMcpTools",
     description="Used to reconfigure the MCP server and define a different list of tools based on the use case (monitor, troubleshooting, ...). IMPORTANT: This tool requires user confirmation after execution before proceeding with other actions.",
@@ -174,94 +176,80 @@ Do not use it except if it explicitly requested by the user, and ask the user co
 )]=False,
 ) -> str:
     """Select the list of tools provided by the MCP server"""
-    global TOOLS_ENABLED
-    # Get the MCP server context
-    ctx = get_context()
-    tools_enabled = TOOLS_ENABLED
 
-     # Disable requested tools based on categories
-    for category in disable_mcp_tools_categories:
-        await ctx.info(f"{category.value} -> disabling category")
-        if not tools_enabled.get(category.value):
-            await ctx.warning(f"{category.value} -> not enabled")
-            
-            await ctx.info(f"{category.value} -> Trying to unload the category tools")
-            # Check if category exists in available tools
-            if not TOOLS_AVAILABLE.get(category.value):
-                await ctx.warning(f"{category.value} -> Unknown category")
-                continue
-                
-            # Load each tool in the category
-            for tool in TOOLS_AVAILABLE[category.value]["tools"]:
-                import_name = f"mistmcp.tools.{category.value}.{tool}"
-                await ctx.debug(f"{category.value} -> Category available")
-                await ctx.debug(f"{category.value}.{tool} -> Unloading the tool")
-                try:
-                    # Import the module containing the tool
-                    module = importlib.import_module(f"mistmcp.tools.{category.value}")
-                    await ctx.info(f"{import_name} -> module loaded")
-                    
-                    # Add the tool to MCP server
-                    getattr(module, tool).remove_tool()
-                    await ctx.info(f"{tool} -> \"remove_tool()\" function triggered")
-                    
-                    
-                except (ImportError, AttributeError) as e:
-                    # Handle errors during tool loading
-                    await ctx.error(f"{import_name} -> failed to load the tool: {str(e)}")
-                    continue
-            del tools_enabled[category.value]
-    
-    # Enable requested tools based on categories
+    # List of tools that should always be enabled
+    tools_enabled = ["manageMcpTools", "getSelf"]
+
+    # Get the MCP server context for logging and management
+    ctx = get_context()
+
+    # Get current list of registered tools
+    mcp_tools = await mcp.get_tools()
+
+    # ===== UNREGISTER TOOLS =====
+    await ctx.info(" UNREGISTERING TOOLS ".center(60, "="))
+    # Iterate through all currently registered tools
+    for _, mcp_tool in mcp_tools.items():
+        tool_name = mcp_tool.name
+        await ctx.info(f"{tool_name} -> checking if must be unregistered")
+        # Keep default tools, unregister everything else
+        if tool_name in tools_enabled:
+            await ctx.info(f"{tool_name} -> part if the default list. keeping it...")
+            continue
+        else:
+            await ctx.debug(f"{tool_name} -> Unregistering the tool")
+            mcp.remove_tool(mcp_tool.name)
+            await ctx.info(f"{tool_name} -> `remove_tool()` function triggered")
+
+    # ===== REGISTER NEW TOOLS =====
+    await ctx.info(" REGISTERING TOOLS ".center(60, "="))
+    # Process each requested category
     for category in enable_mcp_tools_categories:
+        await ctx.info(f" Processing {category.value} category".rjust(60, "-"))
         await ctx.info(f"{category.value} -> enabling category")
-        # Check if category exists in available tools
+
+        # Verify category exists in available tools
         if not TOOLS_AVAILABLE.get(category.value):
             await ctx.warning(f"{category.value} -> Unknown category")
             continue
-            
-        # Load each tool in the category
+
+        # Process each tool in the category
         for tool in TOOLS_AVAILABLE[category.value]["tools"]:
-            import_name = f"mistmcp.tools.{category.value}.{tool}"
-            await ctx.debug(f"{category.value} -> Category available")
-            await ctx.debug(f"{category.value}.{tool} -> Loading the tool")
+            import_name = f"mistmcp.tools.{category.value}.{snake_case(tool)}"
+            await ctx.debug(f"{import_name} -> Registering the tool")
             try:
-                # Import the module containing the tool
+                # Dynamically import the module containing the tool
                 module = importlib.import_module(f"mistmcp.tools.{category.value}")
                 await ctx.info(f"{import_name} -> module loaded")
-                
-                # Add the tool to MCP server
-                getattr(module, tool).add_tool()
-                await ctx.info(f"{tool} -> \"add_tool()\" function triggered")
-                if not tools_enabled.get(category.value):
-                    tools_enabled[category.value] = []
-                tools_enabled[category.value].append(tool)
-                
+
+                # Register the tool with MCP
+                getattr(module, snake_case(tool)).add_tool()
+                await ctx.info(f"{tool} -> `add_tool()` function triggered")
+                tools_enabled.append(tool)
+
             except (ImportError, AttributeError) as e:
-                # Handle errors during tool loading
                 await ctx.error(f"{import_name} -> failed to load the tool: {str(e)}")
                 continue
 
-    # Add a small delay to ensure tools are registered with server
-    TOOLS_ENABLED = tools_enabled
+    # Get final list of registered tools
+    mcp_tools = await mcp.get_tools()
+
+    # Add delays to ensure proper tool registration
     await asyncio.sleep(.5)
+    # Notify server that tool list has changed
     await ctx.session.send_tool_list_changed()
     await asyncio.sleep(.5)
-    # Log final list of enabled tools
+
+    # Create completion message
     message = f"""
 🔧 MCP TOOLS CONFIGURATION COMPLETE 🔧
 
-Tools enabled: {json.dumps(tools_enabled)}
+Tools enabled: {", ".join(tools_enabled)}
 
 """
-# ⚠️  IMPORTANT: STOP PROCESSING AND CONFIRM ⚠️
-
-# The MCP server tool configuration has been updated. Before proceeding with any further actions, please confirm that you want to continue with this new tool configuration.
-
-# Do you want to proceed? (yes/no)
     await ctx.info(message)
 
-    # Return a message that forces the agent to stop and ask for confirmation
+    # Return message requiring user confirmation before continuing
     return f"""⚠️ STOP: USER CONFIRMATION REQUIRED ⚠️
 
 {message}
