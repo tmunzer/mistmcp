@@ -1,15 +1,23 @@
 """
-This module generates Python tool files for interacting with Mist APIs based on an OpenAPI specification.
-It processes a Mist OpenAPI specification to create a well-organized set of Python modules that provide
-programmatic access to Mist's REST APIs through the Model Context Protocol (MCP) server.
+This module generates Python tool files for the Mist MCP (Model Context Protocol) server based on the Mist OpenAPI specification.
+It creates a structured set of Python modules that provide programmatic access to Mist's REST APIs with proper validation and error handling.
 
 Key Features:
-- Parses OpenAPI specification to extract API endpoints and their details
-- Generates Python classes and functions for API interaction
+- Processes Mist OpenAPI specification to generate MCP-compatible tools
+- Creates organized directory structure by API categories
+- Generates proper parameter validation with Pydantic
 - Handles type conversions between OpenAPI and Python types
-- Creates organized directory structure for tools by functionality
-- Manages imports and dependencies automatically
-- Generates proper parameter validation and type hints
+- Provides comprehensive error handling for API responses
+- Manages tool registration and configuration
+- Excludes deprecated or internal API endpoints
+- Generates configuration files for dynamic tool management
+
+The generated tools support:
+- Proper type hints and validation
+- Automatic error handling and logging
+- Dynamic tool registration/unregistration
+- Category-based tool organization
+- User confirmation for destructive operations
 
 Author: Thomas Munzer (tmunzer@juniper.net)
 License: MIT License
