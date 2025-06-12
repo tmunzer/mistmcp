@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context
@@ -21,8 +22,6 @@ from uuid import UUID
 from enum import Enum
 
 
-
-
 class Distinct(Enum):
     MAC = "mac"
     MODEL = "model"
@@ -30,7 +29,7 @@ class Distinct(Enum):
     TYPE_CODE = "type_code"
 
 
-def add_tool():
+def add_tool() -> None:
     mcp.add_tool(
         fn=countSiteDeviceEvents,
         name="countSiteDeviceEvents",
@@ -40,68 +39,91 @@ def add_tool():
             "title": "countSiteDeviceEvents",
             "readOnlyHint": True,
             "destructiveHint": False,
-            "openWorldHint": True
-        }
+            "openWorldHint": True,
+        },
     )
 
-def remove_tool():
+
+def remove_tool() -> None:
     mcp.remove_tool("countSiteDeviceEvents")
+
 
 async def countSiteDeviceEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     distinct: Distinct = Distinct.MODEL,
     model: Optional[str] | None = None,
-    type: Annotated[Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")] | None = None,
+    type: Annotated[
+        Optional[str], Field(description="""See `listDeviceEventsDefinitions`""")
+    ]
+    | None = None,
     type_code: Optional[str] | None = None,
-    start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
-    end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
-    duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
+    start: Annotated[
+        Optional[int],
+        Field(
+            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+        ),
+    ]
+    | None = None,
+    end: Annotated[
+        Optional[int],
+        Field(
+            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+        ),
+    ]
+    | None = None,
+    duration: Annotated[
+        str, Field(description="""Duration like 7d, 2w""", default="1d")
+    ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
     """Counts the number of entries in ap events history for distinct field with given filters"""
 
     response = mistapi.api.v1.sites.devices.countSiteDeviceEvents(
-            apisession,
-            site_id=str(site_id),
-            distinct=distinct.value,
-            model=model,
-            type=type,
-            type_code=type_code,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
+        apisession,
+        site_id=str(site_id),
+        distinct=distinct.value,
+        model=model,
+        type=type,
+        type_code=type_code,
+        start=start,
+        end=end,
+        duration=duration,
+        limit=limit,
     )
-    
-    
+
     ctx = get_context()
-    
+
     if response.status_code != 200:
-        error = {
-            "status_code": response.status_code,
-            "message": ""
-        }
+        error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            error["message"] =json.dumps(response.data)
+            await ctx.error(
+                f"Got HTTP{response.status_code} with details {response.data}"
+            )
+            error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
+            error["message"] = json.dumps(
+                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
+            )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Unauthorized")
+            error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Unauthorized")
+            error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Permission Denied")
+            error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+            error["message"] = json.dumps(
+                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
+            )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
+            error["message"] = json.dumps(
+                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
+            )
         raise ToolError(error)
-            
+
     return response.data

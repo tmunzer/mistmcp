@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,16 +9,16 @@
 
 --------------------------------------------------------------------------------
 """
-import sys
+
 import getopt
-from mistmcp.__server import mcp
+import sys
 
-LOG_FILE = "./script.log"
+from mistmcp.__server import mcp as mcp_server
 
-mcp_server = mcp
+mcp = mcp_server
 
 
-def start():
+def start() -> None:
     try:
         opts, _ = getopt.getopt(
             sys.argv[1:],
@@ -30,12 +30,12 @@ def start():
         )
     except getopt.GetoptError as err:
         print(err, file=sys.stderr)
-        
-    MODE="stdio"
+
+    MODE = "stdio"
     for o, _ in opts:
         if o in ["-s", "--streamable"]:
-            MODE="streamable-http"
-            
+            MODE = "streamable-http"
+
     try:
         if MODE == "streamable-http":
             mcp_server.run(transport="streamable-http", host="127.0.0.1")
@@ -48,6 +48,6 @@ def start():
     except Exception as e:
         print(f"Mist MCP Error: {e}", file=sys.stderr)
 
-        
+
 if __name__ == "__main__":
     start()

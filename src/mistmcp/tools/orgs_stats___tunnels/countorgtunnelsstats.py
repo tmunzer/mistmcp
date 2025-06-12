@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context
@@ -19,8 +20,6 @@ from pydantic import Field
 from typing import Annotated
 from uuid import UUID
 from enum import Enum
-
-
 
 
 class Distinct(Enum):
@@ -46,12 +45,13 @@ class Distinct(Enum):
     UP = "up"
     WXTUNNEL_ID = "wxtunnel_id"
 
+
 class Type(Enum):
     WAN = "wan"
     WXTUNNEL = "wxtunnel"
 
 
-def add_tool():
+def add_tool() -> None:
     mcp.add_tool(
         fn=countOrgTunnelsStats,
         name="countOrgTunnelsStats",
@@ -61,58 +61,69 @@ def add_tool():
             "title": "countOrgTunnelsStats",
             "readOnlyHint": True,
             "destructiveHint": False,
-            "openWorldHint": True
-        }
+            "openWorldHint": True,
+        },
     )
 
-def remove_tool():
+
+def remove_tool() -> None:
     mcp.remove_tool("countOrgTunnelsStats")
+
 
 async def countOrgTunnelsStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    distinct: Annotated[Distinct, Field(description="""- If `type`==`wxtunnel`: wxtunnel_id / ap / remote_ip / remote_port / state / mxedge_id / mxcluster_id / site_id / peer_mxedge_id; default is wxtunnel_id  - If `type`==`wan`: mac / site_id / node / peer_ip / peer_host/ ip / tunnel_name / protocol / auth_algo / encrypt_algo / ike_version / last_event / up""")] = Distinct.WXTUNNEL_ID,
+    distinct: Annotated[
+        Distinct,
+        Field(
+            description="""- If `type`==`wxtunnel`: wxtunnel_id / ap / remote_ip / remote_port / state / mxedge_id / mxcluster_id / site_id / peer_mxedge_id; default is wxtunnel_id  - If `type`==`wan`: mac / site_id / node / peer_ip / peer_host/ ip / tunnel_name / protocol / auth_algo / encrypt_algo / ike_version / last_event / up"""
+        ),
+    ] = Distinct.WXTUNNEL_ID,
     type: Type = Type.WXTUNNEL,
     limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
     """Count by Distinct Attributes of Mist Tunnels Stats"""
 
     response = mistapi.api.v1.orgs.stats.countOrgTunnelsStats(
-            apisession,
-            org_id=str(org_id),
-            distinct=distinct.value,
-            type=type.value,
-            limit=limit,
+        apisession,
+        org_id=str(org_id),
+        distinct=distinct.value,
+        type=type.value,
+        limit=limit,
     )
-    
-    
+
     ctx = get_context()
-    
+
     if response.status_code != 200:
-        error = {
-            "status_code": response.status_code,
-            "message": ""
-        }
+        error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            error["message"] =json.dumps(response.data)
+            await ctx.error(
+                f"Got HTTP{response.status_code} with details {response.data}"
+            )
+            error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
+            error["message"] = json.dumps(
+                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
+            )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Unauthorized")
+            error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Unauthorized")
+            error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Permission Denied")
+            error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+            error["message"] = json.dumps(
+                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
+            )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
+            error["message"] = json.dumps(
+                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
+            )
         raise ToolError(error)
-            
+
     return response.data

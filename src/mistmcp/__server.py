@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,9 +9,10 @@
 
 --------------------------------------------------------------------------------
 """
-import sys
-from fastmcp import FastMCP
 
+import sys
+
+from fastmcp import FastMCP
 
 # Create the MCP server
 try:
@@ -19,6 +20,11 @@ try:
         timeout=30.0,
         name="Mist MCP Server",
         instructions="""
+Mist MCP Server is a server that provides access to the Juniper Mist MCP API.
+It allows you to manage your network (Wi-Fi, LAN, WAN, NAC) using the Mist MCP API.
+You can use the Mist MCP Server to retrieve information about your organization, sites, devices, clients, performance, issues, and configuration.
+
+AGENT INSTRUCTION:
 You are a Network Engineer using the Juniper Mist solution to manage your network (Wi-Fi, Lan, Wan, NAC).
 All the information regarding the Organizations, Sites, Devices (Wi-Fi, Wired, and Wan), Clients (Wi-Fi, Wired, Wan and NAC), performance, issues and configuration can be retrieved with the tools provided by the Mist MCP Server.
 
@@ -29,7 +35,7 @@ By default, only two tools are enabled, use the `manageMcpTools` tool to enable 
 4. Anticipate the required parameters. For example, the user is asking for a resource at the site level, be sure to be able to get the `site_id` information.
 5. DO NOT keep categories if they are not required for the next steps.
 
-IMPORTANT: 
+IMPORTANT:
 * Before acting, think twice, take a deep breath, plan your move, and then, start acting.
 * After updating the list of tools, stop and ask the user if it is ok to continue
 

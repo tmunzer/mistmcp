@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import importlib.resources
 import json
 import asyncio
@@ -24,6 +25,7 @@ tools.self_account.getself.add_tool()
 with importlib.resources.path("mistmcp", "tools.json") as json_path:
     with json_path.open() as json_file:
         TOOLS_AVAILABLE = json.load(json_file)
+
 
 class McpToolsCategory(Enum):
     CONSTANTS_DEFINITIONS = "constants_definitions"
@@ -156,6 +158,7 @@ def snake_case(s: str) -> str:
     """Convert a string to snake_case format."""
     return s.lower().replace(" ", "_").replace("-", "_")
 
+
 @mcp.tool(
     name="manageMcpTools",
     description="Used to reconfigure the MCP server and define a different list of tools based on the use case (monitor, troubleshooting, ...). IMPORTANT: This tool requires user confirmation after execution before proceeding with other actions.",
@@ -164,16 +167,24 @@ def snake_case(s: str) -> str:
         "title": "manageMcpTools",
         "readOnlyHint": False,
         "destructiveHint": False,
-        "openWorldHint": False 
-    }
+        "openWorldHint": False,
+    },
 )
 async def manageMcpTools(
-    enable_mcp_tools_categories:Annotated[list[McpToolsCategory], Field(description="""Enable tools within the MCP based on the tool category""")] = [],
-    configuration_required:Annotated[Optional[bool], Field(description="""
-This is to request the 'write' API endpoints, used to create or configure resources in the Mist Cloud. 
+    enable_mcp_tools_categories: Annotated[
+        list[McpToolsCategory],
+        Field(description="""Enable tools within the MCP based on the tool category"""),
+    ] = [],
+    configuration_required: Annotated[
+        Optional[bool],
+        Field(
+            description="""
+This is to request the 'write' API endpoints, used to create or configure resources in the Mist Cloud.
 Do not use it except if it explicitly requested by the user, and ask the user confirmation before using any 'write' tool!
-""", default=False
-)]=False,
+""",
+            default=False,
+        ),
+    ] = False,
 ) -> str:
     """Select the list of tools provided by the MCP server"""
 
@@ -235,10 +246,10 @@ Do not use it except if it explicitly requested by the user, and ask the user co
     mcp_tools = await mcp.get_tools()
 
     # Add delays to ensure proper tool registration
-    await asyncio.sleep(.5)
+    await asyncio.sleep(0.5)
     # Notify server that tool list has changed
     await ctx.session.send_tool_list_changed()
-    await asyncio.sleep(.5)
+    await asyncio.sleep(0.5)
 
     # Create completion message
     message = f"""

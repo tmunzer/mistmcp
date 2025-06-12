@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,12 +9,19 @@
 
 --------------------------------------------------------------------------------
 """
+
+import os
+
 import mistapi
-ENV_FILE = "~/.mist_env_ld_ro"
+from dotenv import load_dotenv
+
 LOG_FILE = "./script.log"
 
+load_dotenv()
+ENV_FILE = os.getenv("MIST_ENV_FILE", "~/.mist_env")
 
 # Create an HTTP client for your API
+
 
 apisession = mistapi.APISession(env_file=ENV_FILE)
 apisession.login()

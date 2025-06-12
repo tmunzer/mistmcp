@@ -10,10 +10,10 @@
 --------------------------------------------------------------------------------
 """
 
-
 import mistmcp.__ctools
-import mistmcp.tools
 import mistmcp.__logger
-from mistmcp.__server import mcp
-from mistmcp.__mistapi import apisession
-from mistmcp.__version import __author__, __version__
+import mistmcp.tools
+from mistmcp.__mistapi import apisession as apisession
+from mistmcp.__server import mcp as mcp
+from mistmcp.__version import __author__ as __author__
+from mistmcp.__version import __version__ as __version__

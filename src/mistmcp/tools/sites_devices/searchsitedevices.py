@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context
@@ -21,23 +22,24 @@ from uuid import UUID
 from enum import Enum
 
 
-
-
 class Type(Enum):
     AP = "ap"
     GATEWAY = "gateway"
     SWITCH = "switch"
+
 
 class Mxtunnel_status(Enum):
     DOWN = "down"
     UP = "up"
     NONE = None
 
+
 class Sort(Enum):
     MAC = "mac"
     MODEL = "model"
     SKU = "sku"
     TIMESTAMP = "timestamp"
+
 
 class Desc_sort(Enum):
     MAC = "mac"
@@ -47,7 +49,7 @@ class Desc_sort(Enum):
     NONE = None
 
 
-def add_tool():
+def add_tool() -> None:
     mcp.add_tool(
         fn=searchSiteDevices,
         name="searchSiteDevices",
@@ -57,106 +59,169 @@ def add_tool():
             "title": "searchSiteDevices",
             "readOnlyHint": True,
             "destructiveHint": False,
-            "openWorldHint": True
-        }
+            "openWorldHint": True,
+        },
     )
 
-def remove_tool():
+
+def remove_tool() -> None:
     mcp.remove_tool("searchSiteDevices")
+
 
 async def searchSiteDevices(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    hostname: Annotated[Optional[str], Field(description="""Partial / full hostname""")] | None = None,
+    hostname: Annotated[Optional[str], Field(description="""Partial / full hostname""")]
+    | None = None,
     type: Type = Type.AP,
-    model: Annotated[Optional[str], Field(description="""Device model""")] | None = None,
+    model: Annotated[Optional[str], Field(description="""Device model""")]
+    | None = None,
     mac: Annotated[Optional[str], Field(description="""Device MAC""")] | None = None,
     version: Annotated[Optional[str], Field(description="""Version""")] | None = None,
-    power_constrained: Annotated[Optional[bool], Field(description="""power_constrained""")] | None = None,
+    power_constrained: Annotated[
+        Optional[bool], Field(description="""power_constrained""")
+    ]
+    | None = None,
     ip_address: Optional[str] | None = None,
-    mxtunnel_status: Annotated[Mxtunnel_status, Field(description="""MxTunnel status, up / down""")] = Mxtunnel_status.NONE,
-    mxedge_id: Annotated[Optional[UUID], Field(description="""Mist Edge id, if AP is connecting to a Mist Edge""")] | None = None,
-    lldp_system_name: Annotated[Optional[str], Field(description="""LLDP system name""")] | None = None,
-    lldp_system_desc: Annotated[Optional[str], Field(description="""LLDP system description""")] | None = None,
-    lldp_port_id: Annotated[Optional[str], Field(description="""LLDP port id""")] | None = None,
-    lldp_mgmt_addr: Annotated[Optional[str], Field(description="""LLDP management ip address""")] | None = None,
-    band_24_channel: Annotated[Optional[int], Field(description="""Channel of band_24""")] | None = None,
-    band_5_channel: Annotated[Optional[int], Field(description="""Channel of band_5""")] | None = None,
-    band_6_channel: Annotated[Optional[int], Field(description="""Channel of band_6""")] | None = None,
-    band_24_bandwidth: Annotated[Optional[int], Field(description="""Bandwidth of band_24""")] | None = None,
-    band_5_bandwidth: Annotated[Optional[int], Field(description="""Bandwidth of band_5""")] | None = None,
-    band_6_bandwidth: Annotated[Optional[int], Field(description="""Bandwidth of band_6""")] | None = None,
-    eth0_port_speed: Annotated[Optional[int], Field(description="""Port speed of eth0""")] | None = None,
+    mxtunnel_status: Annotated[
+        Mxtunnel_status, Field(description="""MxTunnel status, up / down""")
+    ] = Mxtunnel_status.NONE,
+    mxedge_id: Annotated[
+        Optional[UUID],
+        Field(description="""Mist Edge id, if AP is connecting to a Mist Edge"""),
+    ]
+    | None = None,
+    lldp_system_name: Annotated[
+        Optional[str], Field(description="""LLDP system name""")
+    ]
+    | None = None,
+    lldp_system_desc: Annotated[
+        Optional[str], Field(description="""LLDP system description""")
+    ]
+    | None = None,
+    lldp_port_id: Annotated[Optional[str], Field(description="""LLDP port id""")]
+    | None = None,
+    lldp_mgmt_addr: Annotated[
+        Optional[str], Field(description="""LLDP management ip address""")
+    ]
+    | None = None,
+    band_24_channel: Annotated[
+        Optional[int], Field(description="""Channel of band_24""")
+    ]
+    | None = None,
+    band_5_channel: Annotated[Optional[int], Field(description="""Channel of band_5""")]
+    | None = None,
+    band_6_channel: Annotated[Optional[int], Field(description="""Channel of band_6""")]
+    | None = None,
+    band_24_bandwidth: Annotated[
+        Optional[int], Field(description="""Bandwidth of band_24""")
+    ]
+    | None = None,
+    band_5_bandwidth: Annotated[
+        Optional[int], Field(description="""Bandwidth of band_5""")
+    ]
+    | None = None,
+    band_6_bandwidth: Annotated[
+        Optional[int], Field(description="""Bandwidth of band_6""")
+    ]
+    | None = None,
+    eth0_port_speed: Annotated[
+        Optional[int], Field(description="""Port speed of eth0""")
+    ]
+    | None = None,
     sort: Annotated[Sort, Field(description="""Sort options""")] = Sort.TIMESTAMP,
-    desc_sort: Annotated[Desc_sort, Field(description="""Sort options in reverse order""")] = Desc_sort.NONE,
-    stats: Annotated[Optional[bool], Field(description="""Whether to return device stats""")] | None = None,
+    desc_sort: Annotated[
+        Desc_sort, Field(description="""Sort options in reverse order""")
+    ] = Desc_sort.NONE,
+    stats: Annotated[
+        Optional[bool], Field(description="""Whether to return device stats""")
+    ]
+    | None = None,
     limit: Annotated[int, Field(default=100)] = 100,
-    start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
-    end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
-    duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
+    start: Annotated[
+        Optional[int],
+        Field(
+            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+        ),
+    ]
+    | None = None,
+    end: Annotated[
+        Optional[int],
+        Field(
+            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+        ),
+    ]
+    | None = None,
+    duration: Annotated[
+        str, Field(description="""Duration like 7d, 2w""", default="1d")
+    ] = "1d",
 ) -> dict:
     """Search Device"""
 
     response = mistapi.api.v1.sites.devices.searchSiteDevices(
-            apisession,
-            site_id=str(site_id),
-            hostname=hostname,
-            type=type.value,
-            model=model,
-            mac=mac,
-            version=version,
-            power_constrained=power_constrained,
-            ip_address=ip_address,
-            mxtunnel_status=mxtunnel_status.value,
-            mxedge_id=str(mxedge_id),
-            lldp_system_name=lldp_system_name,
-            lldp_system_desc=lldp_system_desc,
-            lldp_port_id=lldp_port_id,
-            lldp_mgmt_addr=lldp_mgmt_addr,
-            band_24_channel=band_24_channel,
-            band_5_channel=band_5_channel,
-            band_6_channel=band_6_channel,
-            band_24_bandwidth=band_24_bandwidth,
-            band_5_bandwidth=band_5_bandwidth,
-            band_6_bandwidth=band_6_bandwidth,
-            eth0_port_speed=eth0_port_speed,
-            sort=sort.value,
-            desc_sort=desc_sort.value,
-            stats=stats,
-            limit=limit,
-            start=start,
-            end=end,
-            duration=duration,
+        apisession,
+        site_id=str(site_id),
+        hostname=hostname,
+        type=type.value,
+        model=model,
+        mac=mac,
+        version=version,
+        power_constrained=power_constrained,
+        ip_address=ip_address,
+        mxtunnel_status=mxtunnel_status.value,
+        mxedge_id=str(mxedge_id),
+        lldp_system_name=lldp_system_name,
+        lldp_system_desc=lldp_system_desc,
+        lldp_port_id=lldp_port_id,
+        lldp_mgmt_addr=lldp_mgmt_addr,
+        band_24_channel=band_24_channel,
+        band_5_channel=band_5_channel,
+        band_6_channel=band_6_channel,
+        band_24_bandwidth=band_24_bandwidth,
+        band_5_bandwidth=band_5_bandwidth,
+        band_6_bandwidth=band_6_bandwidth,
+        eth0_port_speed=eth0_port_speed,
+        sort=sort.value,
+        desc_sort=desc_sort.value,
+        stats=stats,
+        limit=limit,
+        start=start,
+        end=end,
+        duration=duration,
     )
-    
-    
+
     ctx = get_context()
-    
+
     if response.status_code != 200:
-        error = {
-            "status_code": response.status_code,
-            "message": ""
-        }
+        error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            error["message"] =json.dumps(response.data)
+            await ctx.error(
+                f"Got HTTP{response.status_code} with details {response.data}"
+            )
+            error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
+            error["message"] = json.dumps(
+                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
+            )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Unauthorized")
+            error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Unauthorized")
+            error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Permission Denied")
+            error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+            error["message"] = json.dumps(
+                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
+            )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
+            error["message"] = json.dumps(
+                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
+            )
         raise ToolError(error)
-            
+
     return response.data

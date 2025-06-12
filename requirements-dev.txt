@@ -1,3 +1,0 @@
-FastMCP
-marvin
-mistapi >= 0.55.13

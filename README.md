@@ -132,7 +132,7 @@ The MCP server organizes tools into logical categories based on Mist API structu
 ### Organization-Level Resources
 - **`orgs_devices`** - Access points, switches, gateways, and device management
 - **`orgs_clients___wireless`** - Wi-Fi client monitoring and statistics
-- **`orgs_clients___wired`** - Wired client monitoring and statistics  
+- **`orgs_clients___wired`** - Wired client monitoring and statistics
 - **`orgs_clients___wan`** - WAN client monitoring and statistics
 - **`orgs_clients___nac`** - NAC (Network Access Control) client management
 - **`orgs_alarms`** - Alarm monitoring and management
@@ -143,7 +143,7 @@ The MCP server organizes tools into logical categories based on Mist API structu
 - **`orgs_security_policies`** - Security policy management
 - **`orgs_webhooks`** - Webhook configuration and monitoring
 
-### Site-Level Resources  
+### Site-Level Resources
 - **`sites_devices`** - Site-specific device management
 - **`sites_clients___wireless`** - Site wireless client statistics
 - **`sites_clients___wired`** - Site wired client statistics

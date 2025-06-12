@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context
@@ -19,8 +20,6 @@ from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
-
-
 
 
 class Distinct(Enum):
@@ -36,7 +35,7 @@ class Distinct(Enum):
     VERSION = "version"
 
 
-def add_tool():
+def add_tool() -> None:
     mcp.add_tool(
         fn=countSiteDevices,
         name="countSiteDevices",
@@ -46,12 +45,14 @@ def add_tool():
             "title": "countSiteDevices",
             "readOnlyHint": True,
             "destructiveHint": False,
-            "openWorldHint": True
-        }
+            "openWorldHint": True,
+        },
     )
 
-def remove_tool():
+
+def remove_tool() -> None:
     mcp.remove_tool("countSiteDevices")
+
 
 async def countSiteDevices(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
@@ -61,69 +62,92 @@ async def countSiteDevices(
     mac: Optional[str] | None = None,
     version: Optional[str] | None = None,
     mxtunnel_status: Optional[str] | None = None,
-    mxedge_id: Annotated[Optional[str], Field(description="""ID of the Mist Mxedge""")] | None = None,
+    mxedge_id: Annotated[Optional[str], Field(description="""ID of the Mist Mxedge""")]
+    | None = None,
     lldp_system_name: Optional[str] | None = None,
     lldp_system_desc: Optional[str] | None = None,
-    lldp_port_id: Annotated[Optional[str], Field(description="""ID of the Mist Lldp_port""")] | None = None,
+    lldp_port_id: Annotated[
+        Optional[str], Field(description="""ID of the Mist Lldp_port""")
+    ]
+    | None = None,
     lldp_mgmt_addr: Optional[str] | None = None,
-    map_id: Annotated[Optional[str], Field(description="""ID of the Mist Map""")] | None = None,
-    start: Annotated[Optional[int], Field(description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified""")] | None = None,
-    end: Annotated[Optional[int], Field(description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified""")] | None = None,
-    duration: Annotated[str, Field(description="""Duration like 7d, 2w""",default="1d")] = "1d",
+    map_id: Annotated[Optional[str], Field(description="""ID of the Mist Map""")]
+    | None = None,
+    start: Annotated[
+        Optional[int],
+        Field(
+            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+        ),
+    ]
+    | None = None,
+    end: Annotated[
+        Optional[int],
+        Field(
+            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+        ),
+    ]
+    | None = None,
+    duration: Annotated[
+        str, Field(description="""Duration like 7d, 2w""", default="1d")
+    ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
     """Counts the number of entries in ap events history for distinct field with given filters"""
 
     response = mistapi.api.v1.sites.devices.countSiteDevices(
-            apisession,
-            site_id=str(site_id),
-            distinct=distinct.value,
-            hostname=hostname,
-            model=model,
-            mac=mac,
-            version=version,
-            mxtunnel_status=mxtunnel_status,
-            mxedge_id=mxedge_id,
-            lldp_system_name=lldp_system_name,
-            lldp_system_desc=lldp_system_desc,
-            lldp_port_id=lldp_port_id,
-            lldp_mgmt_addr=lldp_mgmt_addr,
-            map_id=map_id,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
+        apisession,
+        site_id=str(site_id),
+        distinct=distinct.value,
+        hostname=hostname,
+        model=model,
+        mac=mac,
+        version=version,
+        mxtunnel_status=mxtunnel_status,
+        mxedge_id=mxedge_id,
+        lldp_system_name=lldp_system_name,
+        lldp_system_desc=lldp_system_desc,
+        lldp_port_id=lldp_port_id,
+        lldp_mgmt_addr=lldp_mgmt_addr,
+        map_id=map_id,
+        start=start,
+        end=end,
+        duration=duration,
+        limit=limit,
     )
-    
-    
+
     ctx = get_context()
-    
+
     if response.status_code != 200:
-        error = {
-            "status_code": response.status_code,
-            "message": ""
-        }
+        error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            error["message"] =json.dumps(response.data)
+            await ctx.error(
+                f"Got HTTP{response.status_code} with details {response.data}"
+            )
+            error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
+            error["message"] = json.dumps(
+                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
+            )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Unauthorized")
+            error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Unauthorized")
+            error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Permission Denied")
+            error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+            error["message"] = json.dumps(
+                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
+            )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
+            error["message"] = json.dumps(
+                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
+            )
         raise ToolError(error)
-            
+
     return response.data
