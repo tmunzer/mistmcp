@@ -56,7 +56,7 @@ dev-dependencies = [
 
 # Hatchling configuration (replaces setup.cfg)
 [tool.hatchling.build.targets.wheel]
-packages = ["src/mistapi"]
+packages = ["src/mistmcp"]
 
 [tool.hatchling.build.targets.sdist]
 include = ["/src", "/tests", "/README.md", "/pyproject.toml"]
@@ -75,7 +75,7 @@ addopts = [
   "--tb=short",
   "--strict-markers",
   "--disable-warnings",
-  "--cov=src/mistapi",
+  "--cov=src/mistmcp",
   "--cov-report=html",
   "--cov-report=term-missing",
   "--cov-fail-under=30",
