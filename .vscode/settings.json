@@ -9,9 +9,9 @@
         "apiresponse",
         "keepit",
         "notif",
+        "streamable",
         "werein"
     ],
-
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.fixAll.ruff": "explicit",

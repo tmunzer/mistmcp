@@ -1,36 +1,52 @@
 # Mist MCP Server
 
-A Model Context Protocol (MCP) server that provides AI-powered access to Juniper Mist networking APIs. This project enables Large Language Models (LLMs) like Claude to interact with Mist cloud-managed network infrastructure through a comprehensive set of tools.
+A Model Context Protocol (MCP) server that provides AI-powered access to Juniper Mist networking APIs with **multi-client session management**. This project enables Large Language Models (LLMs) like Claude to interact with Mist cloud-managed network infrastructure through a comprehensive set of tools, with each client maintaining independent tool configurations.
 
 ## 📖 Overview
 
-The Mist MCP Server consists of two main components:
+The Mist MCP Server is a **session-aware, multi-client MCP server** that consists of:
 
-1. **Code Generator** (`generate_mcp_tools.py`) - Automatically generates/updates MCP-compatible tools from the Mist OpenAPI specification
-2. **MCP Server** (`src/`) - The actual MCP server that provides AI assistants with access to Mist APIs
+1. **Tool Generator** (`generate_from_openapi.py`) - Automatically generates MCP-compatible tools from the Mist OpenAPI specification
+2. **Multi-Client MCP Server** (`src/mistmcp/`) - Session-aware MCP server supporting multiple clients with independent tool configurations
+3. **Dynamic Tool Management** - Runtime tool enabling/disabling per client session
 
-This early-stage but functional project allows network engineers to interact with their Mist-managed infrastructure using natural language through AI assistants.
+### Key Features
+
+- **🌐 Multi-Client Support**: Each client maintains independent tool configurations and session state
+- **🔧 Dynamic Tool Management**: Enable/disable tool categories at runtime using `manageMcpTools`
+- **📊 Session Isolation**: Complete isolation between different MCP clients
+- **⚙️ Flexible Loading Modes**: Choose from minimal, managed, all, or custom tool loading strategies
+- **🚀 Transport Flexibility**: Supports both stdio and HTTP transport modes
 
 ## 🚀 Features
 
-- **Comprehensive API Coverage**: Auto-generated tools for all major Mist API endpoints
-- **Dynamic Tool Management**: Enable/disable tool categories based on your needs
-- **Intelligent Organization**: Tools are grouped by functionality (orgs, sites, devices, clients, etc.)
-- **Type Safety**: Full type validation using Pydantic models
-- **Error Handling**: Robust error handling and logging
-- **AI-Optimized**: Designed specifically for LLM interaction patterns
+- **🌍 Multi-Client Architecture**: Multiple MCP clients can connect simultaneously with independent tool configurations
+- **🔄 Dynamic Tool Management**: Enable/disable tool categories at runtime per client session
+- **📊 Session Awareness**: Complete isolation between different client sessions
+- **🎯 Flexible Loading Modes**:
+  - **Minimal**: Only essential tools (`getSelf`, `manageMcpTools`)
+  - **Managed**: Dynamic tool management (default)
+  - **All**: All tools loaded at startup
+  - **Custom**: Specific tool categories pre-loaded
+- **🚀 Comprehensive API Coverage**: Auto-generated tools for all major Mist API endpoints
+- **📡 Transport Flexibility**: Supports both stdio and HTTP transport modes
+- **🏗️ Intelligent Organization**: Tools grouped by functionality (orgs, sites, devices, clients, etc.)
+- **🛡️ Type Safety**: Full type validation using Pydantic models
+- **⚠️ Robust Error Handling**: Comprehensive error handling and logging
+- **🤖 AI-Optimized**: Designed specifically for LLM interaction patterns
 
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
 
-- Python 3.10 or higher
+- Python 3.10 or higher (uv will manage this)
+- [uv](https://docs.astral.sh/uv/) - Fast Python package installer and resolver
 - Mist API credentials (API token and organization access)
 
 ### 1. Install Dependencies
 
 ```bash
-pip install -r requirements-dev.txt
+uv sync
 ```
 
 ### 2. Generate MCP Tools (Optional)
@@ -38,34 +54,72 @@ pip install -r requirements-dev.txt
 The repository includes pre-generated tools, but you can regenerate them:
 
 ```bash
-python generate_mcp_tools.py
+uv run python generate_from_openapi.py
 ```
 
 This will:
-- Parse the Mist OpenAPI specification (`mist.openapi.yaml`)
+- Parse the Mist OpenAPI specification (`mist_openapi/mist.openapi.yaml`)
 - Generate categorized tool modules in `src/mistmcp/tools/`
 - Create tool configuration files
 
-### 3. Configure MCP Server
+### 3. Run the MCP Server
 
-The server can be run in two modes:
+The server supports multiple modes and transport options:
+
+#### Command Line Options
+
+```bash
+uv run mistmcp [OPTIONS]
+
+OPTIONS:
+    -h, --help              Show help message
+    -t, --transport MODE    Transport mode: stdio (default) or http
+    -m, --mode MODE         Tool loading mode: minimal, managed (default), all, custom
+    -c, --categories LIST   Comma-separated tool categories (for custom mode)
+    -d, --debug             Enable debug output
+
+EXAMPLES:
+    uv run mistmcp                                    # Default managed mode
+    uv run mistmcp --mode minimal                     # Minimal tools only
+    uv run mistmcp --mode all                         # All tools loaded
+    uv run mistmcp --transport http --mode managed    # HTTP transport
+    uv run mistmcp --mode custom --categories orgs,sites --debug
+```
+
+#### Tool Loading Modes
+
+- **`minimal`** - Load only essential tools (`getSelf`, `manageMcpTools`)
+- **`managed`** - Use dynamic tool management (default) - tools enabled on demand
+- **`all`** - Load all available tools at startup
+- **`custom`** - Load specific categories (requires `--categories`)
+
+### 4. Configure MCP Client
 
 #### STDIO Mode (Recommended for Claude Desktop)
 ```json
 {
     "mcpServers": {
         "Mist MCP Server": {
-            "command": "python",
+            "command": "uv",
             "args": [
-                "-m",
-                "mistmcp"
-            ]
+                "run",
+                "mistmcp",
+                "--mode",
+                "managed"
+            ],
+            "cwd": "/path/to/mistmcp"
         }
     }
 }
 ```
 
 #### HTTP Mode (For remote access)
+Start the server in HTTP mode:
+```bash
+uv run mistmcp --transport http --mode managed
+```
+
+Then configure your MCP client:
 ```json
 {
     "mcpServers": {
@@ -82,47 +136,157 @@ The server can be run in two modes:
 
 ## 📋 Usage
 
+### Multi-Client Session Management
+
+Each MCP client that connects to the server gets its own independent session with:
+- **Separate tool configurations** - Enable different tools per client
+- **Session isolation** - No interference between clients
+- **Dynamic tool management** - Add/remove tools at runtime per session
+
+### Getting Started
+
+1. **Connect your MCP client** (Claude Desktop, VS Code, etc.)
+2. **Start with essential tools** - All sessions begin with `getSelf` and `manageMcpTools`
+3. **Enable tools as needed** - Use `manageMcpTools` to enable tool categories
+4. **Query your infrastructure** - Ask natural language questions about your Mist network
+
+### Example Workflow
+
+```
+# 1. Get your organization info
+"Show me my organization details"
+
+# 2. Enable site management tools
+"Enable site management tools so I can see my sites"
+# (This will call manageMcpTools automatically)
+
+# 3. Explore your network
+"List all my sites and their status"
+"Show me access points that are offline"
+"What wireless clients are connected to my guest network?"
+"Which devices need firmware updates?"
+```
+
 ### With Claude Desktop
 
 1. Add the server configuration to your Claude Desktop MCP settings
 2. Restart Claude Desktop
-3. Start a new conversation and ask about your Mist infrastructure:
+3. Start a new conversation - the server begins in `managed` mode
+4. Enable tools as needed using natural language:
+   ```
+   "I need to check my access points - enable the device management tools"
+   "Show me wireless client statistics - enable those tools first"
+   "Enable organization and site tools so I can manage my network"
+   ```
 
-```
-"Show me the status of all my access points"
-"What devices are having connectivity issues?"
-"List all wireless clients on my guest network"
-```
-
-### With VS Code
+### With VS Code MCP Extension
 
 1. Install the MCP extension for VS Code
 2. Configure the server in your workspace settings
 3. Use the MCP panel to interact with your Mist infrastructure
+4. Each VS Code instance maintains its own tool session
+
+### Session Management Features
+
+- **Independent Sessions**: Multiple clients can connect with different tool configurations
+- **Session Persistence**: Tool configurations persist during the client session
+- **Dynamic Updates**: Enable/disable tools without restarting the server
+- **Fallback Behavior**: Graceful degradation when session context is unavailable
 
 ## 🏗️ Project Structure
 
 ```
 mistmcp/
-├── generate_mcp_tools.py          # Tool generator script
-├── mist.openapi.yaml             # Mist OpenAPI specification
-├── src/mistmcp/                  # MCP Server source
-    ├── __init__.py              # Package initialization
-    ├── __main__.py              # CLI entry point
-    ├── __server.py              # FastMCP server implementation
-    ├── __mistapi.py             # Mist API client wrapper
-    ├── __ctools.py              # Tool configuration management
-    ├── tools.json               # Tool registry
-    └── tools/                   # Generated tool modules
-        ├── orgs/               # Organization-level APIs
-        ├── sites/              # Site-level APIs
-        ├── constants_*/        # Constants and definitions
-        └── ...                 # Other API categories
+├── generate_from_openapi.py         # Tool generator script
+├── mist_openapi/
+│   └── mist.openapi.yaml           # Mist OpenAPI specification
+├── src/mistmcp/                    # MCP Server source
+│   ├── __init__.py                # Package initialization
+│   ├── __main__.py                # CLI entry point
+│   ├── __version.py               # Version information
+│   ├── config.py                  # Server configuration system
+│   ├── constants.py               # Constants and defaults
+│   ├── server_factory.py          # Server creation and configuration
+│   ├── session_aware_server.py    # Session-aware FastMCP implementation
+│   ├── session_manager.py         # Multi-client session management
+│   ├── session_middleware.py      # Session middleware components
+│   ├── session_tools.py           # Session-aware tool decorators
+│   ├── tool_loader.py             # Dynamic tool loading system
+│   ├── tool_manager.py            # manageMcpTools implementation
+│   ├── tools_helper.py            # Tool category definitions
+│   ├── tools.json                 # Tool registry and configuration
+│   └── tools/                     # Generated tool modules
+│       ├── orgs/                  # Organization-level APIs
+│       ├── sites/                 # Site-level APIs
+│       ├── constants_*/           # Constants and definitions
+│       └── ...                    # Other API categories
+└── FASTMCP_TOOL_METHOD_INVESTIGATION.md  # Technical documentation
 ```
+
+## 🔧 Architecture Overview
+
+### Multi-Client Session Management
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   MCP Client 1  │    │   MCP Client 2  │    │   MCP Client N  │
+│   (Claude)      │    │   (VS Code)     │    │   (Other)       │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          └──────────────────────┼──────────────────────┘
+                                 │
+                    ┌─────────────┴─────────────┐
+                    │  Session-Aware MCP Server │
+                    │                           │
+                    │  ┌─────────────────────┐  │
+                    │  │   Session Manager   │  │
+                    │  │                     │  │
+                    │  │ ┌─────┐ ┌─────────┐ │  │
+                    │  │ │Sess1│ │  Sess2  │ │  │
+                    │  │ │Tools│ │ Tools   │ │  │
+                    │  │ └─────┘ └─────────┘ │  │
+                    │  └─────────────────────┘  │
+                    │                           │
+                    │  ┌─────────────────────┐  │
+                    │  │   Tool Loader       │  │
+                    │  │   & Manager         │  │
+                    │  └─────────────────────┘  │
+                    └───────────────────────────┘
+                                 │
+                    ┌─────────────┴─────────────┐
+                    │     Mist Cloud APIs       │
+                    └───────────────────────────┘
+```
+
+### Tool Loading Modes
+
+1. **Minimal Mode** (`--mode minimal`)
+   - Only `getSelf` and `manageMcpTools` loaded
+   - Lowest memory footprint
+   - Tools enabled on-demand via `manageMcpTools`
+
+2. **Managed Mode** (`--mode managed`) - **Default**
+   - Starts with essential tools only
+   - Dynamic tool loading based on user requests
+   - Optimal balance of performance and functionality
+
+3. **All Mode** (`--mode all`)
+   - All available tools loaded at startup
+   - Maximum functionality, higher memory usage
+   - Best for power users or automated scenarios
+
+4. **Custom Mode** (`--mode custom --categories orgs,sites`)
+   - Pre-load specific tool categories
+   - Tailored configuration for specific use cases
+   - Requires explicit category specification
 
 ## 🔧 Tool Categories
 
-The MCP server organizes tools into logical categories based on Mist API structure:
+The MCP server organizes tools into logical categories based on Mist API structure. Use `manageMcpTools` to enable categories as needed:
+
+### Essential Tools (Always Available)
+- **`getSelf`** - Get current user and organization information
+- **`manageMcpTools`** - Enable/disable tool categories dynamically
 
 ### Core Categories
 - **`orgs`** - Organization management and configuration
@@ -175,27 +339,87 @@ The MCP server organizes tools into logical categories based on Mist API structu
 - **`self_account`** - Current user account information
 - **`self_alarms`** - Personal alarm subscriptions
 
-Use the `manageMcpTools` function to enable only the categories you need for your specific use case.
+Use the `manageMcpTools` function to enable only the categories you need for your specific use case. Each client session maintains independent tool configurations.
+
+## 🔄 Dynamic Tool Management
+
+### Using manageMcpTools
+
+The `manageMcpTools` function allows you to dynamically enable tool categories during your session:
+
+```python
+# Enable organization and site management tools
+manageMcpTools(enable_mcp_tools_categories=["orgs", "sites"])
+
+# Enable specific categories for wireless client monitoring
+manageMcpTools(enable_mcp_tools_categories=["orgs_clients___wireless", "sites_clients___wireless"])
+
+# Enable all device management tools
+manageMcpTools(enable_mcp_tools_categories=["orgs_devices", "sites_devices", "orgs_stats___devices"])
+```
+
+### Best Practices
+
+1. **Start Small**: Begin with essential tools and add categories as needed
+2. **Session-Specific**: Each client can have different tool configurations
+3. **Context Aware**: Enable tools based on your current task
+4. **Clean Up**: Disable unused tools to reduce cognitive load
+
+### Example Workflow
+
+```
+User: "I need to check my network devices"
+Assistant: "I'll enable device management tools first..."
+[Calls manageMcpTools with device categories]
+Assistant: "Tools enabled! Now let me check your devices..."
+[Proceeds with device queries]
+```
 
 ## ⚠️ Current Limitations
 
-- **Early Development Stage**: This is a beta-quality project under active development
-- **API Authentication**: Requires manual Mist API token configuration
+- **Beta Quality**: Multi-client architecture is stable but still under active development
+- **API Authentication**: Requires manual Mist API token configuration in client environment
+- **Session Cleanup**: Long-running sessions may accumulate over time (automatic cleanup implemented)
 - **Rate Limiting**: No built-in rate limiting for API calls
 - **Error Recovery**: Limited retry logic for failed API calls
-- **Documentation**: Tool documentation is auto-generated and may be incomplete
-- **Testing**: Limited test coverage for generated tools
-- **Caching**: No response caching implemented yet
+- **Tool Documentation**: Auto-generated documentation may be incomplete
+- **Memory Usage**: All mode loads all tools, which may consume significant memory
+- **Transport Limitations**: HTTP mode requires additional configuration for remote access
+
+## 🆕 Recent Improvements
+
+- **✅ Multi-Client Support**: Full session isolation between different MCP clients
+- **✅ Dynamic Tool Loading**: Runtime tool management with `manageMcpTools`
+- **✅ Flexible Modes**: Minimal, managed, all, and custom loading strategies
+- **✅ Circular Import Fix**: Resolved architecture issues for stable startup
+- **✅ Session Persistence**: Tool configurations persist during client sessions
+- **✅ Transport Options**: Both stdio and HTTP transport modes
+- **✅ Configuration System**: Robust server configuration and tool management
 
 ## 🤝 Contributing
 
-Contributions are welcome! This project is in early development and could benefit from:
+Contributions are welcome! This project has evolved from a basic MCP server to a sophisticated multi-client platform. Areas where we'd appreciate help:
 
+### Priority Areas
+- **Performance optimization** for multi-client scenarios
+- **Enhanced session management** features
+- **API rate limiting and caching** implementation
+- **Test coverage** for session isolation and tool management
+- **Documentation** improvements and examples
+
+### General Contributions
 - Bug reports and fixes
 - Feature requests and implementations
-- Documentation improvements
-- Test coverage expansion
-- Performance optimizations
+- Tool category refinements
+- Client integration examples
+- Performance benchmarking
+
+### Development Setup
+
+1. Clone the repository
+2. Install development dependencies: `uv sync`
+3. Run tests: `uv run python -m pytest`
+4. Check the `FASTMCP_TOOL_METHOD_INVESTIGATION.md` for technical details
 
 ## 📄 License
 
@@ -232,4 +456,4 @@ SOFTWARE.
 
 ---
 
-*This project provides a bridge between AI assistants and Juniper Mist networking infrastructure, enabling natural language network management and monitoring.*
+*This project provides a bridge between AI assistants and Juniper Mist networking infrastructure, enabling natural language network management and monitoring with full multi-client session support.*

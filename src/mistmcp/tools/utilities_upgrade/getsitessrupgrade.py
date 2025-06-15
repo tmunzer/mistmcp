@@ -12,77 +12,79 @@
 
 import json
 import mistapi
-from fastmcp.server.dependencies import get_context
+from fastmcp.server.dependencies import get_context, get_http_request
 from fastmcp.exceptions import ToolError
-from mistmcp.__server import mcp
-from mistmcp.__mistapi import apisession
+from starlette.requests import Request
+from mistmcp.server_factory import _CURRENT_MCP_INSTANCE as mcp
 from pydantic import Field
 from typing import Annotated
 from uuid import UUID
 
 
-def add_tool() -> None:
-    mcp.add_tool(
-        fn=listOrgMarvisClientInvites,
-        name="listOrgMarvisClientInvites",
-        description="""List Org Marvis Client Invites""",
-        tags={"Orgs Marvis Invites"},
-        annotations={
-            "title": "listOrgMarvisClientInvites",
-            "readOnlyHint": True,
-            "destructiveHint": False,
-            "openWorldHint": True,
-        },
-    )
-
-
-def remove_tool() -> None:
-    mcp.remove_tool("listOrgMarvisClientInvites")
-
-
-async def listOrgMarvisClientInvites(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+@mcp.tool(
+    enabled=True,
+    name="getSiteSsrUpgrade",
+    description="""Get Specific Site SSR Upgrade""",
+    tags={"Utilities Upgrade"},
+    annotations={
+        "title": "getSiteSsrUpgrade",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+    },
+)
+async def getSiteSsrUpgrade(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    upgrade_id: Annotated[UUID, Field(description="""ID of the Mist Upgrade""")],
 ) -> dict:
-    """List Org Marvis Client Invites"""
-
-    response = mistapi.api.v1.orgs.marvisinvites.listOrgMarvisClientInvites(
-        apisession,
-        org_id=str(org_id),
-    )
+    """Get Specific Site SSR Upgrade"""
 
     ctx = get_context()
+    request: Request = get_http_request()
+    cloud = request.query_params.get("cloud", None)
+    apitoken = request.headers.get("X-Authorization", None)
+    apisession = mistapi.APISession(
+        host=cloud,
+        apitoken=apitoken,
+    )
+
+    response = mistapi.api.v1.sites.ssr.getSiteSsrUpgrade(
+        apisession,
+        site_id=str(site_id),
+        upgrade_id=str(upgrade_id),
+    )
 
     if response.status_code != 200:
-        error = {"status_code": response.status_code, "message": ""}
+        api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
             await ctx.error(
                 f"Got HTTP{response.status_code} with details {response.data}"
             )
-            error["message"] = json.dumps(response.data)
+            api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
             )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Permission Denied")
+            api_error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
             )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
             )
-        raise ToolError(error)
+        raise ToolError(api_error)
 
     return response.data

@@ -33,21 +33,23 @@ from typing import Dict, List
 import yaml
 
 # Configuration Constants
-OPENAPI_PATH = "mist.openapi.yaml"  # Path to the OpenAPI specification file
+OPENAPI_PATH = (
+    "./mist_openapi/mist.openapi.yaml"  # Path to the OpenAPI specification file
+)
 OUTPUT_DIR = Path(
     "./src/mistmcp/tools"
 )  # Directory where generated tool files will be placed
 TOOLS_MODULE = "mistmcp.tools"  # Base module name for imports
 INIT_FILE = Path("./src/mistmcp//tools/__init__.py")  # Path to package __init__ file
-TOOLS_FILE = Path("./src/mistmcp/tools.json")  # File storing tool configuration
-TOOLS_CONFIG_FILE = Path("./src/mistmcp/__ctools.py")  # File storing tool configuration
-
+# TOOLS_FILE = Path("./src/mistmcp/tools.json")  # File storing tool configuration
+TOOLS_HELPER_FILE = Path("./src/mistmcp/tools_helper.py")  # Helper file for tools
 # List of API tags that should be excluded from tool generation
 # These tags represent endpoints that are either deprecated, internal,
 # or not relevant for general API usage
 EXCLUDED_TAGS = [
     "Admins Login",
     "Admins Logout",
+    "Admins Lookup",
     "Admins Recover Password",
     "Admins Login - OAuth2",
     "Installer",
@@ -69,8 +71,11 @@ EXCLUDED_TAGS = [
     "Orgs API Tokens",
     "Orgs Assets",
     "Orgs Asset Filters",
+    "Orgs Clients - SDK",
     "Orgs Cert",
-    "Orgs Clients - MarvisOrgs Marvis Invites",
+    "Orgs Devices - SSR",
+    "Orgs Maps",
+    "Orgs Marvis Invites",
     "Orgs Integration Cradlepoint",
     "Orgs CRL",
     "Orgs Integration Juniper",
@@ -90,6 +95,7 @@ EXCLUDED_TAGS = [
     "Orgs SSO",
     "Orgs Tickets",
     "Orgs Vars",
+    "Sites Anomaly",
     "Sites Asset Filters",
     "Sites Assets",
     "Sites Beacons",
@@ -115,7 +121,6 @@ EXCLUDED_TAGS = [
     "Utilities PCAPs",
     "Utilities Location",
     "Utilities MxEdge",
-    "Utilities Upgrade",
 ]
 # Type translation mapping from OpenAPI types to Python types
 # This dictionary maps OpenAPI type definitions to their Python equivalents
@@ -127,146 +132,6 @@ TRANSLATION = {
     "array": "list",  # OpenAPI array type maps to Python list
     "boolean": "bool",  # OpenAPI boolean type maps to Python bool
 }
-
-# Template for the tools configuration file
-TOOLS_CONFIG_TEMPLATE = """\"\"\"
---------------------------------------------------------------------------------
--------------------------------- Mist MCP SERVER -------------------------------
-
-    Written by: Thomas Munzer (tmunzer@juniper.net)
-    Github    : https://github.com/tmunzer/mistmcp
-
-    This package is licensed under the MIT License.
-
---------------------------------------------------------------------------------
-\"\"\"
-import importlib.resources
-import json
-import asyncio
-from enum import Enum
-from pydantic import Field
-from typing import Annotated, Optional
-from fastmcp.server.dependencies import get_context
-from mistmcp.__server import mcp
-from . import tools
-
-tools.self_account.getself.add_tool()
-
-with importlib.resources.path("mistmcp", "tools.json") as json_path:
-    with json_path.open() as json_file:
-        TOOLS_AVAILABLE = json.load(json_file)
-
-class McpToolsCategory(Enum):
-{enums}
-
-
-def snake_case(s: str) -> str:
-    \"\"\"Convert a string to snake_case format.\"\"\"
-    return s.lower().replace(" ", "_").replace("-", "_")
-
-@mcp.tool(
-    name="manageMcpTools",
-    description="Used to reconfigure the MCP server and define a different list of tools based on the use case (monitor, troubleshooting, ...). IMPORTANT: This tool requires user confirmation after execution before proceeding with other actions.",
-    tags={{"MCP Configuration"}},
-    annotations={{
-        "title": "manageMcpTools",
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "openWorldHint": False
-    }}
-)
-async def manageMcpTools(
-    enable_mcp_tools_categories:Annotated[list[McpToolsCategory], Field(description=\"\"\"Enable tools within the MCP based on the tool category\"\"\")] = [],
-    configuration_required:Annotated[Optional[bool], Field(description=\"\"\"
-This is to request the 'write' API endpoints, used to create or configure resources in the Mist Cloud.
-Do not use it except if it explicitly requested by the user, and ask the user confirmation before using any 'write' tool!
-\"\"\", default=False
-)]=False,
-) -> str:
-    \"\"\"Select the list of tools provided by the MCP server\"\"\"
-
-    # List of tools that should always be enabled
-    tools_enabled = ["manageMcpTools", "getSelf"]
-
-    # Get the MCP server context for logging and management
-    ctx = get_context()
-
-    # Get current list of registered tools
-    mcp_tools = await mcp.get_tools()
-
-    # ===== UNREGISTER TOOLS =====
-    await ctx.info(" UNREGISTERING TOOLS ".center(60, "="))
-    # Iterate through all currently registered tools
-    for _, mcp_tool in mcp_tools.items():
-        tool_name = mcp_tool.name
-        await ctx.info(f"{{tool_name}} -> checking if must be unregistered")
-        # Keep default tools, unregister everything else
-        if tool_name in tools_enabled:
-            await ctx.info(f"{{tool_name}} -> part if the default list. keeping it...")
-            continue
-        else:
-            await ctx.debug(f"{{tool_name}} -> Unregistering the tool")
-            mcp.remove_tool(mcp_tool.name)
-            await ctx.info(f"{{tool_name}} -> `remove_tool()` function triggered")
-
-    # ===== REGISTER NEW TOOLS =====
-    await ctx.info(" REGISTERING TOOLS ".center(60, "="))
-    # Process each requested category
-    for category in enable_mcp_tools_categories:
-        await ctx.info(f" Processing {{category.value}} category".rjust(60, "-"))
-        await ctx.info(f"{{category.value}} -> enabling category")
-
-        # Verify category exists in available tools
-        if not TOOLS_AVAILABLE.get(category.value):
-            await ctx.warning(f"{{category.value}} -> Unknown category")
-            continue
-
-        # Process each tool in the category
-        for tool in TOOLS_AVAILABLE[category.value]["tools"]:
-            import_name = f"mistmcp.tools.{{category.value}}.{{snake_case(tool)}}"
-            await ctx.debug(f"{{import_name}} -> Registering the tool")
-            try:
-                # Dynamically import the module containing the tool
-                module = importlib.import_module(f"mistmcp.tools.{{category.value}}")
-                await ctx.info(f"{{import_name}} -> module loaded")
-
-                # Register the tool with MCP
-                getattr(module, snake_case(tool)).add_tool()
-                await ctx.info(f"{{tool}} -> `add_tool()` function triggered")
-                tools_enabled.append(tool)
-
-            except (ImportError, AttributeError) as e:
-                await ctx.error(f"{{import_name}} -> failed to load the tool: {{str(e)}}")
-                continue
-
-    # Get final list of registered tools
-    mcp_tools = await mcp.get_tools()
-
-    # Add delays to ensure proper tool registration
-    await asyncio.sleep(.5)
-    # Notify server that tool list has changed
-    await ctx.session.send_tool_list_changed()
-    await asyncio.sleep(.5)
-
-    # Create completion message
-    message = f\"\"\"
-🔧 MCP TOOLS CONFIGURATION COMPLETE 🔧
-
-Tools enabled: {{", ".join(tools_enabled)}}
-
-\"\"\"
-    await ctx.info(message)
-
-    # Return message requiring user confirmation before continuing
-    return f\"\"\"⚠️ STOP: USER CONFIRMATION REQUIRED ⚠️
-
-{{message}}
-
-This tool has completed its configuration. The agent MUST stop here and ask the user for explicit confirmation before proceeding with any other actions.
-
-AGENT INSTRUCTION: Do not continue with any other tools or actions. Present this message to the user and wait for their explicit confirmation to proceed.\"\"\"
-
-"""
 
 # Template for the main __init__.py file
 INIT_TEMPLATE = """\"\"\"
@@ -298,69 +163,91 @@ TOOL_TEMPLATE = """"\"\"\"
 \"\"\"
 import json
 import mistapi
-from fastmcp.server.dependencies import get_context
+from fastmcp.server.dependencies import get_context, get_http_request
 from fastmcp.exceptions import ToolError
-from mistmcp.__server import mcp
-from mistmcp.__mistapi import apisession
+from starlette.requests import Request
+from mistmcp.server_factory import _CURRENT_MCP_INSTANCE as mcp
 {imports}
 
 {models}
 {enums}
 
-def add_tool():
-    mcp.add_tool(
-        fn={operationId},
-        name="{operationId}",
-        description=\"\"\"{description}\"\"\",
-        tags={{"{tag}"}},
-        annotations={{
-            "title": "{operationId}",
-            "readOnlyHint": {readOnlyHint},
-            "destructiveHint": {destructiveHint},
-            "openWorldHint": True
-        }}
-    )
 
-def remove_tool():
-    mcp.remove_tool("{operationId}")
-
-async def {operationId}({parameters}) -> dict:
+@mcp.tool(
+    enabled=True,
+    name = "{operationId}",
+    description = \"\"\"{description}\"\"\",
+    tags = {{"{tag}"}},
+    annotations = {{
+        "title": "{operationId}",
+        "readOnlyHint": {readOnlyHint},
+        "destructiveHint": {destructiveHint},
+        "openWorldHint": True,
+    }},
+)
+async def {operationId}(
+    {parameters}) -> dict:
     \"\"\"{description}\"\"\"
 
+    ctx = get_context()
+    request: Request = get_http_request()
+    cloud = request.query_params.get("cloud", None)
+    apitoken = request.headers.get("X-Authorization", None)
+    apisession = mistapi.APISession(
+        host=cloud,
+        apitoken=apitoken,
+    )
+    
     response = {mistapi_request}
 
-
-    ctx = get_context()
-
     if response.status_code != 200:
-        error = {{
+        api_error = {{
             "status_code": response.status_code,
             "message": ""
         }}
         if response.data:
             await ctx.error(f"Got HTTP{{response.status_code}} with details {{response.data}}")
-            error["message"] =json.dumps(response.data)
+            api_error["message"] =json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{{response.status_code}}")
-            error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
+            api_error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{{response.status_code}}")
-            error["message"] =json.dumps("Unauthorized")
+            api_error["message"] =json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{{response.status_code}}")
-            error["message"] =json.dumps("Unauthorized")
+            api_error["message"] =json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{{response.status_code}}")
-            error["message"] =json.dumps("Permission Denied")
+            api_error["message"] =json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{{response.status_code}}")
-            error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+            api_error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{{response.status_code}}")
-            error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
-        raise ToolError(error)
+            api_error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
+        raise ToolError(api_error)
 
     return response.data
+"""
+
+TOOLS_HELPER = """"\"\"\"
+--------------------------------------------------------------------------------
+-------------------------------- Mist MCP SERVER -------------------------------
+
+    Written by: Thomas Munzer (tmunzer@juniper.net)
+    Github    : https://github.com/tmunzer/mistmcp
+
+    This package is licensed under the MIT License.
+
+--------------------------------------------------------------------------------
+\"\"\"
+from enum import Enum
+
+class McpToolsCategory(Enum):
+{enums}
+
+TOOLS = {tools}
 """
 
 
@@ -533,7 +420,7 @@ def _process_params(
             else:
                 _add_import(imports, "typing", "Optional")
                 tmp_type = f"Optional[{tmp_type}]"
-                tmp_optional = " | None"
+                # tmp_optional = " | None"
                 tmp_default = " = None"
 
         if annotations:
@@ -623,7 +510,9 @@ def _get_tag_defs() -> dict:
         if tag.get("name") not in EXCLUDED_TAGS:
             defs[snake_case(tag.get("name")).lower()] = {
                 "tools": [],
-                "description": tag.get("description"),
+                "description": re.sub(
+                    r"API Call", "tool", tag.get("description", ""), flags=re.IGNORECASE
+                ),
             }
     return defs
 
@@ -697,6 +586,7 @@ def main() -> None:
 {mistapi_parameters}    )"""
 
             tool_code = TOOL_TEMPLATE.format(
+                class_name=operation_id.capitalize(),
                 imports=imports,
                 models=models,
                 enums=enums,
@@ -752,16 +642,16 @@ def main() -> None:
     for tag, files in tag_to_tools.items():
         print(f'{snake_case(tag).upper()} = "{snake_case(tag).lower()}"')
 
-    with open(INIT_FILE, "w") as f:
-        f.write(INIT_TEMPLATE.format(tools_import=_gen_tools_init(root_tools_import)))
+    with open(INIT_FILE, "w") as f_init:
+        f_init.write(
+            INIT_TEMPLATE.format(tools_import=_gen_tools_init(root_tools_import))
+        )
 
-    with open(TOOLS_FILE, "w") as f:
-        json.dump(root_tag_defs, f)
-
-    with open(TOOLS_CONFIG_FILE, "w") as f:
-        f.write(
-            TOOLS_CONFIG_TEMPLATE.format(
+    with open(TOOLS_HELPER_FILE, "w") as f_tool:
+        f_tool.write(
+            TOOLS_HELPER.format(
                 enums="\n".join(root_enums),
+                tools=json.dumps(root_tag_defs),
             )
         )
 

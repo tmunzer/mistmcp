@@ -1,0 +1,172 @@
+"""
+--------------------------------------------------------------------------------
+-------------------------------- Mist MCP SERVER -------------------------------
+
+    Written by: Thomas Munzer (tmunzer@juniper.net)
+    Github    : https://github.com/tmunzer/mistmcp
+
+    This package is licensed under the MIT License.
+
+--------------------------------------------------------------------------------
+"""
+
+from typing import Any, Dict
+
+from fastmcp import FastMCP
+from fastmcp.server.dependencies import get_http_request
+from mcp.types import Tool as MCPTool
+from starlette.requests import Request
+
+from mistmcp.config import ServerConfig
+from mistmcp.session_manager import get_current_session, session_manager
+
+
+class SessionAwareFastMCP(FastMCP):
+    """
+    Enhanced FastMCP server that supports per-session tool filtering.
+
+    This extends the base FastMCP class to filter tool access based on client sessions.
+    Each client maintains independent tool configurations through the session manager.
+    """
+
+    def __init__(self, config: ServerConfig, transport_mode: str = "stdio", **kwargs):
+        super().__init__(**kwargs)
+        self.config = config
+        self.transport_mode = transport_mode
+
+    async def get_tools(self) -> Dict[str, Any]:
+        """Override get_tools to return session-filtered tools"""
+        mode: str | None = None
+        try:
+            req: Request = get_http_request()
+            session = get_current_session()
+            if self.transport_mode == "http":
+                # For HTTP mode, we can access query parameters directly
+                mode = req.query_params.get("mode", None)
+            else:
+                # For other transport modes, use the server mode
+                mode = self.config.tool_loading_mode.value
+            enabled_tools = session.enabled_tools
+        except Exception:
+            # If we can't get session context, return default tools only
+            # This ensures consistent behavior across different contexts
+            enabled_tools = session_manager.default_enabled_tools
+
+        # Get all registered tools
+        all_tools = await super().get_tools()
+
+        if mode == "all":
+            # If mode is 'all', return all tools without filtering
+            return all_tools
+
+        # Filter tools based on current session's enabled tools
+        filtered_tools = {}
+        for tool_name, tool_obj in all_tools.items():
+            if tool_name in enabled_tools:
+                filtered_tools[tool_name] = tool_obj
+
+        return filtered_tools
+
+    async def get_tool(self, key: str):
+        """Override get_tool to enforce session-based access control"""
+        try:
+            session = get_current_session()
+            enabled_tools = session.enabled_tools
+        except Exception:
+            # If we can't get session context, use default tools
+            enabled_tools = session_manager.default_enabled_tools
+
+        # Check if tool is enabled for this session
+        if key not in enabled_tools:
+            from fastmcp.exceptions import ToolError
+
+            raise ToolError(
+                f"Tool '{key}' is not enabled for your session. "
+                f"Use 'manageMcpTools' to enable the required tool category first."
+            )
+
+        # Tool is enabled, get it from parent
+        return await super().get_tool(key)
+
+    async def _mcp_list_tools(self) -> list[MCPTool]:
+        """Override _mcp_list_tools to ensure session-aware tool listing"""
+        # This method calls get_tools() internally, which we've already overridden
+        # to be session-aware, but we override this explicitly for clarity
+        return await super()._mcp_list_tools()
+
+    async def get_session_info(self) -> Dict[str, Any]:
+        """Get information about the current session"""
+        try:
+            session = get_current_session()
+
+            return {
+                "session_id": session.session_id,
+                "enabled_tools": list(session.enabled_tools),
+                "enabled_categories": list(session.enabled_categories),
+                "created_at": session.created_at.isoformat(),
+                "last_activity": session.last_activity.isoformat(),
+            }
+        except Exception as e:
+            return {"error": f"Could not get session info: {e}"}
+
+    async def list_all_sessions(self) -> Dict[str, Any]:
+        """List all active sessions (for debugging/admin purposes)"""
+
+        sessions_info = {}
+        for session_id, session in session_manager.get_all_sessions().items():
+            sessions_info[session_id] = {
+                "enabled_tools": list(session.enabled_tools),
+                "enabled_categories": list(session.enabled_categories),
+                "created_at": session.created_at.isoformat(),
+                "last_activity": session.last_activity.isoformat(),
+                "is_expired": session.is_expired(
+                    session_manager.session_timeout_minutes
+                ),
+            }
+
+        return {
+            "total_sessions": len(sessions_info),
+            "sessions": sessions_info,
+            "default_tools": list(session_manager.default_enabled_tools),
+        }
+
+
+def create_session_aware_mcp_server(
+    config: ServerConfig, transport_mode: str = "stdio"
+) -> SessionAwareFastMCP:
+    """Create a session-aware MCP server"""
+
+    # Base server instructions
+    base_instructions = """
+Mist MCP Server is a multi-client server that provides access to the Juniper Mist MCP API.
+It allows multiple clients to manage their network (Wi-Fi, LAN, WAN, NAC) using the Mist MCP API.
+
+Each client maintains their own session with independent tool configurations.
+Use 'manageMcpTools' to enable/disable tools for your specific session.
+
+AGENT INSTRUCTION:
+You are a Network Engineer using the Juniper Mist solution to manage your network (Wi-Fi, Lan, Wan, NAC).
+All information regarding Organizations, Sites, Devices, Clients, performance, issues and configuration 
+can be retrieved with the tools provided by the Mist MCP Server.
+
+Your tool access is session-specific - other clients cannot see or modify your tool configuration.
+"""
+
+    # Add mode-specific instructions
+    from mistmcp.server_factory import get_mode_instructions
+
+    mode_instructions = get_mode_instructions(config)
+
+    # Create the session-aware server
+    mcp = SessionAwareFastMCP(
+        config=config,
+        transport_mode=transport_mode,
+        name="Mist MCP Server (Multi-Client)",
+        instructions=base_instructions
+        + mode_instructions
+        + config.get_description_suffix(),
+        on_duplicate_tools="replace",
+        mask_error_details=False,
+    )
+
+    return mcp

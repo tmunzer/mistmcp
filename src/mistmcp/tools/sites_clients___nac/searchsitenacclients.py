@@ -12,141 +12,119 @@
 
 import json
 import mistapi
-from fastmcp.server.dependencies import get_context
+from fastmcp.server.dependencies import get_context, get_http_request
 from fastmcp.exceptions import ToolError
-from mistmcp.__server import mcp
-from mistmcp.__mistapi import apisession
+from starlette.requests import Request
+from mistmcp.server_factory import _CURRENT_MCP_INSTANCE as mcp
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 
 
-def add_tool() -> None:
-    mcp.add_tool(
-        fn=searchSiteNacClients,
-        name="searchSiteNacClients",
-        description="""Search Site NAC Clients""",
-        tags={"Sites Clients - NAC"},
-        annotations={
-            "title": "searchSiteNacClients",
-            "readOnlyHint": True,
-            "destructiveHint": False,
-            "openWorldHint": True,
-        },
-    )
-
-
-def remove_tool() -> None:
-    mcp.remove_tool("searchSiteNacClients")
-
-
+@mcp.tool(
+    enabled=True,
+    name="searchSiteNacClients",
+    description="""Search Site NAC Clients""",
+    tags={"Sites Clients - NAC"},
+    annotations={
+        "title": "searchSiteNacClients",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+    },
+)
 async def searchSiteNacClients(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     nacrule_id: Annotated[
         Optional[str], Field(description="""NAC Policy Rule ID, if matched""")
-    ]
-    | None = None,
+    ] = None,
     nacrule_matched: Annotated[
         Optional[bool], Field(description="""NAC Policy Rule Matched""")
-    ]
-    | None = None,
+    ] = None,
     auth_type: Annotated[
         Optional[str],
         Field(
             description="""Authentication type, e.g. 'eap-tls', 'eap-peap', 'eap-ttls', 'eap-teap', 'mab', 'psk', 'device-auth'"""
         ),
-    ]
-    | None = None,
+    ] = None,
     vlan: Annotated[
         Optional[str], Field(description="""Vlan name or ID assigned to the client""")
-    ]
-    | None = None,
-    nas_vendor: Annotated[Optional[str], Field(description="""Vendor of NAS device""")]
-    | None = None,
+    ] = None,
+    nas_vendor: Annotated[
+        Optional[str], Field(description="""Vendor of NAS device""")
+    ] = None,
     idp_id: Annotated[
         Optional[str], Field(description="""SSO ID, if present and used""")
-    ]
-    | None = None,
-    ssid: Annotated[Optional[str], Field(description="""SSID""")] | None = None,
+    ] = None,
+    ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
     username: Annotated[
         Optional[str], Field(description="""Username presented by the client""")
-    ]
-    | None = None,
-    timestamp: Annotated[Optional[float], Field(description="""Start time, in epoch""")]
-    | None = None,
-    ap: Annotated[Optional[str], Field(description="""AP MAC connected to by client""")]
-    | None = None,
-    mac: Annotated[Optional[str], Field(description="""MAC address""")] | None = None,
+    ] = None,
+    timestamp: Annotated[
+        Optional[float], Field(description="""Start time, in epoch""")
+    ] = None,
+    ap: Annotated[
+        Optional[str], Field(description="""AP MAC connected to by client""")
+    ] = None,
+    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
     mdm_managed: Annotated[
         Optional[bool],
         Field(description="""Filters NAC clients that are managed by MDM providers"""),
-    ]
-    | None = None,
+    ] = None,
     mxedge_id: Annotated[
         Optional[str],
         Field(description="""ID of Mist Edge that the client is connected through"""),
-    ]
-    | None = None,
+    ] = None,
     nacrule_name: Annotated[
         Optional[str], Field(description="""NAC Policy Rule Name matched""")
-    ]
-    | None = None,
+    ] = None,
     status: Annotated[
         Optional[str],
         Field(
             description="""Connection status of client i.e 'permitted', 'denied, 'session_ended'"""
         ),
-    ]
-    | None = None,
+    ] = None,
     type: Annotated[
         Optional[str],
         Field(description="""Client type i.e. 'wireless', 'wired' etc."""),
-    ]
-    | None = None,
+    ] = None,
     mdm_compliance: Annotated[
         Optional[str],
         Field(
             description="""MDM compliance of client i.e 'compliant', 'not compliant'"""
         ),
-    ]
-    | None = None,
+    ] = None,
     mdm_provider: Annotated[
         Optional[str],
         Field(
             description="""MDM provider of client’s organisation eg 'intune', 'jamf'"""
         ),
-    ]
-    | None = None,
+    ] = None,
     sort: Annotated[
         Optional[str],
         Field(
             description="""Sort options, ‘-‘ prefix represents DESC order, default is wcid in ASC order"""
         ),
-    ]
-    | None = None,
+    ] = None,
     usermac_label: Annotated[
         Optional[list], Field(description="""Labels derived from usermac entry""")
-    ]
-    | None = None,
+    ] = None,
     ingress_vlan: Annotated[
         Optional[str],
         Field(description="""Vendor specific Vlan ID in radius requests"""),
-    ]
-    | None = None,
+    ] = None,
     start: Annotated[
         Optional[int],
         Field(
             description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
         ),
-    ]
-    | None = None,
+    ] = None,
     end: Annotated[
         Optional[int],
         Field(
             description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
         ),
-    ]
-    | None = None,
+    ] = None,
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
@@ -154,6 +132,15 @@ async def searchSiteNacClients(
     page: Annotated[int, Field(ge=1, default=1)] = 1,
 ) -> dict:
     """Search Site NAC Clients"""
+
+    ctx = get_context()
+    request: Request = get_http_request()
+    cloud = request.query_params.get("cloud", None)
+    apitoken = request.headers.get("X-Authorization", None)
+    apisession = mistapi.APISession(
+        host=cloud,
+        apitoken=apitoken,
+    )
 
     response = mistapi.api.v1.sites.nac_clients.searchSiteNacClients(
         apisession,
@@ -186,39 +173,37 @@ async def searchSiteNacClients(
         page=page,
     )
 
-    ctx = get_context()
-
     if response.status_code != 200:
-        error = {"status_code": response.status_code, "message": ""}
+        api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
             await ctx.error(
                 f"Got HTTP{response.status_code} with details {response.data}"
             )
-            error["message"] = json.dumps(response.data)
+            api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
             )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Permission Denied")
+            api_error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
             )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
             )
-        raise ToolError(error)
+        raise ToolError(api_error)
 
     return response.data

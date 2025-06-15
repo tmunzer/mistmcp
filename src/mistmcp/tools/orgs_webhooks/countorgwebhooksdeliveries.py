@@ -11,17 +11,15 @@
 """
 
 import json
-from enum import Enum
+import mistapi
+from fastmcp.server.dependencies import get_context, get_http_request
+from fastmcp.exceptions import ToolError
+from starlette.requests import Request
+from mistmcp.server_factory import _CURRENT_MCP_INSTANCE as mcp
+from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-
-import mistapi
-from fastmcp.exceptions import ToolError
-from fastmcp.server.dependencies import get_context
-from pydantic import Field
-
-from mistmcp.__mistapi import apisession
-from mistmcp.__server import mcp
+from enum import Enum
 
 
 class Status(Enum):
@@ -47,30 +45,23 @@ class Distinct(Enum):
     NONE = None
 
 
-def add_tool() -> None:
-    mcp.add_tool(
-        fn=countOrgWebhooksDeliveries,
-        name="countOrgWebhooksDeliveries",
-        description="""Count Org Webhooks deliveriesTopics Supported:- alarms- audits- device-updowns- occupancy-alerts- ping""",
-        tags={"Orgs Webhooks"},
-        annotations={
-            "title": "countOrgWebhooksDeliveries",
-            "readOnlyHint": True,
-            "destructiveHint": False,
-            "openWorldHint": True,
-        },
-    )
-
-
-def remove_tool() -> None:
-    mcp.remove_tool("countOrgWebhooksDeliveries")
-
-
+@mcp.tool(
+    enabled=True,
+    name="countOrgWebhooksDeliveries",
+    description="""Count Org Webhooks deliveriesTopics Supported:- alarms- audits- device-updowns- occupancy-alerts- ping""",
+    tags={"Orgs Webhooks"},
+    annotations={
+        "title": "countOrgWebhooksDeliveries",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+    },
+)
 async def countOrgWebhooksDeliveries(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     webhook_id: Annotated[UUID, Field(description="""ID of the Mist Webhook""")],
-    error: Optional[str] | None = None,
-    status_code: Optional[int] | None = None,
+    error: Optional[str] = None,
+    status_code: Optional[int] = None,
     status: Annotated[
         Status, Field(description="""Webhook delivery status""")
     ] = Status.NONE,
@@ -81,21 +72,28 @@ async def countOrgWebhooksDeliveries(
         Field(
             description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
         ),
-    ]
-    | None = None,
+    ] = None,
     end: Annotated[
         Optional[int],
         Field(
             description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
         ),
-    ]
-    | None = None,
+    ] = None,
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
     """Count Org Webhooks deliveriesTopics Supported:- alarms- audits- device-updowns- occupancy-alerts- ping"""
+
+    ctx = get_context()
+    request: Request = get_http_request()
+    cloud = request.query_params.get("cloud", None)
+    apitoken = request.headers.get("X-Authorization", None)
+    apisession = mistapi.APISession(
+        host=cloud,
+        apitoken=apitoken,
+    )
 
     response = mistapi.api.v1.orgs.webhooks.countOrgWebhooksDeliveries(
         apisession,
@@ -112,39 +110,37 @@ async def countOrgWebhooksDeliveries(
         limit=limit,
     )
 
-    ctx = get_context()
-
     if response.status_code != 200:
-        error = {"status_code": response.status_code, "message": ""}
+        api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
             await ctx.error(
                 f"Got HTTP{response.status_code} with details {response.data}"
             )
-            error["message"] = json.dumps(response.data)
+            api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
             )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Permission Denied")
+            api_error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
             )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
             )
-        raise ToolError(error)
+        raise ToolError(api_error)
 
     return response.data
