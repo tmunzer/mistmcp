@@ -250,7 +250,7 @@ curl -H "X-Authorization: your-mist-api-token" \
         "Mist MCP Server (HTTP - Custom Categories)": {
             "command": "npx",
             "args": [
-                "-y", 
+                "-y",
                 "mcp-remote",
                 "http://localhost:8000/mcp/?cloud=api.mist.com&mode=custom&categories=sites,orgs,orgs_devices",
                 "--header",
@@ -274,7 +274,7 @@ curl -H "X-Authorization: your-mist-api-token" \
             "command": "npx",
             "args": [
                 "-y",
-                "mcp-remote", 
+                "mcp-remote",
                 "https://your-server.com:8000/mcp/?cloud=api.mist.com&mode=all",
                 "--header",
                 "X-Authorization:${MIST_API_TOKEN}",
@@ -337,14 +337,14 @@ uv run mistmcp --transport http --mode managed \
 server {
     listen 443 ssl;
     server_name your-mist-mcp.example.com;
-    
+
     location /mcp/ {
         proxy_pass http://127.0.0.1:8000/mcp/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # WebSocket support (if needed)
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -427,7 +427,7 @@ Add to your workspace `.vscode/settings.json`:
             }
         },
         "mist-devices": {
-            "command": "uv", 
+            "command": "uv",
             "args": [
                 "run",
                 "mistmcp",
