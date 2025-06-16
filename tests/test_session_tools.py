@@ -16,6 +16,7 @@ class TestSessionTool:
     """Test session_tool decorator"""
 
     @patch("mistmcp.session_tools.is_tool_enabled_for_current_session")
+    @pytest.mark.asyncio
     async def test_session_tool_enabled(self, mock_is_enabled):
         """Test session_tool decorator when tool is enabled"""
         mock_is_enabled.return_value = True
@@ -29,6 +30,7 @@ class TestSessionTool:
         mock_is_enabled.assert_called_once_with("test_tool")
 
     @patch("mistmcp.session_tools.is_tool_enabled_for_current_session")
+    @pytest.mark.asyncio
     async def test_session_tool_disabled(self, mock_is_enabled):
         """Test session_tool decorator when tool is disabled"""
         mock_is_enabled.return_value = False
@@ -71,6 +73,7 @@ class TestSessionTool:
         assert test_tool._is_session_tool is True
 
     @patch("mistmcp.session_tools.is_tool_enabled_for_current_session")
+    @pytest.mark.asyncio
     async def test_session_tool_with_args(self, mock_is_enabled):
         """Test session_tool decorator with function arguments"""
         mock_is_enabled.return_value = True
@@ -88,6 +91,7 @@ class TestRequireSessionTool:
     """Test require_session_tool decorator"""
 
     @patch("mistmcp.session_tools.is_tool_enabled_for_current_session")
+    @pytest.mark.asyncio
     async def test_require_session_tool_enabled(self, mock_is_enabled):
         """Test require_session_tool when required tool is enabled"""
         mock_is_enabled.return_value = True
@@ -101,6 +105,7 @@ class TestRequireSessionTool:
         mock_is_enabled.assert_called_once_with("orgs_getOrgs")
 
     @patch("mistmcp.session_tools.is_tool_enabled_for_current_session")
+    @pytest.mark.asyncio
     async def test_require_session_tool_disabled(self, mock_is_enabled):
         """Test require_session_tool when required tool is disabled"""
         mock_is_enabled.return_value = False
@@ -117,6 +122,7 @@ class TestRequireSessionTool:
         mock_is_enabled.assert_called_once_with("orgs_getOrgs")
 
     @patch("mistmcp.session_tools.is_tool_enabled_for_current_session")
+    @pytest.mark.asyncio
     async def test_require_session_tool_with_args(self, mock_is_enabled):
         """Test require_session_tool with function arguments"""
         mock_is_enabled.return_value = True

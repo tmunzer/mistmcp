@@ -37,6 +37,7 @@ class TestSessionAwareToolHandler:
         assert handler.original_tool_handlers == {}
 
     @patch("mistmcp.session_middleware.is_tool_enabled_for_current_session")
+    @pytest.mark.asyncio
     async def test_wrap_tool_enabled(self, mock_is_enabled, tool_handler):
         """Test wrapping a tool that is enabled for the session"""
         mock_is_enabled.return_value = True
@@ -58,6 +59,7 @@ class TestSessionAwareToolHandler:
         assert result == "test_result"
 
     @patch("mistmcp.session_middleware.is_tool_enabled_for_current_session")
+    @pytest.mark.asyncio
     async def test_wrap_tool_disabled(self, mock_is_enabled, tool_handler):
         """Test wrapping a tool that is disabled for the session"""
         mock_is_enabled.return_value = False

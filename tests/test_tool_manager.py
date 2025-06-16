@@ -62,6 +62,7 @@ class TestManageMcpTools:
     @patch("mistmcp.tool_manager.get_current_session")
     @patch("mistmcp.tool_manager.get_context")
     @patch("asyncio.sleep", new_callable=AsyncMock)
+    @pytest.mark.asyncio
     async def test_manage_mcp_tools_single_category(
         self,
         mock_sleep,
@@ -104,6 +105,7 @@ class TestManageMcpTools:
     @patch("mistmcp.tool_manager.get_current_session")
     @patch("mistmcp.tool_manager.get_context")
     @patch("asyncio.sleep", new_callable=AsyncMock)
+    @pytest.mark.asyncio
     async def test_manage_mcp_tools_string_category(
         self,
         mock_sleep,
@@ -136,6 +138,7 @@ class TestManageMcpTools:
     @patch("mistmcp.tool_manager.get_current_session")
     @patch("mistmcp.tool_manager.get_context")
     @patch("asyncio.sleep", new_callable=AsyncMock)
+    @pytest.mark.asyncio
     async def test_manage_mcp_tools_comma_separated(
         self,
         mock_sleep,
@@ -171,6 +174,7 @@ class TestManageMcpTools:
     @patch("mistmcp.tool_manager.get_current_session")
     @patch("mistmcp.tool_manager.get_context")
     @patch("asyncio.sleep", new_callable=AsyncMock)
+    @pytest.mark.asyncio
     async def test_manage_mcp_tools_json_string(
         self,
         mock_sleep,
@@ -207,6 +211,7 @@ class TestManageMcpTools:
     @patch("mistmcp.tool_manager.get_current_session")
     @patch("mistmcp.tool_manager.get_context")
     @patch("asyncio.sleep", new_callable=AsyncMock)
+    @pytest.mark.asyncio
     async def test_manage_mcp_tools_unknown_category(
         self,
         mock_sleep,
@@ -239,6 +244,7 @@ class TestManageMcpTools:
     @patch("mistmcp.tool_manager.get_current_session")
     @patch("mistmcp.tool_manager.get_context")
     @patch("asyncio.sleep", new_callable=AsyncMock)
+    @pytest.mark.asyncio
     async def test_manage_mcp_tools_invalid_category_type(
         self,
         mock_sleep,
@@ -266,6 +272,7 @@ class TestManageMcpTools:
     @patch("mistmcp.tool_manager.get_current_session")
     @patch("mistmcp.tool_manager.get_context")
     @patch("asyncio.sleep", new_callable=AsyncMock)
+    @pytest.mark.asyncio
     async def test_manage_mcp_tools_notification_failure(
         self,
         mock_sleep,
@@ -300,6 +307,7 @@ class TestManageMcpTools:
     @patch("mistmcp.tool_manager.get_current_session")
     @patch("mistmcp.tool_manager.get_context")
     @patch("asyncio.sleep", new_callable=AsyncMock)
+    @pytest.mark.asyncio
     async def test_manage_mcp_tools_preserve_existing_tools(
         self,
         mock_sleep,

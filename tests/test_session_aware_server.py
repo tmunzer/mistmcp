@@ -46,6 +46,7 @@ class TestSessionAwareFastMCP:
         assert server.transport_mode == "http"
 
     @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
     async def test_get_tools_with_session(
         self, mock_get_session, session_aware_server, mock_session
     ):
@@ -77,6 +78,7 @@ class TestSessionAwareFastMCP:
 
     @patch("mistmcp.session_aware_server.get_current_session")
     @patch("mistmcp.session_aware_server.session_manager")
+    @pytest.mark.asyncio
     async def test_get_tools_without_session(
         self, mock_session_manager, mock_get_session, session_aware_server
     ):
@@ -106,6 +108,7 @@ class TestSessionAwareFastMCP:
 
     @patch("mistmcp.session_aware_server.get_http_request")
     @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
     async def test_get_tools_http_mode_all(
         self, mock_get_session, mock_get_request, mock_session
     ):
@@ -141,6 +144,7 @@ class TestSessionAwareFastMCP:
         assert "orgs_getOrgs" in filtered_tools
 
     @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
     async def test_get_tool_enabled(
         self, mock_get_session, session_aware_server, mock_session
     ):
@@ -159,6 +163,7 @@ class TestSessionAwareFastMCP:
         assert result == mock_tool
 
     @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
     async def test_get_tool_disabled(
         self, mock_get_session, session_aware_server, mock_session
     ):
@@ -191,6 +196,7 @@ class TestSessionAwareFastMCP:
         assert result == mock_tool
 
     @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
     async def test_get_session_info_success(
         self, mock_get_session, session_aware_server, mock_session
     ):
@@ -206,6 +212,7 @@ class TestSessionAwareFastMCP:
         assert result["last_activity"] == "2025-01-01T01:00:00"
 
     @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
     async def test_get_session_info_error(self, mock_get_session, session_aware_server):
         """Test get_session_info when session context fails"""
         mock_get_session.side_effect = Exception("Session error")
@@ -216,6 +223,7 @@ class TestSessionAwareFastMCP:
         assert "Session error" in result["error"]
 
     @patch("mistmcp.session_aware_server.session_manager")
+    @pytest.mark.asyncio
     async def test_list_all_sessions(
         self, mock_session_manager, session_aware_server, mock_session
     ):
@@ -244,6 +252,7 @@ class TestSessionAwareFastMCP:
         assert "session2" in result["sessions"]
         assert result["default_tools"] == ["getSelf", "manageMcpTools"]
 
+    @pytest.mark.asyncio
     async def test_mcp_list_tools(self, session_aware_server):
         """Test _mcp_list_tools method"""
         mock_tools = [Mock(), Mock()]
