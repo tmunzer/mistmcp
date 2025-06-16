@@ -65,6 +65,7 @@ def mock_session():
         enabled_categories=set(),
         created_at=datetime.now(),
         last_activity=datetime.now(),
+        mode="managed",
     )
 
 

@@ -14,7 +14,6 @@ from typing import Any, Dict
 
 from fastmcp import FastMCP
 from fastmcp.server.dependencies import get_http_request
-from mcp.types import Tool as MCPTool
 from starlette.requests import Request
 
 from mistmcp.config import ServerConfig
@@ -29,23 +28,25 @@ class SessionAwareFastMCP(FastMCP):
     Each client maintains independent tool configurations through the session manager.
     """
 
-    def __init__(self, config: ServerConfig, transport_mode: str = "stdio", **kwargs):
+    def __init__(
+        self, config: ServerConfig, transport_mode: str = "stdio", **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self.config = config
         self.transport_mode = transport_mode
 
     async def get_tools(self) -> Dict[str, Any]:
         """Override get_tools to return session-filtered tools"""
-        mode: str | None = None
+        mode: str = self.config.tool_loading_mode.value
         try:
-            req: Request = get_http_request()
-            session = get_current_session()
             if self.transport_mode == "http":
                 # For HTTP mode, we can access query parameters directly
-                mode = req.query_params.get("mode", None)
+                req: Request = get_http_request()
+                mode = req.query_params.get("mode", self.config.tool_loading_mode.value)
             else:
                 # For other transport modes, use the server mode
                 mode = self.config.tool_loading_mode.value
+            session = get_current_session(mode)
             enabled_tools = session.enabled_tools
         except Exception:
             # If we can't get session context, return default tools only
@@ -70,7 +71,7 @@ class SessionAwareFastMCP(FastMCP):
     async def get_tool(self, key: str):
         """Override get_tool to enforce session-based access control"""
         try:
-            session = get_current_session()
+            session = get_current_session(self.config.tool_loading_mode.value)
             enabled_tools = session.enabled_tools
         except Exception:
             # If we can't get session context, use default tools
@@ -88,19 +89,14 @@ class SessionAwareFastMCP(FastMCP):
         # Tool is enabled, get it from parent
         return await super().get_tool(key)
 
-    async def _mcp_list_tools(self) -> list[MCPTool]:
-        """Override _mcp_list_tools to ensure session-aware tool listing"""
-        # This method calls get_tools() internally, which we've already overridden
-        # to be session-aware, but we override this explicitly for clarity
-        return await super()._mcp_list_tools()
-
     async def get_session_info(self) -> Dict[str, Any]:
         """Get information about the current session"""
         try:
-            session = get_current_session()
+            session = get_current_session(self.config.tool_loading_mode.value)
 
             return {
                 "session_id": session.session_id,
+                "mode": session.mode,
                 "enabled_tools": list(session.enabled_tools),
                 "enabled_categories": list(session.enabled_categories),
                 "created_at": session.created_at.isoformat(),
@@ -146,7 +142,7 @@ Use 'manageMcpTools' to enable/disable tools for your specific session.
 
 AGENT INSTRUCTION:
 You are a Network Engineer using the Juniper Mist solution to manage your network (Wi-Fi, Lan, Wan, NAC).
-All information regarding Organizations, Sites, Devices, Clients, performance, issues and configuration 
+All information regarding Organizations, Sites, Devices, Clients, performance, issues and configuration
 can be retrieved with the tools provided by the Mist MCP Server.
 
 Your tool access is session-specific - other clients cannot see or modify your tool configuration.

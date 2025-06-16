@@ -14,12 +14,12 @@
 ✅ **COMPLETED - All Tool Methods Are Session-Aware:**
 
 1. **`get_tools()`** - ✅ Overridden for session filtering
-2. **`get_tool()`** - ✅ Overridden for session access control  
+2. **`get_tool()`** - ✅ Overridden for session access control
 3. **`_mcp_list_tools()`** - ✅ Overridden for explicit session awareness (calls session-aware `get_tools()`)
 
 ### **Architecture Updates:**
 
-✅ **Circular Import Fix**: 
+✅ **Circular Import Fix**:
 - Removed global `TOOL_MODE` and `TRANSPORT_MODE` constants from `__init__.py`
 - Updated `SessionAwareFastMCP` to accept configuration and transport mode as constructor parameters
 - Modified `get_current_session()` to accept `transport_mode` parameter
@@ -31,7 +31,7 @@
 # All tool-related methods in FastMCP (Current):
 [
     '_call_tool',        # Internal tool execution
-    '_mcp_call_tool',    # MCP protocol tool execution  
+    '_mcp_call_tool',    # MCP protocol tool execution
     '_mcp_list_tools',   # MCP protocol tool listing ✅ OVERRIDDEN
     'add_tool',          # Add new tool (inherited, no override needed)
     'get_tool',          # Get specific tool ✅ OVERRIDDEN
@@ -66,11 +66,11 @@ def __init__(self, config: ServerConfig, transport_mode: str = "stdio", **kwargs
 ```python
 def get_current_session(transport_mode: str) -> ClientSession:
     """Get the current client session"""
-    
+
     if transport_mode == "stdio":
         # In stdio mode, we don't have HTTP request context
         return session_manager.get_or_create_session("stdio", "stdio")
-    
+
     # In HTTP mode, we can get the request context
     req: Request = get_http_request()
     ip = req.client.host if req.client else "unknown"
@@ -109,7 +109,7 @@ async def get_tools(self) -> Dict[str, Any]:
 
 ✅ **Circular Import Resolution**: Fixed `ImportError: cannot import name 'TOOL_MODE'` error
 ✅ **Method Existence Test**: `_mcp_list_tools` method exists and is properly overridden
-✅ **Session Filtering Test**: Method correctly filters tools based on session configuration  
+✅ **Session Filtering Test**: Method correctly filters tools based on session configuration
 ✅ **Integration Test**: Works seamlessly with existing multi-client session management
 ✅ **Configuration Passing**: Server configuration properly passed through constructor chain
 ✅ **Transport Mode Detection**: Correctly handles both stdio and HTTP transport modes
@@ -155,7 +155,7 @@ __main__.py → create_mcp_server(config, transport_mode)
 - **✅ Tool Discovery**: `get_tools()` and `_mcp_list_tools()` return only session-enabled tools
 - **✅ Tool Access**: `get_tool()` enforces session-based access control with proper error messages
 - **✅ Multi-Client Support**: Each client sees only their configured tools
-- **✅ Transport Mode Support**: Properly handles both stdio and HTTP transport modes  
+- **✅ Transport Mode Support**: Properly handles both stdio and HTTP transport modes
 - **✅ Configuration Management**: Server configuration passed through constructor chain
 - **✅ Backward Compatibility**: Fallback behavior when session context unavailable
 

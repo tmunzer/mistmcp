@@ -11,7 +11,7 @@ from mistmcp.config import ToolLoadingMode
 class TestPrintHelp:
     """Test print_help function"""
 
-    def test_print_help_output(self, capsys):
+    def test_print_help_output(self, capsys) -> None:
         """Test help message is printed correctly"""
         print_help()
         captured = capsys.readouterr()
@@ -27,7 +27,7 @@ class TestStart:
     """Test start function"""
 
     @patch("mistmcp.__main__.create_mcp_server")
-    def test_start_stdio_minimal(self, mock_create_server):
+    def test_start_stdio_minimal(self, mock_create_server) -> None:
         """Test starting with stdio transport and minimal mode"""
         mock_server = Mock()
         mock_create_server.return_value = mock_server
@@ -45,7 +45,7 @@ class TestStart:
         mock_server.run.assert_called_once_with()
 
     @patch("mistmcp.__main__.create_mcp_server")
-    def test_start_http_managed(self, mock_create_server):
+    def test_start_http_managed(self, mock_create_server) -> None:
         """Test starting with HTTP transport and managed mode"""
         mock_server = Mock()
         mock_create_server.return_value = mock_server
@@ -64,7 +64,7 @@ class TestStart:
         )
 
     @patch("mistmcp.__main__.create_mcp_server")
-    def test_start_custom_with_categories(self, mock_create_server):
+    def test_start_custom_with_categories(self, mock_create_server) -> None:
         """Test starting with custom mode and categories"""
         mock_server = Mock()
         mock_create_server.return_value = mock_server
@@ -78,7 +78,7 @@ class TestStart:
         assert config_arg.tool_loading_mode == ToolLoadingMode.CUSTOM
         assert config_arg.tool_categories == categories
 
-    def test_start_custom_no_categories_exits(self, capsys):
+    def test_start_custom_no_categories_exits(self, capsys) -> None:
         """Test that custom mode without categories exits with error"""
         with pytest.raises(SystemExit) as exc_info:
             start("stdio", ToolLoadingMode.CUSTOM, [], debug=False)
@@ -88,7 +88,7 @@ class TestStart:
         assert "Custom mode requires at least one category" in captured.err
 
     @patch("mistmcp.__main__.create_mcp_server")
-    def test_start_keyboard_interrupt(self, mock_create_server, capsys):
+    def test_start_keyboard_interrupt(self, mock_create_server, capsys) -> None:
         """Test handling of KeyboardInterrupt"""
         mock_server = Mock()
         mock_server.run.side_effect = KeyboardInterrupt()
@@ -100,7 +100,7 @@ class TestStart:
         assert "stopped by user" in captured.out
 
     @patch("mistmcp.__main__.create_mcp_server")
-    def test_start_exception_without_debug(self, mock_create_server, capsys):
+    def test_start_exception_without_debug(self, mock_create_server, capsys) -> None:
         """Test handling of exceptions without debug mode"""
         mock_create_server.side_effect = Exception("Test error")
 
@@ -113,7 +113,7 @@ class TestStart:
     @patch("traceback.print_exc")
     def test_start_exception_with_debug(
         self, mock_traceback, mock_create_server, capsys
-    ):
+    ) -> None:
         """Test handling of exceptions with debug mode"""
         mock_create_server.side_effect = Exception("Test error")
 
@@ -124,7 +124,7 @@ class TestStart:
         mock_traceback.assert_called_once()
 
     @patch("mistmcp.__main__.create_mcp_server")
-    def test_start_debug_output(self, mock_create_server, capsys):
+    def test_start_debug_output(self, mock_create_server, capsys) -> None:
         """Test debug output is printed"""
         mock_server = Mock()
         mock_create_server.return_value = mock_server
@@ -143,7 +143,7 @@ class TestMain:
     """Test main function"""
 
     @patch("mistmcp.__main__.start")
-    def test_main_default_args(self, mock_start):
+    def test_main_default_args(self, mock_start) -> None:
         """Test main with default arguments"""
         with patch("sys.argv", ["mistmcp"]):
             main()
@@ -151,7 +151,7 @@ class TestMain:
         mock_start.assert_called_once_with("stdio", ToolLoadingMode.MANAGED, [], False)
 
     @patch("mistmcp.__main__.start")
-    def test_main_custom_args(self, mock_start):
+    def test_main_custom_args(self, mock_start) -> None:
         """Test main with custom arguments"""
         with patch(
             "sys.argv",
@@ -173,7 +173,7 @@ class TestMain:
         )
 
     @patch("mistmcp.__main__.start")
-    def test_main_minimal_mode(self, mock_start):
+    def test_main_minimal_mode(self, mock_start) -> None:
         """Test main with minimal mode"""
         with patch("sys.argv", ["mistmcp", "--mode", "minimal"]):
             main()
@@ -181,14 +181,14 @@ class TestMain:
         mock_start.assert_called_once_with("stdio", ToolLoadingMode.MINIMAL, [], False)
 
     @patch("mistmcp.__main__.start")
-    def test_main_all_mode(self, mock_start):
+    def test_main_all_mode(self, mock_start) -> None:
         """Test main with all mode"""
         with patch("sys.argv", ["mistmcp", "--mode", "all", "--debug"]):
             main()
 
         mock_start.assert_called_once_with("stdio", ToolLoadingMode.ALL, [], True)
 
-    def test_main_invalid_mode(self, capsys):
+    def test_main_invalid_mode(self, capsys) -> None:
         """Test main with invalid mode"""
         with patch("sys.argv", ["mistmcp", "--mode", "invalid"]):
             with pytest.raises(SystemExit) as exc_info:
@@ -199,7 +199,7 @@ class TestMain:
         assert "invalid choice: 'invalid'" in captured.err
 
     @patch("mistmcp.__main__.start")
-    def test_main_categories_with_spaces(self, mock_start):
+    def test_main_categories_with_spaces(self, mock_start) -> None:
         """Test main with categories containing spaces"""
         with patch(
             "sys.argv",
@@ -218,14 +218,14 @@ class TestMain:
         )
 
     @patch("mistmcp.__main__.start")
-    def test_main_empty_categories(self, mock_start):
+    def test_main_empty_categories(self, mock_start) -> None:
         """Test main with empty categories string"""
         with patch("sys.argv", ["mistmcp", "--mode", "custom", "--categories", ",,,"]):
             main()
 
         mock_start.assert_called_once_with("stdio", ToolLoadingMode.CUSTOM, [], False)
 
-    def test_main_help_exits(self):
+    def test_main_help_exits(self) -> None:
         """Test that --help exits appropriately"""
         with patch("sys.argv", ["mistmcp", "--help"]):
             with pytest.raises(SystemExit) as exc_info:
@@ -234,7 +234,7 @@ class TestMain:
         assert exc_info.value.code == 2
 
     @patch("sys.argv", ["mistmcp", "--invalid-arg"])
-    def test_main_invalid_arg_exits(self):
+    def test_main_invalid_arg_exits(self) -> None:
         """Test that invalid arguments cause exit"""
         with pytest.raises(SystemExit) as exc_info:
             main()

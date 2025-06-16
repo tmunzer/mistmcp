@@ -46,12 +46,16 @@ def session_tool(enabled: bool = False, **kwargs):
             return await func(*args, **kwargs)
 
         # Store the original function and configuration for later registration
-        wrapper._original_func = func
-        wrapper._mcp_tool_config = {
-            "enabled": enabled,  # This controls whether the tool is globally registered
-            **kwargs,
-        }
-        wrapper._is_session_tool = True
+        setattr(wrapper, "_original_func", func)
+        setattr(
+            wrapper,
+            "_mcp_tool_config",
+            {
+                "enabled": enabled,  # This controls whether the tool is globally registered
+                **kwargs,
+            },
+        )
+        setattr(wrapper, "_is_session_tool", True)
 
         return wrapper
 
@@ -85,7 +89,7 @@ def require_session_tool(tool_name: str):
 
 def get_session_tool_info(func: Callable) -> Optional[dict]:
     """Get session tool configuration from a decorated function"""
-    if hasattr(func, "_is_session_tool") and func._is_session_tool:
+    if hasattr(func, "_is_session_tool") and getattr(func, "_is_session_tool"):
         return {
             "name": func.__name__,
             "config": getattr(func, "_mcp_tool_config", {}),

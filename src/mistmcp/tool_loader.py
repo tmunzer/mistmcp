@@ -19,7 +19,7 @@ from mistmcp.config import ServerConfig
 class ToolLoader:
     """Handles loading of tools based on server configuration"""
 
-    def __init__(self, config: ServerConfig):
+    def __init__(self, config: ServerConfig) -> None:
         self.config = config
         self.loaded_tools: list[str] = []
 
@@ -27,7 +27,7 @@ class ToolLoader:
         """Convert a string to snake_case format."""
         return s.lower().replace(" ", "_").replace("-", "_")
 
-    def load_essential_tools(self, mcp_instance=None):
+    def load_essential_tools(self, mcp_instance=None) -> None:
         """Load essential tools that are always needed"""
         try:
             # Always load getSelf tool - but use dynamic import to avoid authentication at import time
@@ -55,8 +55,8 @@ class ToolLoader:
                     setattr(mock_mistapi, "apisession", None)
                     sys.modules["mistmcp.__mistapi"] = mock_mistapi
 
-                original_instance = mistmcp.server_factory._CURRENT_MCP_INSTANCE
-                mistmcp.server_factory._CURRENT_MCP_INSTANCE = mcp_instance
+                original_instance = mistmcp.server_factory.mcp_instance.get()
+                mistmcp.server_factory.mcp_instance.set(mcp_instance)
 
                 try:
                     # Remove from sys.modules if already loaded to force reimport
@@ -67,7 +67,7 @@ class ToolLoader:
                     module = importlib.import_module(module_path)
 
                     # Restore original instance
-                    mistmcp.server_factory._CURRENT_MCP_INSTANCE = original_instance
+                    mistmcp.server_factory.mcp_instance.set(original_instance)
 
                     # Look for the tool function
                     if hasattr(module, "getSelf"):
@@ -107,7 +107,7 @@ class ToolLoader:
 
                 except Exception as e:
                     # Restore original instance in case of error
-                    mistmcp.server_factory._CURRENT_MCP_INSTANCE = original_instance
+                    mistmcp.server_factory.mcp_instance.set(original_instance)
                     if self.config.debug:
                         print(f"Warning: Could not load essential tool getSelf: {e}")
                         import traceback
@@ -123,7 +123,7 @@ class ToolLoader:
                 print(f"Warning: Could not load essential tool getSelf: {e}")
             # Try to continue without it
 
-    def load_tool_manager(self, mcp_instance=None):
+    def load_tool_manager(self, mcp_instance=None) -> None:
         """Load the tool manager if needed"""
         if self.config.should_load_tool_manager():
             try:
@@ -155,7 +155,7 @@ class ToolLoader:
         elif self.config.debug:
             print("Tool manager not needed for this mode")
 
-    def load_category_tools(self, categories: List[str], mcp_instance=None):
+    def load_category_tools(self, categories: List[str], mcp_instance=None) -> None:
         """Load tools from specific categories"""
         if mcp_instance is None:
             from mistmcp.server_factory import get_current_mcp
@@ -199,8 +199,8 @@ class ToolLoader:
                         setattr(mock_mistapi, "apisession", None)
                         sys.modules["mistmcp.__mistapi"] = mock_mistapi
 
-                    original_instance = mistmcp.server_factory._CURRENT_MCP_INSTANCE
-                    mistmcp.server_factory._CURRENT_MCP_INSTANCE = mcp_instance
+                    original_instance = mistmcp.server_factory.mcp_instance.get()
+                    mistmcp.server_factory.mcp_instance.set(mcp_instance)
 
                     # Dynamically import the tool module
                     module_path = (
@@ -215,7 +215,7 @@ class ToolLoader:
                     module = importlib.import_module(module_path)
 
                     # Restore original instance
-                    mistmcp.server_factory._CURRENT_MCP_INSTANCE = original_instance
+                    mistmcp.server_factory.mcp_instance.set(original_instance)
 
                     # Look for the tool function or add_tool function
                     if hasattr(module, tool_name):
@@ -277,7 +277,7 @@ class ToolLoader:
                     # Restore original instance in case of error
                     import mistmcp.server_factory
 
-                    mistmcp.server_factory._CURRENT_MCP_INSTANCE = original_instance
+                    mistmcp.server_factory.mcp_instance.set(original_instance)
                     continue
                 except Exception as e:
                     if self.config.debug:
@@ -287,10 +287,10 @@ class ToolLoader:
                     # Restore original instance in case of error
                     import mistmcp.server_factory
 
-                    mistmcp.server_factory._CURRENT_MCP_INSTANCE = original_instance
+                    mistmcp.server_factory.mcp_instance.set(original_instance)
                     continue
 
-    def load_tools(self, mcp_instance=None):
+    def load_tools(self, mcp_instance=None) -> None:
         """Load tools based on the server configuration"""
         if self.config.debug:
             print(f"Loading tools in mode: {self.config.tool_loading_mode.value}")

@@ -46,5 +46,10 @@
         "**/.venv/**": true,
         "**/.mypy_cache/**": true,
         "**/.ruff_cache/**": true
-    }
+    },
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

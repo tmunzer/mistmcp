@@ -49,7 +49,7 @@ async def manageMcpTools(
 
     # Get the current session
     ctx = get_context()
-    session = get_current_session()
+    session = get_current_session("managed")  # Use managed as default mode
 
     # Load tools configuration
     tools_available = TOOLS
@@ -61,20 +61,30 @@ async def manageMcpTools(
     changes_made = []
 
     if isinstance(enable_mcp_tools_categories, str):
-        if "," in enable_mcp_tools_categories:
-            # Split by comma and strip whitespace
-            enable_mcp_tools_categories = [
-                McpToolsCategory(snake_case(cat.strip()))
-                for cat in enable_mcp_tools_categories.split(",")
-            ]
-        else:
-            try:
-                enable_mcp_tools_categories = json.loads(enable_mcp_tools_categories)
-            except json.JSONDecodeError:
+        tools_converted = False
+        tools = enable_mcp_tools_categories
+        try:
+            enable_mcp_tools_categories = json.loads(tools)
+            tools_converted = True
+        except json.JSONDecodeError:
+            pass
+        if not tools_converted:
+            if "," in tools:
+                tmp = []
+                for t in tools.split(","):
+                    try:
+                        tmp.append(McpToolsCategory(snake_case(t.strip())))
+                    except ValueError:
+                        await ctx.warning(f"Unknown category: {t.strip()}")
+                enable_mcp_tools_categories = tmp
+            else:
                 # Single category as string
-                enable_mcp_tools_categories = [
-                    McpToolsCategory(snake_case(enable_mcp_tools_categories))
-                ]
+                try:
+                    enable_mcp_tools_categories = [McpToolsCategory(snake_case(tools))]
+                except ValueError:
+                    await ctx.warning(f"Unknown category: {tools}")
+                    enable_mcp_tools_categories = []
+
     # Process categories to enable
     for category in enable_mcp_tools_categories:
         if isinstance(category, McpToolsCategory):
@@ -90,7 +100,7 @@ async def manageMcpTools(
         else:
             await ctx.warning(f"Invalid category type: {type(category)}")
             continue
-        if category.value not in tools_available:
+        if not tools_available.get(category.value):
             await ctx.warning(f"Unknown category: {category.value}")
             continue
 
@@ -98,13 +108,16 @@ async def manageMcpTools(
             new_enabled_categories.add(category.value)
 
             # Add all tools from this category
-            for tool in tools_available[category.value].get("tools", []):
+            for tool in tools_available.get(category.value, {}).get("tools", []):
                 new_enabled_tools.add(tool)
 
             changes_made.append(f"✅ Enabled category: {category.value}")
 
     # Always keep essential tools enabled
-    essential_tools = {"getSelf", "manageMcpTools"}
+    if session.mode == "all":
+        essential_tools = {"getSelf"}
+    else:
+        essential_tools = {"getSelf", "manageMcpTools"}
     new_enabled_tools.update(essential_tools)
 
     # Update the session

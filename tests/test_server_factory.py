@@ -13,16 +13,21 @@ from mistmcp.server_factory import (
 class TestServerFactory:
     """Test server factory functions"""
 
-    def test_get_current_mcp_none(self):
+    def test_get_current_mcp_none(self) -> None:
         """Test getting current MCP when none exists"""
-        with patch("mistmcp.server_factory._CURRENT_MCP_INSTANCE", None):
+        # Create a fresh McpInstance that doesn't have current_mcp_instance set
+        with patch("mistmcp.server_factory.mcp_instance") as mock_instance:
+            mock_instance.get.side_effect = AttributeError(
+                "'McpInstance' object has no attribute 'current_mcp_instance'"
+            )
             result = get_current_mcp()
             assert result is None
 
-    def test_get_current_mcp_exists(self):
+    def test_get_current_mcp_exists(self) -> None:
         """Test getting current MCP when it exists"""
         mock_mcp = Mock()
-        with patch("mistmcp.server_factory._CURRENT_MCP_INSTANCE", mock_mcp):
+        with patch("mistmcp.server_factory.mcp_instance") as mock_instance:
+            mock_instance.get.return_value = mock_mcp
             result = get_current_mcp()
             assert result == mock_mcp
 
@@ -30,7 +35,7 @@ class TestServerFactory:
     @patch("mistmcp.server_factory.ToolLoader")
     def test_create_mcp_server_success(
         self, mock_tool_loader_class, mock_create_server
-    ):
+    ) -> None:
         """Test creating MCP server successfully"""
         # Mock the session-aware server
         mock_server = Mock()
@@ -55,7 +60,7 @@ class TestServerFactory:
         assert result == mock_server
 
     @patch("mistmcp.server_factory.create_session_aware_mcp_server")
-    def test_create_mcp_server_exception(self, mock_create_server):
+    def test_create_mcp_server_exception(self, mock_create_server) -> None:
         """Test creating MCP server with exception"""
         mock_create_server.side_effect = Exception("Test error")
 
@@ -68,7 +73,7 @@ class TestServerFactory:
         except Exception as e:
             assert str(e) == "Test error"
 
-    def test_get_mode_instructions_minimal(self):
+    def test_get_mode_instructions_minimal(self) -> None:
         """Test getting instructions for minimal mode"""
         config = ServerConfig(tool_loading_mode=ToolLoadingMode.MINIMAL)
         instructions = get_mode_instructions(config)
@@ -77,7 +82,7 @@ class TestServerFactory:
         assert "manageMcpTools" in instructions
         assert "getSelf" in instructions
 
-    def test_get_mode_instructions_managed(self):
+    def test_get_mode_instructions_managed(self) -> None:
         """Test getting instructions for managed mode"""
         config = ServerConfig(tool_loading_mode=ToolLoadingMode.MANAGED)
         instructions = get_mode_instructions(config)
@@ -87,7 +92,7 @@ class TestServerFactory:
         assert "org_id" in instructions
         assert "site_id" in instructions
 
-    def test_get_mode_instructions_all(self):
+    def test_get_mode_instructions_all(self) -> None:
         """Test getting instructions for all mode"""
         config = ServerConfig(tool_loading_mode=ToolLoadingMode.ALL)
         instructions = get_mode_instructions(config)
@@ -96,7 +101,7 @@ class TestServerFactory:
         assert "getSelf" in instructions
         assert "listOrgSites" in instructions
 
-    def test_get_mode_instructions_custom(self):
+    def test_get_mode_instructions_custom(self) -> None:
         """Test getting instructions for custom mode"""
         config = ServerConfig(
             tool_loading_mode=ToolLoadingMode.CUSTOM, tool_categories=["orgs", "sites"]
@@ -106,12 +111,12 @@ class TestServerFactory:
         assert "CUSTOM MODE" in instructions or instructions == ""
         # Custom mode might return empty string based on implementation
 
-    def test_get_mode_instructions_unknown(self):
+    def test_get_mode_instructions_unknown(self) -> None:
         """Test getting instructions for unknown mode"""
         # Create a mock config with invalid mode (shouldn't happen in practice)
         config = ServerConfig()
         # Manually set invalid mode for test
-        config.tool_loading_mode = "invalid"
+        config.tool_loading_mode = "invalid"  # type: ignore
 
         instructions = get_mode_instructions(config)
         assert instructions == ""

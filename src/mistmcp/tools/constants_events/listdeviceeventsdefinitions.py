@@ -15,7 +15,10 @@ import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
 from fastmcp.exceptions import ToolError
 from starlette.requests import Request
-from mistmcp.server_factory import _CURRENT_MCP_INSTANCE as mcp
+from mistmcp.server_factory import mcp_instance
+
+
+mcp = mcp_instance.get()
 
 
 @mcp.tool(

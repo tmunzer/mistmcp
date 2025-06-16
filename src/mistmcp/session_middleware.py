@@ -24,9 +24,9 @@ class SessionAwareToolHandler:
     This allows tools to be globally registered but only accessible to sessions that have enabled them.
     """
 
-    def __init__(self, mcp_instance):
+    def __init__(self, mcp_instance) -> None:
         self.mcp_instance = mcp_instance
-        self.original_tool_handlers = {}
+        self.original_tool_handlers: dict = {}
 
     def wrap_tool_for_session_checking(self, tool_name: str, original_handler):
         """Wrap a tool handler to check session permissions before execution"""
@@ -50,7 +50,7 @@ class SessionAwareToolHandler:
 
         return session_aware_handler
 
-    def apply_session_middleware(self):
+    def apply_session_middleware(self) -> None:
         """Apply session checking middleware to all registered tools"""
 
         # This is a conceptual implementation - the exact method depends on FastMCP's internals

@@ -20,13 +20,43 @@ from mistmcp.session_aware_server import (
 from mistmcp.session_manager import session_manager
 from mistmcp.tool_loader import ToolLoader
 
-# Global variable to store the current MCP instance
-_CURRENT_MCP_INSTANCE: SessionAwareFastMCP
+
+class McpInstance:
+    """
+    Singleton-like container for managing MCP (Model Context Protocol) instance.
+    This class provides a simple way to store and retrieve a SessionAwareFastMCP
+    instance globally within the application.
+    """
+
+    current_mcp_instance: SessionAwareFastMCP
+
+    def get(self) -> SessionAwareFastMCP:
+        """
+        Retrieve the current MCP instance.
+        Returns:
+            SessionAwareFastMCP: The currently stored MCP instance.
+        """
+        return self.current_mcp_instance
+
+    def set(self, instance: SessionAwareFastMCP) -> None:
+        """
+        Set the current MCP instance.
+        Args:
+            instance (SessionAwareFastMCP): The MCP instance to store.
+        """
+        self.current_mcp_instance = instance
+
+
+mcp_instance = McpInstance()
 
 
 def get_current_mcp():
     """Get the current MCP instance"""
-    return _CURRENT_MCP_INSTANCE
+    try:
+        return mcp_instance.get()
+    except AttributeError:
+        # current_mcp_instance hasn't been set yet
+        return None
 
 
 def create_mcp_server(config: ServerConfig, transport_mode: str = "stdio"):
@@ -36,7 +66,6 @@ def create_mcp_server(config: ServerConfig, transport_mode: str = "stdio"):
     This creates a multi-client server where each client maintains independent tool configurations
     through session management.
     """
-    global _CURRENT_MCP_INSTANCE
 
     # Create the server with appropriate configuration
     try:
@@ -44,7 +73,7 @@ def create_mcp_server(config: ServerConfig, transport_mode: str = "stdio"):
         mcp = create_session_aware_mcp_server(config, transport_mode)
 
         # Store the instance globally BEFORE loading tools
-        _CURRENT_MCP_INSTANCE = mcp
+        mcp_instance.set(mcp)
 
         # Load tools based on configuration
         tool_loader = ToolLoader(config)
@@ -88,7 +117,7 @@ MANAGED MODE: Tools are loaded dynamically as needed.
 
 By default, only essential tools are enabled. Use the `manageMcpTools` tool to enable or disable tools within the Mist MCP server:
 1. The tools are grouped by category, meaning activating a new category may give access to multiple tools
-2. If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool  
+2. If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
 3. If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
 4. Anticipate the required parameters. For example, the user is asking for a resource at the site level, be sure to be able to get the `site_id` information.
 5. DO NOT keep categories if they are not required for the next steps.
@@ -106,7 +135,7 @@ All tool categories have been pre-loaded, so you can use any Mist API functional
 
 IMPORTANT:
 * If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
-* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool  
+* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
 * All tools are available - no need to use `manageMcpTools` unless you want to reduce the tool set
 """
 

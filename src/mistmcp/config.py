@@ -33,7 +33,7 @@ class ServerConfig:
         tool_loading_mode: ToolLoadingMode = ToolLoadingMode.MANAGED,
         tool_categories: Optional[List[str]] = None,
         debug: bool = False,
-    ):
+    ) -> None:
         self.tool_loading_mode = tool_loading_mode
         self.tool_categories = tool_categories or []
         self.debug = debug
@@ -41,7 +41,7 @@ class ServerConfig:
         # Load available tools configuration
         self._load_tools_config()
 
-    def _load_tools_config(self):
+    def _load_tools_config(self) -> None:
         """Load the tools.json configuration file"""
         try:
             with importlib.resources.path("mistmcp", "tools.json") as json_path:

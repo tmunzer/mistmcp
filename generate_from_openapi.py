@@ -55,7 +55,6 @@ EXCLUDED_TAGS = [
     "Installer",
     "MSPs",
     "MSPs Admins",
-    "Orgs SecIntel Profiles",
     "MSPs Inventory",
     "MSPs Logo",
     "MSPs Logs",
@@ -71,6 +70,7 @@ EXCLUDED_TAGS = [
     "Orgs API Tokens",
     "Orgs Assets",
     "Orgs Asset Filters",
+    "Orgs Clients - Marvis",
     "Orgs Clients - SDK",
     "Orgs Cert",
     "Orgs Devices - SSR",
@@ -89,6 +89,7 @@ EXCLUDED_TAGS = [
     "Orgs NAC CRL",
     "Orgs Premium Analytics",
     "Orgs Psk Portals",
+    "Orgs SecIntel Profiles",
     "Orgs SDK Invites",
     "Orgs SDK Templates",
     "Orgs SSO Roles",
@@ -98,6 +99,7 @@ EXCLUDED_TAGS = [
     "Sites Anomaly",
     "Sites Asset Filters",
     "Sites Assets",
+    "Sites Devices - Wired",
     "Sites Beacons",
     "Sites JSE",
     "Sites Licenses",
@@ -166,8 +168,11 @@ import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
 from fastmcp.exceptions import ToolError
 from starlette.requests import Request
-from mistmcp.server_factory import _CURRENT_MCP_INSTANCE as mcp
+from mistmcp.server_factory import mcp_instance
+
 {imports}
+
+mcp = mcp_instance.get()
 
 {models}
 {enums}
@@ -197,7 +202,7 @@ async def {operationId}(
         host=cloud,
         apitoken=apitoken,
     )
-    
+
     response = {mistapi_request}
 
     if response.status_code != 200:
@@ -447,7 +452,7 @@ def gen_endpoint_parameters(path_parameters: list, endpoint: dict):
     enums = ""
     parameters = ""
     mistapi_parameters = ""
-    tmp_imports = {}
+    tmp_imports: dict = {}
     tmp_imports, models, enums, parameters, mistapi_parameters = _process_params(
         path_parameters,
         tmp_imports,
@@ -541,9 +546,9 @@ def main() -> None:
     """
     tag_to_tools: Dict[str, List[str]] = {}
     root_tag_defs = _get_tag_defs()
-    root_tools_import = {}
-    root_enums = []
-    root_functions = {}
+    root_tools_import: dict = {}
+    root_enums: list = []
+    root_functions: dict = {}
 
     for path, methods in openapi_paths.items():
         for method, details in methods.items():

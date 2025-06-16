@@ -16,6 +16,15 @@
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "python": "python3"
+        },
+        {
+            "name": "Python: Debug test file",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}"
+            ],
         }
     ]
 }

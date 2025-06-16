@@ -69,6 +69,7 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 markers = ["unit: Unit tests", "integration: Integration tests"]
+asyncio_mode = "auto"
 
 
 addopts = [

@@ -9,10 +9,11 @@ from mistmcp.session_manager import ClientSession, SessionManager, get_current_s
 class TestClientSession:
     """Test ClientSession dataclass"""
 
-    def test_session_creation(self):
+    def test_session_creation(self) -> None:
         """Test creating a new session"""
-        session = ClientSession(session_id="test_session")
+        session = ClientSession(session_id="test_session", mode="managed")
         assert session.session_id == "test_session"
+        assert session.mode == "managed"
         assert isinstance(session.enabled_tools, set)
         assert isinstance(session.enabled_categories, set)
         assert isinstance(session.created_at, datetime)
@@ -20,9 +21,9 @@ class TestClientSession:
         assert isinstance(session.client_info, dict)
         assert isinstance(session.mist_api_config, dict)
 
-    def test_session_touch(self):
+    def test_session_touch(self) -> None:
         """Test updating session activity"""
-        session = ClientSession(session_id="test_session")
+        session = ClientSession(session_id="test_session", mode="managed")
         original_time = session.last_activity
 
         # Mock datetime.now to return a different time
@@ -33,9 +34,9 @@ class TestClientSession:
             session.touch()
             assert session.last_activity == new_time
 
-    def test_session_expiry(self):
+    def test_session_expiry(self) -> None:
         """Test session expiry logic"""
-        session = ClientSession(session_id="test_session")
+        session = ClientSession(session_id="test_session", mode="managed")
 
         # Fresh session should not be expired
         assert not session.is_expired(timeout_minutes=60)
@@ -51,36 +52,38 @@ class TestClientSession:
 class TestSessionManager:
     """Test SessionManager class"""
 
-    def test_session_manager_creation(self):
+    def test_session_manager_creation(self) -> None:
         """Test creating a new session manager"""
         manager = SessionManager()
         assert manager.session_timeout_minutes == 60
         assert isinstance(manager.sessions, dict)
         assert manager.default_enabled_tools == {"getSelf", "manageMcpTools"}
 
-    def test_session_manager_custom_timeout(self):
+    def test_session_manager_custom_timeout(self) -> None:
         """Test session manager with custom timeout"""
         manager = SessionManager(session_timeout_minutes=30)
         assert manager.session_timeout_minutes == 30
 
     @patch("mistmcp.session_manager.get_http_request")
-    def test_get_session_req_info_with_request(self, mock_get_request):
+    def test_get_session_req_info_with_request(self, mock_get_request) -> None:
         """Test getting session info from HTTP request"""
         # Mock HTTP request
         mock_request = Mock()
         mock_request.client = Mock()
         mock_request.client.host = "192.168.1.100"
         mock_request.client.port = 8080
+        mock_request.query_params = {"mode": "all"}
         mock_get_request.return_value = mock_request
 
         manager = SessionManager()
-        ip, port = manager.get_session_req_info()
+        ip, port, mode = manager.get_session_req_info("managed")
 
         assert ip == "192.168.1.100"
         assert port == "8080"
+        assert mode == "all"
 
     @patch("mistmcp.session_manager.get_http_request")
-    def test_get_session_req_info_no_client(self, mock_get_request):
+    def test_get_session_req_info_no_client(self, mock_get_request) -> None:
         """Test getting session info when no client info available"""
         # Mock HTTP request without client
         mock_request = Mock()
@@ -88,13 +91,13 @@ class TestSessionManager:
         mock_get_request.return_value = mock_request
 
         manager = SessionManager()
-        ip, port = manager.get_session_req_info()
+        ip, port, _ = manager.get_session_req_info("managed")
 
         assert ip == "unknown"
         assert port == "unknown"
 
     @patch("mistmcp.session_manager.get_http_request")
-    def test_get_or_create_session_new(self, mock_get_request):
+    def test_get_or_create_session_new(self, mock_get_request) -> None:
         """Test creating a new session"""
         # Mock HTTP request
         mock_request = Mock()
@@ -104,14 +107,14 @@ class TestSessionManager:
         mock_get_request.return_value = mock_request
 
         manager = SessionManager()
-        session = manager.get_or_create_session()
+        session = manager.get_or_create_session("managed")
 
         assert isinstance(session, ClientSession)
         assert session.enabled_tools == {"getSelf", "manageMcpTools"}
         assert len(manager.sessions) == 1
 
     @patch("mistmcp.session_manager.get_http_request")
-    def test_get_or_create_session_existing(self, mock_get_request):
+    def test_get_or_create_session_existing(self, mock_get_request) -> None:
         """Test getting an existing session"""
         # Mock HTTP request
         mock_request = Mock()
@@ -123,16 +126,16 @@ class TestSessionManager:
         manager = SessionManager()
 
         # Create first session
-        session1 = manager.get_or_create_session()
+        session1 = manager.get_or_create_session("managed")
 
         # Get same session
-        session2 = manager.get_or_create_session()
+        session2 = manager.get_or_create_session("managed")
 
         assert session1.session_id == session2.session_id
         assert len(manager.sessions) == 1
 
     @patch("mistmcp.session_manager.get_http_request")
-    def test_update_session_tools(self, mock_get_request):
+    def test_update_session_tools(self, mock_get_request) -> None:
         """Test updating session tools"""
         # Mock HTTP request
         mock_request = Mock()
@@ -152,7 +155,7 @@ class TestSessionManager:
         assert session.enabled_categories == new_categories
 
     @patch("mistmcp.session_manager.get_http_request")
-    def test_is_tool_enabled_for_session(self, mock_get_request):
+    def test_is_tool_enabled_for_session(self, mock_get_request) -> None:
         """Test checking if tool is enabled for session"""
         # Mock HTTP request
         mock_request = Mock()
@@ -176,7 +179,7 @@ class TestSessionManager:
         )
         assert manager.is_tool_enabled_for_session("listOrgSites")
 
-    def test_get_all_sessions(self):
+    def test_get_all_sessions(self) -> None:
         """Test getting all sessions"""
         manager = SessionManager()
 
@@ -185,8 +188,8 @@ class TestSessionManager:
         assert len(sessions) == 0
 
         # Add some mock sessions
-        session1 = ClientSession(session_id="session1")
-        session2 = ClientSession(session_id="session2")
+        session1 = ClientSession(session_id="session1", mode="managed")
+        session2 = ClientSession(session_id="session2", mode="managed")
         manager.sessions["session1"] = session1
         manager.sessions["session2"] = session2
 
@@ -195,12 +198,12 @@ class TestSessionManager:
         assert "session1" in sessions
         assert "session2" in sessions
 
-    def test_remove_session(self):
+    def test_remove_session(self) -> None:
         """Test removing a session"""
         manager = SessionManager()
 
         # Add a session
-        session = ClientSession(session_id="test_session")
+        session = ClientSession(session_id="test_session", mode="managed")
         manager.sessions["test_session"] = session
 
         # Remove it
@@ -214,12 +217,12 @@ class TestSessionManager:
 
 
 @patch("mistmcp.session_manager.session_manager")
-def test_get_current_session(mock_session_manager):
+def test_get_current_session(mock_session_manager) -> None:
     """Test get_current_session function"""
-    mock_session = ClientSession(session_id="test_session")
+    mock_session = ClientSession(session_id="test_session", mode="managed")
     mock_session_manager.get_or_create_session.return_value = mock_session
 
-    session = get_current_session()
+    session = get_current_session("managed")
 
     assert session == mock_session
     mock_session_manager.get_or_create_session.assert_called_once()
