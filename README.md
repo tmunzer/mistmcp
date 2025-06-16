@@ -15,7 +15,7 @@ The Mist MCP Server is a **session-aware, multi-client MCP server** that consist
 - **🌐 Multi-Client Support**: Each client maintains independent tool configurations and session state
 - **🔧 Dynamic Tool Management**: Enable/disable tool categories at runtime using `manageMcpTools`
 - **📊 Session Isolation**: Complete isolation between different MCP clients
-- **⚙️ Flexible Loading Modes**: Choose from minimal, managed, all, or custom tool loading strategies
+- **⚙️ Flexible Loading Modes**: Choose from managed, all, or custom tool loading strategies
 - **🚀 Transport Flexibility**: Supports both stdio and HTTP transport modes
 
 ## 🚀 Features
@@ -37,19 +37,19 @@ The Mist MCP Server is a **session-aware, multi-client MCP server** that consist
 
 ## 🛠️ Installation & Setup
 
-### Prerequisites
+## Prerequisites
 
 - Python 3.10 or higher (uv will manage this)
 - [uv](https://docs.astral.sh/uv/) - Fast Python package installer and resolver
 - Mist API credentials (API token and organization access)
 
-### 1. Install Dependencies
+## 1. Install Dependencies
 
 ```bash
 uv sync
 ```
 
-### 2. Generate MCP Tools (Optional)
+## 2. Generate MCP Tools (Optional)
 
 The repository includes pre-generated tools, but you can regenerate them:
 
@@ -62,11 +62,11 @@ This will:
 - Generate categorized tool modules in `src/mistmcp/tools/`
 - Create tool configuration files
 
-### 3. Run the MCP Server
+## 3. Run the MCP Server
 
 The server supports multiple modes and transport options:
 
-#### Command Line Options
+### Command Line Options
 
 ```bash
 uv run mistmcp [OPTIONS]
@@ -74,28 +74,73 @@ uv run mistmcp [OPTIONS]
 OPTIONS:
     -h, --help              Show help message
     -t, --transport MODE    Transport mode: stdio (default) or http
-    -m, --mode MODE         Tool loading mode: minimal, managed (default), all, custom
+    -m, --mode MODE         Tool loading mode: managed (default), all, custom
     -c, --categories LIST   Comma-separated tool categories (for custom mode)
     -d, --debug             Enable debug output
+    --host HOST             HTTP server host (default: 127.0.0.1, HTTP mode only)
+    --port PORT             HTTP server port (default: 8000, HTTP mode only)
 
-EXAMPLES:
-    uv run mistmcp                                    # Default managed mode
-    uv run mistmcp --mode minimal                     # Minimal tools only
-    uv run mistmcp --mode all                         # All tools loaded
-    uv run mistmcp --transport http --mode managed    # HTTP transport
-    uv run mistmcp --mode custom --categories orgs,sites --debug
+STDIO MODE EXAMPLES:
+    uv run mistmcp                                    # Default managed mode (stdio)
+    uv run mistmcp --mode all --debug                 # All tools with debug logging
+    uv run mistmcp --mode custom --categories orgs,sites,orgs_devices
+
+HTTP MODE EXAMPLES:
+    uv run mistmcp --transport http                   # HTTP mode, localhost:8000
+    uv run mistmcp --transport http --port 9000       # HTTP mode, custom port
+    uv run mistmcp --transport http --host 0.0.0.0    # HTTP mode, all interfaces
+    uv run mistmcp --transport http --mode all --debug --port 8080
 ```
 
-#### Tool Loading Modes
+### Tool Loading Modes
 
-- **`minimal`** - Load only essential tools (`getSelf`, `manageMcpTools`)
-- **`managed`** - Use dynamic tool management (default) - tools enabled on demand
-- **`all`** - Load all available tools at startup
-- **`custom`** - Load specific categories (requires `--categories`)
+### Tool Loading Modes
 
-### 4. Configure MCP Client
+1. **Managed Mode** (`--mode managed`) - **Default**
+   - Only `getSelf` and `manageMcpTools` loaded
+   - Lowest memory footprint
+   - Tools enabled on-demand via `manageMcpTools`
 
-#### STDIO Mode (Recommended for Claude Desktop)
+2. **All Mode** (`--mode all`)
+   - All available tools loaded at startup
+   - Maximum functionality, higher memory usage
+   - Best for power users or automated scenarios
+
+3. **Custom Mode** (`--mode custom --categories orgs,sites`)
+   - Pre-load specific tool categories
+   - Tailored configuration for specific use cases
+   - Requires explicit category specification
+
+### Transport Mode Comparison
+
+| Feature | STDIO Mode | HTTP Mode |
+|---------|------------|-----------|
+| **Performance** | Fastest (direct IPC) | Network latency |
+| **Security** | Process isolation | Network authentication |
+| **Remote Access** | Local only | Network accessible |
+| **Configuration** | Simple | Requires network setup |
+| **Query Parameters** | Not supported | Supported (`?mode=all&categories=orgs`) |
+| **Scaling** | One client per process | Multiple clients per server |
+| **Debugging** | Process logs | HTTP logs + process logs |
+| **Use Cases** | Claude Desktop, VS Code | Remote clients (Claude Desktop, VS Code), microservices |
+
+
+
+## 4. Configure MCP Client
+
+The server supports two transport modes with different configuration requirements:
+
+### STDIO Mode (Recommended for Local Usage)
+
+STDIO mode runs the server as a subprocess and communicates via standard input/output. This is the recommended mode for local MCP clients like Claude Desktop.
+
+**Features:**
+- Direct process communication (fastest)
+- No network configuration required
+- Automatic process lifecycle management
+- Built-in security (no exposed ports)
+
+**Claude Desktop (`~/.claude_desktop/claude_desktop_config.json`) or VS Code MCP Extension:**
 ```json
 {
     "mcpServers": {
@@ -107,34 +152,170 @@ EXAMPLES:
                 "--mode",
                 "managed"
             ],
-            "cwd": "/path/to/mistmcp"
+            "cwd": "/absolute/path/to/mistmcp",
+            "env": {
+                "MIST_ENV_FILE": "path-to-your-env-file"
+            }
+        },
+        "mist-mcp": {
+            "command": "uv",
+            "args": [
+                "run",
+                "mistmcp",
+                "--transport",
+                "stdio",
+                "--mode",
+                "custom",
+                "--categories",
+                "orgs,sites,orgs_devices"
+            ],
+            "cwd": "/absolute/path/to/mistmcp",
+            "env": {
+                "MIST_API_TOKEN": "your-api-token",
+                "MIST_ORG_ID": "your-org-id"
+            }
         }
     }
 }
 ```
 
-#### HTTP Mode (For remote access)
-Start the server in HTTP mode:
+### HTTP Mode (For Remote Access & Integration)
+
+HTTP mode runs the server as a web service, enabling access from remote clients and integration scenarios.
+
+**Features:**
+- Network-accessible (remote clients)
+- RESTful MCP-over-HTTP protocol
+- Query parameter support for dynamic configuration
+- Suitable for microservice architectures
+
+**Starting the HTTP Server:**
 ```bash
+# Basic HTTP mode
 uv run mistmcp --transport http --mode managed
+
+# Custom port and host
+uv run mistmcp --transport http --mode managed --port 8080 --host 0.0.0.0
+
+# With debug logging
+uv run mistmcp --transport http --mode all --debug
 ```
 
-Then configure your MCP client:
+**HTTP Mode Query Parameters:**
+- `cloud` - Mist API Cloud to use (e.g. `api.mist.com`, `api.gc1.mist.com`, ...)
+- `mode` - Tool loading mode (`managed`, `all`, `custom`)
+- `categories` - Comma-separated tool categories (when `mode=custom`)
+
+**Examples:**
+```bash
+# All tools mode via HTTP
+curl "http://localhost:8000/mcp/tools?mode=all"
+
+# Custom categories via HTTP
+curl "http://localhost:8000/mcp/tools?mode=custom&categories=orgs,sites,orgs_devices"
+```
+
+**Claude Desktop with HTTP Mode:**
 ```json
 {
     "mcpServers": {
-        "Mist MCP Server": {
+        "Mist MCP Server (HTTP)": {
             "command": "npx",
             "args": [
-                "mcp-remote",
+                "@modelcontextprotocol/server-fetch",
                 "http://127.0.0.1:8000/mcp/"
-            ]
+            ],
+            "env": {
+                "MIST_API_TOKEN": "your-mist-api-token-here"
+            }
         }
     }
 }
 ```
 
+**Remote HTTP Configuration with Authentication:**
+```json
+{
+    "mcpServers": {
+        "Mist MCP Server (Remote)": {
+            "command": "npx",
+            "args": [
+                "@modelcontextprotocol/server-fetch",
+                "https://your-server.com:8000/mcp/"
+            ],
+            "env": {
+                "MIST_API_TOKEN": "your-mist-api-token-here",
+                "HTTP_AUTHORIZATION": "Bearer your-http-auth-token"
+            }
+        }
+    }
+}
+```
+
+**Production HTTP Deployment:**
+```bash
+# Run with environment variables
+uv run mistmcp --transport http --mode managed --host 0.0.0.0 --port 8000
+
+# Or with Docker (if available)
+docker run -p 8000:8000 \
+  mistmcp:latest --transport http --mode managed
+```
+
 ## 📋 Usage
+
+### Transport Mode Selection
+
+Choose the appropriate transport mode based on your use case:
+
+**Use STDIO mode when:**
+- Running locally with Claude Desktop or VS Code
+- You want maximum performance and security
+- You don't need remote access
+- You prefer simple configuration
+
+**Use HTTP mode when:**
+- You need remote access to the MCP server
+- Building microservice architectures
+- Multiple remote clients need access
+- You want to use query parameters for dynamic configuration
+- Integration with web applications or services
+
+### HTTP Mode Advanced Configuration
+
+#### Security Headers
+
+When deploying in production, consider adding security headers:
+
+```bash
+# Run with custom headers (if supported by your deployment)
+uv run mistmcp --transport http --mode managed \
+  --header "X-Frame-Options: DENY" \
+  --header "X-Content-Type-Options: nosniff"
+```
+
+#### Reverse Proxy Setup (Nginx)
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name your-mist-mcp.example.com;
+    
+    location /mcp/ {
+        proxy_pass http://127.0.0.1:8000/mcp/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # WebSocket support (if needed)
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
+
 
 ### Multi-Client Session Management
 
@@ -142,6 +323,125 @@ Each MCP client that connects to the server gets its own independent session wit
 - **Separate tool configurations** - Enable different tools per client
 - **Session isolation** - No interference between clients
 - **Dynamic tool management** - Add/remove tools at runtime per session
+
+### Complete Configuration Examples
+
+#### Claude Desktop - Full Configuration
+
+Create or edit `~/.claude_desktop/claude_desktop_config.json`:
+
+```json
+{
+    "mcpServers": {
+        "mist-network-stdio": {
+            "command": "uv",
+            "args": [
+                "run",
+                "mistmcp",
+                "--transport",
+                "stdio",
+                "--mode",
+                "managed",
+                "--debug"
+            ],
+            "cwd": "/Users/yourname/Projects/mistmcp",
+            "env": {
+                "MIST_API_TOKEN": "your-mist-api-token-here",
+                "MIST_ORG_ID": "your-organization-id-optional"
+            }
+        },
+        "mist-network-http": {
+            "command": "npx",
+            "args": [
+                "@modelcontextprotocol/server-fetch",
+                "http://127.0.0.1:8000/mcp/"
+            ],
+            "env": {
+                "MIST_API_TOKEN": "your-mist-api-token-here",
+                "X-Authorization": "Bearer your-http-auth-token"
+            }
+        }
+    }
+}
+```
+
+#### VS Code MCP Extension - Multiple Configurations
+
+Add to your workspace `.vscode/settings.json`:
+
+```json
+{
+    "mcp.servers": {
+        "mist-managed": {
+            "command": "uv",
+            "args": [
+                "run",
+                "mistmcp",
+                "--mode",
+                "managed"
+            ],
+            "cwd": "${workspaceFolder}/../mistmcp",
+            "env": {
+                "MIST_ENV_FILE": "path-to-your-env-file"
+            }
+        },
+        "mist-devices": {
+            "command": "uv", 
+            "args": [
+                "run",
+                "mistmcp",
+                "--mode",
+                "custom",
+                "--categories",
+                "orgs_devices,sites_devices,orgs_stats___devices"
+            ],
+            "cwd": "${workspaceFolder}/../mistmcp",
+            "env": {
+                "MIST_ENV_FILE": "path-to-your-env-file"
+            }
+        },
+        "mist-remote": {
+            "command": "npx",
+            "args": [
+                "@modelcontextprotocol/server-fetch",
+                "https://your-server.com:8000/mcp/?mode=all"
+            ],
+            "env": {
+                "MIST_ENV_FILE": "path-to-your-env-file"
+            }
+        }
+    }
+}
+```
+
+#### Continue.dev Configuration
+
+Add to your `~/.continue/config.json`:
+
+```json
+{
+    "mcpServers": [
+        {
+            "name": "mist-network",
+            "transport": {
+                "type": "stdio",
+                "command": "uv",
+                "args": [
+                    "run",
+                    "mistmcp",
+                    "--mode",
+                    "managed"
+                ],
+                "cwd": "/path/to/mistmcp"
+            },
+            "env": {
+                "MIST_ENV_FILE": "path-to-your-env-file"
+            }
+        }
+    ]
+}
+```
+
 
 ### Getting Started
 
@@ -152,46 +452,27 @@ Each MCP client that connects to the server gets its own independent session wit
 
 ### Example Workflow
 
-```
+```sh
 # 1. Get your organization info
 "Show me my organization details"
 
-# 2. Enable site management tools
-"Enable site management tools so I can see my sites"
-# (This will call manageMcpTools automatically)
+# 2. Locate a wi-fi/wired/wan client withing the Mist Organization
+# (This will call manageMcpTools to enable the required tools, ask for confirmation, and start to look for the client)
+User: "Locate the client xyz"
+Assistant: "I'll enable device management tools first..."
+[Calls manageMcpTools with device categories]
+Assistant: "Tools enabled! Do you want me to continue?"
+User: "yes"
+[Proceeds with device queries]
 
 # 3. Explore your network
 "List all my sites and their status"
 "Show me access points that are offline"
 "What wireless clients are connected to my guest network?"
 "Which devices need firmware updates?"
+"On the xyz site, why the users connected to the abc network don't have access to the fileserver resource?"
 ```
 
-### With Claude Desktop
-
-1. Add the server configuration to your Claude Desktop MCP settings
-2. Restart Claude Desktop
-3. Start a new conversation - the server begins in `managed` mode
-4. Enable tools as needed using natural language:
-   ```
-   "I need to check my access points - enable the device management tools"
-   "Show me wireless client statistics - enable those tools first"
-   "Enable organization and site tools so I can manage my network"
-   ```
-
-### With VS Code MCP Extension
-
-1. Install the MCP extension for VS Code
-2. Configure the server in your workspace settings
-3. Use the MCP panel to interact with your Mist infrastructure
-4. Each VS Code instance maintains its own tool session
-
-### Session Management Features
-
-- **Independent Sessions**: Multiple clients can connect with different tool configurations
-- **Session Persistence**: Tool configurations persist during the client session
-- **Dynamic Updates**: Enable/disable tools without restarting the server
-- **Fallback Behavior**: Graceful degradation when session context is unavailable
 
 ## 🏗️ Project Structure
 
@@ -200,27 +481,27 @@ mistmcp/
 ├── generate_from_openapi.py         # Tool generator script
 ├── mist_openapi/
 │   └── mist.openapi.yaml           # Mist OpenAPI specification
-├── src/mistmcp/                    # MCP Server source
-│   ├── __init__.py                # Package initialization
-│   ├── __main__.py                # CLI entry point
-│   ├── __version.py               # Version information
-│   ├── config.py                  # Server configuration system
-│   ├── constants.py               # Constants and defaults
-│   ├── server_factory.py          # Server creation and configuration
-│   ├── session_aware_server.py    # Session-aware FastMCP implementation
-│   ├── session_manager.py         # Multi-client session management
-│   ├── session_middleware.py      # Session middleware components
-│   ├── session_tools.py           # Session-aware tool decorators
-│   ├── tool_loader.py             # Dynamic tool loading system
-│   ├── tool_manager.py            # manageMcpTools implementation
-│   ├── tool_helper.py            # Tool category definitions
-│   ├── tools.json                 # Tool registry and configuration
-│   └── tools/                     # Generated tool modules
-│       ├── orgs/                  # Organization-level APIs
-│       ├── sites/                 # Site-level APIs
-│       ├── constants_*/           # Constants and definitions
-│       └── ...                    # Other API categories
-└── FASTMCP_TOOL_METHOD_INVESTIGATION.md  # Technical documentation
+└── src/mistmcp/                    # MCP Server source
+    ├── __init__.py                # Package initialization
+    ├── __main__.py                # CLI entry point
+    ├── __version.py               # Version information
+    ├── config.py                  # Server configuration system
+    ├── constants.py               # Constants and defaults
+    ├── server_factory.py          # Server creation and configuration
+    ├── session_aware_server.py    # Session-aware FastMCP implementation
+    ├── session_manager.py         # Multi-client session management
+    ├── session_middleware.py      # Session middleware components
+    ├── session_tools.py           # Session-aware tool decorators
+    ├── tool_loader.py             # Dynamic tool loading system
+    ├── tool_manager.py            # manageMcpTools implementation
+    ├── tool_helper.py            # Tool category definitions
+    ├── tools.json                 # Tool registry and configuration
+    └── tools/                     # Generated tool modules
+        ├── orgs/                  # Organization-level APIs
+        ├── sites/                 # Site-level APIs
+        ├── constants_*/           # Constants and definitions
+        └── ...                    # Other API categories
+
 ```
 
 ## 🔧 Architecture Overview
@@ -235,50 +516,28 @@ mistmcp/
           │                      │                      │
           └──────────────────────┼──────────────────────┘
                                  │
-                    ┌─────────────┴─────────────┐
-                    │  Session-Aware MCP Server │
-                    │                           │
-                    │  ┌─────────────────────┐  │
-                    │  │   Session Manager   │  │
-                    │  │                     │  │
-                    │  │ ┌─────┐ ┌─────────┐ │  │
-                    │  │ │Sess1│ │  Sess2  │ │  │
-                    │  │ │Tools│ │ Tools   │ │  │
-                    │  │ └─────┘ └─────────┘ │  │
-                    │  └─────────────────────┘  │
-                    │                           │
-                    │  ┌─────────────────────┐  │
-                    │  │   Tool Loader       │  │
-                    │  │   & Manager         │  │
-                    │  └─────────────────────┘  │
-                    └───────────────────────────┘
+                   ┌─────────────┴─────────────┐
+                   │  Session-Aware MCP Server │
+                   │                           │
+                   │  ┌─────────────────────┐  │
+                   │  │   Session Manager   │  │
+                   │  │                     │  │
+                   │  │ ┌───────┐ ┌───────┐ │  │
+                   │  │ │ Sess1 │ │ Sess2 │ │  │
+                   │  │ │ Tools │ │ Tools │ │  │
+                   │  │ └───────┘ └───────┘ │  │
+                   │  └─────────────────────┘  │
+                   │                           │
+                   │  ┌─────────────────────┐  │
+                   │  │   Tool Loader       │  │
+                   │  │   & Manager         │  │
+                   │  └─────────────────────┘  │
+                   └───────────────────────────┘
                                  │
-                    ┌─────────────┴─────────────┐
-                    │     Mist Cloud APIs       │
-                    └───────────────────────────┘
+                   ┌─────────────┴─────────────┐
+                   │     Mist Cloud APIs       │
+                   └───────────────────────────┘
 ```
-
-### Tool Loading Modes
-
-1. **Minimal Mode** (`--mode minimal`)
-   - Only `getSelf` and `manageMcpTools` loaded
-   - Lowest memory footprint
-   - Tools enabled on-demand via `manageMcpTools`
-
-2. **Managed Mode** (`--mode managed`) - **Default**
-   - Starts with essential tools only
-   - Dynamic tool loading based on user requests
-   - Optimal balance of performance and functionality
-
-3. **All Mode** (`--mode all`)
-   - All available tools loaded at startup
-   - Maximum functionality, higher memory usage
-   - Best for power users or automated scenarios
-
-4. **Custom Mode** (`--mode custom --categories orgs,sites`)
-   - Pre-load specific tool categories
-   - Tailored configuration for specific use cases
-   - Requires explicit category specification
 
 ## 🔧 Tool Categories
 
@@ -356,23 +615,6 @@ manageMcpTools(enable_mcp_tools_categories=["orgs_clients___wireless", "sites_cl
 
 # Enable all device management tools
 manageMcpTools(enable_mcp_tools_categories=["orgs_devices", "sites_devices", "orgs_stats___devices"])
-```
-
-### Best Practices
-
-1. **Start Small**: Begin with essential tools and add categories as needed
-2. **Session-Specific**: Each client can have different tool configurations
-3. **Context Aware**: Enable tools based on your current task
-4. **Clean Up**: Disable unused tools to reduce cognitive load
-
-### Example Workflow
-
-```
-User: "I need to check my network devices"
-Assistant: "I'll enable device management tools first..."
-[Calls manageMcpTools with device categories]
-Assistant: "Tools enabled! Now let me check your devices..."
-[Proceeds with device queries]
 ```
 
 ## ⚠️ Current Limitations
