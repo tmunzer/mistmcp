@@ -12,14 +12,18 @@
 
 import json
 import mistapi
-from fastmcp.server.dependencies import get_context
+from fastmcp.server.dependencies import get_context, get_http_request
 from fastmcp.exceptions import ToolError
-from mistmcp.__server import mcp
-from mistmcp.__mistapi import apisession
+from starlette.requests import Request
+from mistmcp.server_factory import mcp_instance
+
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
+
+
+mcp = mcp_instance.get()
 
 
 class Type(Enum):
@@ -27,61 +31,53 @@ class Type(Enum):
     WXTUNNEL = "wxtunnel"
 
 
-def add_tool() -> None:
-    mcp.add_tool(
-        fn=searchOrgTunnelsStats,
-        name="searchOrgTunnelsStats",
-        description="""Search Org Tunnels Stats""",
-        tags={"Orgs Stats - Tunnels"},
-        annotations={
-            "title": "searchOrgTunnelsStats",
-            "readOnlyHint": True,
-            "destructiveHint": False,
-            "openWorldHint": True,
-        },
-    )
-
-
-def remove_tool() -> None:
-    mcp.remove_tool("searchOrgTunnelsStats")
-
-
+@mcp.tool(
+    enabled=True,
+    name="searchOrgTunnelsStats",
+    description="""Search Org Tunnels Stats""",
+    tags={"Orgs Stats - Tunnels"},
+    annotations={
+        "title": "searchOrgTunnelsStats",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+    },
+)
 async def searchOrgTunnelsStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mxcluster_id: Annotated[
         Optional[str], Field(description="""If `type`==`wxtunnel`""")
-    ]
-    | None = None,
-    site_id: Annotated[Optional[str], Field(description="""ID of the Mist Site""")]
-    | None = None,
+    ] = None,
+    site_id: Annotated[
+        Optional[str], Field(description="""ID of the Mist Site""")
+    ] = None,
     wxtunnel_id: Annotated[
         Optional[str], Field(description="""If `type`==`wxtunnel`""")
-    ]
-    | None = None,
-    ap: Annotated[Optional[str], Field(description="""If `type`==`wxtunnel`""")]
-    | None = None,
-    mac: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    node: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    peer_ip: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    peer_host: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    ip: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    tunnel_name: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    protocol: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    auth_algo: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    encrypt_algo: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    ike_version: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
-    up: Annotated[Optional[str], Field(description="""If `type`==`wan`""")]
-    | None = None,
+    ] = None,
+    ap: Annotated[Optional[str], Field(description="""If `type`==`wxtunnel`""")] = None,
+    mac: Annotated[Optional[str], Field(description="""If `type`==`wan`""")] = None,
+    node: Annotated[Optional[str], Field(description="""If `type`==`wan`""")] = None,
+    peer_ip: Annotated[Optional[str], Field(description="""If `type`==`wan`""")] = None,
+    peer_host: Annotated[
+        Optional[str], Field(description="""If `type`==`wan`""")
+    ] = None,
+    ip: Annotated[Optional[str], Field(description="""If `type`==`wan`""")] = None,
+    tunnel_name: Annotated[
+        Optional[str], Field(description="""If `type`==`wan`""")
+    ] = None,
+    protocol: Annotated[
+        Optional[str], Field(description="""If `type`==`wan`""")
+    ] = None,
+    auth_algo: Annotated[
+        Optional[str], Field(description="""If `type`==`wan`""")
+    ] = None,
+    encrypt_algo: Annotated[
+        Optional[str], Field(description="""If `type`==`wan`""")
+    ] = None,
+    ike_version: Annotated[
+        Optional[str], Field(description="""If `type`==`wan`""")
+    ] = None,
+    up: Annotated[Optional[str], Field(description="""If `type`==`wan`""")] = None,
     type: Type = Type.WXTUNNEL,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
@@ -89,20 +85,27 @@ async def searchOrgTunnelsStats(
         Field(
             description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
         ),
-    ]
-    | None = None,
+    ] = None,
     end: Annotated[
         Optional[int],
         Field(
             description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
         ),
-    ]
-    | None = None,
+    ] = None,
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
 ) -> dict:
     """Search Org Tunnels Stats"""
+
+    ctx = get_context()
+    request: Request = get_http_request()
+    cloud = request.query_params.get("cloud", None)
+    apitoken = request.headers.get("X-Authorization", None)
+    apisession = mistapi.APISession(
+        host=cloud,
+        apitoken=apitoken,
+    )
 
     response = mistapi.api.v1.orgs.stats.searchOrgTunnelsStats(
         apisession,
@@ -129,39 +132,37 @@ async def searchOrgTunnelsStats(
         duration=duration,
     )
 
-    ctx = get_context()
-
     if response.status_code != 200:
-        error = {"status_code": response.status_code, "message": ""}
+        api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
             await ctx.error(
                 f"Got HTTP{response.status_code} with details {response.data}"
             )
-            error["message"] = json.dumps(response.data)
+            api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
             )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Permission Denied")
+            api_error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
             )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
             )
-        raise ToolError(error)
+        raise ToolError(api_error)
 
     return response.data

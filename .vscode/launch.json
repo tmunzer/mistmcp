@@ -4,16 +4,27 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
         {
             "name": "Debug mistmcp",
             "type": "python",
             "request": "launch",
             "module": "mistmcp",
-            "args": ["-s"],
+            "args": [
+                "-t",
+                "http"
+            ],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "python": "python3"
+        },
+        {
+            "name": "Python: Debug test file",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}"
+            ],
         }
     ]
 }

@@ -12,14 +12,18 @@
 
 import json
 import mistapi
-from fastmcp.server.dependencies import get_context
+from fastmcp.server.dependencies import get_context, get_http_request
 from fastmcp.exceptions import ToolError
-from mistmcp.__server import mcp
-from mistmcp.__mistapi import apisession
+from starlette.requests import Request
+from mistmcp.server_factory import mcp_instance
+
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
+
+
+mcp = mcp_instance.get()
 
 
 class Type(Enum):
@@ -49,113 +53,105 @@ class Desc_sort(Enum):
     NONE = None
 
 
-def add_tool() -> None:
-    mcp.add_tool(
-        fn=searchSiteDevices,
-        name="searchSiteDevices",
-        description="""Search Device""",
-        tags={"Sites Devices"},
-        annotations={
-            "title": "searchSiteDevices",
-            "readOnlyHint": True,
-            "destructiveHint": False,
-            "openWorldHint": True,
-        },
-    )
-
-
-def remove_tool() -> None:
-    mcp.remove_tool("searchSiteDevices")
-
-
+@mcp.tool(
+    enabled=True,
+    name="searchSiteDevices",
+    description="""Search Device""",
+    tags={"Sites Devices"},
+    annotations={
+        "title": "searchSiteDevices",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+    },
+)
 async def searchSiteDevices(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    hostname: Annotated[Optional[str], Field(description="""Partial / full hostname""")]
-    | None = None,
+    hostname: Annotated[
+        Optional[str], Field(description="""Partial / full hostname""")
+    ] = None,
     type: Type = Type.AP,
-    model: Annotated[Optional[str], Field(description="""Device model""")]
-    | None = None,
-    mac: Annotated[Optional[str], Field(description="""Device MAC""")] | None = None,
-    version: Annotated[Optional[str], Field(description="""Version""")] | None = None,
+    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
+    mac: Annotated[Optional[str], Field(description="""Device MAC""")] = None,
+    version: Annotated[Optional[str], Field(description="""Version""")] = None,
     power_constrained: Annotated[
         Optional[bool], Field(description="""power_constrained""")
-    ]
-    | None = None,
-    ip_address: Optional[str] | None = None,
+    ] = None,
+    ip_address: Optional[str] = None,
     mxtunnel_status: Annotated[
         Mxtunnel_status, Field(description="""MxTunnel status, up / down""")
     ] = Mxtunnel_status.NONE,
     mxedge_id: Annotated[
         Optional[UUID],
         Field(description="""Mist Edge id, if AP is connecting to a Mist Edge"""),
-    ]
-    | None = None,
+    ] = None,
     lldp_system_name: Annotated[
         Optional[str], Field(description="""LLDP system name""")
-    ]
-    | None = None,
+    ] = None,
     lldp_system_desc: Annotated[
         Optional[str], Field(description="""LLDP system description""")
-    ]
-    | None = None,
-    lldp_port_id: Annotated[Optional[str], Field(description="""LLDP port id""")]
-    | None = None,
+    ] = None,
+    lldp_port_id: Annotated[
+        Optional[str], Field(description="""LLDP port id""")
+    ] = None,
     lldp_mgmt_addr: Annotated[
         Optional[str], Field(description="""LLDP management ip address""")
-    ]
-    | None = None,
+    ] = None,
     band_24_channel: Annotated[
         Optional[int], Field(description="""Channel of band_24""")
-    ]
-    | None = None,
-    band_5_channel: Annotated[Optional[int], Field(description="""Channel of band_5""")]
-    | None = None,
-    band_6_channel: Annotated[Optional[int], Field(description="""Channel of band_6""")]
-    | None = None,
+    ] = None,
+    band_5_channel: Annotated[
+        Optional[int], Field(description="""Channel of band_5""")
+    ] = None,
+    band_6_channel: Annotated[
+        Optional[int], Field(description="""Channel of band_6""")
+    ] = None,
     band_24_bandwidth: Annotated[
         Optional[int], Field(description="""Bandwidth of band_24""")
-    ]
-    | None = None,
+    ] = None,
     band_5_bandwidth: Annotated[
         Optional[int], Field(description="""Bandwidth of band_5""")
-    ]
-    | None = None,
+    ] = None,
     band_6_bandwidth: Annotated[
         Optional[int], Field(description="""Bandwidth of band_6""")
-    ]
-    | None = None,
+    ] = None,
     eth0_port_speed: Annotated[
         Optional[int], Field(description="""Port speed of eth0""")
-    ]
-    | None = None,
+    ] = None,
     sort: Annotated[Sort, Field(description="""Sort options""")] = Sort.TIMESTAMP,
     desc_sort: Annotated[
         Desc_sort, Field(description="""Sort options in reverse order""")
     ] = Desc_sort.NONE,
     stats: Annotated[
         Optional[bool], Field(description="""Whether to return device stats""")
-    ]
-    | None = None,
+    ] = None,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
         Field(
             description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
         ),
-    ]
-    | None = None,
+    ] = None,
     end: Annotated[
         Optional[int],
         Field(
             description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
         ),
-    ]
-    | None = None,
+    ] = None,
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
 ) -> dict:
     """Search Device"""
+
+    ctx = get_context()
+    request: Request = get_http_request()
+    cloud = request.query_params.get("cloud", None)
+    apitoken = request.headers.get("X-Authorization", None)
+    apisession = mistapi.APISession(
+        host=cloud,
+        apitoken=apitoken,
+    )
 
     response = mistapi.api.v1.sites.devices.searchSiteDevices(
         apisession,
@@ -189,39 +185,37 @@ async def searchSiteDevices(
         duration=duration,
     )
 
-    ctx = get_context()
-
     if response.status_code != 200:
-        error = {"status_code": response.status_code, "message": ""}
+        api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
             await ctx.error(
                 f"Got HTTP{response.status_code} with details {response.data}"
             )
-            error["message"] = json.dumps(response.data)
+            api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
             )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps("Permission Denied")
+            api_error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
             )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            error["message"] = json.dumps(
+            api_error["message"] = json.dumps(
                 "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
             )
-        raise ToolError(error)
+        raise ToolError(api_error)
 
     return response.data

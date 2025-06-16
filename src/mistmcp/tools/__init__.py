@@ -10,7 +10,15 @@
 --------------------------------------------------------------------------------
 """
 
-from .constants_definitions import listalarmdefinitions as listalarmdefinitions
+from .constants_events import listalarmdefinitions as listalarmdefinitions
+from .constants_events import listclienteventsdefinitions as listclienteventsdefinitions
+from .constants_events import listdeviceeventsdefinitions as listdeviceeventsdefinitions
+from .constants_events import listmxedgeeventsdefinitions as listmxedgeeventsdefinitions
+from .constants_events import listnaceventsdefinitions as listnaceventsdefinitions
+from .constants_events import (
+    listotherdeviceeventsdefinitions as listotherdeviceeventsdefinitions,
+)
+from .constants_events import listsystemeventsdefinitions as listsystemeventsdefinitions
 from .constants_definitions import listapchannels as listapchannels
 from .constants_definitions import listapleslversions as listapleslversions
 from .constants_definitions import listapleddefinition as listapleddefinition
@@ -31,14 +39,6 @@ from .constants_definitions import listmarvisclientversions as listmarvisclientv
 from .constants_definitions import liststates as liststates
 from .constants_definitions import listtraffictypes as listtraffictypes
 from .constants_definitions import listwebhooktopics as listwebhooktopics
-from .constants_events import listclienteventsdefinitions as listclienteventsdefinitions
-from .constants_events import listdeviceeventsdefinitions as listdeviceeventsdefinitions
-from .constants_events import listmxedgeeventsdefinitions as listmxedgeeventsdefinitions
-from .constants_events import listnaceventsdefinitions as listnaceventsdefinitions
-from .constants_events import (
-    listotherdeviceeventsdefinitions as listotherdeviceeventsdefinitions,
-)
-from .constants_events import listsystemeventsdefinitions as listsystemeventsdefinitions
 from .constants_models import getgatewaydefaultconfig as getgatewaydefaultconfig
 from .constants_models import listdevicemodels as listdevicemodels
 from .constants_models import listmxedgemodels as listmxedgemodels
@@ -47,9 +47,6 @@ from .constants_models import (
 )
 from .orgs import getorg as getorg
 from .orgs import searchorgevents as searchorgevents
-from .orgs_devices___ssr import (
-    getorg128tregistrationcommands as getorg128tregistrationcommands,
-)
 from .orgs_advanced_anti_malware_profiles import (
     listorgaamwprofiles as listorgaamwprofiles,
 )
@@ -95,6 +92,23 @@ from .orgs_devices import listorgapsmacs as listorgapsmacs
 from .orgs_devices import searchorgdevices as searchorgdevices
 from .orgs_devices import listorgdevicessummary as listorgdevicessummary
 from .orgs_devices import getorgjuniperdevicescommand as getorgjuniperdevicescommand
+from .utilities_upgrade import listorgdeviceupgrades as listorgdeviceupgrades
+from .utilities_upgrade import getorgdeviceupgrade as getorgdeviceupgrade
+from .utilities_upgrade import (
+    listorgavailabledeviceversions as listorgavailabledeviceversions,
+)
+from .utilities_upgrade import listorgmxedgeupgrades as listorgmxedgeupgrades
+from .utilities_upgrade import getorgmxedgeupgrade as getorgmxedgeupgrade
+from .utilities_upgrade import listorgssrupgrades as listorgssrupgrades
+from .utilities_upgrade import (
+    listorgavailablessrversions as listorgavailablessrversions,
+)
+from .utilities_upgrade import listsitedeviceupgrades as listsitedeviceupgrades
+from .utilities_upgrade import getsitedeviceupgrade as getsitedeviceupgrade
+from .utilities_upgrade import (
+    listsiteavailabledeviceversions as listsiteavailabledeviceversions,
+)
+from .utilities_upgrade import getsitessrupgrade as getsitessrupgrade
 from .orgs_events import countorgsystemevents as countorgsystemevents
 from .orgs_events import searchorgsystemevents as searchorgsystemevents
 from .orgs_evpn_topologies import listorgevpntopologies as listorgevpntopologies
@@ -114,10 +128,6 @@ from .orgs_inventory import countorginventory as countorginventory
 from .orgs_inventory import searchorginventory as searchorginventory
 from .orgs_logs import listorgauditlogs as listorgauditlogs
 from .orgs_logs import countorgauditlogs as countorgauditlogs
-from .orgs_marvis_invites import (
-    listorgmarvisclientinvites as listorgmarvisclientinvites,
-)
-from .orgs_marvis_invites import getorgmarvisclientinvite as getorgmarvisclientinvite
 from .orgs_mxclusters import listorgmxedgeclusters as listorgmxedgeclusters
 from .orgs_mxclusters import getorgmxedgecluster as getorgmxedgecluster
 from .orgs_mxedges import listorgmxedges as listorgmxedges
@@ -225,13 +235,6 @@ from .self_alarms import listalarmsubscriptions as listalarmsubscriptions
 from .sites import getsiteinfo as getsiteinfo
 from .sites_alarms import countsitealarms as countsitealarms
 from .sites_alarms import searchsitealarms as searchsitealarms
-from .sites_anomaly import (
-    getsiteanomalyeventsforclient as getsiteanomalyeventsforclient,
-)
-from .sites_anomaly import (
-    getsiteanomalyeventsfordevice as getsiteanomalyeventsfordevice,
-)
-from .sites_anomaly import listsiteanomalyevents as listsiteanomalyevents
 from .sites_applications import listsiteapps as listsiteapps
 from .sites_ap_templates import listsiteaptemplatederived as listsiteaptemplatederived
 from .sites_clients___wireless import (

@@ -20,14 +20,14 @@ classifiers = [
   "Topic :: System :: Networking",
   "Development Status :: 4 - Beta",
 ]
-dependencies = ["FastMCP", "marvin", "mcp[cli]>=1.9.2", "mistapi>0.55.13"]
+dependencies = ["FastMCP", "marvin", "mcp[cli]>=1.9.2", "mistapi>=0.56.0"]
 
 [project.urls]
 "Source" = "https://github.com/tmunzer/mistmcp"
 "Bug Tracker" = "https://github.com/tmunzer/mistmcp/issues"
 
 [project.scripts]
-start = "mistmcp:start"
+mistmcp = "mistmcp.__main__:main"
 
 
 # UV-specific configuration
@@ -40,6 +40,7 @@ dev-dependencies = [
   "factory-boy>=3.3.3",
   # "pytest-mock>=3.14.1",
   # "pytest-httpx>=0.35.0",
+  "pytest-asyncio",
   # "faker>=37.3.0",
   # "httpx>=0.28.1",
 
@@ -56,7 +57,7 @@ dev-dependencies = [
 
 # Hatchling configuration (replaces setup.cfg)
 [tool.hatchling.build.targets.wheel]
-packages = ["src/mistapi"]
+packages = ["src/mistmcp"]
 
 [tool.hatchling.build.targets.sdist]
 include = ["/src", "/tests", "/README.md", "/pyproject.toml"]
@@ -68,6 +69,7 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 markers = ["unit: Unit tests", "integration: Integration tests"]
+asyncio_mode = "auto"
 
 
 addopts = [
@@ -75,7 +77,7 @@ addopts = [
   "--tb=short",
   "--strict-markers",
   "--disable-warnings",
-  "--cov=src/mistapi",
+  "--cov=src/mistmcp",
   "--cov-report=html",
   "--cov-report=term-missing",
   "--cov-fail-under=30",

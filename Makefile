@@ -60,6 +60,7 @@ publish: clean build ## Publish to PyPI
 	uv run twine upload dist/*
 
 generate: ## Run the code generation script
+	cd mist_openapi && git pull && cd ..
 	uv run python generate_from_openapi.py $(VERSION)
 
 deps: ## Show dependency tree
