@@ -18,6 +18,7 @@ from starlette.requests import Request
 
 from mistmcp.config import ServerConfig
 from mistmcp.session_manager import get_current_session, session_manager
+from mistmcp.tool_helper import TOOLS
 
 
 class SessionAwareFastMCP(FastMCP):
@@ -37,36 +38,51 @@ class SessionAwareFastMCP(FastMCP):
 
     async def get_tools(self) -> Dict[str, Any]:
         """Override get_tools to return session-filtered tools"""
-        mode: str = self.config.tool_loading_mode.value
+        tools_mode: str = self.config.tool_loading_mode.value
+        tools_categories: list[str] = self.config.tool_categories
         try:
             if self.transport_mode == "http":
                 # For HTTP mode, we can access query parameters directly
                 req: Request = get_http_request()
-                mode = req.query_params.get("mode", self.config.tool_loading_mode.value)
+                tools_mode = req.query_params.get(
+                    "mode", self.config.tool_loading_mode.value
+                )
+                if req.query_params.get("categories"):
+                    # If 'custom' mode is specified, use provided categories
+                    tools_categories = req.query_params.get("categories", "").split(",")
             else:
                 # For other transport modes, use the server mode
-                mode = self.config.tool_loading_mode.value
-            session = get_current_session(mode)
+                tools_mode = self.config.tool_loading_mode.value
+            session = get_current_session(tools_mode)
             enabled_tools = session.enabled_tools
         except Exception:
             # If we can't get session context, return default tools only
             # This ensures consistent behavior across different contexts
             enabled_tools = session_manager.default_enabled_tools
 
+        returned_tools = {}
         # Get all registered tools
         all_tools = await super().get_tools()
 
-        if mode == "all":
-            # If mode is 'all', return all tools without filtering
-            return all_tools
+        if tools_mode == "all":
+            # If tools_mode is 'all', return all tools without filtering
+            returned_tools = all_tools
+        elif tools_categories:
+            requested_tools: list[str] = ["getSelf"]
+            for category in tools_categories:
+                tools = TOOLS.get(category, {}).get("tools", [])
+                requested_tools.extend(tools)
+            for tool_name, tool_obj in all_tools.items():
+                if tool_name in requested_tools:
+                    returned_tools[tool_name] = tool_obj
 
         # Filter tools based on current session's enabled tools
-        filtered_tools = {}
-        for tool_name, tool_obj in all_tools.items():
-            if tool_name in enabled_tools:
-                filtered_tools[tool_name] = tool_obj
+        else:
+            for tool_name, tool_obj in all_tools.items():
+                if tool_name in enabled_tools:
+                    returned_tools[tool_name] = tool_obj
 
-        return filtered_tools
+        return returned_tools
 
     async def get_tool(self, key: str):
         """Override get_tool to enforce session-based access control"""
@@ -96,7 +112,7 @@ class SessionAwareFastMCP(FastMCP):
 
             return {
                 "session_id": session.session_id,
-                "mode": session.tools_mode,
+                "tools_mode": session.tools_mode,
                 "enabled_tools": list(session.enabled_tools),
                 "enabled_categories": list(session.enabled_categories),
                 "created_at": session.created_at.isoformat(),

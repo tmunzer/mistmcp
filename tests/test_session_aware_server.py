@@ -258,3 +258,166 @@ class TestSessionAwareFastMCP:
             result = await getattr(session_aware_server, "_mcp_list_tools")()
 
         assert result == mock_tools
+
+    @patch("mistmcp.session_aware_server.TOOLS")
+    @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
+    async def test_get_tools_with_categories_filter(
+        self, mock_get_session, mock_tools, mock_session
+    ) -> None:
+        """Test get_tools with tools_categories filter"""
+        mock_get_session.return_value = mock_session
+
+        # Mock the TOOLS dictionary to define what tools belong to which categories
+        mock_tools.get.side_effect = lambda category, default=None: {
+            "orgs": {"tools": ["getOrgs", "listOrgs"]},
+            "sites": {"tools": ["getSites", "listSites"]},
+        }.get(category, default or {})
+
+        # Create server config with specific tool categories
+        config = ServerConfig(
+            tool_loading_mode=ToolLoadingMode.MANAGED,
+            tool_categories=[
+                "orgs",
+                "sites",
+            ],  # These are category names, not tool names
+            debug=False,
+        )
+        server = SessionAwareFastMCP(config=config, transport_mode="stdio")
+
+        # Mock the parent get_tools method
+        all_tools = {
+            "getSelf": Mock(),
+            "manageMcpTools": Mock(),
+            "getOrgs": Mock(),  # In orgs category
+            "listOrgs": Mock(),  # In orgs category
+            "getSites": Mock(),  # In sites category
+            "listSites": Mock(),  # In sites category
+            "getDevices": Mock(),  # Not in any requested category
+        }
+
+        # Update mock session to have more enabled tools
+        mock_session.enabled_tools = {
+            "getSelf",
+            "manageMcpTools",
+            "getOrgs",
+            "listOrgs",
+            "getSites",
+            "listSites",
+            "getDevices",
+        }
+
+        with patch(
+            "fastmcp.FastMCP.get_tools", new_callable=AsyncMock, return_value=all_tools
+        ):
+            filtered_tools = await server.get_tools()
+
+        # Should return only tools that are both enabled AND in the requested categories
+        assert len(filtered_tools) == 4
+        assert "getOrgs" in filtered_tools  # In orgs category and enabled
+        assert "listOrgs" in filtered_tools  # In orgs category and enabled
+        assert "getSites" in filtered_tools  # In sites category and enabled
+        assert "listSites" in filtered_tools  # In sites category and enabled
+        assert "getSelf" not in filtered_tools  # Not in requested categories
+        assert "manageMcpTools" not in filtered_tools  # Not in requested categories
+        assert "getDevices" not in filtered_tools  # Not in requested categories
+
+    @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
+    async def test_get_tools_empty_categories_filter(
+        self, mock_get_session, mock_session
+    ) -> None:
+        """Test get_tools with empty tools_categories (no filtering)"""
+        mock_get_session.return_value = mock_session
+
+        # Create server config with empty tool categories
+        config = ServerConfig(
+            tool_loading_mode=ToolLoadingMode.MANAGED, tool_categories=[], debug=False
+        )
+        server = SessionAwareFastMCP(config=config, transport_mode="stdio")
+
+        # Mock the parent get_tools method
+        all_tools = {
+            "getSelf": Mock(),
+            "manageMcpTools": Mock(),
+            "getOrgs": Mock(),
+            "getSites": Mock(),
+        }
+
+        with patch(
+            "fastmcp.FastMCP.get_tools", new_callable=AsyncMock, return_value=all_tools
+        ):
+            filtered_tools = await server.get_tools()
+
+        # Should return all enabled tools since categories filter is empty
+        assert len(filtered_tools) == 3
+        assert "getSelf" in filtered_tools
+        assert "manageMcpTools" in filtered_tools
+        assert "getOrgs" in filtered_tools
+        assert "getSites" not in filtered_tools  # Not in enabled_tools
+
+    @patch("mistmcp.session_aware_server.TOOLS")
+    @patch("mistmcp.session_aware_server.get_http_request")
+    @patch("mistmcp.session_aware_server.get_current_session")
+    @pytest.mark.asyncio
+    async def test_get_tools_http_mode_custom_categories(
+        self, mock_get_session, mock_get_request, mock_tools, mock_session
+    ) -> None:
+        """Test get_tools in HTTP mode with custom categories from query params"""
+        mock_get_session.return_value = mock_session
+
+        # Mock the TOOLS dictionary to define what tools belong to which categories
+        mock_tools.get.side_effect = lambda category, default=None: {
+            "orgs": {"tools": ["getOrgs", "listOrgs"]},
+            "sites": {"tools": ["getSites", "listSites"]},
+        }.get(category, default or {})
+
+        # Mock HTTP request with mode=custom and categories parameter
+        mock_request = Mock()
+        mock_request.query_params.get.side_effect = lambda key, default=None: {
+            "mode": "custom",
+            "categories": "orgs,sites",
+        }.get(key, default)
+        mock_get_request.return_value = mock_request
+
+        config = ServerConfig(
+            tool_loading_mode=ToolLoadingMode.MANAGED, tool_categories=[], debug=False
+        )
+        server = SessionAwareFastMCP(config=config, transport_mode="http")
+
+        # Mock the parent get_tools method
+        all_tools = {
+            "getSelf": Mock(),
+            "manageMcpTools": Mock(),
+            "getOrgs": Mock(),
+            "listOrgs": Mock(),
+            "getSites": Mock(),
+            "listSites": Mock(),
+            "getDevices": Mock(),
+        }
+
+        # Update mock session to have more enabled tools
+        mock_session.enabled_tools = {
+            "getSelf",
+            "manageMcpTools",
+            "getOrgs",
+            "listOrgs",
+            "getSites",
+            "listSites",
+            "getDevices",
+        }
+
+        with patch(
+            "fastmcp.FastMCP.get_tools", new_callable=AsyncMock, return_value=all_tools
+        ):
+            filtered_tools = await server.get_tools()
+
+        # Should return only tools that are both enabled AND in the requested categories
+        assert len(filtered_tools) == 5
+        assert "getSelf" in filtered_tools  # Enabled by default
+        assert "getOrgs" in filtered_tools  # In orgs category and enabled
+        assert "listOrgs" in filtered_tools  # In orgs category and enabled
+        assert "getSites" in filtered_tools  # In sites category and enabled
+        assert "listSites" in filtered_tools  # In sites category and enabled
+        assert "manageMcpTools" not in filtered_tools  # Not in requested categories
+        assert "getDevices" not in filtered_tools  # Not in requested categories
