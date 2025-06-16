@@ -138,7 +138,7 @@ def main() -> None:
     try:
         args = parser.parse_args()
     except SystemExit:
-        sys.exit(1)
+        sys.exit(2)
 
     # Set configuration from parsed arguments
     transport_mode = args.transport.lower()
