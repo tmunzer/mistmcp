@@ -202,28 +202,61 @@ uv run mistmcp --transport http --mode all --debug
 ```
 
 **HTTP Mode Query Parameters:**
-- `cloud` - Mist API Cloud to use (e.g. `api.mist.com`, `api.gc1.mist.com`, ...)
-- `mode` - Tool loading mode (`managed`, `all`, `custom`)
+- `cloud` - Mist API Cloud to use (e.g. `api.mist.com`, `api.gc1.mist.com`, `api.gc2.mist.com`, etc.)
+- `mode` - Tool loading mode: `managed` (default), `all`, `custom`
 - `categories` - Comma-separated tool categories (when `mode=custom`)
+
+**Authentication:**
+- Use `X-Authorization` header with your Mist API token
+- Format: `X-Authorization: your-mist-api-token`
+- The token is passed directly (not as Bearer token)
 
 **Examples:**
 ```bash
-# All tools mode via HTTP
-curl "http://localhost:8000/mcp/tools?mode=all"
+# All tools mode via HTTP with authentication
+curl -H "X-Authorization: your-mist-api-token" \
+  "http://localhost:8000/mcp/tools?cloud=api.mist.com&mode=all"
 
 # Custom categories via HTTP
-curl "http://localhost:8000/mcp/tools?mode=custom&categories=orgs,sites,orgs_devices"
+curl -H "X-Authorization: your-mist-api-token" \
+  "http://localhost:8000/mcp/tools?cloud=api.mist.com&mode=custom&categories=orgs,sites,orgs_devices"
+
+# Test MCP endpoint
+curl -H "X-Authorization: your-mist-api-token" \
+  -H "Content-Type: application/json" \
+  -d '{"method": "call_tool", "params": {"name": "getSelf", "arguments": {}}}' \
+  "http://localhost:8000/mcp/?cloud=api.mist.com"
 ```
 
 **Claude Desktop with HTTP Mode:**
 ```json
 {
     "mcpServers": {
-        "Mist MCP Server (HTTP)": {
+        "Mist MCP Server (HTTP - Managed Mode)": {
             "command": "npx",
             "args": [
-                "@modelcontextprotocol/server-fetch",
-                "http://127.0.0.1:8000/mcp/"
+                "-y",
+                "mcp-remote",
+                "http://localhost:8000/mcp/?cloud=api.mist.com&mode=managed",
+                "--header",
+                "X-Authorization:${MIST_API_TOKEN}",
+                "--transport",
+                "http-only"
+            ],
+            "env": {
+                "MIST_API_TOKEN": "your-mist-api-token-here"
+            }
+        },
+        "Mist MCP Server (HTTP - Custom Categories)": {
+            "command": "npx",
+            "args": [
+                "-y", 
+                "mcp-remote",
+                "http://localhost:8000/mcp/?cloud=api.mist.com&mode=custom&categories=sites,orgs,orgs_devices",
+                "--header",
+                "X-Authorization:${MIST_API_TOKEN}",
+                "--transport",
+                "http-only"
             ],
             "env": {
                 "MIST_API_TOKEN": "your-mist-api-token-here"
@@ -237,15 +270,19 @@ curl "http://localhost:8000/mcp/tools?mode=custom&categories=orgs,sites,orgs_dev
 ```json
 {
     "mcpServers": {
-        "Mist MCP Server (Remote)": {
+        "Mist MCP Server (Remote Production)": {
             "command": "npx",
             "args": [
-                "@modelcontextprotocol/server-fetch",
-                "https://your-server.com:8000/mcp/"
+                "-y",
+                "mcp-remote", 
+                "https://your-server.com:8000/mcp/?cloud=api.mist.com&mode=all",
+                "--header",
+                "X-Authorization:${MIST_API_TOKEN}",
+                "--transport",
+                "http-only"
             ],
             "env": {
-                "MIST_API_TOKEN": "your-mist-api-token-here",
-                "HTTP_AUTHORIZATION": "Bearer your-http-auth-token"
+                "MIST_API_TOKEN": "your-mist-api-token-here"
             }
         }
     }
@@ -353,12 +390,16 @@ Create or edit `~/.claude_desktop/claude_desktop_config.json`:
         "mist-network-http": {
             "command": "npx",
             "args": [
-                "@modelcontextprotocol/server-fetch",
-                "http://127.0.0.1:8000/mcp/"
+                "-y",
+                "mcp-remote",
+                "http://127.0.0.1:8000/mcp/?cloud=api.mist.com&mode=managed",
+                "--header",
+                "X-Authorization:${MIST_API_TOKEN}",
+                "--transport",
+                "http-only"
             ],
             "env": {
-                "MIST_API_TOKEN": "your-mist-api-token-here",
-                "X-Authorization": "Bearer your-http-auth-token"
+                "MIST_API_TOKEN": "your-mist-api-token-here"
             }
         }
     }
@@ -400,14 +441,19 @@ Add to your workspace `.vscode/settings.json`:
                 "MIST_ENV_FILE": "path-to-your-env-file"
             }
         },
-        "mist-remote": {
+        "mist-remote-http": {
             "command": "npx",
             "args": [
-                "@modelcontextprotocol/server-fetch",
-                "https://your-server.com:8000/mcp/?mode=all"
+                "-y",
+                "mcp-remote",
+                "https://your-server.com:8000/mcp/?cloud=api.mist.com&mode=all",
+                "--header",
+                "X-Authorization:${MIST_API_TOKEN}",
+                "--transport",
+                "http-only"
             ],
             "env": {
-                "MIST_ENV_FILE": "path-to-your-env-file"
+                "MIST_API_TOKEN": "your-mist-api-token-here"
             }
         }
     }
