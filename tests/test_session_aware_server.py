@@ -313,12 +313,12 @@ class TestSessionAwareFastMCP:
             filtered_tools = await server.get_tools()
 
         # Should return only tools that are both enabled AND in the requested categories
-        assert len(filtered_tools) == 4
+        assert len(filtered_tools) == 5
+        assert "getSelf" in filtered_tools  # Always enabled
         assert "getOrgs" in filtered_tools  # In orgs category and enabled
         assert "listOrgs" in filtered_tools  # In orgs category and enabled
         assert "getSites" in filtered_tools  # In sites category and enabled
         assert "listSites" in filtered_tools  # In sites category and enabled
-        assert "getSelf" not in filtered_tools  # Not in requested categories
         assert "manageMcpTools" not in filtered_tools  # Not in requested categories
         assert "getDevices" not in filtered_tools  # Not in requested categories
 
