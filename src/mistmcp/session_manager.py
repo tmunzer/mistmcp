@@ -27,7 +27,7 @@ class ClientSession:
     """Represents a single MCP client session"""
 
     session_id: str
-    mode: str
+    tools_mode: str
     client_info: Dict[str, Any] = field(default_factory=dict)
     enabled_tools: Set[str] = field(default_factory=set)
     enabled_categories: Set[str] = field(default_factory=set)
@@ -106,13 +106,13 @@ class SessionManager:
         # In HTTP mode, we can get the request context
         ip = req.client.host if req.client else "unknown"
         port = str(req.client.port) if req.client else "unknown"
-        mode = req.query_params.get("mode", default_mode)  # Default to HTTP mode
-        return ip, port, mode
+        tools_mode = req.query_params.get("mode", default_mode)  # Default to HTTP mode
+        return ip, port, tools_mode
 
     def get_or_create_session(self, default_mode: str = "managed") -> ClientSession:
         """Get existing session or create a new one"""
-        ip, port, mode = self.get_session_req_info(default_mode)
-        session_info = f"session_{ip}:{port}"
+        ip, port, tools_mode = self.get_session_req_info(default_mode)
+        session_info = f"session_{ip}:{port}|tools_mode={tools_mode}"
         h = hashlib.new("sha256")
         h.update(session_info.encode("utf-8"))
         session_id = h.hexdigest()
@@ -122,7 +122,7 @@ class SessionManager:
                 # Create new session with default tools enabled
                 session = ClientSession(
                     session_id=session_id,
-                    mode=mode,
+                    tools_mode=tools_mode,
                     enabled_tools=self.default_enabled_tools.copy(),
                 )
                 self.sessions[session_id] = session

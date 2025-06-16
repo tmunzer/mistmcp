@@ -96,7 +96,7 @@ class SessionAwareFastMCP(FastMCP):
 
             return {
                 "session_id": session.session_id,
-                "mode": session.mode,
+                "mode": session.tools_mode,
                 "enabled_tools": list(session.enabled_tools),
                 "enabled_categories": list(session.enabled_categories),
                 "created_at": session.created_at.isoformat(),

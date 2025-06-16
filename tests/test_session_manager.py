@@ -11,9 +11,9 @@ class TestClientSession:
 
     def test_session_creation(self) -> None:
         """Test creating a new session"""
-        session = ClientSession(session_id="test_session", mode="managed")
+        session = ClientSession(session_id="test_session", tools_mode="managed")
         assert session.session_id == "test_session"
-        assert session.mode == "managed"
+        assert session.tools_mode == "managed"
         assert isinstance(session.enabled_tools, set)
         assert isinstance(session.enabled_categories, set)
         assert isinstance(session.created_at, datetime)
@@ -23,7 +23,7 @@ class TestClientSession:
 
     def test_session_touch(self) -> None:
         """Test updating session activity"""
-        session = ClientSession(session_id="test_session", mode="managed")
+        session = ClientSession(session_id="test_session", tools_mode="managed")
         original_time = session.last_activity
 
         # Mock datetime.now to return a different time
@@ -36,7 +36,7 @@ class TestClientSession:
 
     def test_session_expiry(self) -> None:
         """Test session expiry logic"""
-        session = ClientSession(session_id="test_session", mode="managed")
+        session = ClientSession(session_id="test_session", tools_mode="managed")
 
         # Fresh session should not be expired
         assert not session.is_expired(timeout_minutes=60)
@@ -188,8 +188,8 @@ class TestSessionManager:
         assert len(sessions) == 0
 
         # Add some mock sessions
-        session1 = ClientSession(session_id="session1", mode="managed")
-        session2 = ClientSession(session_id="session2", mode="managed")
+        session1 = ClientSession(session_id="session1", tools_mode="managed")
+        session2 = ClientSession(session_id="session2", tools_mode="managed")
         manager.sessions["session1"] = session1
         manager.sessions["session2"] = session2
 
@@ -203,7 +203,7 @@ class TestSessionManager:
         manager = SessionManager()
 
         # Add a session
-        session = ClientSession(session_id="test_session", mode="managed")
+        session = ClientSession(session_id="test_session", tools_mode="managed")
         manager.sessions["test_session"] = session
 
         # Remove it
@@ -219,7 +219,7 @@ class TestSessionManager:
 @patch("mistmcp.session_manager.session_manager")
 def test_get_current_session(mock_session_manager) -> None:
     """Test get_current_session function"""
-    mock_session = ClientSession(session_id="test_session", mode="managed")
+    mock_session = ClientSession(session_id="test_session", tools_mode="managed")
     mock_session_manager.get_or_create_session.return_value = mock_session
 
     session = get_current_session("managed")

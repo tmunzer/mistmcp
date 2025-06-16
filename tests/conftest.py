@@ -60,12 +60,12 @@ def mock_session():
 
     return ClientSession(
         session_id="test_session",
+        tools_mode="managed",
         client_info={"test": "info"},
         enabled_tools={"getSelf", "manageMcpTools"},
         enabled_categories=set(),
         created_at=datetime.now(),
         last_activity=datetime.now(),
-        mode="managed",
     )
 
 
