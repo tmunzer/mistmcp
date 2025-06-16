@@ -18,7 +18,7 @@ from fastmcp.server.dependencies import get_context
 from pydantic import Field
 
 from mistmcp.session_manager import get_current_session, session_manager
-from mistmcp.tools_helper import TOOLS, McpToolsCategory
+from mistmcp.tool_helper import TOOLS, McpToolsCategory
 
 # Don't import the MCP instance at import time to avoid circular dependencies
 
@@ -114,7 +114,7 @@ async def manageMcpTools(
             changes_made.append(f"✅ Enabled category: {category.value}")
 
     # Always keep essential tools enabled
-    if session.mode == "all":
+    if session.tools_mode == "all":
         essential_tools = {"getSelf"}
     else:
         essential_tools = {"getSelf", "manageMcpTools"}

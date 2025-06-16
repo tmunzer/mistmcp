@@ -1,8 +1,8 @@
-"""Tests for mistmcp tools_helper module"""
+"""Tests for mistmcp tool_helper module"""
 
 import pytest
 
-from mistmcp.tools_helper import TOOLS, McpToolsCategory
+from mistmcp.tool_helper import TOOLS, McpToolsCategory
 
 
 class TestMcpToolsCategory:

@@ -5,12 +5,12 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
+from mistmcp.tool_helper import McpToolsCategory
 from mistmcp.tool_manager import (
     manageMcpTools,
     register_manage_mcp_tools_tool,
     snake_case,
 )
-from mistmcp.tools_helper import McpToolsCategory
 
 
 class TestSnakeCase:

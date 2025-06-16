@@ -213,7 +213,7 @@ mistmcp/
 │   ├── session_tools.py           # Session-aware tool decorators
 │   ├── tool_loader.py             # Dynamic tool loading system
 │   ├── tool_manager.py            # manageMcpTools implementation
-│   ├── tools_helper.py            # Tool category definitions
+│   ├── tool_helper.py            # Tool category definitions
 │   ├── tools.json                 # Tool registry and configuration
 │   └── tools/                     # Generated tool modules
 │       ├── orgs/                  # Organization-level APIs

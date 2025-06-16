@@ -42,7 +42,7 @@ OUTPUT_DIR = Path(
 TOOLS_MODULE = "mistmcp.tools"  # Base module name for imports
 INIT_FILE = Path("./src/mistmcp//tools/__init__.py")  # Path to package __init__ file
 # TOOLS_FILE = Path("./src/mistmcp/tools.json")  # File storing tool configuration
-TOOLS_HELPER_FILE = Path("./src/mistmcp/tools_helper.py")  # Helper file for tools
+TOOLS_HELPER_FILE = Path("./src/mistmcp/tool_helper.py")  # Helper file for tools
 # List of API tags that should be excluded from tool generation
 # These tags represent endpoints that are either deprecated, internal,
 # or not relevant for general API usage

@@ -129,7 +129,7 @@ def main() -> None:
     parser.add_argument(
         "-c",
         "--categories",
-        help="Comma-separated list of tool categories, only when mode is custom",
+        help="Comma-separated list of tool categories to enable, only when mode is custom",
     )
     parser.add_argument(
         "-d", "--debug", action="store_true", help="Enable debug output"
