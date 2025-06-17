@@ -52,7 +52,7 @@ class TestToolLoader:
 
     def test_load_tool_manager_success(self) -> None:
         """Test loading tool manager successfully"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MINIMAL)
+        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MANAGED)
         loader = ToolLoader(config)
 
         # Test with None mcp instance - should not crash
@@ -110,22 +110,6 @@ class TestToolLoader:
 
         # Should handle gracefully
         loader.load_category_tools(["orgs"])
-
-    @patch("mistmcp.tool_loader.ToolLoader.load_essential_tools")
-    @patch("mistmcp.tool_loader.ToolLoader.load_tool_manager")
-    @patch("mistmcp.tool_loader.ToolLoader.load_category_tools")
-    def test_load_tools_minimal_mode(
-        self, mock_load_category, mock_load_manager, mock_load_essential
-    ) -> None:
-        """Test loading tools in minimal mode"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MINIMAL)
-        loader = ToolLoader(config)
-
-        loader.load_tools()
-
-        mock_load_essential.assert_called_once()
-        mock_load_manager.assert_called_once()
-        mock_load_category.assert_not_called()
 
     @patch("mistmcp.tool_loader.ToolLoader.load_essential_tools")
     @patch("mistmcp.tool_loader.ToolLoader.load_tool_manager")

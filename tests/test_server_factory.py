@@ -45,13 +45,12 @@ class TestServerFactory:
         mock_tool_loader = Mock()
         mock_tool_loader_class.return_value = mock_tool_loader
 
-        config = ServerConfig()
-        transport_mode = "stdio"
+        config = ServerConfig(transport_mode="stdio")
 
-        result = create_mcp_server(config, transport_mode)
+        result = create_mcp_server(config)
 
         # Verify server creation
-        mock_create_server.assert_called_once_with(config, transport_mode)
+        mock_create_server.assert_called_once_with(config)
 
         # Verify tool loader
         mock_tool_loader_class.assert_called_once_with(config)
@@ -64,23 +63,13 @@ class TestServerFactory:
         """Test creating MCP server with exception"""
         mock_create_server.side_effect = Exception("Test error")
 
-        config = ServerConfig()
-        transport_mode = "stdio"
+        config = ServerConfig(transport_mode="stdio")
 
         try:
-            create_mcp_server(config, transport_mode)
+            create_mcp_server(config)
             assert False, "Should have raised exception"
         except Exception as e:
             assert str(e) == "Test error"
-
-    def test_get_mode_instructions_minimal(self) -> None:
-        """Test getting instructions for minimal mode"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MINIMAL)
-        instructions = get_mode_instructions(config)
-
-        assert "MINIMAL MODE" in instructions
-        assert "manageMcpTools" in instructions
-        assert "getSelf" in instructions
 
     def test_get_mode_instructions_managed(self) -> None:
         """Test getting instructions for managed mode"""

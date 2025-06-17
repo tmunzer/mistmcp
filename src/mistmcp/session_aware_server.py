@@ -29,19 +29,16 @@ class SessionAwareFastMCP(FastMCP):
     Each client maintains independent tool configurations through the session manager.
     """
 
-    def __init__(
-        self, config: ServerConfig, transport_mode: str = "stdio", **kwargs
-    ) -> None:
+    def __init__(self, config: ServerConfig, **kwargs) -> None:
         super().__init__(**kwargs)
         self.config = config
-        self.transport_mode = transport_mode
 
     async def get_tools(self) -> Dict[str, Any]:
         """Override get_tools to return session-filtered tools"""
         tools_mode: str = self.config.tool_loading_mode.value
         tools_categories: list[str] = self.config.tool_categories
         try:
-            if self.transport_mode == "http":
+            if self.config.transport_mode == "http":
                 # For HTTP mode, we can access query parameters directly
                 req: Request = get_http_request()
                 tools_mode = req.query_params.get(
@@ -143,9 +140,7 @@ class SessionAwareFastMCP(FastMCP):
         }
 
 
-def create_session_aware_mcp_server(
-    config: ServerConfig, transport_mode: str = "stdio"
-) -> SessionAwareFastMCP:
+def create_session_aware_mcp_server(config: ServerConfig) -> SessionAwareFastMCP:
     """Create a session-aware MCP server"""
 
     # Base server instructions
@@ -172,7 +167,6 @@ Your tool access is session-specific - other clients cannot see or modify your t
     # Create the session-aware server
     mcp = SessionAwareFastMCP(
         config=config,
-        transport_mode=transport_mode,
         name="Mist MCP Server (Multi-Client)",
         instructions=base_instructions
         + mode_instructions

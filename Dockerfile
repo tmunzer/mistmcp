@@ -18,6 +18,7 @@ RUN uv sync --locked
 RUN mkdir /app/.cache
 RUN mkdir /app/.cache/uv
 RUN chown -R mcp:mcp ./.cache/uv
+RUN chown -R mcp:mcp ./.venv
 # Switch to non-root user
 USER mcp
 

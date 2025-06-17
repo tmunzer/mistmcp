@@ -11,9 +11,13 @@
 """
 
 import argparse
+import os
 import sys
+from pathlib import Path
 
-from mistmcp.config import ServerConfig, ToolLoadingMode
+from dotenv import load_dotenv
+
+from mistmcp.config import ToolLoadingMode, config
 from mistmcp.server_factory import create_mcp_server
 
 
@@ -50,6 +54,7 @@ def start(
     transport_mode: str,
     tool_mode: ToolLoadingMode,
     tool_categories: list[str],
+    mcp_host: str = "127.0.0.1",
     debug: bool = False,
 ) -> None:
     """
@@ -72,11 +77,10 @@ def start(
         sys.exit(1)
 
     # Create server configuration
-    config = ServerConfig(
-        tool_loading_mode=tool_mode,
-        tool_categories=tool_categories,
-        debug=debug,
-    )
+    config.transport_mode = transport_mode
+    config.tool_loading_mode = tool_mode
+    config.tool_categories = tool_categories
+    config.debug = debug
 
     if debug:
         print("Starting Mist MCP Server with configuration:")
@@ -87,10 +91,10 @@ def start(
 
     try:
         # Create and start the MCP server
-        mcp_server = create_mcp_server(config, transport_mode)
+        mcp_server = create_mcp_server(config)
 
         if transport_mode == "http":
-            mcp_server.run(transport="streamable-http", host="127.0.0.1")
+            mcp_server.run(transport="streamable-http", host=mcp_host)
         else:
             mcp_server.run()
 
@@ -103,6 +107,83 @@ def start(
             import traceback
 
             traceback.print_exc()
+
+
+def load_env_file(env_file: str | None = None) -> None:
+    """Load environment variables from .env file if it exists"""
+    if not env_file and os.getenv("MIST_ENV_FILE"):
+        env_file = os.getenv("MIST_ENV_FILE")
+
+    if env_file:
+        if env_file.startswith("~/"):
+            env_file = os.path.join(os.path.expanduser("~"), env_file.replace("~/", ""))
+        env_file = os.path.abspath(env_file)
+        dotenv_path = Path(env_file)
+        try:
+            load_dotenv(dotenv_path=dotenv_path, override=True)
+        except ImportError:
+            print(
+                "Warning: python-dotenv not installed, skipping .env loading",
+                file=sys.stderr,
+            )
+    else:
+        try:
+            load_dotenv(override=True)
+        except ImportError:
+            print(
+                "Warning: python-dotenv not installed, skipping .env loading",
+                file=sys.stderr,
+            )
+
+
+def load_env_var(transport_mode: str) -> None:
+    """Load environment variables from MIST_ENV_FILE if set"""
+    if transport_mode == "stdio":
+        mist_apitoken = os.getenv("MIST_APITOKEN")
+        if mist_apitoken:
+            config.mist_apitoken = mist_apitoken
+
+        mist_host = os.getenv("MIST_HOST")
+        if mist_host:
+            config.mist_host = mist_host
+
+    elif transport_mode == "http":
+        mist_mcp_host = os.getenv("MISTMCP_HOST")
+        if mist_mcp_host:
+            config.mist_host = mist_mcp_host
+
+    mist_mcp_transport = os.getenv("MISTMCP_TRANSPORT_MODE")
+    if mist_mcp_transport:
+        config.transport_mode = mist_mcp_transport
+
+    mist_mcp_tool_loading_mode = os.getenv("MISTMCP_TOOL_LOADING_MODE")
+    if mist_mcp_tool_loading_mode:
+        try:
+            config.tool_loading_mode = ToolLoadingMode(
+                mist_mcp_tool_loading_mode.lower()
+            )
+        except ValueError:
+            pass
+
+    mist_mcp_tool_categories = os.getenv("MISTMCP_TOOL_CATEGORIES")
+    if mist_mcp_tool_categories:
+        config.tool_categories = [
+            cat.strip() for cat in mist_mcp_tool_categories.split(",") if cat.strip()
+        ]
+
+    mist_mcp_debug = os.getenv("MISTMCP_DEBUG")
+    if mist_mcp_debug is not None:
+        config.debug = mist_mcp_debug.lower() in ("true", "1", "yes")
+
+    if config.debug:
+        print("Loaded environment variables:")
+        print(f"  MIST_APITOKEN: {config.mist_apitoken}")
+        print(f"  MIST_HOST: {config.mist_host}")
+        print(f"  MISTMCP_TRANSPORT_MODE: {config.transport_mode}")
+        print(f"  MISTMCP_TOOL_LOADING_MODE: {config.tool_loading_mode.value}")
+        print(f"  MISTMCP_TOOL_CATEGORIES: {', '.join(config.tool_categories)}")
+        print(f"  MISTMCP_HOST: {config.mist_host}")
+        print(f"  MISTMCP_DEBUG: {config.debug}")
 
 
 def main() -> None:
@@ -134,6 +215,16 @@ def main() -> None:
     parser.add_argument(
         "-d", "--debug", action="store_true", help="Enable debug output"
     )
+    parser.add_argument(
+        "-e",
+        "--env-file",
+        default=None,
+        help="Path to .env file to load environment variables (default: MIST_ENV_FILE)",
+    )
+    parser.add_argument(
+        "--host",
+        help="When `transport`==`http`, host to bind the MCP server to (default: 127.0.0.1)",
+    )
 
     try:
         args = parser.parse_args()
@@ -142,6 +233,7 @@ def main() -> None:
 
     # Set configuration from parsed arguments
     transport_mode = args.transport.lower()
+    mcp_host = args.host
 
     try:
         tool_mode = ToolLoadingMode(args.mode.lower())
@@ -159,7 +251,10 @@ def main() -> None:
         ]
 
     debug = args.debug
-    start(transport_mode, tool_mode, tool_categories, debug)
+
+    load_env_file(args.env_file)
+    load_env_var(args.transport)
+    start(transport_mode, tool_mode, tool_categories, mcp_host, debug)
 
 
 if __name__ == "__main__":

@@ -18,8 +18,11 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Dict, Set
 
+from fastmcp.exceptions import FastMCPError, NotFoundError
 from fastmcp.server.dependencies import get_http_request
 from starlette.requests import Request
+
+from mistmcp.config import config
 
 
 @dataclass
@@ -96,18 +99,30 @@ class SessionManager:
 
     def get_session_req_info(self, default_mode: str) -> tuple[str, str, str]:
         """Get the IP and port of the current HTTP request client"""
-        req: Request = get_http_request()
-        # Try to get HTTP request context first
-        if not req and not req.client:
+        if config.transport_mode == "stdio":
             # In stdio mode, we don't have HTTP request context
             # Use a default session for stdio clients
             return "stdio", "stdio", default_mode
 
-        # In HTTP mode, we can get the request context
-        ip = req.client.host if req.client else "unknown"
-        port = str(req.client.port) if req.client else "unknown"
-        tools_mode = req.query_params.get("mode", default_mode)  # Default to HTTP mode
-        return ip, port, tools_mode
+        # Get the current HTTP request context
+        # This is only available in HTTP mode, so we can safely call it
+        # without checking if req is None or req.client is None
+        # This will raise an error if called outside of an HTTP request context
+        # which is expected behavior
+        try:
+            req: Request = get_http_request()
+            # In HTTP mode, we can get the request context
+            ip = req.client.host if req.client else "unknown"
+            port = str(req.client.port) if req.client else "unknown"
+            tools_mode = req.query_params.get(
+                "mode", default_mode
+            )  # Default to HTTP mode
+            return ip, port, tools_mode
+        except NotFoundError:
+            # If we can't get the request context, fallback to default values
+            raise FastMCPError(
+                "HTTP request context not found. Are you using HTTP transport?"
+            ) from None
 
     def get_or_create_session(self, default_mode: str = "managed") -> ClientSession:
         """Get existing session or create a new one"""

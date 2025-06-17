@@ -13,8 +13,9 @@
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
+from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
@@ -74,9 +75,25 @@ async def getOrgInventory(
     """Get Org Inventory### VC (Virtual-Chassis) Management Starting with the April release, Virtual Chassis devices in Mist will now usea cloud-assigned virtual MAC address as the device ID, instead of the physicalMAC address of the FPC0 member.**Retrieving the device ID or Site ID of a Virtual Chassis:**1. Use this API call with the query parameters `vc=true` and `mac` set to the MAC address of the VC member.2. In the response, check the `vc_mac` and `mac` fields:    - If `vc_mac` is empty or not present, the device is not part of a Virtual Chassis.    The `device_id` and `site_id` will be available in the device information.    - If `vc_mac` differs from the `mac` field, the device is part of a Virtual Chassis    but is not the device used to generate the Virtual Chassis ID. Use the `vc_mac` value with the [Get Org Inventory](/#operations/getOrgInventory)    API call to retrieve the `device_id` and `site_id`.    - If `vc_mac` matches the `mac` field, the device is the device used to generate the Virtual Chassis ID and he `device_id` and `site_id` will be available    in the device information.      This is the case if the device is the Virtual Chassis "virtual device" (MAC starting with `020003`) or if the device is the Virtual Chassis FPC0 and the Virtual Chassis is still using the FPC0 MAC address to generate the device ID."""
 
     ctx = get_context()
-    request: Request = get_http_request()
-    cloud = request.query_params.get("cloud", None)
-    apitoken = request.headers.get("X-Authorization", None)
+    if config.transport_mode == "http":
+        try:
+            request: Request = get_http_request()
+            cloud = request.query_params.get("cloud", None)
+            apitoken = request.headers.get("X-Authorization", None)
+        except NotFoundError as exc:
+            raise ClientError(
+                "HTTP request context not found. Are you using HTTP transport?"
+            ) from exc
+        if not cloud or not apitoken:
+            raise ClientError(
+                "Missing required parameters: 'cloud' and 'X-Authorization' header"
+            )
+        if not apitoken.startswith("Bearer "):
+            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
+    else:
+        apitoken = config.mist_apitoken
+        cloud = config.mist_host
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,

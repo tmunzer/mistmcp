@@ -13,8 +13,9 @@
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError
+from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
+from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 
@@ -37,9 +38,25 @@ async def listAlarmDefinitions() -> dict:
     """Get List of brief definitions of all the supported alarm types. The example field contains an example payload as you would receive in the alarm webhook output.HA cluster node names will be specified in the `node` field, if applicable."""
 
     ctx = get_context()
-    request: Request = get_http_request()
-    cloud = request.query_params.get("cloud", None)
-    apitoken = request.headers.get("X-Authorization", None)
+    if config.transport_mode == "http":
+        try:
+            request: Request = get_http_request()
+            cloud = request.query_params.get("cloud", None)
+            apitoken = request.headers.get("X-Authorization", None)
+        except NotFoundError as exc:
+            raise ClientError(
+                "HTTP request context not found. Are you using HTTP transport?"
+            ) from exc
+        if not cloud or not apitoken:
+            raise ClientError(
+                "Missing required parameters: 'cloud' and 'X-Authorization' header"
+            )
+        if not apitoken.startswith("Bearer "):
+            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
+    else:
+        apitoken = config.mist_apitoken
+        cloud = config.mist_host
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,

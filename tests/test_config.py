@@ -10,14 +10,12 @@ class TestToolLoadingMode:
 
     def test_enum_values(self) -> None:
         """Test that all enum values are correct"""
-        assert ToolLoadingMode.MINIMAL.value == "minimal"
         assert ToolLoadingMode.MANAGED.value == "managed"
         assert ToolLoadingMode.ALL.value == "all"
         assert ToolLoadingMode.CUSTOM.value == "custom"
 
     def test_enum_creation_from_string(self) -> None:
         """Test creating enum from string values"""
-        assert ToolLoadingMode("minimal") == ToolLoadingMode.MINIMAL
         assert ToolLoadingMode("managed") == ToolLoadingMode.MANAGED
         assert ToolLoadingMode("all") == ToolLoadingMode.ALL
         assert ToolLoadingMode("custom") == ToolLoadingMode.CUSTOM
@@ -38,13 +36,6 @@ class TestServerConfig:
         assert config.tool_categories == []
         assert config.debug is False
         assert hasattr(config, "available_tools")
-
-    def test_minimal_configuration(self) -> None:
-        """Test minimal mode configuration"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MINIMAL)
-        assert config.tool_loading_mode == ToolLoadingMode.MINIMAL
-        assert config.get_tools_to_load() == []
-        assert config.should_load_tool_manager() is True
 
     def test_managed_configuration(self) -> None:
         """Test managed mode configuration"""
@@ -79,16 +70,11 @@ class TestServerConfig:
 
     def test_get_description_suffix(self) -> None:
         """Test description suffix generation"""
-        # Test minimal mode
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MINIMAL)
-        suffix = config.get_description_suffix()
-        assert "MINIMAL" in suffix
-        assert "manageMcpTools" in suffix
-
         # Test managed mode
         config = ServerConfig(tool_loading_mode=ToolLoadingMode.MANAGED)
         suffix = config.get_description_suffix()
         assert "MANAGED" in suffix
+        assert "manageMcpTools" in suffix
 
         # Test all mode
         config = ServerConfig(tool_loading_mode=ToolLoadingMode.ALL)
@@ -107,7 +93,6 @@ class TestServerConfig:
         """Test tool manager loading logic"""
         # Should load for minimal, managed, custom
         for mode in [
-            ToolLoadingMode.MINIMAL,
             ToolLoadingMode.MANAGED,
             ToolLoadingMode.CUSTOM,
         ]:

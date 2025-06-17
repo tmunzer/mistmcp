@@ -21,15 +21,7 @@ def mock_mcp_instance():
 def basic_config():
     """Create a basic server configuration for testing"""
     return ServerConfig(
-        tool_loading_mode=ToolLoadingMode.MINIMAL, tool_categories=[], debug=False
-    )
-
-
-@pytest.fixture
-def managed_config():
-    """Create a managed mode server configuration for testing"""
-    return ServerConfig(
-        tool_loading_mode=ToolLoadingMode.MANAGED, tool_categories=[], debug=True
+        tool_loading_mode=ToolLoadingMode.MANAGED, tool_categories=[], debug=False
     )
 
 

@@ -19,7 +19,6 @@ from typing import List, Optional
 class ToolLoadingMode(Enum):
     """Defines how tools should be loaded in the MCP server"""
 
-    MINIMAL = "minimal"  # Only load essential tools (getSelf, manageMcpTools)
     MANAGED = "managed"  # Use tool manager for dynamic loading (default)
     ALL = "all"  # Load all available tools at startup
     CUSTOM = "custom"  # Load specific categories provided as parameter
@@ -30,12 +29,16 @@ class ServerConfig:
 
     def __init__(
         self,
+        transport_mode: str = "stdio",
         tool_loading_mode: ToolLoadingMode = ToolLoadingMode.MANAGED,
         tool_categories: Optional[List[str]] = None,
         debug: bool = False,
     ) -> None:
-        self.tool_loading_mode = tool_loading_mode
-        self.tool_categories = tool_categories or []
+        self.transport_mode: str = transport_mode
+        self.tool_loading_mode: ToolLoadingMode = tool_loading_mode
+        self.tool_categories: list[str] = tool_categories or []
+        self.mist_apitoken: str = ""
+        self.mist_host: str = ""
         self.debug = debug
 
         # Load available tools configuration
@@ -56,10 +59,7 @@ class ServerConfig:
         """
         Returns list of tool categories to load based on the configuration mode
         """
-        if self.tool_loading_mode == ToolLoadingMode.MINIMAL:
-            return []
-
-        elif self.tool_loading_mode == ToolLoadingMode.MANAGED:
+        if self.tool_loading_mode == ToolLoadingMode.MANAGED:
             return []  # Tools will be loaded dynamically via manageMcpTools
 
         elif self.tool_loading_mode == ToolLoadingMode.ALL:
@@ -82,7 +82,6 @@ class ServerConfig:
         Returns True if the tool manager should be loaded
         """
         return self.tool_loading_mode in [
-            ToolLoadingMode.MINIMAL,
             ToolLoadingMode.MANAGED,
             ToolLoadingMode.CUSTOM,
         ]
@@ -91,10 +90,8 @@ class ServerConfig:
         """
         Returns a description suffix based on the loading mode
         """
-        if self.tool_loading_mode == ToolLoadingMode.MINIMAL:
-            return "\n\nMODE: MINIMAL - Only essential tools loaded. Use `manageMcpTools` to enable additional tools."
 
-        elif self.tool_loading_mode == ToolLoadingMode.MANAGED:
+        if self.tool_loading_mode == ToolLoadingMode.MANAGED:
             return "\n\nMODE: MANAGED - Tools loaded dynamically. Use `manageMcpTools` to enable tools as needed."
 
         elif self.tool_loading_mode == ToolLoadingMode.ALL:
@@ -105,3 +102,6 @@ class ServerConfig:
             return f"\n\nMODE: CUSTOM - Pre-loaded tool categories: {categories}. Use `manageMcpTools` to modify."
 
         return ""
+
+
+config = ServerConfig()
