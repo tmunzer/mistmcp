@@ -30,19 +30,21 @@ class TestSessionAwareFastMCP:
     def server_config(self):
         """Create a test server configuration"""
         return ServerConfig(
-            tool_loading_mode=ToolLoadingMode.MANAGED, tool_categories=[], debug=False
+            transport_mode="stdio",
+            tool_loading_mode=ToolLoadingMode.MANAGED,
+            tool_categories=[],
+            debug=False,
         )
 
     @pytest.fixture
     def session_aware_server(self, server_config):
         """Create a SessionAwareFastMCP instance for testing"""
-        return SessionAwareFastMCP(config=server_config, transport_mode="stdio")
+        return SessionAwareFastMCP(config=server_config)
 
     def test_init(self, server_config) -> None:
         """Test SessionAwareFastMCP initialization"""
-        server = SessionAwareFastMCP(config=server_config, transport_mode="http")
+        server = SessionAwareFastMCP(config=server_config)
         assert server.config == server_config
-        assert server.transport_mode == "http"
 
     @patch("mistmcp.session_aware_server.get_current_session")
     @pytest.mark.asyncio
@@ -115,7 +117,9 @@ class TestSessionAwareFastMCP:
         mock_get_request.return_value = mock_request
 
         server = SessionAwareFastMCP(
-            config=ServerConfig(ToolLoadingMode.MANAGED), transport_mode="http"
+            config=ServerConfig(
+                transport_mode="http", tool_loading_mode=ToolLoadingMode.MANAGED
+            )
         )
 
         all_tools = {
@@ -276,6 +280,7 @@ class TestSessionAwareFastMCP:
 
         # Create server config with specific tool categories
         config = ServerConfig(
+            transport_mode="stdio",
             tool_loading_mode=ToolLoadingMode.MANAGED,
             tool_categories=[
                 "orgs",
@@ -283,7 +288,7 @@ class TestSessionAwareFastMCP:
             ],  # These are category names, not tool names
             debug=False,
         )
-        server = SessionAwareFastMCP(config=config, transport_mode="stdio")
+        server = SessionAwareFastMCP(config=config)
 
         # Mock the parent get_tools method
         all_tools = {
@@ -332,9 +337,12 @@ class TestSessionAwareFastMCP:
 
         # Create server config with empty tool categories
         config = ServerConfig(
-            tool_loading_mode=ToolLoadingMode.MANAGED, tool_categories=[], debug=False
+            transport_mode="stdio",
+            tool_loading_mode=ToolLoadingMode.MANAGED,
+            tool_categories=[],
+            debug=False,
         )
-        server = SessionAwareFastMCP(config=config, transport_mode="stdio")
+        server = SessionAwareFastMCP(config=config)
 
         # Mock the parent get_tools method
         all_tools = {
@@ -381,9 +389,12 @@ class TestSessionAwareFastMCP:
         mock_get_request.return_value = mock_request
 
         config = ServerConfig(
-            tool_loading_mode=ToolLoadingMode.MANAGED, tool_categories=[], debug=False
+            transport_mode="http",
+            tool_loading_mode=ToolLoadingMode.MANAGED,
+            tool_categories=[],
+            debug=False,
         )
-        server = SessionAwareFastMCP(config=config, transport_mode="http")
+        server = SessionAwareFastMCP(config=config)
 
         # Mock the parent get_tools method
         all_tools = {

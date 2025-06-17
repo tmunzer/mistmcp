@@ -59,7 +59,7 @@ def get_current_mcp():
         return None
 
 
-def create_mcp_server(config: ServerConfig, transport_mode: str = "stdio"):
+def create_mcp_server(config: ServerConfig):
     """
     Create and configure a session-aware MCP server based on the provided configuration.
 
@@ -70,7 +70,7 @@ def create_mcp_server(config: ServerConfig, transport_mode: str = "stdio"):
     # Create the server with appropriate configuration
     try:
         # Create the session-aware server instead of regular FastMCP
-        mcp = create_session_aware_mcp_server(config, transport_mode)
+        mcp = create_session_aware_mcp_server(config)
 
         # Store the instance globally BEFORE loading tools
         mcp_instance.set(mcp)
@@ -101,17 +101,8 @@ def get_mode_instructions(config: ServerConfig) -> str:
     """
     Get mode-specific instructions for the agent
     """
-    if config.tool_loading_mode == ToolLoadingMode.MINIMAL:
-        return """
-MINIMAL MODE: Only essential tools are loaded. Use the `manageMcpTools` tool to enable additional tools as needed.
 
-IMPORTANT:
-* Start by using `getSelf` to get organization information
-* Use `manageMcpTools` to enable tool categories required for your tasks
-* Be selective - only enable the categories you need for the current task
-"""
-
-    elif config.tool_loading_mode == ToolLoadingMode.MANAGED:
+    if config.tool_loading_mode == ToolLoadingMode.MANAGED:
         return """
 MANAGED MODE: Tools are loaded dynamically as needed.
 
@@ -127,7 +118,7 @@ IMPORTANT:
 * After updating the list of tools, stop and ask the user if it is ok to continue
 """
 
-    elif config.tool_loading_mode == ToolLoadingMode.ALL:
+    if config.tool_loading_mode == ToolLoadingMode.ALL:
         return """
 ALL TOOLS MODE: All available tools are loaded and ready to use.
 
@@ -139,7 +130,7 @@ IMPORTANT:
 * All tools are available - no need to use `manageMcpTools` unless you want to reduce the tool set
 """
 
-    elif config.tool_loading_mode == ToolLoadingMode.CUSTOM:
+    if config.tool_loading_mode == ToolLoadingMode.CUSTOM:
         categories = ", ".join(config.tool_categories)
         return f"""
 CUSTOM MODE: Pre-loaded with specific tool categories: {categories}

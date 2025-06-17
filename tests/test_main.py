@@ -17,7 +17,6 @@ class TestPrintHelp:
         captured = capsys.readouterr()
         assert "Mist MCP Server - Modular Network Management Assistant" in captured.out
         assert "TOOL LOADING MODES:" in captured.out
-        assert "minimal" in captured.out
         assert "managed" in captured.out
         assert "all" in captured.out
         assert "custom" in captured.out
@@ -25,24 +24,6 @@ class TestPrintHelp:
 
 class TestStart:
     """Test start function"""
-
-    @patch("mistmcp.__main__.create_mcp_server")
-    def test_start_stdio_minimal(self, mock_create_server) -> None:
-        """Test starting with stdio transport and minimal mode"""
-        mock_server = Mock()
-        mock_create_server.return_value = mock_server
-
-        start("stdio", ToolLoadingMode.MINIMAL, [], debug=False)
-
-        mock_create_server.assert_called_once()
-        config_arg = mock_create_server.call_args[0][0]
-        transport_arg = mock_create_server.call_args[0][1]
-
-        assert config_arg.tool_loading_mode == ToolLoadingMode.MINIMAL
-        assert config_arg.tool_categories == []
-        assert config_arg.debug is False
-        assert transport_arg == "stdio"
-        mock_server.run.assert_called_once_with()
 
     @patch("mistmcp.__main__.create_mcp_server")
     def test_start_http_managed(self, mock_create_server) -> None:
@@ -54,13 +35,30 @@ class TestStart:
 
         mock_create_server.assert_called_once()
         config_arg = mock_create_server.call_args[0][0]
-        transport_arg = mock_create_server.call_args[0][1]
 
         assert config_arg.tool_loading_mode == ToolLoadingMode.MANAGED
         assert config_arg.debug is True
-        assert transport_arg == "http"
+        assert config_arg.transport_mode == "http"
         mock_server.run.assert_called_once_with(
             transport="streamable-http", host="127.0.0.1"
+        )
+
+    @patch("mistmcp.__main__.create_mcp_server")
+    def test_start_http_managed_with_custom_mcp_host(self, mock_create_server) -> None:
+        """Test starting with HTTP transport and managed mode"""
+        mock_server = Mock()
+        mock_create_server.return_value = mock_server
+
+        start("http", ToolLoadingMode.MANAGED, [], mcp_host="0.0.0.0", debug=True)
+
+        mock_create_server.assert_called_once()
+        config_arg = mock_create_server.call_args[0][0]
+
+        assert config_arg.tool_loading_mode == ToolLoadingMode.MANAGED
+        assert config_arg.debug is True
+        assert config_arg.transport_mode == "http"
+        mock_server.run.assert_called_once_with(
+            transport="streamable-http", host="0.0.0.0"
         )
 
     @patch("mistmcp.__main__.create_mcp_server")
@@ -70,7 +68,13 @@ class TestStart:
         mock_create_server.return_value = mock_server
 
         categories = ["orgs", "sites"]
-        start("stdio", ToolLoadingMode.CUSTOM, categories, debug=False)
+        start(
+            "stdio",
+            ToolLoadingMode.CUSTOM,
+            categories,
+            mcp_host="127.0.0.1",
+            debug=False,
+        )
 
         mock_create_server.assert_called_once()
         config_arg = mock_create_server.call_args[0][0]
@@ -81,7 +85,9 @@ class TestStart:
     def test_start_custom_no_categories_exits(self, capsys) -> None:
         """Test that custom mode without categories exits with error"""
         with pytest.raises(SystemExit) as exc_info:
-            start("stdio", ToolLoadingMode.CUSTOM, [], debug=False)
+            start(
+                "stdio", ToolLoadingMode.CUSTOM, [], mcp_host="127.0.0.1", debug=False
+            )
 
         assert exc_info.value.code == 1
         captured = capsys.readouterr()
@@ -94,7 +100,7 @@ class TestStart:
         mock_server.run.side_effect = KeyboardInterrupt()
         mock_create_server.return_value = mock_server
 
-        start("stdio", ToolLoadingMode.MINIMAL, [], debug=False)
+        start("stdio", ToolLoadingMode.MANAGED, [], mcp_host="127.0.0.1", debug=False)
 
         captured = capsys.readouterr()
         assert "stopped by user" in captured.out
@@ -104,7 +110,7 @@ class TestStart:
         """Test handling of exceptions without debug mode"""
         mock_create_server.side_effect = Exception("Test error")
 
-        start("stdio", ToolLoadingMode.MINIMAL, [], debug=False)
+        start("stdio", ToolLoadingMode.MANAGED, [], mcp_host="127.0.0.1", debug=False)
 
         captured = capsys.readouterr()
         assert "Mist MCP Error: Test error" in captured.err
@@ -117,7 +123,7 @@ class TestStart:
         """Test handling of exceptions with debug mode"""
         mock_create_server.side_effect = Exception("Test error")
 
-        start("stdio", ToolLoadingMode.MINIMAL, [], debug=True)
+        start("stdio", ToolLoadingMode.MANAGED, [], mcp_host="127.0.0.1", debug=True)
 
         captured = capsys.readouterr()
         assert "Mist MCP Error: Test error" in captured.err
@@ -130,7 +136,9 @@ class TestStart:
         mock_create_server.return_value = mock_server
 
         categories = ["orgs", "sites"]
-        start("http", ToolLoadingMode.CUSTOM, categories, debug=True)
+        start(
+            "http", ToolLoadingMode.CUSTOM, categories, mcp_host="127.0.0.1", debug=True
+        )
 
         captured = capsys.readouterr()
         assert "Starting Mist MCP Server with configuration:" in captured.out
@@ -148,7 +156,9 @@ class TestMain:
         with patch("sys.argv", ["mistmcp"]):
             main()
 
-        mock_start.assert_called_once_with("stdio", ToolLoadingMode.MANAGED, [], False)
+        mock_start.assert_called_once_with(
+            "stdio", ToolLoadingMode.MANAGED, [], None, False
+        )
 
     @patch("mistmcp.__main__.start")
     def test_main_custom_args(self, mock_start) -> None:
@@ -169,16 +179,8 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "http", ToolLoadingMode.CUSTOM, ["orgs", "sites", "devices"], True
+            "http", ToolLoadingMode.CUSTOM, ["orgs", "sites", "devices"], None, True
         )
-
-    @patch("mistmcp.__main__.start")
-    def test_main_minimal_mode(self, mock_start) -> None:
-        """Test main with minimal mode"""
-        with patch("sys.argv", ["mistmcp", "--mode", "minimal"]):
-            main()
-
-        mock_start.assert_called_once_with("stdio", ToolLoadingMode.MINIMAL, [], False)
 
     @patch("mistmcp.__main__.start")
     def test_main_all_mode(self, mock_start) -> None:
@@ -186,7 +188,7 @@ class TestMain:
         with patch("sys.argv", ["mistmcp", "--mode", "all", "--debug"]):
             main()
 
-        mock_start.assert_called_once_with("stdio", ToolLoadingMode.ALL, [], True)
+        mock_start.assert_called_once_with("stdio", ToolLoadingMode.ALL, [], None, True)
 
     def test_main_invalid_mode(self, capsys) -> None:
         """Test main with invalid mode"""
@@ -214,7 +216,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.CUSTOM, ["orgs", "sites", "devices"], False
+            "stdio", ToolLoadingMode.CUSTOM, ["orgs", "sites", "devices"], None, False
         )
 
     @patch("mistmcp.__main__.start")
@@ -223,7 +225,9 @@ class TestMain:
         with patch("sys.argv", ["mistmcp", "--mode", "custom", "--categories", ",,,"]):
             main()
 
-        mock_start.assert_called_once_with("stdio", ToolLoadingMode.CUSTOM, [], False)
+        mock_start.assert_called_once_with(
+            "stdio", ToolLoadingMode.CUSTOM, [], None, False
+        )
 
     def test_main_help_exits(self) -> None:
         """Test that --help exits appropriately"""
