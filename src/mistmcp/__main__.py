@@ -149,7 +149,7 @@ def load_env_var(
     tool_loading_mode: ToolLoadingMode | None,
     tool_categories: list[str] | None,
     mcp_host: str | None,
-    debug: bool | None,
+    debug: bool,
 ) -> tuple[str, ToolLoadingMode, list[str], str, bool]:
     """Load environment variables from MIST_ENV_FILE if set"""
 
@@ -174,12 +174,11 @@ def load_env_var(
     if mcp_host is None:
         mcp_host = os.getenv("MISTMCP_HOST", "127.0.0.1")
 
-    if debug is None:
-        mist_mcp_debug = os.getenv("MISTMCP_DEBUG")
-        if mist_mcp_debug is not None:
-            debug = mist_mcp_debug.lower() in ("true", "1", "yes")
-        else:
-            debug = False  # Default to no debug output
+    mist_mcp_debug = os.getenv("MISTMCP_DEBUG", str(debug))
+    if mist_mcp_debug is not None:
+        debug = mist_mcp_debug.lower() in ("true", "1", "yes")
+    else:
+        debug = False  # Default to no debug output
 
     if transport_mode == "stdio":
         config.mist_apitoken = os.getenv("MIST_APITOKEN", "")
@@ -234,7 +233,7 @@ def main() -> None:
     mcp_host: str | None = args.host
     tool_loading_mode: ToolLoadingMode | None = None
     tool_categories: list[str] | None = None
-    debug: bool | None = None
+    debug: bool
 
     if args.mode:
         try:
