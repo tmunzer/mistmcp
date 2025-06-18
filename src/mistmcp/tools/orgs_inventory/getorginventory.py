@@ -53,7 +53,7 @@ async def getOrgInventory(
     type: Type = Type.NONE,
     mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
     site_id: Annotated[
-        Optional[str],
+        Optional[UUID],
         Field(description="""Site id if assigned, null if not assigned"""),
     ] = None,
     vc_mac: Annotated[
@@ -106,7 +106,7 @@ async def getOrgInventory(
         model=model,
         type=type.value,
         mac=mac,
-        site_id=site_id,
+        site_id=str(site_id),
         vc_mac=vc_mac,
         vc=vc,
         unassigned=unassigned,

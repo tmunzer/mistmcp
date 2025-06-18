@@ -73,9 +73,8 @@ async def searchOrgWirelessClientEvents(
         Proto, Field(description="""a / b / g / n / ac / ax""")
     ] = Proto.NONE,
     band: Annotated[Band, Field(description="""802.11 Band""")] = Band.NONE,
-    wlan_id: Annotated[Optional[str], Field(description="""WLAN_id""")] = None,
-    nacrule_id: Annotated[Optional[str], Field(description="""Nacrule_id""")] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
+    wlan_id: Annotated[Optional[UUID], Field(description="""WLAN_id""")] = None,
+    nacrule_id: Annotated[Optional[UUID], Field(description="""Nacrule_id""")] = None,
     start: Annotated[
         Optional[int],
         Field(
@@ -128,9 +127,8 @@ async def searchOrgWirelessClientEvents(
         ap=ap,
         proto=proto.value,
         band=band.value,
-        wlan_id=wlan_id,
-        nacrule_id=nacrule_id,
-        limit=limit,
+        wlan_id=str(wlan_id),
+        nacrule_id=str(nacrule_id),
         start=start,
         end=end,
         duration=duration,

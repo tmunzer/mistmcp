@@ -72,7 +72,7 @@ async def countOrgDevices(
     hostname: Annotated[
         Optional[str], Field(description="""Partial / full hostname""")
     ] = None,
-    site_id: Annotated[Optional[str], Field(description="""Site id""")] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
     model: Annotated[Optional[str], Field(description="""Device model""")] = None,
     managed: Annotated[
         Optional[str],
@@ -87,7 +87,7 @@ async def countOrgDevices(
         Mxtunnel_status, Field(description="""MxTunnel status, enum: `up`, `down`""")
     ] = Mxtunnel_status.NONE,
     mxedge_id: Annotated[
-        Optional[str],
+        Optional[UUID],
         Field(description="""Mist Edge id, if AP is connecting to a Mist Edge"""),
     ] = None,
     lldp_system_name: Annotated[
@@ -152,14 +152,14 @@ async def countOrgDevices(
         org_id=str(org_id),
         distinct=distinct.value,
         hostname=hostname,
-        site_id=site_id,
+        site_id=str(site_id),
         model=model,
         managed=managed,
         mac=mac,
         version=version,
         ip_address=ip_address,
         mxtunnel_status=mxtunnel_status.value,
-        mxedge_id=mxedge_id,
+        mxedge_id=str(mxedge_id),
         lldp_system_name=lldp_system_name,
         lldp_system_desc=lldp_system_desc,
         lldp_port_id=lldp_port_id,

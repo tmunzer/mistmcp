@@ -56,7 +56,6 @@ class McpToolsCategory(Enum):
     ORGS_SITES = "orgs_sites"
     ORGS_SITE_TEMPLATES = "orgs_site_templates"
     ORGS_STATS = "orgs_stats"
-    ORGS_STATS___ASSETS = "orgs_stats___assets"
     ORGS_STATS___BGP_PEERS = "orgs_stats___bgp_peers"
     ORGS_STATS___DEVICES = "orgs_stats___devices"
     ORGS_STATS___MXEDGES = "orgs_stats___mxedges"
@@ -75,57 +74,36 @@ class McpToolsCategory(Enum):
     ORGS_WLANS = "orgs_wlans"
     ORGS_WXRULES = "orgs_wxrules"
     ORGS_WXTAGS = "orgs_wxtags"
-    ORGS_WXTUNNELS = "orgs_wxtunnels"
     ADMINS = "admins"
     SELF_ACCOUNT = "self_account"
     SELF_AUDIT_LOGS = "self_audit_logs"
     SELF_ALARMS = "self_alarms"
     SITES = "sites"
-    SITES_ALARMS = "sites_alarms"
-    SITES_APPLICATIONS = "sites_applications"
-    SITES_AP_TEMPLATES = "sites_ap_templates"
+    SITES_DERIVED_CONFIG = "sites_derived_config"
     SITES_CLIENTS___WIRELESS = "sites_clients___wireless"
-    SITES_DEVICE_PROFILES = "sites_device_profiles"
     SITES_DEVICES = "sites_devices"
-    SITES_DEVICES___WIRELESS = "sites_devices___wireless"
-    SITES_DEVICES___WAN_CLUSTER = "sites_devices___wan_cluster"
     SITES_SYNTHETIC_TESTS = "sites_synthetic_tests"
-    SITES_DEVICES___WIRED___VIRTUAL_CHASSIS = "sites_devices___wired___virtual_chassis"
     SITES_EVENTS = "sites_events"
     SITES_EVPN_TOPOLOGIES = "sites_evpn_topologies"
-    SITES_GATEWAY_TEMPLATES = "sites_gateway_templates"
     SITES_GUESTS = "sites_guests"
     SITES_INSIGHTS = "sites_insights"
     ORGS_NAC_FINGERPRINTS = "orgs_nac_fingerprints"
     SITES_ROGUES = "sites_rogues"
     SITES_MAPS = "sites_maps"
-    SITES_MAPS___AUTO_PLACEMENT = "sites_maps___auto_placement"
     SITES_MAPS___AUTO_ZONE = "sites_maps___auto_zone"
     SITES_MXEDGES = "sites_mxedges"
     SITES_CLIENTS___NAC = "sites_clients___nac"
-    SITES_NETWORKS = "sites_networks"
-    SITES_NETWORK_TEMPLATES = "sites_network_templates"
-    SITES_DEVICES___OTHERS = "sites_devices___others"
     SITES_PSKS = "sites_psks"
     SITES_RFDIAGS = "sites_rfdiags"
-    SITES_RF_TEMPLATES = "sites_rf_templates"
     SITES_RRM = "sites_rrm"
-    SITES_SECINTEL_PROFILES = "sites_secintel_profiles"
-    SITES_SERVICE_POLICIES = "sites_service_policies"
-    SITES_SERVICES = "sites_services"
     SITES_SETTING = "sites_setting"
-    SITES_SITE_TEMPLATES = "sites_site_templates"
-    SITES_SKYATP = "sites_skyatp"
     SITES_SLES = "sites_sles"
     SITES_STATS = "sites_stats"
     SITES_STATS___APPS = "sites_stats___apps"
-    SITES_STATS___BGP_PEERS = "sites_stats___bgp_peers"
     SITES_STATS___CALLS = "sites_stats___calls"
     SITES_STATS___CLIENTS_WIRELESS = "sites_stats___clients_wireless"
-    SITES_STATS___DEVICES = "sites_stats___devices"
     SITES_STATS___DISCOVERED_SWITCHES = "sites_stats___discovered_switches"
     SITES_STATS___MXEDGES = "sites_stats___mxedges"
-    SITES_STATS___PORTS = "sites_stats___ports"
     SITES_STATS___WXRULES = "sites_stats___wxrules"
     SITES_VPNS = "sites_vpns"
     SITES_CLIENTS___WAN = "sites_clients___wan"
@@ -135,17 +113,12 @@ class McpToolsCategory(Enum):
     SITES_WLANS = "sites_wlans"
     SITES_WXRULES = "sites_wxrules"
     SITES_WXTAGS = "sites_wxtags"
-    SITES_WXTUNNELS = "sites_wxtunnels"
 
 
 TOOLS = {
     "admins": {
         "tools": ["getAdminRegistrationInfo"],
         "description": "Admin tools can be used to create, manage or authenticate Mist administrators.\n\nTo register administrators into an existing MSP account or Organization, please check: * [Invite Msp Admin](/#operations/inviteMspAdmin) * [Invite Org Admin](/#operations/inviteOrgAdmin)",
-    },
-    "sites_secintel_profiles": {
-        "tools": ["listSiteSecIntelProfilesDerived"],
-        "description": "Sky ATP Secintel Profile",
     },
     "orgs": {
         "tools": ["getOrg", "searchOrgEvents"],
@@ -169,7 +142,7 @@ TOOLS = {
     },
     "orgs_antivirus_profiles": {
         "tools": ["listOrgAntivirusProfiles", "getOrgAntivirusProfile"],
-        "description": "Antivirus profiles are used to define the content to scan for any malware and the action to be taken when malware is detected. \nThese profiles can be assigned to Content Security policies to scan Web, file transfer, and e-mail traffic. \nThe profiles help in ensuring that the network is protected from malicious content by specifying fallback options and notification methods when malware is detected or when the antivirus system experiences errors.\n\n\nKey Features of Antivirus Profiles:\n\n* Content Scanning: Defines the content to scan for malware.\n* Action on Detection: Specifies the action to be taken when malware is detected.\n* Fallback Options: Configures actions to be taken when the antivirus system encounters errors.\n* Notification Options: Sets up methods to notify users when a fallback occurs or a virus is detected.    ",
+        "description": "Antivirus profiles are used to define the content to scan for any malware and the action to be taken when malware is detected. \nThese profiles can be assigned to Content Security policies to scan Web, file transfer, and e-mail traffic. \nThe profiles help in ensuring that the network is protected from malicious content by specifying fallback options and notification methods when malware is detected or when the antivirus system experiences errors.\n\n\nKey Features of Antivirus Profiles:\n\n* Content Scanning: Defines the content to scan for malware.\n* Action on Detection: Specifies the action to be taken when malware is detected.\n* Fallback Options: Configures actions to be taken when the antivirus system encounters errors.\n* Notification Options: Sets up methods to notify users when a fallback occurs or a virus is detected.",
     },
     "orgs_clients___nac": {
         "tools": [
@@ -312,14 +285,6 @@ TOOLS = {
         "tools": ["getOrgStats"],
         "description": "tools to retrieve statistics about the Mist Org and related items",
     },
-    "orgs_stats___assets": {
-        "tools": [
-            "listOrgAssetsStats",
-            "countOrgAssetsByDistanceField",
-            "searchOrgAssets",
-        ],
-        "description": "tools to retrieve statistics about the Assets at the Org level",
-    },
     "orgs_stats___bgp_peers": {
         "tools": ["countOrgBgpStats", "searchOrgBgpStats"],
         "description": "tools to retrieve statistics about the BGP Peers (WAN Assurance)",
@@ -337,7 +302,7 @@ TOOLS = {
         "description": "tools to retrieve statistics about the Other/3rd party devices at the Org level",
     },
     "orgs_stats___ports": {
-        "tools": ["searchOrgSwOrGwPorts"],
+        "tools": ["countOrgSwOrGwPorts", "searchOrgSwOrGwPorts"],
         "description": "tools to retrieve statistics about the Wired Ports at the Org level",
     },
     "orgs_stats___sites": {
@@ -442,25 +407,9 @@ TOOLS = {
         ],
         "description": "Wxtags are tags or groups that can be created and used within the Org.\n\nThey are used to classify users and resources and can be applied to Access Points, WLAN configurations or WxRules within that site.\n\nOrg WxTags are created and managed at the org level and can only be referenced and used within the org level configuration.",
     },
-    "orgs_wxtunnels": {
-        "tools": ["listOrgWxTunnels", "getOrgWxTunnel"],
-        "description": "A WxLan Tunnel (WxTunnel) are used  to create a secure connection between Juniper Mist Access Points and third-party VPN concentrators using protocols such as L2TPv3 or dmvpn.\n\nThese tunnels allow for the aggregation of ethernet interfaces on access points, support dynamic or static tunnels, and provide options for IPSec encryption.",
-    },
     "sites": {
         "tools": ["getSiteInfo"],
         "description": "A site represents a project, a deployment. For MSP, it can be as small as a coffee shop or a five-star 600-room hotel. A site contains a set of Maps, Wlans, Policies, Zones.",
-    },
-    "sites_alarms": {
-        "tools": ["countSiteAlarms", "searchSiteAlarms"],
-        "description": "Alarms are triggered based on certain events. Alarms could be configured using an [Orgs Alarm Template]($h/Orgs%20Alarm%20Templates/_overview).",
-    },
-    "sites_ap_templates": {
-        "tools": ["listSiteApTemplateDerived"],
-        "description": "AP Templates are defining Wi-Fi and AP settings that can be assigned to Access Points based on different types of rules.\n\nSite AP Templates are created and managed at the site level and can only be referenced and used within that particular site.",
-    },
-    "sites_applications": {
-        "tools": ["listSiteApps"],
-        "description": "Applications contains a list of applications users are interested in monitoring / routing / policing",
     },
     "sites_clients___nac": {
         "tools": [
@@ -512,30 +461,6 @@ TOOLS = {
         ],
         "description": "Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
     },
-    "sites_devices___wireless": {
-        "tools": ["listSiteDeviceRadioChannels", "getSiteDeviceIotPort"],
-        "description": "tools specific to the Mist Access Points",
-    },
-    "sites_devices___others": {
-        "tools": [
-            "listSiteOtherDevices",
-            "countSiteOtherDeviceEvents",
-            "searchSiteOtherDeviceEvents",
-        ],
-        "description": "tool for 3rd party devices",
-    },
-    "sites_devices___wired___virtual_chassis": {
-        "tools": ["getSiteDeviceVirtualChassis"],
-        "description": "tools specific to the Juniper Switches Virtual Chassis managed by Mist",
-    },
-    "sites_devices___wan_cluster": {
-        "tools": ["GetSiteDeviceHaClusterNode"],
-        "description": "tools specific to manage (form/delete) the SRX/SSR Clusters",
-    },
-    "sites_device_profiles": {
-        "tools": ["listSiteDeviceProfilesDerived"],
-        "description": "The API Endpoints for the Device Profiles at the site level can be used to get the site derived networks, meaning the merge between the site level configuration and the org level configuration.",
-    },
     "orgs_events": {
         "tools": ["countOrgSystemEvents", "searchOrgSystemEvents"],
         "description": "Orgs Events are all the system level changes at the org level",
@@ -551,10 +476,6 @@ TOOLS = {
     "sites_evpn_topologies": {
         "tools": ["listSiteEvpnTopologies", "getSiteEvpnTopology"],
         "description": "EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP - separating control plane (MAC / IP Learning) from forwarding plane.\n\nIn our implementation, following the steps to deploy EVPN topologies in a Site",
-    },
-    "sites_gateway_templates": {
-        "tools": ["listSiteGatewayTemplateDerived"],
-        "description": "The API Endpoints for the Gateway Templates at the site level can be used to get the site derived networks, meaning the merge between the site level configuration and the org level configuration.",
     },
     "sites_guests": {
         "tools": [
@@ -578,10 +499,6 @@ TOOLS = {
         "tools": ["listSiteMaps", "getSiteMap"],
         "description": "A Site Map is a visual representation of the layout and structure of a location, such as a building or campus.\n\nIt includes accurate information about the placement, positions, heights, and orientations of Juniper Mist Access Points (APs) and other devices in the deployment.\n\nThe floorplan is an essential component of location services as it enables the location engine to generate accurate location estimates for client devices, assets, and users at the site.",
     },
-    "sites_maps___auto_placement": {
-        "tools": ["getSiteApAutoOrientation", "getSiteApAutoPlacement"],
-        "description": "### AP Auto-Placement\nAP Auto-Placement is a feature in Juniper Mist wireless assurance that automatically determines and sets the positions of Access Points (APs) on a floorplan.\n\nIt saves time and simplifies the deployment process by eliminating the need for manual placement. \n\nThe autoplacement algorithm calculates the most probable location for each AP based on factors such as signal strength and coverage requirements. \n\nThe confidence level of the autoplacement is indicated by colors, with green representing high certainty, orange indicating medium certainty, and red suggesting low certainty. \nIn cases where aps are isolated or cannot communicate with nearby aps, they cannot be placed automatically and must be [manually positioned on the floorplan](/#operations/updateSiteDevice). \n\nAfter the autoplacement process is complete, the results can be evaluated and accepted of rejected with the tool [Confirm Site AP Localization Data](/#operations/confirmSiteApLocalizationData)\n\n\n### AP Auto-Orientation\nAp Auto-Orientation is a feature in juniper mist wireless assurance that allows users to check and correct the orientation of Access Points (APs) on a floorplan. \n\nThis feature is supported by specific ap models and requires a firmware dependency of version 0.14.28310 or higher and does not require a maintenance window and can be used after performing autoplacement. \n\nTo use auto-orientation, physically install the APs, claim or adopt them into the Juniper Mist organization, place them on the floorplan, and perform auto-placement, then trigger the [Start Site Ap Auto Orientation tool](/#operations/startSiteApAutoOrientation)\n\nAfter 24 hours, the rotation in degrees of the AP(s) will be updated. users can accept or deny the changes made by the auto-orientation feature with the tool [Confirm Site AP Localization Data](/#operations/confirmSiteApLocalizationData).",
-    },
     "sites_maps___auto_zone": {
         "tools": ["getSiteMapAutoZoneStatus"],
         "description": "The auto zones service is a map parsing service that uses map image data to suggest spaces to designate as location zones.",
@@ -595,21 +512,9 @@ TOOLS = {
         ],
         "description": "MxEdges (Mist Edges) at the site level are deployed to tunnel traffic at each site due to network constraints or security concerns.\n\nThey can be assigned to a specific site and configured to provide tunneling and radius proxy services for the access points (APs) in that site.\n\nThese Mist Edges allow for the extension of user vlans from the corporate network to the aps, and they support features such as auto preemption for failover, dual tunneling to different mist edge clusters, and anchor tunnels for traffic routing to dmz areas.",
     },
-    "sites_network_templates": {
-        "tools": ["listSiteNetworkTemplateDerived"],
-        "description": "The API Endpoints for the Network Templates at the site level can be used to get the site derived networks, meaning the merge between the site level configuration and the org level configuration.",
-    },
-    "sites_networks": {
-        "tools": ["listSiteNetworksDerived"],
-        "description": "The API Endpoints for the Networks at the site level can be used to get the site derived networks, meaning the merge between the site level configuration and the org level configuration.",
-    },
     "sites_psks": {
         "tools": ["listSitePsks", "getSitePsk"],
         "description": "A multi PSK (Pre-Shared Key) is a feature that allows the use of multiple PSKs for securing network connections.\n\nIt provides a simple and comprehensive way to onboard client devices without relying on client mac addresses.\n\nEach psk has its own key name, which can be used for user-level accountability, key rotation, and visibility in the management platform. It supports the creation, rotation, and auto-expiration of psks, and allows vlan assignment and role assignment for dynamic per-user policies.\n\nMulti PSKs create virtual broadcast domains and can be used for end-user onboarding via authenticated sso login.\n\nMist supports two methods of Site PSKs lookup: * local * radius",
-    },
-    "sites_rf_templates": {
-        "tools": ["listSiteRfTemplateDerived"],
-        "description": "The API Endpoints for the RF Templates at the site level can be used to get the site derived configuration, meaning the merge between the site level configuration and the org level configuration.",
     },
     "sites_rfdiags": {
         "tools": [
@@ -638,29 +543,9 @@ TOOLS = {
         ],
         "description": "RRM, or Radio Resource Management, is a tool used by large multi-site organizations to efficiently manage their RF spectrum.\n\nIt involves making decisions on channel and power settings for access points (APs) based on factors such as user experience, client count, client usage, and interference.\n\nMist RRM uses a reinforcement learning-based feedback model to monitor the impact of changes in channel and power settings on the capacity and performance of the wireless network. It adapts dynamically to changing conditions throughout the day and aims to optimize wireless coverage and capacity across a site.",
     },
-    "sites_services": {
-        "tools": [
-            "listSiteServicesDerived",
-            "countSiteServicePathEvents",
-            "searchSiteServicePathEvents",
-        ],
-        "description": "A Service represents an a traffic destination or an application that network users connect to. They are associated with users and networks and are used in application policies to permit or deny access.\n\nServices are defined at the [Org level](/#operations/createOrgService).\n\nThe Site level endpoints can be used to get the site services statistics or the derived services, meaning the merge between the site level configuration and the org level configuration.",
-    },
-    "sites_service_policies": {
-        "tools": ["listSiteServicePoliciesDerived"],
-        "description": "The API Endpoints for the Service Policies at the site level can be used to get the site derived configuration, meaning the merge between the site level configuration and the org level configuration.",
-    },
     "sites_setting": {
         "tools": ["getSiteSetting", "getSiteSettingDerived"],
         "description": "Site settings refer to the configuration and management of of site within a Mist Organization.\n\nThese settings include access point settings, firmware upgrade schedules, and various features such as location services, occupancy analytics, and engagement analytics.",
-    },
-    "sites_site_templates": {
-        "tools": ["listSiteSiteTemplateDerived"],
-        "description": "The API Endpoints for the Site Templates at the site level can be used to get the site derived configuration, meaning the merge between the site level configuration and the org level configuration.",
-    },
-    "sites_skyatp": {
-        "tools": ["countSiteSkyatpEvents", "searchSiteSkyatpEvents"],
-        "description": "SkyATP is a cloud-based solution that provides advanced threat protection for network security.\n\nIt allows security analysts to update their defense against new attack techniques in real-time and distribute threat intelligence quickly.\n\nSkyATP inspects network traffic and blocks devices that have downloaded malware or accessed command and control servers. It also offers configuration and troubleshooting capabilities for administrators.",
     },
     "sites_sles": {
         "tools": [
@@ -715,10 +600,6 @@ TOOLS = {
         "tools": ["listSiteWxTags", "getSiteApplicationList", "getSiteWxTag"],
         "description": "Wxtags are tags or groups that can be created and used within a specific site.\n\nThey are used to classify users and resources and can be applied to Access Points, WLAN configurations or WxRules within that site.\n\nSite WxTags are created and managed at the site level and can only be referenced and used within that particular site.",
     },
-    "sites_wxtunnels": {
-        "tools": ["listSiteWxTunnels", "getSiteWxTunnel"],
-        "description": "A WxLan Tunnel (WxTunnel) are used  to create a secure connection between Juniper Mist Access Points and third-party VPN concentrators using protocols such as L2TPv3 or dmvpn.\n\nThese tunnels allow for the aggregation of ethernet interfaces on access points, support dynamic or static tunnels, and provide options for IPSec encryption.",
-    },
     "sites_stats": {
         "tools": ["getSiteStats"],
         "description": "The stats are providing access to raw data about a specific type of entities.",
@@ -726,10 +607,6 @@ TOOLS = {
     "sites_stats___apps": {
         "tools": ["countSiteApps"],
         "description": "tools to retrieve the stats of the Applications used on side",
-    },
-    "sites_stats___bgp_peers": {
-        "tools": ["countSiteBgpStats", "searchSiteBgpStats"],
-        "description": "tools to retrieve BGP Peers statistics of the Site Wen Edge Gateways at the Site level",
     },
     "sites_stats___calls": {
         "tools": [
@@ -750,23 +627,9 @@ TOOLS = {
         ],
         "description": "tools to retrieve the stats of the wireless clients detected (connected or not connected) on this site.",
     },
-    "sites_stats___devices": {
-        "tools": [
-            "listSiteDevicesStats",
-            "getSiteDeviceStats",
-            "getSiteAllClientsStatsByDevice",
-            "getSiteGatewayMetrics",
-            "getSiteSwitchesMetrics",
-        ],
-        "description": "tools to retrieve statistics about the Mist Managed and Monitored Devices at the Site level",
-    },
     "sites_stats___mxedges": {
         "tools": ["listSiteMxEdgesStats", "getSiteMxEdgeStats"],
         "description": "tools to retrieve statistics about the Mist Edges at the Site level",
-    },
-    "sites_stats___ports": {
-        "tools": ["countSiteSwOrGwPorts", "searchSiteSwOrGwPorts"],
-        "description": "tools to retrieve statistics about the Wired Ports at the Site level",
     },
     "sites_stats___wxrules": {
         "tools": ["getSiteWxRulesUsage"],
@@ -855,5 +718,25 @@ TOOLS = {
             "getSiteSsrUpgrade",
         ],
         "description": "tools used to manage device upgrades for a single device, at the site level or at the organization level.",
+    },
+    "sites_derived_config": {
+        "tools": [
+            "listSiteApps",
+            "listSiteApTemplateDerived",
+            "listSiteDeviceProfilesDerived",
+            "listSiteGatewayTemplateDerived",
+            "listSiteNetworksDerived",
+            "listSiteNetworkTemplateDerived",
+            "listSiteRfTemplateDerived",
+            "listSiteSecIntelProfilesDerived",
+            "listSiteServicePoliciesDerived",
+            "listSiteServicesDerived",
+            "countSiteServicePathEvents",
+            "searchSiteServicePathEvents",
+            "listSiteSiteTemplateDerived",
+            "countSiteSkyatpEvents",
+            "searchSiteSkyatpEvents",
+        ],
+        "description": "Derived configuration for the sites. It provides access to configuration objects derived from the Org level templates and configuration objects and the Site level configuration",
     },
 }

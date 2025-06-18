@@ -19,70 +19,29 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
-from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
-class Distinct(Enum):
-    AP = "ap"
-    APFW = "apfw"
-    MODEL = "model"
-    ORG_ID = "org_id"
-    SITE_ID = "site_id"
-    TEXT = "text"
-    TIMESTAMP = "timestamp"
-    TYPE = "type"
-
-
 @mcp.tool(
     enabled=True,
-    name="countOrgDeviceEvents",
-    description="""Count by Distinct Attributes of Org Devices Events""",
-    tags={"Orgs Devices"},
+    name="listSiteApps",
+    description="""Get List of Site Applications""",
+    tags={"sites_derived_config"},
     annotations={
-        "title": "countOrgDeviceEvents",
+        "title": "listSiteApps",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def countOrgDeviceEvents(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    distinct: Distinct = Distinct.MODEL,
-    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
-    ap: Annotated[Optional[str], Field(description="""AP mac""")] = None,
-    apfw: Annotated[Optional[str], Field(description="""AP Firmware""")] = None,
-    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    text: Annotated[Optional[str], Field(description="""Event message""")] = None,
-    timestamp: Annotated[Optional[str], Field(description="""Event time""")] = None,
-    type: Annotated[
-        Optional[str],
-        Field(
-            description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
-        ),
-    ] = None,
-    start: Annotated[
-        Optional[int],
-        Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
-        ),
-    ] = None,
-    end: Annotated[
-        Optional[int],
-        Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
-        ),
-    ] = None,
-    duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
+async def listSiteApps(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
 ) -> dict:
-    """Count by Distinct Attributes of Org Devices Events"""
+    """Get List of Site Applications"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -109,21 +68,9 @@ async def countOrgDeviceEvents(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.devices.countOrgDeviceEvents(
+    response = mistapi.api.v1.sites.apps.listSiteApps(
         apisession,
-        org_id=str(org_id),
-        distinct=distinct.value,
         site_id=str(site_id),
-        ap=ap,
-        apfw=apfw,
-        model=model,
-        text=text,
-        timestamp=timestamp,
-        type=type,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
     )
 
     if response.status_code != 200:

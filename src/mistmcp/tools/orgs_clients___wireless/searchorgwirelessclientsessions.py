@@ -64,7 +64,7 @@ async def searchOrgWirelessClientSessions(
         Optional[str], Field(description="""E.g. 'Mojave', 'Windows 10', 'Linux'""")
     ] = None,
     ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
-    wlan_id: Annotated[Optional[str], Field(description="""WLAN_id""")] = None,
+    wlan_id: Annotated[Optional[UUID], Field(description="""WLAN_id""")] = None,
     psk_id: Annotated[Optional[str], Field(description="""PSK ID""")] = None,
     psk_name: Annotated[Optional[str], Field(description="""PSK Name""")] = None,
     limit: Annotated[int, Field(default=100)] = 100,
@@ -122,7 +122,7 @@ async def searchOrgWirelessClientSessions(
         client_username=client_username,
         client_os=client_os,
         ssid=ssid,
-        wlan_id=wlan_id,
+        wlan_id=str(wlan_id),
         psk_id=psk_id,
         psk_name=psk_name,
         limit=limit,

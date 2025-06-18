@@ -52,7 +52,7 @@ EXAMPLES:
 
 def start(
     transport_mode: str,
-    tool_mode: ToolLoadingMode,
+    tool_loading_mode: ToolLoadingMode,
     tool_categories: list[str],
     mcp_host: str = "127.0.0.1",
     debug: bool = False,
@@ -69,7 +69,7 @@ def start(
     """
 
     # Validate configuration
-    if tool_mode == ToolLoadingMode.CUSTOM and not tool_categories:
+    if tool_loading_mode == ToolLoadingMode.CUSTOM and not tool_categories:
         print(
             "Error: Custom mode requires at least one category. Use --categories",
             file=sys.stderr,
@@ -78,16 +78,24 @@ def start(
 
     # Create server configuration
     config.transport_mode = transport_mode
-    config.tool_loading_mode = tool_mode
+    config.tool_loading_mode = tool_loading_mode
     config.tool_categories = tool_categories
     config.debug = debug
 
-    if debug:
-        print("Starting Mist MCP Server with configuration:")
-        print(f"  Transport: {transport_mode}")
-        print(f"  Tool mode: {tool_mode.value}")
+    if config.debug:
+        print(" Starting Mist MCP Server with configuration ".center(80, "="))
+        print(f"  TRANSPORT: {transport_mode}")
+        print(f"  TOOL LOADING MODE: {tool_loading_mode.value}")
         if tool_categories:
-            print(f"  Categories: {', '.join(tool_categories)}")
+            print(f"  CATEGORIES: {', '.join(tool_categories)}")
+
+        print(f"  MIST_HOST: {config.mist_host}")
+        print(f"  MISTMCP_TRANSPORT_MODE: {config.transport_mode}")
+        print(f"  MISTMCP_TOOL_LOADING_MODE: {config.tool_loading_mode.value}")
+        print(f"  MISTMCP_TOOL_CATEGORIES: {', '.join(config.tool_categories)}")
+        print(f"  MISTMCP_HOST: {mcp_host}")
+        print(f"  MISTMCP_DEBUG: {config.debug}")
+        print("".center(80, "="))
 
     try:
         # Create and start the MCP server
@@ -136,54 +144,48 @@ def load_env_file(env_file: str | None = None) -> None:
             )
 
 
-def load_env_var(transport_mode: str) -> None:
+def load_env_var(
+    transport_mode: str | None,
+    tool_loading_mode: ToolLoadingMode | None,
+    tool_categories: list[str] | None,
+    mcp_host: str | None,
+    debug: bool | None,
+) -> tuple[str, ToolLoadingMode, list[str], str, bool]:
     """Load environment variables from MIST_ENV_FILE if set"""
-    if transport_mode == "stdio":
-        mist_apitoken = os.getenv("MIST_APITOKEN")
-        if mist_apitoken:
-            config.mist_apitoken = mist_apitoken
 
-        mist_host = os.getenv("MIST_HOST")
-        if mist_host:
-            config.mist_host = mist_host
+    if transport_mode is None:
+        transport_mode = os.getenv("MISTMCP_TRANSPORT_MODE", "stdio").lower()
 
-    elif transport_mode == "http":
-        mist_mcp_host = os.getenv("MISTMCP_HOST")
-        if mist_mcp_host:
-            config.mist_host = mist_mcp_host
-
-    mist_mcp_transport = os.getenv("MISTMCP_TRANSPORT_MODE")
-    if mist_mcp_transport:
-        config.transport_mode = mist_mcp_transport
-
-    mist_mcp_tool_loading_mode = os.getenv("MISTMCP_TOOL_LOADING_MODE")
-    if mist_mcp_tool_loading_mode:
+    if tool_loading_mode is None:
+        mist_mcp_tool_loading_mode = os.getenv(
+            "MISTMCP_TOOL_LOADING_MODE", "managed"
+        ).lower()
         try:
-            config.tool_loading_mode = ToolLoadingMode(
-                mist_mcp_tool_loading_mode.lower()
-            )
+            tool_loading_mode = ToolLoadingMode(mist_mcp_tool_loading_mode.lower())
         except ValueError:
-            pass
+            tool_loading_mode = ToolLoadingMode.MANAGED
 
-    mist_mcp_tool_categories = os.getenv("MISTMCP_TOOL_CATEGORIES")
-    if mist_mcp_tool_categories:
-        config.tool_categories = [
+    if tool_categories is None:
+        mist_mcp_tool_categories = os.getenv("MISTMCP_TOOL_CATEGORIES", "")
+        tool_categories = [
             cat.strip() for cat in mist_mcp_tool_categories.split(",") if cat.strip()
         ]
 
-    mist_mcp_debug = os.getenv("MISTMCP_DEBUG")
-    if mist_mcp_debug is not None:
-        config.debug = mist_mcp_debug.lower() in ("true", "1", "yes")
+    if mcp_host is None:
+        mcp_host = os.getenv("MISTMCP_HOST", "127.0.0.1")
 
-    if config.debug:
-        print("Loaded environment variables:")
-        print(f"  MIST_APITOKEN: {config.mist_apitoken}")
-        print(f"  MIST_HOST: {config.mist_host}")
-        print(f"  MISTMCP_TRANSPORT_MODE: {config.transport_mode}")
-        print(f"  MISTMCP_TOOL_LOADING_MODE: {config.tool_loading_mode.value}")
-        print(f"  MISTMCP_TOOL_CATEGORIES: {', '.join(config.tool_categories)}")
-        print(f"  MISTMCP_HOST: {config.mist_host}")
-        print(f"  MISTMCP_DEBUG: {config.debug}")
+    if debug is None:
+        mist_mcp_debug = os.getenv("MISTMCP_DEBUG")
+        if mist_mcp_debug is not None:
+            debug = mist_mcp_debug.lower() in ("true", "1", "yes")
+        else:
+            debug = False  # Default to no debug output
+
+    if transport_mode == "stdio":
+        config.mist_apitoken = os.getenv("MIST_APITOKEN", "")
+        config.mist_host = os.getenv("MIST_HOST", "")
+
+    return transport_mode, tool_loading_mode, tool_categories, mcp_host, debug
 
 
 def main() -> None:
@@ -197,14 +199,12 @@ def main() -> None:
         "-t",
         "--transport",
         choices=["stdio", "http"],
-        default="stdio",
         help="Transport mode to use (default: stdio)",
     )
     parser.add_argument(
         "-m",
         "--mode",
         choices=["minimal", "managed", "all", "custom"],
-        default="managed",
         help="Tool loading mode (default: managed)",
     )
     parser.add_argument(
@@ -218,7 +218,6 @@ def main() -> None:
     parser.add_argument(
         "-e",
         "--env-file",
-        default=None,
         help="Path to .env file to load environment variables (default: MIST_ENV_FILE)",
     )
     parser.add_argument(
@@ -231,20 +230,22 @@ def main() -> None:
     except SystemExit:
         sys.exit(2)
 
-    # Set configuration from parsed arguments
-    transport_mode = args.transport.lower()
-    mcp_host = args.host
+    transport_mode: str | None = args.transport
+    mcp_host: str | None = args.host
+    tool_loading_mode: ToolLoadingMode | None = None
+    tool_categories: list[str] | None = None
+    debug: bool | None = None
 
-    try:
-        tool_mode = ToolLoadingMode(args.mode.lower())
-    except ValueError:
-        print(
-            f"Error: Invalid mode '{args.mode}'. Valid modes: minimal, managed, all, custom",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    if args.mode:
+        try:
+            tool_loading_mode = ToolLoadingMode(args.mode.lower())
+        except ValueError:
+            print(
+                f"Error: Invalid mode '{args.mode}'. Valid modes: minimal, managed, all, custom",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
-    tool_categories = []
     if args.categories:
         tool_categories = [
             cat.strip() for cat in args.categories.split(",") if cat.strip()
@@ -253,8 +254,10 @@ def main() -> None:
     debug = args.debug
 
     load_env_file(args.env_file)
-    load_env_var(args.transport)
-    start(transport_mode, tool_mode, tool_categories, mcp_host, debug)
+    transport_mode, tool_loading_mode, tool_categories, mcp_host, debug = load_env_var(
+        transport_mode, tool_loading_mode, tool_categories, mcp_host, debug
+    )
+    start(transport_mode, tool_loading_mode, tool_categories, mcp_host, debug)
 
 
 if __name__ == "__main__":

@@ -141,10 +141,10 @@ class TestStart:
         )
 
         captured = capsys.readouterr()
-        assert "Starting Mist MCP Server with configuration:" in captured.out
-        assert "Transport: http" in captured.out
-        assert "Tool mode: custom" in captured.out
-        assert "Categories: orgs, sites" in captured.out
+        assert "Starting Mist MCP Server with configuration" in captured.out
+        assert "TRANSPORT: http" in captured.out
+        assert "TOOL LOADING MODE: custom" in captured.out
+        assert "CATEGORIES: orgs, sites" in captured.out
 
 
 class TestMain:
@@ -157,7 +157,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.MANAGED, [], None, False
+            "stdio", ToolLoadingMode.MANAGED, [], "127.0.0.1", False
         )
 
     @patch("mistmcp.__main__.start")
@@ -179,7 +179,11 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "http", ToolLoadingMode.CUSTOM, ["orgs", "sites", "devices"], None, True
+            "http",
+            ToolLoadingMode.CUSTOM,
+            ["orgs", "sites", "devices"],
+            "127.0.0.1",
+            True,
         )
 
     @patch("mistmcp.__main__.start")
@@ -188,7 +192,9 @@ class TestMain:
         with patch("sys.argv", ["mistmcp", "--mode", "all", "--debug"]):
             main()
 
-        mock_start.assert_called_once_with("stdio", ToolLoadingMode.ALL, [], None, True)
+        mock_start.assert_called_once_with(
+            "stdio", ToolLoadingMode.ALL, [], "127.0.0.1", True
+        )
 
     def test_main_invalid_mode(self, capsys) -> None:
         """Test main with invalid mode"""
@@ -216,7 +222,11 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.CUSTOM, ["orgs", "sites", "devices"], None, False
+            "stdio",
+            ToolLoadingMode.CUSTOM,
+            ["orgs", "sites", "devices"],
+            "127.0.0.1",
+            False,
         )
 
     @patch("mistmcp.__main__.start")
@@ -226,7 +236,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.CUSTOM, [], None, False
+            "stdio", ToolLoadingMode.CUSTOM, [], "127.0.0.1", False
         )
 
     def test_main_help_exits(self) -> None:

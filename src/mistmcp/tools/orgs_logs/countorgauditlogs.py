@@ -50,11 +50,11 @@ async def countOrgAuditLogs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     distinct: Distinct = Distinct.ADMIN_NAME,
     admin_id: Annotated[
-        Optional[str], Field(description="""ID of the Mist Admin""")
+        Optional[UUID], Field(description="""ID of the Mist Admin""")
     ] = None,
     admin_name: Optional[str] = None,
     site_id: Annotated[
-        Optional[str], Field(description="""ID of the Mist Site""")
+        Optional[UUID], Field(description="""ID of the Mist Site""")
     ] = None,
     message: Optional[str] = None,
     start: Annotated[
@@ -105,9 +105,9 @@ async def countOrgAuditLogs(
         apisession,
         org_id=str(org_id),
         distinct=distinct.value,
-        admin_id=admin_id,
+        admin_id=str(admin_id),
         admin_name=admin_name,
-        site_id=site_id,
+        site_id=str(site_id),
         message=message,
         start=start,
         end=end,

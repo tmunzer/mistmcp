@@ -21,50 +21,57 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
-class Distinct(Enum):
-    AP = "ap"
-    APFW = "apfw"
-    MODEL = "model"
-    ORG_ID = "org_id"
-    SITE_ID = "site_id"
-    TEXT = "text"
-    TIMESTAMP = "timestamp"
-    TYPE = "type"
-
-
 @mcp.tool(
     enabled=True,
-    name="countOrgDeviceEvents",
-    description="""Count by Distinct Attributes of Org Devices Events""",
-    tags={"Orgs Devices"},
+    name="searchSiteServicePathEvents",
+    description="""Search Service Path Events""",
+    tags={"sites_derived_config"},
     annotations={
-        "title": "countOrgDeviceEvents",
+        "title": "searchSiteServicePathEvents",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def countOrgDeviceEvents(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    distinct: Distinct = Distinct.MODEL,
-    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
-    ap: Annotated[Optional[str], Field(description="""AP mac""")] = None,
-    apfw: Annotated[Optional[str], Field(description="""AP Firmware""")] = None,
-    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    text: Annotated[Optional[str], Field(description="""Event message""")] = None,
-    timestamp: Annotated[Optional[str], Field(description="""Event time""")] = None,
+async def searchSiteServicePathEvents(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     type: Annotated[
+        Optional[str], Field(description="""Event type, e.g. GW_SERVICE_PATH_DOWN""")
+    ] = None,
+    text: Annotated[
         Optional[str],
         Field(
-            description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
+            description="""Description of the event including the reason it is triggered"""
         ),
     ] = None,
+    peer_port_id: Annotated[
+        Optional[str], Field(description="""Port ID of the peer gateway""")
+    ] = None,
+    peer_mac: Annotated[
+        Optional[str], Field(description="""MAC address of the peer gateway""")
+    ] = None,
+    vpn_name: Annotated[Optional[str], Field(description="""Peer name""")] = None,
+    vpn_path: Annotated[Optional[str], Field(description="""Peer path name""")] = None,
+    policy: Annotated[
+        Optional[str],
+        Field(description="""Service policy associated with that specific path"""),
+    ] = None,
+    port_id: Annotated[
+        Optional[str], Field(description="""Network interface""")
+    ] = None,
+    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
+    version: Annotated[
+        Optional[str], Field(description="""Device firmware version""")
+    ] = None,
+    timestamp: Annotated[
+        Optional[float], Field(description="""Start time, in epoch""")
+    ] = None,
+    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
     start: Annotated[
         Optional[int],
         Field(
@@ -82,7 +89,7 @@ async def countOrgDeviceEvents(
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
-    """Count by Distinct Attributes of Org Devices Events"""
+    """Search Service Path Events"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -109,17 +116,21 @@ async def countOrgDeviceEvents(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.devices.countOrgDeviceEvents(
+    response = mistapi.api.v1.sites.services.searchSiteServicePathEvents(
         apisession,
-        org_id=str(org_id),
-        distinct=distinct.value,
         site_id=str(site_id),
-        ap=ap,
-        apfw=apfw,
-        model=model,
-        text=text,
-        timestamp=timestamp,
         type=type,
+        text=text,
+        peer_port_id=peer_port_id,
+        peer_mac=peer_mac,
+        vpn_name=vpn_name,
+        vpn_path=vpn_path,
+        policy=policy,
+        port_id=port_id,
+        model=model,
+        version=version,
+        timestamp=timestamp,
+        mac=mac,
         start=start,
         end=end,
         duration=duration,

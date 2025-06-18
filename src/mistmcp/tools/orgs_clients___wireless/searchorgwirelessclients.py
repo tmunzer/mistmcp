@@ -40,7 +40,7 @@ mcp = mcp_instance.get()
 )
 async def searchOrgWirelessClients(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[str], Field(description="""Site ID""")] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")] = None,
     mac: Annotated[
         Optional[str], Field(description="""Partial / full MAC address""")
     ] = None,
@@ -137,7 +137,7 @@ async def searchOrgWirelessClients(
     response = mistapi.api.v1.orgs.clients.searchOrgWirelessClients(
         apisession,
         org_id=str(org_id),
-        site_id=site_id,
+        site_id=str(site_id),
         mac=mac,
         ip_address=ip_address,
         hostname=hostname,

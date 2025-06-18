@@ -55,8 +55,18 @@ async def countSiteCalls(
         ),
     ] = None,
     app: Optional[str] = None,
-    start: Optional[str] = None,
-    end: Optional[str] = None,
+    start: Annotated[
+        Optional[int],
+        Field(
+            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+        ),
+    ] = None,
+    end: Annotated[
+        Optional[int],
+        Field(
+            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+        ),
+    ] = None,
     limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
     """Count by Distinct Attributes of Calls"""

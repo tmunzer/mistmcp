@@ -179,17 +179,13 @@ from .orgs_sites import searchorgsites as searchorgsites
 from .orgs_site_templates import listorgsitetemplates as listorgsitetemplates
 from .orgs_site_templates import getorgsitetemplate as getorgsitetemplate
 from .orgs_stats import getorgstats as getorgstats
-from .orgs_stats___assets import listorgassetsstats as listorgassetsstats
-from .orgs_stats___assets import (
-    countorgassetsbydistancefield as countorgassetsbydistancefield,
-)
-from .orgs_stats___assets import searchorgassets as searchorgassets
 from .orgs_stats___bgp_peers import countorgbgpstats as countorgbgpstats
 from .orgs_stats___bgp_peers import searchorgbgpstats as searchorgbgpstats
 from .orgs_stats___devices import listorgdevicesstats as listorgdevicesstats
 from .orgs_stats___mxedges import listorgmxedgesstats as listorgmxedgesstats
 from .orgs_stats___mxedges import getorgmxedgestats as getorgmxedgestats
 from .orgs_stats___other_devices import getorgotherdevicestats as getorgotherdevicestats
+from .orgs_stats___ports import countorgsworgwports as countorgsworgwports
 from .orgs_stats___ports import searchorgsworgwports as searchorgsworgwports
 from .orgs_stats___sites import listorgsitestats as listorgsitestats
 from .orgs_stats___tunnels import countorgtunnelsstats as countorgtunnelsstats
@@ -223,8 +219,6 @@ from .orgs_wxtags import getorgwxtag as getorgwxtag
 from .orgs_wxtags import (
     getorgcurrentmatchingclientsofawxtag as getorgcurrentmatchingclientsofawxtag,
 )
-from .orgs_wxtunnels import listorgwxtunnels as listorgwxtunnels
-from .orgs_wxtunnels import getorgwxtunnel as getorgwxtunnel
 from .admins import getadminregistrationinfo as getadminregistrationinfo
 from .self_account import getself as getself
 from .self_account import getselfloginfailures as getselfloginfailures
@@ -233,10 +227,37 @@ from .self_account import getselfapiusage as getselfapiusage
 from .self_audit_logs import listselfauditlogs as listselfauditlogs
 from .self_alarms import listalarmsubscriptions as listalarmsubscriptions
 from .sites import getsiteinfo as getsiteinfo
-from .sites_alarms import countsitealarms as countsitealarms
-from .sites_alarms import searchsitealarms as searchsitealarms
-from .sites_applications import listsiteapps as listsiteapps
-from .sites_ap_templates import listsiteaptemplatederived as listsiteaptemplatederived
+from .sites_derived_config import listsiteapps as listsiteapps
+from .sites_derived_config import listsiteaptemplatederived as listsiteaptemplatederived
+from .sites_derived_config import (
+    listsitedeviceprofilesderived as listsitedeviceprofilesderived,
+)
+from .sites_derived_config import (
+    listsitegatewaytemplatederived as listsitegatewaytemplatederived,
+)
+from .sites_derived_config import listsitenetworksderived as listsitenetworksderived
+from .sites_derived_config import (
+    listsitenetworktemplatederived as listsitenetworktemplatederived,
+)
+from .sites_derived_config import listsiterftemplatederived as listsiterftemplatederived
+from .sites_derived_config import (
+    listsitesecintelprofilesderived as listsitesecintelprofilesderived,
+)
+from .sites_derived_config import (
+    listsiteservicepoliciesderived as listsiteservicepoliciesderived,
+)
+from .sites_derived_config import listsiteservicesderived as listsiteservicesderived
+from .sites_derived_config import (
+    countsiteservicepathevents as countsiteservicepathevents,
+)
+from .sites_derived_config import (
+    searchsiteservicepathevents as searchsiteservicepathevents,
+)
+from .sites_derived_config import (
+    listsitesitetemplatederived as listsitesitetemplatederived,
+)
+from .sites_derived_config import countsiteskyatpevents as countsiteskyatpevents
+from .sites_derived_config import searchsiteskyatpevents as searchsiteskyatpevents
 from .sites_clients___wireless import (
     countsitewirelessclients as countsitewirelessclients,
 )
@@ -256,9 +277,6 @@ from .sites_clients___wireless import (
     searchsitewirelessclientsessions as searchsitewirelessclientsessions,
 )
 from .sites_clients___wireless import getsiteeventsforclient as getsiteeventsforclient
-from .sites_device_profiles import (
-    listsitedeviceprofilesderived as listsitedeviceprofilesderived,
-)
 from .sites_devices import listsitedevices as listsitedevices
 from .sites_devices import countsitedeviceconfighistory as countsitedeviceconfighistory
 from .sites_devices import (
@@ -272,28 +290,15 @@ from .sites_devices import countsitedevicelastconfig as countsitedevicelastconfi
 from .sites_devices import searchsitedevicelastconfigs as searchsitedevicelastconfigs
 from .sites_devices import searchsitedevices as searchsitedevices
 from .sites_devices import getsitedevice as getsitedevice
-from .sites_devices___wireless import (
-    listsitedeviceradiochannels as listsitedeviceradiochannels,
-)
-from .sites_devices___wireless import getsitedeviceiotport as getsitedeviceiotport
-from .sites_devices___wan_cluster import (
-    getsitedevicehaclusternode as getsitedevicehaclusternode,
-)
 from .sites_synthetic_tests import (
     getsitedevicesynthetictest as getsitedevicesynthetictest,
 )
 from .sites_synthetic_tests import searchsitesynthetictest as searchsitesynthetictest
-from .sites_devices___wired___virtual_chassis import (
-    getsitedevicevirtualchassis as getsitedevicevirtualchassis,
-)
 from .sites_events import listsiteroamingevents as listsiteroamingevents
 from .sites_events import countsitesystemevents as countsitesystemevents
 from .sites_events import searchsitesystemevents as searchsitesystemevents
 from .sites_evpn_topologies import listsiteevpntopologies as listsiteevpntopologies
 from .sites_evpn_topologies import getsiteevpntopology as getsiteevpntopology
-from .sites_gateway_templates import (
-    listsitegatewaytemplatederived as listsitegatewaytemplatederived,
-)
 from .sites_guests import (
     listsiteallguestauthorizations as listsiteallguestauthorizations,
 )
@@ -323,12 +328,6 @@ from .sites_rogues import searchsiterogueevents as searchsiterogueevents
 from .sites_rogues import getsiterogueap as getsiterogueap
 from .sites_maps import listsitemaps as listsitemaps
 from .sites_maps import getsitemap as getsitemap
-from .sites_maps___auto_placement import (
-    getsiteapautoorientation as getsiteapautoorientation,
-)
-from .sites_maps___auto_placement import (
-    getsiteapautoplacement as getsiteapautoplacement,
-)
 from .sites_maps___auto_zone import getsitemapautozonestatus as getsitemapautozonestatus
 from .sites_mxedges import listsitemxedges as listsitemxedges
 from .sites_mxedges import countsitemxedgeevents as countsitemxedgeevents
@@ -338,45 +337,19 @@ from .sites_clients___nac import countsitenacclients as countsitenacclients
 from .sites_clients___nac import countsitenacclientevents as countsitenacclientevents
 from .sites_clients___nac import searchsitenacclientevents as searchsitenacclientevents
 from .sites_clients___nac import searchsitenacclients as searchsitenacclients
-from .sites_networks import listsitenetworksderived as listsitenetworksderived
-from .sites_network_templates import (
-    listsitenetworktemplatederived as listsitenetworktemplatederived,
-)
-from .sites_devices___others import listsiteotherdevices as listsiteotherdevices
-from .sites_devices___others import (
-    countsiteotherdeviceevents as countsiteotherdeviceevents,
-)
-from .sites_devices___others import (
-    searchsiteotherdeviceevents as searchsiteotherdeviceevents,
-)
 from .sites_psks import listsitepsks as listsitepsks
 from .sites_psks import getsitepsk as getsitepsk
 from .sites_rfdiags import getsitesiterfdiagrecording as getsitesiterfdiagrecording
 from .sites_rfdiags import getsiterfdiagrecording as getsiterfdiagrecording
 from .sites_rfdiags import downloadsiterfdiagrecording as downloadsiterfdiagrecording
-from .sites_rf_templates import listsiterftemplatederived as listsiterftemplatederived
 from .sites_rrm import getsitecurrentchannelplanning as getsitecurrentchannelplanning
 from .sites_rrm import (
     getsitecurrentrrmconsiderations as getsitecurrentrrmconsiderations,
 )
 from .sites_rrm import listsiterrmevents as listsiterrmevents
 from .sites_rrm import listsitecurrentrrmneighbors as listsitecurrentrrmneighbors
-from .sites_secintel_profiles import (
-    listsitesecintelprofilesderived as listsitesecintelprofilesderived,
-)
-from .sites_service_policies import (
-    listsiteservicepoliciesderived as listsiteservicepoliciesderived,
-)
-from .sites_services import listsiteservicesderived as listsiteservicesderived
-from .sites_services import countsiteservicepathevents as countsiteservicepathevents
-from .sites_services import searchsiteservicepathevents as searchsiteservicepathevents
 from .sites_setting import getsitesetting as getsitesetting
 from .sites_setting import getsitesettingderived as getsitesettingderived
-from .sites_site_templates import (
-    listsitesitetemplatederived as listsitesitetemplatederived,
-)
-from .sites_skyatp import countsiteskyatpevents as countsiteskyatpevents
-from .sites_skyatp import searchsiteskyatpevents as searchsiteskyatpevents
 from .sites_sles import getsitesleclassifierdetails as getsitesleclassifierdetails
 from .sites_sles import listsiteslemetricclassifiers as listsiteslemetricclassifiers
 from .sites_sles import getsiteslehistogram as getsiteslehistogram
@@ -400,8 +373,6 @@ from .sites_sles import getsiteslethreshold as getsiteslethreshold
 from .sites_sles import listsiteslesmetrics as listsiteslesmetrics
 from .sites_stats import getsitestats as getsitestats
 from .sites_stats___apps import countsiteapps as countsiteapps
-from .sites_stats___bgp_peers import countsitebgpstats as countsitebgpstats
-from .sites_stats___bgp_peers import searchsitebgpstats as searchsitebgpstats
 from .sites_stats___calls import troubleshootsitecall as troubleshootsitecall
 from .sites_stats___calls import countsitecalls as countsitecalls
 from .sites_stats___calls import searchsitecalls as searchsitecalls
@@ -419,13 +390,6 @@ from .sites_stats___clients_wireless import (
 from .sites_stats___clients_wireless import (
     listsiteunconnectedclientstats as listsiteunconnectedclientstats,
 )
-from .sites_stats___devices import listsitedevicesstats as listsitedevicesstats
-from .sites_stats___devices import getsitedevicestats as getsitedevicestats
-from .sites_stats___devices import (
-    getsiteallclientsstatsbydevice as getsiteallclientsstatsbydevice,
-)
-from .sites_stats___devices import getsitegatewaymetrics as getsitegatewaymetrics
-from .sites_stats___devices import getsiteswitchesmetrics as getsiteswitchesmetrics
 from .sites_stats___discovered_switches import (
     searchsitediscoveredswitchesmetrics as searchsitediscoveredswitchesmetrics,
 )
@@ -440,8 +404,6 @@ from .sites_stats___discovered_switches import (
 )
 from .sites_stats___mxedges import listsitemxedgesstats as listsitemxedgesstats
 from .sites_stats___mxedges import getsitemxedgestats as getsitemxedgestats
-from .sites_stats___ports import countsitesworgwports as countsitesworgwports
-from .sites_stats___ports import searchsitesworgwports as searchsitesworgwports
 from .sites_stats___wxrules import getsitewxrulesusage as getsitewxrulesusage
 from .sites_vpns import listsitevpnsderived as listsitevpnsderived
 from .sites_clients___wan import countsitewanclientevents as countsitewanclientevents
@@ -465,5 +427,3 @@ from .sites_wxrules import getsitewxrule as getsitewxrule
 from .sites_wxtags import listsitewxtags as listsitewxtags
 from .sites_wxtags import getsiteapplicationlist as getsiteapplicationlist
 from .sites_wxtags import getsitewxtag as getsitewxtag
-from .sites_wxtunnels import listsitewxtunnels as listsitewxtunnels
-from .sites_wxtunnels import getsitewxtunnel as getsitewxtunnel

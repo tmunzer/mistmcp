@@ -75,7 +75,7 @@ async def countOrgWirelessClientsSessions(
         Optional[str], Field(description="""E.g. 'Mojave', 'Windows 10', 'Linux'""")
     ] = None,
     ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
-    wlan_id: Annotated[Optional[str], Field(description="""WLAN_id""")] = None,
+    wlan_id: Annotated[Optional[UUID], Field(description="""WLAN_id""")] = None,
     start: Annotated[
         Optional[int],
         Field(
@@ -131,7 +131,7 @@ async def countOrgWirelessClientsSessions(
         client_model=client_model,
         client_os=client_os,
         ssid=ssid,
-        wlan_id=wlan_id,
+        wlan_id=str(wlan_id),
         start=start,
         end=end,
         duration=duration,

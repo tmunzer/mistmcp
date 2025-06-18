@@ -123,7 +123,43 @@ EXCLUDED_TAGS = [
     "Utilities PCAPs",
     "Utilities Location",
     "Utilities MxEdge",
+    # In addition, exclude some site level tags that are redundant with the Org API calls
+    # or not useful for MCP
+    "Orgs Stats - Assets",
+    "Orgs WxTunnels",
+    "Sites Stats - BGP Peers",
+    "Sites Stats - Devices",
+    "Sites Stats - Ports",
+    "Sites Devices - Wireless",
+    "Sites Devices - WAN Cluster",
+    "Sites Alarms",
+    "Sites Devices - Others",
+    "Sites Devices - Wired - Virtual Chassis",
+    "Sites Maps - Auto-placement",
+    "Sites Maps - Auto-zone",
+    "Sites Vpns",
+    "Sites WxTunnels",
 ]
+
+CUSTOM_TAGS_DEFS = {
+    "sites_derived_config": "Derived configuration for the sites. It provides access to configuration objects derived from the Org level templates and configuration objects and the Site level configuration",
+}
+
+CUSTOM_TAGS = {
+    "sites applications": "sites_derived_config",
+    "sites ap templates": "sites_derived_config",
+    "sites device profiles": "sites_derived_config",
+    "sites gateway templates": "sites_derived_config",
+    "sites networks": "sites_derived_config",
+    "sites network templates": "sites_derived_config",
+    "sites rf templates": "sites_derived_config",
+    "sites skyatp": "sites_derived_config",
+    "sites secintel profiles": "sites_derived_config",
+    "sites service policies": "sites_derived_config",
+    "sites services": "sites_derived_config",
+    "sites site templates": "sites_derived_config",
+}
+
 # Type translation mapping from OpenAPI types to Python types
 # This dictionary maps OpenAPI type definitions to their Python equivalents
 # Used during code generation to ensure correct parameter types in generated code
@@ -529,13 +565,20 @@ def _gen_folder_and_file_paths(endpoint: str):
 def _get_tag_defs() -> dict:
     defs = {}
     for tag in openapi_tags:
-        if tag.get("name") not in EXCLUDED_TAGS:
+        if tag.get("name") in EXCLUDED_TAGS or CUSTOM_TAGS.get(tag.get("name").lower()):
+            continue
+        else:
             defs[snake_case(tag.get("name")).lower()] = {
                 "tools": [],
                 "description": re.sub(
                     r"API Call", "tool", tag.get("description", ""), flags=re.IGNORECASE
                 ),
             }
+    for tag in CUSTOM_TAGS_DEFS:
+        defs[snake_case(tag).lower()] = {
+            "tools": [],
+            "description": CUSTOM_TAGS_DEFS[tag],
+        }
     return defs
 
 
@@ -592,6 +635,10 @@ def main() -> None:
             )
             description = details.get("description", "")
 
+            tag = tags[0]
+            if CUSTOM_TAGS.get(tag.lower()):
+                tag = CUSTOM_TAGS[tag.lower()]
+
             imports = ""
             models = ""
             enums = ""
@@ -614,45 +661,44 @@ def main() -> None:
                 enums=enums,
                 operationId=operation_id,
                 description=description.replace("\n", ""),
-                tag=tags[0],
+                tag=tag,
                 readOnlyHint=readOnlyHint,
                 destructiveHint=destructiveHint,
                 parameters=parameters,
                 mistapi_request=mistapi_request,
             )
 
-            for tag in tags:
-                tag_dir = OUTPUT_DIR / snake_case(tag)
-                tag_dir.mkdir(parents=True, exist_ok=True)
-                init_file = tag_dir / "__init__.py"
-                init_file.write_text("")
-                tool_file = tag_dir / f"{snake_case(operation_id)}.py"
-                tool_file.write_text(tool_code)
-                tag_to_tools.setdefault(tag, []).append(str(tool_file))
+            tag_dir = OUTPUT_DIR / snake_case(tag)
+            tag_dir.mkdir(parents=True, exist_ok=True)
+            init_file = tag_dir / "__init__.py"
+            init_file.write_text("")
+            tool_file = tag_dir / f"{snake_case(operation_id)}.py"
+            tool_file.write_text(tool_code)
+            tag_to_tools.setdefault(tag, []).append(str(tool_file))
 
-                ## tool_tools_import
-                if not root_tools_import.get(snake_case(tag)):
-                    root_tools_import[snake_case(tag)] = []
-                root_tools_import[snake_case(tag)].append(snake_case(operation_id))
-                ## root_enums
-                if (
+            ## tool_tools_import
+            if not root_tools_import.get(snake_case(tag)):
+                root_tools_import[snake_case(tag)] = []
+            root_tools_import[snake_case(tag)].append(snake_case(operation_id))
+            ## root_enums
+            if (
+                f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
+                not in root_enums
+            ):
+                root_enums.append(
                     f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
-                    not in root_enums
-                ):
-                    root_enums.append(
-                        f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
-                    )
-                ## root_functions
-                if not root_functions.get(snake_case(snake_case(tag))):
-                    root_functions[snake_case(snake_case(tag))] = []
-                root_functions[snake_case(snake_case(tag))].append(
-                    f"{snake_case(operation_id)}.add_tool()"
                 )
-                root_functions[snake_case(snake_case(tag))].append(
-                    f"TOOL_REMOVE_FCT.append({snake_case(operation_id)}.remove_tool)"
-                )
-                ## root_tag_defs
-                root_tag_defs[snake_case(snake_case(tag))]["tools"].append(operation_id)
+            ## root_functions
+            if not root_functions.get(snake_case(snake_case(tag))):
+                root_functions[snake_case(snake_case(tag))] = []
+            root_functions[snake_case(snake_case(tag))].append(
+                f"{snake_case(operation_id)}.add_tool()"
+            )
+            root_functions[snake_case(snake_case(tag))].append(
+                f"TOOL_REMOVE_FCT.append({snake_case(operation_id)}.remove_tool)"
+            )
+            ## root_tag_defs
+            root_tag_defs[snake_case(snake_case(tag))]["tools"].append(operation_id)
 
     print("Generated tools grouped by tag:")
     for tag, files in tag_to_tools.items():
@@ -676,6 +722,16 @@ def main() -> None:
                 tools=json.dumps(root_tag_defs),
             )
         )
+
+    print(" TAGS SUMMARY ".center(80, "-"))
+    tools = 0
+    for tag, tag_data in root_tag_defs.items():
+        tools += len(tag_data["tools"])
+        print(f"{tag}: {len(tag_data['tools'])} tools")
+
+    print(" CATEGORY SUMMARY ".center(80, "-"))
+    print(f"Total categories: {len(root_tag_defs)}")
+    print(f"Total tools: {tools}")
 
 
 if __name__ == "__main__":

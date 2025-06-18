@@ -21,50 +21,35 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
-class Distinct(Enum):
-    AP = "ap"
-    APFW = "apfw"
-    MODEL = "model"
-    ORG_ID = "org_id"
-    SITE_ID = "site_id"
-    TEXT = "text"
-    TIMESTAMP = "timestamp"
-    TYPE = "type"
-
-
 @mcp.tool(
     enabled=True,
-    name="countOrgDeviceEvents",
-    description="""Count by Distinct Attributes of Org Devices Events""",
-    tags={"Orgs Devices"},
+    name="searchSiteSkyatpEvents",
+    description="""Search Skyatp Events (WIP)""",
+    tags={"sites_derived_config"},
     annotations={
-        "title": "countOrgDeviceEvents",
+        "title": "searchSiteSkyatpEvents",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def countOrgDeviceEvents(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    distinct: Distinct = Distinct.MODEL,
-    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
-    ap: Annotated[Optional[str], Field(description="""AP mac""")] = None,
-    apfw: Annotated[Optional[str], Field(description="""AP Firmware""")] = None,
-    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    text: Annotated[Optional[str], Field(description="""Event message""")] = None,
-    timestamp: Annotated[Optional[str], Field(description="""Event time""")] = None,
+async def searchSiteSkyatpEvents(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     type: Annotated[
-        Optional[str],
-        Field(
-            description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
-        ),
+        Optional[str], Field(description="""Event type, e.g. cc, fs, mw""")
     ] = None,
+    mac: Annotated[Optional[str], Field(description="""Client MAC""")] = None,
+    device_mac: Annotated[Optional[str], Field(description="""Device MAC""")] = None,
+    threat_level: Annotated[
+        Optional[int], Field(description="""Threat level""")
+    ] = None,
+    ip_address: Optional[str] = None,
+    limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
         Field(
@@ -80,9 +65,8 @@ async def countOrgDeviceEvents(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
-    """Count by Distinct Attributes of Org Devices Events"""
+    """Search Skyatp Events (WIP)"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -109,21 +93,18 @@ async def countOrgDeviceEvents(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.devices.countOrgDeviceEvents(
+    response = mistapi.api.v1.sites.skyatp.searchSiteSkyatpEvents(
         apisession,
-        org_id=str(org_id),
-        distinct=distinct.value,
         site_id=str(site_id),
-        ap=ap,
-        apfw=apfw,
-        model=model,
-        text=text,
-        timestamp=timestamp,
         type=type,
+        mac=mac,
+        device_mac=device_mac,
+        threat_level=threat_level,
+        ip_address=ip_address,
+        limit=limit,
         start=start,
         end=end,
         duration=duration,
-        limit=limit,
     )
 
     if response.status_code != 200:
