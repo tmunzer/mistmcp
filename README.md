@@ -20,7 +20,6 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
 - [🔧 Configuration](#-configuration)
     - [STDIO Mode (Recommended)](#stdio-mode-recommended)
     - [HTTP Mode (Remote Access)](#http-mode-remote-access)
-    - [Example .env File](#example-env-file)
 - [🔧 Tool Categories](#-tool-categories)
     - [Essential Tools (Always Available)](#essential-tools-always-available)
     - [Core Categories](#core-categories)
@@ -265,22 +264,6 @@ If your laptop has SSL interception enabled (e.g. corporate network), you may ne
         }
     }
 }
-```
-
-### Example .env File
-
-Create a `.env` file in your project root:
-
-```bash
-# Required for STDIO mode
-MIST_APITOKEN=your-mist-api-token-here
-MIST_HOST=api.mist.com
-
-# Optional configurations
-MISTMCP_TRANSPORT_MODE=stdio
-MISTMCP_TOOL_LOADING_MODE=managed
-MISTMCP_DEBUG=false
-MISTMCP_HOST=127.0.0.1
 ```
 
 
