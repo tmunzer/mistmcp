@@ -145,10 +145,6 @@ Configure via environment variables or `.env` files:
 > **💡 Note:** `MIST_APITOKEN` and `MIST_HOST` can be provided either directly or via a `.env` file specified in `MIST_ENV_FILE`.
 
 
-**Getting your Mist API Token:**
-1. Log into Mist Dashboard → Organization → Settings → API Tokens
-2. Create a new token with appropriate permissions
-
 ### Tool Loading Modes
 
 | Mode | Description | Memory Usage | Use Case |
