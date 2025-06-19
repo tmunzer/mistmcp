@@ -31,19 +31,17 @@ Usage: python -m mistmcp [OPTIONS]
 OPTIONS:
     -h, --help              Show this help message
     -s, --streamable        Use streamable HTTP transport instead of stdio
-    -m, --mode MODE         Tool loading mode (minimal, managed, all, custom)
+    -m, --mode MODE         Tool loading mode (managed, all, custom)
     -c, --categories LIST   Comma-separated list of tool categories (for custom mode)
     -d, --debug             Enable debug output
 
 TOOL LOADING MODES:
-    minimal    - Load only essential tools (getSelf, manageMcpTools)
     managed    - Use dynamic tool management (default)
     all        - Load all available tools at startup
     custom     - Load specific categories (requires --categories)
 
 EXAMPLES:
     python -m mistmcp                                    # Default managed mode
-    python -m mistmcp --mode minimal                     # Minimal tools only
     python -m mistmcp --mode all                         # All tools loaded
     python -m mistmcp --mode custom --categories orgs,sites --debug
     """
@@ -210,7 +208,7 @@ def main() -> None:
     parser.add_argument(
         "-m",
         "--mode",
-        choices=["minimal", "managed", "all", "custom"],
+        choices=["managed", "all", "custom"],
         help="Tool loading mode (default: managed)",
     )
     parser.add_argument(
@@ -254,7 +252,7 @@ def main() -> None:
             tool_loading_mode = ToolLoadingMode(args.mode.lower())
         except ValueError:
             print(
-                f"Error: Invalid mode '{args.mode}'. Valid modes: minimal, managed, all, custom",
+                f"Error: Invalid mode '{args.mode}'. Valid modes: managed, all, custom",
                 file=sys.stderr,
             )
             sys.exit(1)
