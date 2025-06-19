@@ -131,17 +131,19 @@ http://localhost:8000/mcp/?cloud=api.mist.com&mode=custom&categories=orgs,sites,
 
 Configure via environment variables or `.env` files:
 
-**Required for STDIO mode:**
-- `MIST_APITOKEN` - Your Mist API token (can be replaced with `MIST_ENV_FILE`)
-- `MIST_HOST` - Mist API host (e.g., `api.mist.com`, can be replaced with `MIST_ENV_FILE`)
+| Parameter | STDIO Mode | HTTP Mode | Default Value | Description |
+|-----------|------------|-----------|---------------|-------------|
+| `MIST_APITOKEN` | **Required** | Not used | - | Your Mist API token for authentication |
+| `MIST_HOST` | **Required** | Not used | - | Mist API host (e.g., `api.mist.com`, `api.eu.mist.com`) |
+| `MIST_ENV_FILE` | Optional | Optional | - | Path to .env file containing Mist credentials |
+| `MISTMCP_TRANSPORT_MODE` | Optional | **Required** | `stdio` | Transport mode: `stdio` or `http` |
+| `MISTMCP_TOOL_LOADING_MODE` | Optional | Optional | `managed` | Tool loading strategy: `managed`, `all`, or `custom` |
+| `MISTMCP_TOOL_CATEGORIES` | Optional | Optional | - | Comma-separated list of tool categories (for `custom` mode) |
+| `MISTMCP_HOST` | Not used | Optional | `127.0.0.1` | HTTP server bind address |
+| `MISTMCP_PORT` | Not used | Optional | `8000` | HTTP server port |
+| `MISTMCP_DEBUG` | Optional | Optional | `false` | Enable debug logging: `true` or `false` |
 
-**Optional configuration:**
-- `MIST_ENV_FILE` - Path to .env file
-- `MISTMCP_TRANSPORT_MODE` - `stdio` or `http`
-- `MISTMCP_TOOL_LOADING_MODE` - `managed`, `all`, or `custom`
-- `MISTMCP_TOOL_CATEGORIES` - Comma-separated categories
-- `MISTMCP_HOST` - HTTP server host
-- `MISTMCP_DEBUG` - `true` or `false`
+> **💡 Note:** `MIST_APITOKEN` and `MIST_HOST` can be provided either directly or via a `.env` file specified in `MIST_ENV_FILE`.
 
 
 **Getting your Mist API Token:**
