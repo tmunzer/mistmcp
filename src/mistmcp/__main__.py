@@ -54,7 +54,8 @@ def start(
     transport_mode: str,
     tool_loading_mode: ToolLoadingMode,
     tool_categories: list[str],
-    mcp_host: str = "127.0.0.1",
+    mcp_host: str,
+    mcp_port: int,
     debug: bool = False,
 ) -> None:
     """
@@ -94,6 +95,7 @@ def start(
         print(f"  MISTMCP_TOOL_LOADING_MODE: {config.tool_loading_mode.value}")
         print(f"  MISTMCP_TOOL_CATEGORIES: {', '.join(config.tool_categories)}")
         print(f"  MISTMCP_HOST: {mcp_host}")
+        print(f"  MISTMCP_PORT: {mcp_port}")
         print(f"  MISTMCP_DEBUG: {config.debug}")
         print("".center(80, "="))
 
@@ -102,7 +104,7 @@ def start(
         mcp_server = create_mcp_server(config)
 
         if transport_mode == "http":
-            mcp_server.run(transport="streamable-http", host=mcp_host)
+            mcp_server.run(transport="streamable-http", host=mcp_host, port=mcp_port)
         else:
             mcp_server.run()
 
@@ -149,42 +151,47 @@ def load_env_var(
     tool_loading_mode: ToolLoadingMode | None,
     tool_categories: list[str] | None,
     mcp_host: str | None,
+    mcp_port: int | None,
     debug: bool,
-) -> tuple[str, ToolLoadingMode, list[str], str, bool]:
+) -> tuple[str, ToolLoadingMode, list[str], str, int, bool]:
     """Load environment variables from MIST_ENV_FILE if set"""
 
     if transport_mode is None:
         transport_mode = os.getenv("MISTMCP_TRANSPORT_MODE", "stdio").lower()
 
     if tool_loading_mode is None:
-        mist_mcp_tool_loading_mode = os.getenv(
+        msitmcp_tool_loading_mode = os.getenv(
             "MISTMCP_TOOL_LOADING_MODE", "managed"
         ).lower()
         try:
-            tool_loading_mode = ToolLoadingMode(mist_mcp_tool_loading_mode.lower())
+            tool_loading_mode = ToolLoadingMode(msitmcp_tool_loading_mode.lower())
         except ValueError:
             tool_loading_mode = ToolLoadingMode.MANAGED
 
     if tool_categories is None:
-        mist_mcp_tool_categories = os.getenv("MISTMCP_TOOL_CATEGORIES", "")
+        msitmcp_tool_categories = os.getenv("MISTMCP_TOOL_CATEGORIES", "")
         tool_categories = [
-            cat.strip() for cat in mist_mcp_tool_categories.split(",") if cat.strip()
+            cat.strip() for cat in msitmcp_tool_categories.split(",") if cat.strip()
         ]
 
     if mcp_host is None:
         mcp_host = os.getenv("MISTMCP_HOST", "127.0.0.1")
+    if mcp_port is None:
+        port = os.getenv("MISTMCP_PORT", "8000")
+        try:
+            mcp_port = int(port)
+        except ValueError:
+            print(f"Invalid port number: {port}. Using default 8000.", file=sys.stderr)
+            mcp_port = 8000
 
-    mist_mcp_debug = os.getenv("MISTMCP_DEBUG", str(debug))
-    if mist_mcp_debug is not None:
-        debug = mist_mcp_debug.lower() in ("true", "1", "yes")
-    else:
-        debug = False  # Default to no debug output
+    msitmcp_debug = os.getenv("MISTMCP_DEBUG", str(debug))
+    debug = msitmcp_debug.lower() in ("true", "1", "yes")
 
     if transport_mode == "stdio":
         config.mist_apitoken = os.getenv("MIST_APITOKEN", "")
         config.mist_host = os.getenv("MIST_HOST", "")
 
-    return transport_mode, tool_loading_mode, tool_categories, mcp_host, debug
+    return transport_mode, tool_loading_mode, tool_categories, mcp_host, mcp_port, debug
 
 
 def main() -> None:
@@ -223,6 +230,12 @@ def main() -> None:
         "--host",
         help="When `transport`==`http`, host to bind the MCP server to (default: 127.0.0.1)",
     )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help="Port to run the server on (default: 8080)",
+    )
 
     try:
         args = parser.parse_args()
@@ -230,10 +243,11 @@ def main() -> None:
         sys.exit(2)
 
     transport_mode: str | None = args.transport
-    mcp_host: str | None = args.host
     tool_loading_mode: ToolLoadingMode | None = None
     tool_categories: list[str] | None = None
-    debug: bool
+    mcp_host: str | None = args.host
+    mcp_port: int | None = args.port
+    mcp_debug: bool
 
     if args.mode:
         try:
@@ -250,13 +264,32 @@ def main() -> None:
             cat.strip() for cat in args.categories.split(",") if cat.strip()
         ]
 
-    debug = args.debug
+    mcp_debug = args.debug
 
     load_env_file(args.env_file)
-    transport_mode, tool_loading_mode, tool_categories, mcp_host, debug = load_env_var(
-        transport_mode, tool_loading_mode, tool_categories, mcp_host, debug
+    (
+        transport_mode,
+        tool_loading_mode,
+        tool_categories,
+        mcp_host,
+        mcp_port,
+        mcp_debug,
+    ) = load_env_var(
+        transport_mode,
+        tool_loading_mode,
+        tool_categories,
+        mcp_host,
+        mcp_port,
+        mcp_debug,
     )
-    start(transport_mode, tool_loading_mode, tool_categories, mcp_host, debug)
+    start(
+        transport_mode,
+        tool_loading_mode,
+        tool_categories,
+        mcp_host,
+        mcp_port,
+        mcp_debug,
+    )
 
 
 if __name__ == "__main__":

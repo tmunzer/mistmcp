@@ -11,11 +11,14 @@
             "module": "mistmcp",
             "args": [
                 "-t",
-                "http"
+                "stdio"
             ],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "python": "python3"
+            "python": "python3",
+            "env": {
+                "MISTMCP_DEBUG": "true"
+            },
         },
         {
             "name": "Python: Debug test file",
