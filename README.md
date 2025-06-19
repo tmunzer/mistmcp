@@ -136,8 +136,8 @@ http://localhost:8000/mcp/?cloud=api.mist.com&mode=custom&categories=orgs,sites,
 Configure via environment variables or `.env` files:
 
 **Required for STDIO mode:**
-- `MIST_APITOKEN` - Your Mist API token
-- `MIST_HOST` - Mist API host (e.g., `api.mist.com`)
+- `MIST_APITOKEN` - Your Mist API token (can be replaced with `MIST_ENV_FILE`)
+- `MIST_HOST` - Mist API host (e.g., `api.mist.com`, can be replaced with `MIST_ENV_FILE`)
 
 **Optional configuration:**
 - `MIST_ENV_FILE` - Path to .env file
@@ -184,8 +184,14 @@ Best for local usage with Claude Desktop or VS Code.
     "mcpServers": {
         "mist-mcp-one": {
             "command": "uv",
-            "args": ["run", "mistmcp", "--mode", "managed"],
-            "cwd": "/absolute/path/to/mistmcp",
+            "args": [
+                "--directory",
+                "/absolute/path/to/mistmcp",
+                "run",
+                "mistmcp",
+                "--mode",
+                "managed"
+            ],
             "env": {
                 "MIST_APITOKEN": "your-api-token",
                 "MIST_HOST": "api.mist.com"
@@ -193,7 +199,16 @@ Best for local usage with Claude Desktop or VS Code.
         },
         "mist-mcp-two": {
             "command": "uv",
-            "args": ["run", "mistmcp", "--mode", "custom", "--categories", "orgs,sites"],
+            "args": [
+                "--directory",
+                "/absolute/path/to/mistmcp",
+                "run",
+                "mistmcp", 
+                "--mode",
+                "custom",
+                "--categories",
+                "orgs,sites"
+            ],
             "cwd": "/absolute/path/to/mistmcp",
             "env": {
                 "MIST_ENV_FILE": ".env"
@@ -202,8 +217,13 @@ Best for local usage with Claude Desktop or VS Code.
     }
 }
 ```
+⚠️ **WARNING** ⚠️
+
+If you're application is not able to run `uv` commands, you can use the full path to the `uv` executable in the `command` field, e.g. `/Users/username/.local/bin/uv`.
 
 ### HTTP Mode (Remote Access)
+
+Since most of the LLM Applications are not supporting the streamable-http transport mode natively, you can use the `mcp-remote` package to create a remote HTTP server that can be used by these applications.
 
 **Start HTTP Server:**
 ```bash
@@ -217,10 +237,13 @@ uv run mistmcp --transport http --host 0.0.0.0 --mode managed
         "mist-http": {
             "command": "npx",
             "args": [
-                "-y", "mcp-remote",
-                "http://localhost:8000/mcp/?cloud=api.mist.com&mode=managed",
-                "--header", "X-Authorization:${MIST_APITOKEN}",
-                "--transport", "http-only"
+                "-y", 
+                "mcp-remote",
+                "http://127.0.0.1:8000/mcp/?cloud=api.mist.com",
+                "--header",
+                "X-Authorization:${MIST_APITOKEN}",
+                "--transport",
+                "http-only"
             ],
             "env": {
                 "MIST_APITOKEN": "your-api-token"
@@ -302,126 +325,55 @@ The server organizes tools into logical categories. Use `manageMcpTools` to enab
 - **`getSelf`** - User and organization information
 - **`manageMcpTools`** - Enable/disable tool categories dynamically (only in managed mode)
 
-### Core Categories
-- **`orgs`** - Organization management
-- **`sites`** - Site-level configuration
-- **`admins`** - Administrator management
+### Available Tool Categories
 
-### Self (Current User)
-- **`self_account`** - Current user account information
-- **`self_audit_logs`** - Audit logs for the current user
-- **`self_alarms`** - Current user alarms
-
-### Advanced Features (requires VNA Subscription)
-- **`orgs_marvis`** - AI-powered network assistant
-- **`sites_synthetic_tests`** - Synthetic tests for proactive network monitoring
-
-### SLEs
-- **`orgs_sles`** - Organization SLEs (Service Level Expectations)
-- **`sites_sles`** - Site SLEs (Service Level Expectations)
-
-### Organization Management
-- **`orgs_licenses`** - Organization license management
-- **`orgs_logs`** - Organization logs for auditing
-- **`orgs_setting`** - Organization settings and configuration
-- **`orgs_sitegroups`** - Organization site groups for managing multiple sites
-- **`orgs_sites`** - Organization site management
-- **`orgs_site_templates`** - Organization site templates for consistent site configuration
-- **`orgs_webhooks`** - Organization webhooks for event notifications
-
-### Orgs Stats
-- **`orgs_stats`** - Organization statistics
-- **`orgs_stats___bgp_peers`** - BGP peer statistics
-- **`orgs_stats___devices`** - Device statistics
-- **`orgs_stats___mxedges`** - Mist Edge statistics
-- **`orgs_stats___other_devices`** - Other device (not Mist managed) statistics
-- **`orgs_stats___ports`** - Port statistics
-- **`orgs_stats___sites`** - Site statistics
-- **`orgs_stats___tunnels`** - Mist Edge tunnel statistics
-- **`orgs_stats___vpn_peers`** - VPN peer statistics
-
-### Sites Management
-- **`sites_maps`** - Site maps for visualizing network topology
-- **`sites_setting`** - Site settings and configuration
-- **`sites_webhooks`** - Site webhooks for event notifications
-- **`sites_derived_config`** - Site derived configuration, used to retrieve the site derived configuration from the Org level templates and configuration objects
-
-### Sites Stats
-- **`sites_wan_usages`** - WAN usage statistics
-- **`sites_stats`** - Site statistics
-- **`sites_stats___apps`** - Application performance statistics
-- **`sites_stats___calls`** - Call quality statistics (Zoom and Teams)
-- **`sites_stats___discovered_switches`** - Discovered switches statistics
-- **`sites_stats___mxedges`** - Mist Edge statistics at the Site level
-- **`sites_stats___wxrules`** - Wireless rules statistics at the Site level
-
-### Device Management
-- **`orgs_devices`** - Organization-wide device management
-- **`orgs_inventory`** - Device inventory and assets
-- **`sites_devices`** - Site-specific device management
-- **`orgs_device_profiles`** - Common device configuration which can by assigned to multiple devices
-
-### Client Monitoring
-- **`orgs_clients___wireless`** - Wi-Fi client statistics
-- **`orgs_clients___wired`** - Wired client monitoring
-- **`orgs_clients___wan`** - WAN client monitoring
-- **`orgs_clients___nac`** - NAC client management
-- **`orgs_guests`** - Wi-Fi guest clients at the Org level
-- **`sites_guests`** - Wi-Fi guest clients at the Site level
-
-### Monitoring & Analytics
-- **`orgs_alarms`** - Alarm monitoring
-- **`orgs_alarm_templates`** - Alarm templates for organization-wide alarm management
-- **`orgs_events`** - Organization event logs
-- **`sites_insights`** - Network performance insights
-- **`sites_events`** - Site event logs
-
-### Wi-Fi Assurance
-- **`orgs_ap_templates`** - Access Point configuration templates
-- **`orgs_psks`** - Pre-shared keys for Wi-Fi networks at the Org level
-- **`orgs_rf_templates`** - Radio Frequency configuration templates
-- **`orgs_wlan_templates`** - WLAN configuration templates
-- **`orgs_wlans`** - WLAN configuration at the Org level (used within the `orgs_wlan_templates`)
-- **`orgs_wxrules`** - Wireless rules for the organization
-- **`orgs_wxtags`** - Wireless tags for the organization (used within the `orgs_wxrules`)
-- **`sites_rogues`** - Rogue AP detection at the Site level
-- **`sites_psks`** - Pre-shared keys for Wi-Fi networks at the Site level
-- **`sites_wlans`** - WLAN configuration at the Site level
-- **`sites_wxrules`** - Wireless rules for the site
-- **`sites_wxtags`** - Wireless tags for the site (used within the `sites_wxrules`)
-
-### Wired Assurance
-- **`orgs_evpn_topologies`** - EVPN topology management at the Org level
-- **`orgs_network_templates`** - Switch configuration templates at the Org level, assigned to one or multiple sites
-- **`sites_evpn_topologies`** - EVPN topology management at the Site level
-
-### WAN Assurance
-- **`orgs_advanced_anti_malware_profiles`** - Advanced anti-malware profiles for the organization, used within the `orgs_gateway_templates`
-- **`orgs_antivirus_profiles`**  - Antivirus profiles for the organization, used within the `orgs_gateway_templates`
-- **`orgs_gateway_templates`**  - Gateway configuration templates at the Org level, assigned to one or multiple sites
-- **`orgs_idp_profiles`**  - Intrusion Detection and Prevention profiles for the organization, used within the `orgs_gateway_templates`
-- **`orgs_networks`** - Network and VLAN configuration, used within the `orgs_gateway_templates`
-- **`orgs_security_policies`** - Security policy management, used within the `orgs_gateway_templates`
-- **`orgs_service_policies`** - Service policy management, used within the `orgs_gateway_templates`
-- **`orgs_services`** - Service configuration, used within the `orgs_service_policies`
-- **`orgs_vpns`** - VPN configuration at the Org level
-
-### Access Assurance
-- **`orgs_nac_fingerprints`** - NAC fingerprints for device identification
-- **`orgs_nac_rules`** - NAC rules
-- **`orgs_nac_tags`** - NAC tags, used to defined the matching criteria or returned RADIUS attributes within the `orgs_nac_rules`
-- **`orgs_user_macs`** - User MAC addresses (Endpoints) for NAC
-
-### Mist Edges
-- **`orgs_mxclusters`** - Mist Edge clusters
-- **`orgs_mxedges`** - Mist Edge devices
-- **`orgs_mxtunnels`** - Mist Edge tunnels
-- **`sites_mxedges`** - Mist Edge devices at the Site level
-
-### Constants
-- **`constants_events`** - Event types and categories definitions
-- **`constants_definitions`** - Definitions for various constants used across tools
-- **`constants_models`** - Device model definitions for various objects used in the MCP server
+| Category | Description | Tools | Tool List |
+|----------|-------------|-------|-----------|
+| **constants_definitions** | tools to retrieve constant values that can be used in different parts of the configuration | 6 | `listApChannels`, `listApLedDefinition`, `listFingerprintTypes`, `listInsightMetrics`, `listLicenseTypes`, `listWebhookTopics` |
+| **constants_events** | tools to retrieve the definitions of the Mist events. These definitions are providing example of the Webhook payloads | 7 | `listAlarmDefinitions`, `listClientEventsDefinitions`, `listDeviceEventsDefinitions`, `listMxEdgeEventsDefinitions`, `listNacEventsDefinitions`, `listOtherDeviceEventsDefinitions`, `listSystemEventsDefinitions` |
+| **constants_models** | tools to retrieve the list of Hardware Models and their features | 3 | `listDeviceModels`, `listMxEdgeModels`, `listSupportedOtherDeviceModels` |
+| **devices_config** | Configuration related to devices. It provides access to various device configurations such as AP templates, device profiles, and more. | 4 | `listOrgAptemplates`, `listOrgDeviceProfiles`, `listSiteApTemplateDerived`, `listSiteDeviceProfilesDerived` |
+| **orgs** | An organization usually represents a customer - which has inventories, licenses. | 3 | `getOrg`, `searchOrgEvents`, `getOrgSettings` |
+| **orgs_alarm_templates** | An Alarm Template is a set of Alarm Rules that could be applied to one or more sites (while each site can only pick one Alarm Template), or to the... | 3 | `listOrgAlarmTemplates`, `listOrgSuppressedAlarms`, `getOrgAlarmTemplate` |
+| **orgs_alarms** | Alarms are triggered based on certain events. Alarms could be configured using an Alarm Template. | 2 | `countOrgAlarms`, `searchOrgAlarms` |
+| **orgs_clients** | Clients for the organizations. It provides access to various client types such as NAC, WAN, wired, and wireless clients. | 19 | `countOrgWirelessClients`, `searchOrgWirelessClientEvents`, `searchOrgWirelessClients`, `countOrgWirelessClientsSessions`, `searchOrgWirelessClientSessions`, `listOrgGuestAuthorizations`, `countOrgGuestAuthorizations`, `searchOrgGuestAuthorization`, `getOrgGuestAuthorization`, `countOrgNacClients`, `countOrgNacClientEvents`, `searchOrgNacClientEvents`, `searchOrgNacClients`, `countOrgWanClientEvents`, `countOrgWanClients`, `searchOrgWanClientEvents`, `searchOrgWanClients`, `countOrgWiredClients`, `searchOrgWiredClients` |
+| **orgs_devices** | Devices are any Network device managed or monitored by Juniper Mist. | 10 | `listOrgDevices`, `countOrgDevices`, `countOrgDeviceEvents`, `searchOrgDeviceEvents`, `countOrgDeviceLastConfigs`, `searchOrgDeviceLastConfigs`, `listOrgApsMacs`, `searchOrgDevices`, `listOrgDevicesSummary`, `getOrgJuniperDevicesCommand` |
+| **orgs_devices___others** | tool for 3rd party devices | 4 | `listOrgOtherDevices`, `countOrgOtherDeviceEvents`, `searchOrgOtherDeviceEvents`, `getOrgOtherDevice` |
+| **orgs_events** | Orgs Events are all the system level changes at the org level | 2 | `countOrgSystemEvents`, `searchOrgSystemEvents` |
+| **orgs_inventory** | The Org Inventory allows administrators to view and manage all devices registered (claimed) to the Organization. | 3 | `getOrgInventory`, `countOrgInventory`, `searchOrgInventory` |
+| **orgs_lan** | Switches Configuration related objects for the organizations. It provides access to LAN related objects such as EVPN topologies and network templates. | 2 | `listOrgEvpnTopologies`, `listOrgNetworkTemplates` |
+| **orgs_licenses** | Licenses are a type of service or access that customers can purchase for various features or services offered by a company. | 3 | `GetOrgLicenseAsyncClaimStatus`, `getOrgLicensesSummary`, `getOrgLicensesBySite` |
+| **orgs_logs** | Audit Logs are records of activities initiated by users, providing a history of actions such as accessing, creating, updating, or deleting resources... | 2 | `listOrgAuditLogs`, `countOrgAuditLogs` |
+| **orgs_marvis** | Marvis is an AI-driven, interactive virtual network assistant that streamlines network operations, simplifies troubleshooting, and provides an... | 1 | `troubleshootOrg` |
+| **orgs_mxedges** | MX Edge related objects for the organizations. It provides access to Mist Edges, Mist Clusters, and Mist Tunnels. | 8 | `listOrgMxEdgeClusters`, `listOrgMxEdges`, `countOrgMxEdges`, `countOrgSiteMxEdgeEvents`, `searchOrgMistEdgeEvents`, `searchOrgMxEdges`, `getOrgMxEdgeUpgradeInfo`, `listOrgMxTunnels` |
+| **orgs_nac** | NAC related objects for the organizations. It provides access to NAC Endpoints, NAC fingerprints, tags, and rules. | 6 | `listOrgNacRules`, `listOrgNacTags`, `searchOrgUserMacs`, `getOrgUserMac`, `countOrgClientFingerprints`, `searchOrgClientFingerprints` |
+| **orgs_sitegroups** | Site groups are a group of sites under the same Org. It's many-to-many mapping to sites | 2 | `listOrgSiteGroups`, `getOrgSiteGroup` |
+| **orgs_sites** | tools to Create or Get the Organization Sites. | 3 | `countOrgSites`, `searchOrgSites`, `listOrgSiteTemplates` |
+| **orgs_sles** | Org SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network. | 2 | `getOrgSitesSle`, `getOrgSle` |
+| **orgs_stats** | Statistics for the organizations. It provides access to various statistics related to the organization, such as BGP peers, devices, MX edges, other devices, ports, sites, tunnels, and VPN peers. | 13 | `getOrgStats`, `countOrgBgpStats`, `searchOrgBgpStats`, `listOrgDevicesStats`, `listOrgMxEdgesStats`, `getOrgOtherDeviceStats`, `countOrgSwOrGwPorts`, `searchOrgSwOrGwPorts`, `listOrgSiteStats`, `countOrgTunnelsStats`, `searchOrgTunnelsStats`, `countOrgPeerPathStats`, `searchOrgPeerPathStats` |
+| **orgs_wan** | WAN Configuration related objects for the organizations. It provides access to WAN related objects such as VPNs. | 9 | `listOrgAAMWProfiles`, `listOrgAntivirusProfiles`, `listOrgGatewayTemplates`, `listOrgIdpProfiles`, `listOrgNetworks`, `listOrgSecPolicies`, `listOrgServicePolicies`, `listOrgServices`, `listOrgVpns` |
+| **orgs_webhooks** | An Org Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url. | 3 | `listOrgWebhooks`, `countOrgWebhooksDeliveries`, `searchOrgWebhooksDeliveries` |
+| **orgs_wlans** | An Org Wlan is a wireless local area network that is configured at the Org level and applied to a WLAN template. | 9 | `listOrgPsks`, `listOrgRfTemplates`, `listOrgTemplates`, `listOrgWlans`, `getOrgWLAN`, `listOrgWxRules`, `listOrgWxTags`, `getOrgApplicationList`, `getOrgCurrentMatchingClientsOfAWxTag` |
+| **self_account** | tools related to the currently connected user account. | 4 | `getSelf`, `getSelfLoginFailures`, `listSelfAuditLogs`, `getSelfApiUsage` |
+| **sites** | A site represents a project, a deployment. For MSP, it can be as small as a coffee shop or a five-star 600-room hotel. A site contains a set of Maps, Wlans, Policies, Zones. | 3 | `getSiteInfo`, `getSiteSetting`, `getSiteSettingDerived` |
+| **sites_clients** | Clients for the sites. It provides access to various client types such as NAC, WAN, wired, and wireless clients. | 22 | `countSiteWirelessClients`, `countSiteWirelessClientEvents`, `searchSiteWirelessClientEvents`, `searchSiteWirelessClients`, `countSiteWirelessClientSessions`, `searchSiteWirelessClientSessions`, `getSiteEventsForClient`, `listSiteAllGuestAuthorizations`, `countSiteGuestAuthorizations`, `listSiteAllGuestAuthorizationsDerived`, `searchSiteGuestAuthorization`, `getSiteGuestAuthorization`, `countSiteNacClients`, `countSiteNacClientEvents`, `searchSiteNacClientEvents`, `searchSiteNacClients`, `countSiteWanClientEvents`, `countSiteWanClients`, `searchSiteWanClientEvents`, `searchSiteWanClients`, `countSiteWiredClients`, `searchSiteWiredClients` |
+| **sites_devices** | Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of... | 10 | `listSiteDevices`, `countSiteDeviceConfigHistory`, `searchSiteDeviceConfigHistory`, `countSiteDevices`, `countSiteDeviceEvents`, `searchSiteDeviceEvents`, `exportSiteDevices`, `countSiteDeviceLastConfig`, `searchSiteDeviceLastConfigs`, `searchSiteDevices` |
+| **sites_events** | Site events are issues or incidents that affect site-assigned access points (aps) and radius, dhcp, and dns servers. | 2 | `countSiteSystemEvents`, `searchSiteSystemEvents` |
+| **sites_insights** | Insights is a feature that provides an overview of network experience across the entire site, access points, or clients. | 3 | `getSiteInsightMetricsForClient`, `getSiteInsightMetricsForDevice`, `getSiteInsightMetrics` |
+| **sites_lan** | Switches Configuration related objects for the sites. It provides access to LAN related objects such as EVPN topologies and network templates. | 2 | `listSiteEvpnTopologies`, `listSiteNetworkTemplateDerived` |
+| **sites_maps** | A Site Map is a visual representation of the layout and structure of a location, such as a building or campus. | 1 | `listSiteMaps` |
+| **sites_mxedges** | MxEdges (Mist Edges) at the site level are deployed to tunnel traffic at each site due to network constraints or security concerns. | 3 | `listSiteMxEdges`, `countSiteMxEdgeEvents`, `searchSiteMistEdgeEvents` |
+| **sites_rfdiags** | Rf Diags is a feature in Juniper Mist location services that allows users to replay recorded sessions of the RF (radio frequency) environment. | 3 | `getSiteSiteRfdiagRecording`, `getSiteRfdiagRecording`, `downloadSiteRfdiagRecording` |
+| **sites_rogues** | Rogues are unauthorized wireless access points that are installed on a network without authorization. | 5 | `listSiteRogueAPs`, `listSiteRogueClients`, `countSiteRogueEvents`, `searchSiteRogueEvents`, `getSiteRogueAP` |
+| **sites_rrm** | RRM, or Radio Resource Management, is a tool used by large multi-site organizations to efficiently manage their RF spectrum. | 4 | `getSiteCurrentChannelPlanning`, `getSiteCurrentRrmConsiderations`, `listSiteRrmEvents`, `listSiteCurrentRrmNeighbors` |
+| **sites_sles** | Site SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network. | 15 | `getSiteSleClassifierDetails`, `listSiteSleMetricClassifiers`, `getSiteSleHistogram`, `getSiteSleImpactSummary`, `listSiteSleImpactedApplications`, `listSiteSleImpactedAps`, `listSiteSleImpactedChassis`, `listSiteSleImpactedWiredClients`, `listSiteSleImpactedGateways`, `listSiteSleImpactedInterfaces`, `listSiteSleImpactedSwitches`, `listSiteSleImpactedWirelessClients`, `getSiteSleSummary`, `getSiteSleThreshold`, `listSiteSlesMetrics` |
+| **sites_stats** | Statistics for the sites. It provides access to various statistics related to the site, such as application statistics, call statistics, client statistics, and more. | 16 | `getSiteStats`, `countSiteApps`, `troubleshootSiteCall`, `countSiteCalls`, `searchSiteCalls`, `getSiteCallsSummary`, `listSiteTroubleshootCalls`, `listSiteWirelessClientsStats`, `searchSiteDiscoveredSwitchesMetrics`, `countSiteDiscoveredSwitches`, `listSiteDiscoveredSwitchesMetrics`, `searchSiteDiscoveredSwitches`, `getSiteWirelessClientsStatsByMap`, `listSiteUnconnectedClientStats`, `listSiteMxEdgesStats`, `getSiteWxRulesUsage` |
+| **sites_synthetic_tests** | Synthetic Tests (Marvis Minis) are a feature of Juniper Networks' Mist platform, designed to proactively identify and resolve network issues before... | 2 | `getSiteDeviceSyntheticTest`, `searchSiteSyntheticTest` |
+| **sites_wan** | WAN Configuration related objects for the sites. | 9 | `listSiteApps`, `listSiteGatewayTemplateDerived`, `listSiteNetworksDerived`, `listSiteSecIntelProfilesDerived`, `listSiteServicePoliciesDerived`, `listSiteServicesDerived`, `countSiteServicePathEvents`, `searchSiteServicePathEvents`, `listSiteVpnsDerived` |
+| **sites_wan_usages** | tools to retrieve WAN Assurance statistics about the WAN Usage | 2 | `countSiteWanUsage`, `searchSiteWanUsage` |
+| **sites_webhooks** | A Site Webhook is a configuration that allows real-time events and data from a specific site to be pushed to a provided url. | 3 | `listSiteWebhooks`, `countSiteWebhooksDeliveries`, `searchSiteWebhooksDeliveries` |
+| **sites_wlans** | A Site Wlan is a wireless local area network that is configured and applied to a specific site within an organization. | 8 | `listSitePsks`, `listSiteRfTemplateDerived`, `listSiteWlans`, `listSiteWlanDerived`, `listSiteWxRules`, `ListSiteWxRulesDerived`, `listSiteWxTags`, `getSiteApplicationList` |
+| **utilities_upgrade** | tools used to manage device upgrades for a single device, at the site level or at the organization level. | 8 | `listOrgDeviceUpgrades`, `listOrgAvailableDeviceVersions`, `listOrgMxEdgeUpgrades`, `listOrgSsrUpgrades`, `listOrgAvailableSsrVersions`, `listSiteDeviceUpgrades`, `listSiteAvailableDeviceVersions`, `getSiteSsrUpgrade` |
 
 Each client session maintains independent tool configurations for complete isolation.
 
