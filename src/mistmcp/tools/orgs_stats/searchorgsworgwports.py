@@ -53,6 +53,12 @@ class Auth_state(Enum):
     NONE = None
 
 
+class Type(Enum):
+    SWITCH = "switch"
+    GATEWAY = "gateway"
+    ALL = "all"
+
+
 @mcp.tool(
     enabled=True,
     name="searchOrgSwOrGwPorts",
@@ -147,6 +153,9 @@ async def searchOrgSwOrGwPorts(
     auth_state: Annotated[
         Auth_state, Field(description="""If `up`==`true` && has Authenticator role""")
     ] = Auth_state.NONE,
+    type: Annotated[
+        Type, Field(description="""Type of device. enum: `switch`, `gateway`, `all`""")
+    ] = Type.ALL,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
@@ -221,6 +230,7 @@ async def searchOrgSwOrGwPorts(
         stp_state=stp_state.value,
         stp_role=stp_role.value,
         auth_state=auth_state.value,
+        type=type.value,
         limit=limit,
         start=start,
         end=end,
