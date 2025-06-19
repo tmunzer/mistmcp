@@ -203,13 +203,12 @@ Best for local usage with Claude Desktop or VS Code.
                 "--directory",
                 "/absolute/path/to/mistmcp",
                 "run",
-                "mistmcp", 
+                "mistmcp",
                 "--mode",
                 "custom",
                 "--categories",
                 "orgs,sites"
             ],
-            "cwd": "/absolute/path/to/mistmcp",
             "env": {
                 "MIST_ENV_FILE": ".env"
             }
@@ -237,7 +236,7 @@ uv run mistmcp --transport http --host 0.0.0.0 --mode managed
         "mist-http": {
             "command": "npx",
             "args": [
-                "-y", 
+                "-y",
                 "mcp-remote",
                 "http://127.0.0.1:8000/mcp/?cloud=api.mist.com",
                 "--header",
@@ -247,6 +246,23 @@ uv run mistmcp --transport http --host 0.0.0.0 --mode managed
             ],
             "env": {
                 "MIST_APITOKEN": "your-api-token"
+            }
+        }
+    }
+}
+```
+
+⚠️ **WARNING** ⚠️
+
+If your laptop has SSL interception enabled (e.g. corporate network), you may need to add the following environment variable to your configuration:
+
+```json
+{
+    "mcpServers": {
+        "mist-http": {
+            ...
+            "env": {
+                "NODE_EXTRA_CA_CERTS": "{your CA certificate file path}.pem"
             }
         }
     }
