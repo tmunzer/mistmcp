@@ -21,10 +21,6 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
     - [STDIO Mode (Recommended)](#stdio-mode-recommended)
     - [HTTP Mode (Remote Access)](#http-mode-remote-access)
     - [Example .env File](#example-env-file)
-- [📊 Getting Started](#-getting-started)
-    - [Quick Start Workflow](#quick-start-workflow)
-    - [Example Usage](#example-usage)
-- [🔄 Dynamic Tool Management](#-dynamic-tool-management)
 - [🔧 Tool Categories](#-tool-categories)
     - [Essential Tools (Always Available)](#essential-tools-always-available)
     - [Core Categories](#core-categories)
@@ -283,53 +279,6 @@ MISTMCP_TRANSPORT_MODE=stdio
 MISTMCP_TOOL_LOADING_MODE=managed
 MISTMCP_DEBUG=false
 MISTMCP_HOST=127.0.0.1
-```
-
-
-## 📊 Getting Started
-
-### Quick Start Workflow
-
-1. **Configure your MCP client** (Claude Desktop, VS Code, etc.)
-2. **Start with managed mode** - All sessions begin with `getSelf` and `manageMcpTools`
-3. **Enable tools dynamically** - Use `manageMcpTools` to enable tool categories as needed
-4. **Query your network** - Ask natural language questions about your Mist infrastructure
-
-### Example Usage
-
-```
-# 1. Get organization info
-User: "Show me my organization details"
-
-# 2. Enable and use device tools
-User: "Find all offline access points"
-Assistant: "I'll enable device management tools first..."
-[Calls manageMcpTools with device categories]
-Assistant: "Tools enabled! Do you want to continue?"
-User: "Yes"
-[Assistant will use the enabled tools to find the information]
-
-# 3. Network troubleshooting
-User: "Why users on the guest network can't access the internet?"
-[Calls manageMcpTools with device categories]
-Assistant: "Tools enabled! Do you want to continue?"
-User: "Yes"
-[Assistant will use the enabled tools to find the information]
-```
-
-## 🔄 Dynamic Tool Management
-
-Use `manageMcpTools` to enable tool categories during your session:
-
-```python
-# Enable organization and site management
-manageMcpTools(enable_mcp_tools_categories=["orgs", "sites"])
-
-# Enable wireless client monitoring
-manageMcpTools(enable_mcp_tools_categories=["orgs_clients___wireless"])
-
-# Enable comprehensive device management
-manageMcpTools(enable_mcp_tools_categories=["orgs_devices", "sites_devices"])
 ```
 
 
