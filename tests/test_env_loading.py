@@ -12,7 +12,7 @@ from mistmcp.config import ToolLoadingMode, config
 class TestLoadEnvFile:
     """Test load_env_file function"""
 
-    def test_load_env_file_with_explicit_path(self, tmp_path):
+    def test_load_env_file_with_explicit_path(self, tmp_path) -> None:
         """Test loading .env file with explicit path"""
         # Create a temporary .env file
         env_file = tmp_path / ".env"
@@ -32,7 +32,7 @@ class TestLoadEnvFile:
             assert os.getenv("TEST_VAR") == "test_value"
             assert os.getenv("ANOTHER_VAR") == "another_value"
 
-    def test_load_env_file_with_tilde_path(self, tmp_path):
+    def test_load_env_file_with_tilde_path(self, tmp_path) -> None:
         """Test loading .env file with tilde (~) in path"""
         # Create a temporary .env file in a subdirectory
         env_dir = tmp_path / "test_env"
@@ -57,7 +57,7 @@ class TestLoadEnvFile:
                 # Check that variable was loaded
                 assert os.getenv("TILDE_TEST") == "tilde_value"
 
-    def test_load_env_file_from_mist_env_file_var(self, tmp_path):
+    def test_load_env_file_from_mist_env_file_var(self, tmp_path) -> None:
         """Test loading .env file from MIST_ENV_FILE environment variable"""
         # Create a temporary .env file
         env_file = tmp_path / ".env"
@@ -73,7 +73,7 @@ class TestLoadEnvFile:
             # Check that variable was loaded
             assert os.getenv("ENV_FILE_VAR") == "env_file_value"
 
-    def test_load_env_file_default_behavior(self):
+    def test_load_env_file_default_behavior(self) -> None:
         """Test loading .env file with default behavior (current directory)"""
         # This test uses the actual load_dotenv default behavior
         with patch("mistmcp.__main__.load_dotenv") as mock_load_dotenv:
@@ -82,7 +82,7 @@ class TestLoadEnvFile:
             # Should call load_dotenv with override=True but no dotenv_path
             mock_load_dotenv.assert_called_once_with(override=True)
 
-    def test_load_env_file_dotenv_import_error(self, tmp_path, capsys):
+    def test_load_env_file_dotenv_import_error(self, tmp_path, capsys) -> None:
         """Test handling of ImportError when dotenv is not available"""
         env_file = tmp_path / ".env"
         env_file.write_text("TEST_VAR=test_value\n")
@@ -94,7 +94,7 @@ class TestLoadEnvFile:
             captured = capsys.readouterr()
             assert "Warning: python-dotenv not installed" in captured.err
 
-    def test_load_env_file_no_file_no_env_var(self):
+    def test_load_env_file_no_file_no_env_var(self) -> None:
         """Test behavior when no file specified and no MIST_ENV_FILE"""
         with patch.dict(os.environ, {}, clear=True):
             with patch("mistmcp.__main__.load_dotenv") as mock_load_dotenv:
@@ -130,7 +130,7 @@ class TestLoadEnvVar:
         config.tool_categories = original_config["tool_categories"]
         config.debug = original_config["debug"]
 
-    def test_load_env_var_stdio_mode_success(self):
+    def test_load_env_var_stdio_mode_success(self) -> None:
         """Test loading environment variables for stdio mode with all required vars"""
         test_env = {
             "MIST_APITOKEN": "test-api-token",
@@ -142,33 +142,61 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            load_env_var("stdio")
+            (
+                transport_mode,
+                tool_loading_mode,
+                tool_categories,
+                mcp_host,
+                mcp_port,
+                debug,
+            ) = load_env_var(
+                "stdio",
+                ToolLoadingMode.ALL,
+                ["orgs", "sites", "devices"],
+                None,
+                None,
+                True,
+            )
 
             assert config.mist_apitoken == "test-api-token"
             assert config.mist_host == "api.mist.com"
-            assert config.transport_mode == "stdio"
-            assert config.tool_loading_mode == ToolLoadingMode.ALL
-            assert config.tool_categories == ["orgs", "sites", "devices"]
-            assert config.debug is True
+            assert transport_mode == "stdio"
+            assert tool_loading_mode == ToolLoadingMode.ALL
+            assert tool_categories == ["orgs", "sites", "devices"]
+            assert debug is True
+            assert mcp_host == "127.0.0.1"
+            assert mcp_port == 8000
 
-    def test_load_env_var_http_mode(self):
+    def test_load_env_var_http_mode(self) -> None:
         """Test loading environment variables for http mode (no required vars)"""
         test_env = {
             "MISTMCP_TRANSPORT_MODE": "http",
             "MISTMCP_TOOL_LOADING_MODE": "custom",
             "MISTMCP_TOOL_CATEGORIES": "orgs,sites",
             "MISTMCP_DEBUG": "false",
+            "MISTMCP_HOST": "0.0.0.0",
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            load_env_var("http")
+            (
+                transport_mode,
+                tool_loading_mode,
+                tool_categories,
+                mcp_host,
+                mcp_port,
+                debug,
+            ) = load_env_var(
+                "http", ToolLoadingMode.CUSTOM, ["orgs", "sites"], None, None, False
+            )
 
-            assert config.transport_mode == "http"
-            assert config.tool_loading_mode == ToolLoadingMode.CUSTOM
-            assert config.tool_categories == ["orgs", "sites"]
-            assert config.debug is False
+            assert transport_mode == "http"
+            assert tool_loading_mode == ToolLoadingMode.CUSTOM
+            assert tool_categories == ["orgs", "sites"]
+            assert debug is False
+            assert mcp_host == "0.0.0.0"
+            assert mcp_port == 8000
 
-    def test_load_env_var_invalid_tool_loading_mode(self):
+    def test_load_env_var_invalid_tool_loading_mode(self) -> None:
         """Test handling of invalid MISTMCP_TOOL_LOADING_MODE"""
         test_env = {
             "MIST_APITOKEN": "test-token",
@@ -179,12 +207,14 @@ class TestLoadEnvVar:
         original_mode = config.tool_loading_mode
 
         with patch.dict(os.environ, test_env, clear=False):
-            load_env_var("stdio")
+            _, tool_loading_mode, _, _, _, _ = load_env_var(
+                "stdio", None, None, None, None, False
+            )
 
             # Should keep original mode when invalid value provided
-            assert config.tool_loading_mode == original_mode
+            assert tool_loading_mode == original_mode
 
-    def test_load_env_var_debug_variations(self):
+    def test_load_env_var_debug_variations(self) -> None:
         """Test different debug flag variations"""
         test_cases = [
             ("true", True),
@@ -209,12 +239,12 @@ class TestLoadEnvVar:
             test_env = {**base_env, "MISTMCP_DEBUG": debug_value}
 
             with patch.dict(os.environ, test_env, clear=False):
-                load_env_var("stdio")
-                assert config.debug == expected, (
-                    f"Failed for debug_value='{debug_value}'"
+                _, _, _, _, _, debug = load_env_var(
+                    "stdio", None, None, None, None, False
                 )
+                assert debug == expected, f"Failed for debug_value='{debug_value}'"
 
-    def test_load_env_var_categories_parsing(self):
+    def test_load_env_var_categories_parsing(self) -> None:
         """Test parsing of MISTMCP_TOOL_CATEGORIES"""
         test_cases = [
             ("orgs,sites,devices", ["orgs", "sites", "devices"]),
@@ -234,16 +264,18 @@ class TestLoadEnvVar:
         }
 
         for categories_value, expected in test_cases:
-            config.tool_categories = []  # Reset before each test
+            tool_categories: list[str] = []  # Reset before each test
             test_env = {**base_env, "MISTMCP_TOOL_CATEGORIES": categories_value}
 
             with patch.dict(os.environ, test_env, clear=False):
-                load_env_var("stdio")
-                assert config.tool_categories == expected, (
+                _, _, tool_categories, _, _, _ = load_env_var(
+                    "stdio", None, None, None, None, False
+                )
+                assert tool_categories == expected, (
                     f"Failed for categories='{categories_value}'"
                 )
 
-    def test_load_env_var_no_optional_vars(self):
+    def test_load_env_var_no_optional_vars(self) -> None:
         """Test loading with only required vars for stdio mode"""
         test_env = {
             "MIST_APITOKEN": "test-token",
@@ -264,7 +296,7 @@ class TestLoadEnvVar:
                 if var in os.environ:
                     del os.environ[var]
 
-            load_env_var("stdio")
+            load_env_var("stdio", None, None, None, None, False)
 
             # Check that required vars were set
             assert config.mist_apitoken == "test-token"
@@ -273,18 +305,42 @@ class TestLoadEnvVar:
             # Optional vars should not have changed from their original values
             # (they should keep whatever was set before)
 
-    def test_load_env_var_debug_output(self, capsys):
-        """Test debug output when debug is enabled"""
+    def test_load_env_var_port_parsing(self) -> None:
+        """Test parsing of MISTMCP_PORT environment variable"""
+        test_cases = [
+            ("8080", 8080),
+            ("3000", 3000),
+            ("invalid", 8000),  # Should fallback to default
+            ("", 8000),  # Should fallback to default
+        ]
+
+        base_env = {
+            "MIST_APITOKEN": "test-token",
+            "MIST_HOST": "api.mist.com",
+        }
+
+        for port_value, expected in test_cases:
+            test_env = {**base_env, "MISTMCP_PORT": port_value}
+
+            with patch.dict(os.environ, test_env, clear=False):
+                _, _, _, _, mcp_port, _ = load_env_var(
+                    "stdio", None, None, None, None, False
+                )
+                assert mcp_port == expected, f"Failed for port='{port_value}'"
+
+    def test_load_env_var_host_and_port_from_env(self) -> None:
+        """Test loading host and port from environment variables"""
         test_env = {
             "MIST_APITOKEN": "test-token",
             "MIST_HOST": "api.mist.com",
-            "MISTMCP_DEBUG": "true",
+            "MISTMCP_HOST": "0.0.0.0",
+            "MISTMCP_PORT": "9000",
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            load_env_var("stdio")
+            _, _, _, mcp_host, mcp_port, _ = load_env_var(
+                "stdio", None, None, None, None, False
+            )
 
-            captured = capsys.readouterr()
-            assert "Loaded environment variables:" in captured.out
-            assert "MIST_APITOKEN: test-token" in captured.out
-            assert "MIST_HOST: api.mist.com" in captured.out
+            assert mcp_host == "0.0.0.0"
+            assert mcp_port == 9000

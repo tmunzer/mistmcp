@@ -39,7 +39,7 @@ class Distinct(Enum):
     enabled=True,
     name="countOrgMxEdges",
     description="""Count by Distinct Attributes of Org Mist Edges""",
-    tags={"Orgs MxEdges"},
+    tags={"orgs_mxedges"},
     annotations={
         "title": "countOrgMxEdges",
         "readOnlyHint": True,
@@ -107,8 +107,6 @@ async def countOrgMxEdges(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host

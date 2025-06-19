@@ -27,7 +27,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:8000/mcp/ || exit 1
 
 # Default command - can be overridden
-CMD ["uv", "run", "mistmcp", "--transport", "http", "--mode", "managed"]
+CMD ["uv", "run", "python", "-u", "-m", "mistmcp"]

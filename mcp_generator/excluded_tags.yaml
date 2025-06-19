@@ -1,0 +1,96 @@
+- Self Alarms
+- Admins
+- Admins Login
+- Admins Logout
+- Admins Lookup
+- Admins Recover Password
+- Admins Login - OAuth2
+- Installer
+- MSPs
+- MSPs Admins
+- MSPs Inventory
+- MSPs Logo
+- MSPs Logs
+- MSPs Licenses
+- MSPs Marvis
+- MSPs Org Groups
+- MSPs Orgs
+- MSPs SLEs
+- MSPs SSO Roles
+- MSPs SSO
+- MSPs Tickets
+- Orgs Admins
+- Orgs API Tokens
+- Orgs Assets
+- Orgs Asset Filters
+- Orgs Clients - Marvis
+- Orgs Clients - SDK
+- Orgs Cert
+- Orgs Devices - SSR
+- Orgs Maps
+- Orgs Marvis Invites
+- Orgs Integration Cradlepoint
+- Orgs CRL
+- Orgs Integration Juniper
+- Orgs Integration Zscaler
+- Orgs SCEP
+- Orgs Integration JSE
+- Orgs Integration SkyATP
+- Orgs JSI
+- Orgs Linked Applications
+- Orgs NAC IDP
+- Orgs NAC Portals
+- Orgs NAC CRL
+- Orgs Premium Analytics
+- Orgs Psk Portals
+- Orgs SecIntel Profiles
+- Orgs SDK Invites
+- Orgs SDK Templates
+- Orgs SSO Roles
+- Orgs SSO
+- Orgs Tickets
+- Orgs Vars
+- Sites Anomaly
+- Sites Asset Filters
+- Sites Assets
+- Sites Devices - Wired
+- Sites Beacons
+- Sites JSE
+- Sites Licenses
+- Sites Location
+- Sites RSSI Zones
+- Sites UI Settings
+- Sites vBeacons
+- Sites Zones
+- Sites Stats - Assets
+- Sites Stats - Beacons
+- Sites Stats - Clients SDK
+- Sites Stats - Zones
+- Self API Token
+- Self OAuth2
+- Self MFA
+- Samples Webhooks
+- Utilities Common
+- Utilities WAN
+- Utilities LAN
+- Utilities Wi-Fi
+- Utilities PCAPs
+- Utilities Location
+- Utilities MxEdge
+# In addition, exclude some site level tags that are redundant with the Org API calls
+# or not useful for MCP
+- Orgs Stats - Assets
+- Orgs WxTunnels
+- Sites Stats - BGP Peers
+- Sites Stats - Devices
+- Sites Stats - Ports
+- Sites Devices - Wireless
+- Sites Devices - WAN Cluster
+- Sites Alarms
+- Sites Devices - Others
+- Sites Devices - Wired - Virtual Chassis
+- Sites Maps - Auto-placement
+- Sites Maps - Auto-Zone
+- Sites Vpns
+- Sites WxTunnels
+- Sites Skyatp

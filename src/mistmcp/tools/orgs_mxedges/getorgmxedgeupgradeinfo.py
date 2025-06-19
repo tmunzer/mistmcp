@@ -37,7 +37,7 @@ class Channel(Enum):
     enabled=True,
     name="getOrgMxEdgeUpgradeInfo",
     description="""Get Mist Edge Upgrade Information""",
-    tags={"Orgs MxEdges"},
+    tags={"orgs_mxedges"},
     annotations={
         "title": "getOrgMxEdgeUpgradeInfo",
         "readOnlyHint": True,
@@ -74,8 +74,6 @@ async def getOrgMxEdgeUpgradeInfo(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host

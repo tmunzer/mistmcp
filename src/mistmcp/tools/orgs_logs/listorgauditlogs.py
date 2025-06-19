@@ -49,7 +49,7 @@ class Sort(Enum):
 )
 async def listOrgAuditLogs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[str], Field(description="""Site id""")] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
     admin_name: Annotated[
         Optional[str], Field(description="""Admin name or email""")
     ] = None,
@@ -89,8 +89,6 @@ async def listOrgAuditLogs(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -103,7 +101,7 @@ async def listOrgAuditLogs(
     response = mistapi.api.v1.orgs.logs.listOrgAuditLogs(
         apisession,
         org_id=str(org_id),
-        site_id=site_id,
+        site_id=str(site_id),
         admin_name=admin_name,
         message=message,
         sort=sort.value,

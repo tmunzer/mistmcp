@@ -1,0 +1,13 @@
+- listApLEslVersions
+- listAppCategoryDefinitions
+- listAppSubCategoryDefinitions
+- listApplications
+- listCountryCodes
+- listGatewayApplications
+- listSiteLanguages
+- listMarvisClientVersions
+- listStates
+- listTrafficTypes
+- getGatewayDefaultConfig
+- verifySelfEmail
+- listSiteSiteTemplateDerived

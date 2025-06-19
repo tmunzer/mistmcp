@@ -53,7 +53,7 @@ class Distinct(Enum):
 async def countOrgDeviceEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     distinct: Distinct = Distinct.MODEL,
-    site_id: Annotated[Optional[str], Field(description="""Site id""")] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
     ap: Annotated[Optional[str], Field(description="""AP mac""")] = None,
     apfw: Annotated[Optional[str], Field(description="""AP Firmware""")] = None,
     model: Annotated[Optional[str], Field(description="""Device model""")] = None,
@@ -98,8 +98,6 @@ async def countOrgDeviceEvents(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -113,7 +111,7 @@ async def countOrgDeviceEvents(
         apisession,
         org_id=str(org_id),
         distinct=distinct.value,
-        site_id=site_id,
+        site_id=str(site_id),
         ap=ap,
         apfw=apfw,
         model=model,

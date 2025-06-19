@@ -31,7 +31,7 @@ class TestStart:
         mock_server = Mock()
         mock_create_server.return_value = mock_server
 
-        start("http", ToolLoadingMode.MANAGED, [], debug=True)
+        start("http", ToolLoadingMode.MANAGED, [], "127.0.0.1", 8000, debug=True)
 
         mock_create_server.assert_called_once()
         config_arg = mock_create_server.call_args[0][0]
@@ -40,7 +40,7 @@ class TestStart:
         assert config_arg.debug is True
         assert config_arg.transport_mode == "http"
         mock_server.run.assert_called_once_with(
-            transport="streamable-http", host="127.0.0.1"
+            transport="streamable-http", host="127.0.0.1", port=8000
         )
 
     @patch("mistmcp.__main__.create_mcp_server")
@@ -49,7 +49,14 @@ class TestStart:
         mock_server = Mock()
         mock_create_server.return_value = mock_server
 
-        start("http", ToolLoadingMode.MANAGED, [], mcp_host="0.0.0.0", debug=True)
+        start(
+            "http",
+            ToolLoadingMode.MANAGED,
+            [],
+            mcp_host="0.0.0.0",
+            mcp_port=8000,
+            debug=True,
+        )
 
         mock_create_server.assert_called_once()
         config_arg = mock_create_server.call_args[0][0]
@@ -58,7 +65,7 @@ class TestStart:
         assert config_arg.debug is True
         assert config_arg.transport_mode == "http"
         mock_server.run.assert_called_once_with(
-            transport="streamable-http", host="0.0.0.0"
+            transport="streamable-http", host="0.0.0.0", port=8000
         )
 
     @patch("mistmcp.__main__.create_mcp_server")
@@ -73,6 +80,7 @@ class TestStart:
             ToolLoadingMode.CUSTOM,
             categories,
             mcp_host="127.0.0.1",
+            mcp_port=8000,
             debug=False,
         )
 
@@ -86,7 +94,12 @@ class TestStart:
         """Test that custom mode without categories exits with error"""
         with pytest.raises(SystemExit) as exc_info:
             start(
-                "stdio", ToolLoadingMode.CUSTOM, [], mcp_host="127.0.0.1", debug=False
+                "stdio",
+                ToolLoadingMode.CUSTOM,
+                [],
+                mcp_host="127.0.0.1",
+                mcp_port=8000,
+                debug=False,
             )
 
         assert exc_info.value.code == 1
@@ -100,7 +113,14 @@ class TestStart:
         mock_server.run.side_effect = KeyboardInterrupt()
         mock_create_server.return_value = mock_server
 
-        start("stdio", ToolLoadingMode.MANAGED, [], mcp_host="127.0.0.1", debug=False)
+        start(
+            "stdio",
+            ToolLoadingMode.MANAGED,
+            [],
+            mcp_host="127.0.0.1",
+            mcp_port=8000,
+            debug=False,
+        )
 
         captured = capsys.readouterr()
         assert "stopped by user" in captured.out
@@ -110,7 +130,14 @@ class TestStart:
         """Test handling of exceptions without debug mode"""
         mock_create_server.side_effect = Exception("Test error")
 
-        start("stdio", ToolLoadingMode.MANAGED, [], mcp_host="127.0.0.1", debug=False)
+        start(
+            "stdio",
+            ToolLoadingMode.MANAGED,
+            [],
+            mcp_host="127.0.0.1",
+            mcp_port=8000,
+            debug=False,
+        )
 
         captured = capsys.readouterr()
         assert "Mist MCP Error: Test error" in captured.err
@@ -123,7 +150,14 @@ class TestStart:
         """Test handling of exceptions with debug mode"""
         mock_create_server.side_effect = Exception("Test error")
 
-        start("stdio", ToolLoadingMode.MANAGED, [], mcp_host="127.0.0.1", debug=True)
+        start(
+            "stdio",
+            ToolLoadingMode.MANAGED,
+            [],
+            mcp_host="127.0.0.1",
+            mcp_port=8000,
+            debug=True,
+        )
 
         captured = capsys.readouterr()
         assert "Mist MCP Error: Test error" in captured.err
@@ -137,14 +171,19 @@ class TestStart:
 
         categories = ["orgs", "sites"]
         start(
-            "http", ToolLoadingMode.CUSTOM, categories, mcp_host="127.0.0.1", debug=True
+            "http",
+            ToolLoadingMode.CUSTOM,
+            categories,
+            mcp_host="127.0.0.1",
+            mcp_port=8000,
+            debug=True,
         )
 
         captured = capsys.readouterr()
-        assert "Starting Mist MCP Server with configuration:" in captured.out
-        assert "Transport: http" in captured.out
-        assert "Tool mode: custom" in captured.out
-        assert "Categories: orgs, sites" in captured.out
+        assert "Starting Mist MCP Server with configuration" in captured.out
+        assert "TRANSPORT: http" in captured.out
+        assert "TOOL LOADING MODE: custom" in captured.out
+        assert "CATEGORIES: orgs, sites" in captured.out
 
 
 class TestMain:
@@ -157,7 +196,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.MANAGED, [], None, False
+            "stdio", ToolLoadingMode.MANAGED, [], "127.0.0.1", 8000, False
         )
 
     @patch("mistmcp.__main__.start")
@@ -179,7 +218,12 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "http", ToolLoadingMode.CUSTOM, ["orgs", "sites", "devices"], None, True
+            "http",
+            ToolLoadingMode.CUSTOM,
+            ["orgs", "sites", "devices"],
+            "127.0.0.1",
+            8000,
+            True,
         )
 
     @patch("mistmcp.__main__.start")
@@ -188,7 +232,9 @@ class TestMain:
         with patch("sys.argv", ["mistmcp", "--mode", "all", "--debug"]):
             main()
 
-        mock_start.assert_called_once_with("stdio", ToolLoadingMode.ALL, [], None, True)
+        mock_start.assert_called_once_with(
+            "stdio", ToolLoadingMode.ALL, [], "127.0.0.1", 8000, True
+        )
 
     def test_main_invalid_mode(self, capsys) -> None:
         """Test main with invalid mode"""
@@ -216,7 +262,12 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.CUSTOM, ["orgs", "sites", "devices"], None, False
+            "stdio",
+            ToolLoadingMode.CUSTOM,
+            ["orgs", "sites", "devices"],
+            "127.0.0.1",
+            8000,
+            False,
         )
 
     @patch("mistmcp.__main__.start")
@@ -226,7 +277,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.CUSTOM, [], None, False
+            "stdio", ToolLoadingMode.CUSTOM, [], "127.0.0.1", 8000, False
         )
 
     def test_main_help_exits(self) -> None:
@@ -244,3 +295,24 @@ class TestMain:
             main()
 
         assert exc_info.value.code == 2
+
+    @patch("mistmcp.__main__.start")
+    def test_main_custom_host_and_port(self, mock_start) -> None:
+        """Test main with custom host and port"""
+        with patch(
+            "sys.argv",
+            [
+                "mistmcp",
+                "--transport",
+                "http",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "9000",
+            ],
+        ):
+            main()
+
+        mock_start.assert_called_once_with(
+            "http", ToolLoadingMode.MANAGED, [], "0.0.0.0", 9000, False
+        )

@@ -57,7 +57,7 @@ async def searchOrgInventory(
         Field(description="""Master device mac for virtual mac cluster"""),
     ] = None,
     site_id: Annotated[
-        Optional[str],
+        Optional[UUID],
         Field(description="""Site id if assigned, null if not assigned"""),
     ] = None,
     serial: Annotated[Optional[str], Field(description="""Device serial""")] = None,
@@ -87,8 +87,6 @@ async def searchOrgInventory(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -105,7 +103,7 @@ async def searchOrgInventory(
         mac=mac,
         vc_mac=vc_mac,
         master_mac=master_mac,
-        site_id=site_id,
+        site_id=str(site_id),
         serial=serial,
         master=master,
         sku=sku,

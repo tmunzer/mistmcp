@@ -61,7 +61,7 @@ publish: clean build ## Publish to PyPI
 
 generate: ## Run the code generation script
 	cd mist_openapi && git pull && cd ..
-	uv run python generate_from_openapi.py $(VERSION)
+	uv run python ./mcp_generator/generate_from_openapi.py $(VERSION)
 
 deps: ## Show dependency tree
 	uv tree
@@ -83,3 +83,7 @@ pre-commit-update: ## Update pre-commit hooks
 
 ## clean format lint pre-commit test ## Run all checks and tests
 check: clean format pre-commit test ## Run all checks and tests
+
+docker:
+	docker buildx build --platform linux/amd64 -t tmunzer/mistmcp:latest .
+# docker buildx build --platform linux/amd64,linux/arm64 -t tmunzer/mistmcp:latest .

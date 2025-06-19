@@ -19,7 +19,7 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 
@@ -42,6 +42,12 @@ async def listSiteWlans(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
+    wlan_id: Annotated[
+        Optional[UUID],
+        Field(
+            description="""ID of the WLAN to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Site WLANs"""
 
@@ -59,8 +65,6 @@ async def listSiteWlans(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -70,12 +74,17 @@ async def listSiteWlans(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.wlans.listSiteWlans(
-        apisession,
-        site_id=str(site_id),
-        limit=limit,
-        page=page,
-    )
+    if wlan_id:
+        response = mistapi.api.v1.sites.wlans.getSiteWlan(
+            apisession, site_id=str(site_id), wlan_id=str(wlan_id)
+        )
+    else:
+        response = mistapi.api.v1.sites.wlans.listSiteWlans(
+            apisession,
+            site_id=str(site_id),
+            limit=limit,
+            page=page,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

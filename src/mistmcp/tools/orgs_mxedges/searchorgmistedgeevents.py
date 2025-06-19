@@ -30,7 +30,7 @@ mcp = mcp_instance.get()
     enabled=True,
     name="searchOrgMistEdgeEvents",
     description="""Search Org Mist Edge Events""",
-    tags={"Orgs MxEdges"},
+    tags={"orgs_mxedges"},
     annotations={
         "title": "searchOrgMistEdgeEvents",
         "readOnlyHint": True,
@@ -90,8 +90,6 @@ async def searchOrgMistEdgeEvents(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host

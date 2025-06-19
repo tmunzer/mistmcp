@@ -19,7 +19,7 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
 
@@ -37,7 +37,7 @@ class For_sites(Enum):
     enabled=True,
     name="listOrgMxEdges",
     description="""Get List of Org MxEdges""",
-    tags={"Orgs MxEdges"},
+    tags={"orgs_mxedges"},
     annotations={
         "title": "listOrgMxEdges",
         "readOnlyHint": True,
@@ -52,6 +52,12 @@ async def listOrgMxEdges(
     ] = For_sites.ANY,
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
+    mxedge_id: Annotated[
+        Optional[UUID],
+        Field(
+            description="""ID of the MX Edge to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Org MxEdges"""
 
@@ -69,8 +75,6 @@ async def listOrgMxEdges(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -80,13 +84,18 @@ async def listOrgMxEdges(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.mxedges.listOrgMxEdges(
-        apisession,
-        org_id=str(org_id),
-        for_sites=for_sites.value,
-        limit=limit,
-        page=page,
-    )
+    if mxedge_id:
+        response = mistapi.api.v1.orgs.mxedges.getOrgMxEdge(
+            apisession, org_id=str(org_id), mxedge_id=str(mxedge_id)
+        )
+    else:
+        response = mistapi.api.v1.orgs.mxedges.listOrgMxEdges(
+            apisession,
+            org_id=str(org_id),
+            for_sites=for_sites.value,
+            limit=limit,
+            page=page,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
