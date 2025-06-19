@@ -18,169 +18,132 @@ class McpToolsCategory(Enum):
     CONSTANTS_DEFINITIONS = "constants_definitions"
     CONSTANTS_MODELS = "constants_models"
     ORGS = "orgs"
-    ORGS_ADVANCED_ANTI_MALWARE_PROFILES = "orgs_advanced_anti_malware_profiles"
+    ORGS_WAN = "orgs_wan"
     ORGS_ALARMS = "orgs_alarms"
     ORGS_ALARM_TEMPLATES = "orgs_alarm_templates"
-    ORGS_AP_TEMPLATES = "orgs_ap_templates"
-    ORGS_ANTIVIRUS_PROFILES = "orgs_antivirus_profiles"
+    DEVICES_CONFIG = "devices_config"
     ORGS_LICENSES = "orgs_licenses"
-    ORGS_CLIENTS___WIRELESS = "orgs_clients___wireless"
-    ORGS_DEVICE_PROFILES = "orgs_device_profiles"
+    ORGS_CLIENTS = "orgs_clients"
     ORGS_DEVICES = "orgs_devices"
     UTILITIES_UPGRADE = "utilities_upgrade"
     ORGS_EVENTS = "orgs_events"
-    ORGS_EVPN_TOPOLOGIES = "orgs_evpn_topologies"
-    ORGS_GATEWAY_TEMPLATES = "orgs_gateway_templates"
-    ORGS_GUESTS = "orgs_guests"
-    ORGS_IDP_PROFILES = "orgs_idp_profiles"
+    ORGS_LAN = "orgs_lan"
     ORGS_SLES = "orgs_sles"
     ORGS_INVENTORY = "orgs_inventory"
     ORGS_LOGS = "orgs_logs"
-    ORGS_MXCLUSTERS = "orgs_mxclusters"
     ORGS_MXEDGES = "orgs_mxedges"
-    ORGS_MXTUNNELS = "orgs_mxtunnels"
-    ORGS_CLIENTS___NAC = "orgs_clients___nac"
-    ORGS_NAC_RULES = "orgs_nac_rules"
-    ORGS_NAC_TAGS = "orgs_nac_tags"
-    ORGS_NETWORKS = "orgs_networks"
-    ORGS_NETWORK_TEMPLATES = "orgs_network_templates"
+    ORGS_NAC = "orgs_nac"
     ORGS_DEVICES___OTHERS = "orgs_devices___others"
-    ORGS_PSKS = "orgs_psks"
-    ORGS_RF_TEMPLATES = "orgs_rf_templates"
-    ORGS_SECURITY_POLICIES = "orgs_security_policies"
-    ORGS_SERVICE_POLICIES = "orgs_service_policies"
-    ORGS_SERVICES = "orgs_services"
-    ORGS_SETTING = "orgs_setting"
-    ORGS_INTEGRATION_SKYATP = "orgs_integration_skyatp"
+    ORGS_WLANS = "orgs_wlans"
     ORGS_SITEGROUPS = "orgs_sitegroups"
     ORGS_SITES = "orgs_sites"
-    ORGS_SITE_TEMPLATES = "orgs_site_templates"
     ORGS_STATS = "orgs_stats"
-    ORGS_STATS___BGP_PEERS = "orgs_stats___bgp_peers"
-    ORGS_STATS___DEVICES = "orgs_stats___devices"
-    ORGS_STATS___MXEDGES = "orgs_stats___mxedges"
-    ORGS_STATS___OTHER_DEVICES = "orgs_stats___other_devices"
-    ORGS_STATS___PORTS = "orgs_stats___ports"
-    ORGS_STATS___SITES = "orgs_stats___sites"
-    ORGS_STATS___TUNNELS = "orgs_stats___tunnels"
-    ORGS_STATS___VPN_PEERS = "orgs_stats___vpn_peers"
-    ORGS_WLAN_TEMPLATES = "orgs_wlan_templates"
     ORGS_MARVIS = "orgs_marvis"
-    ORGS_USER_MACS = "orgs_user_macs"
-    ORGS_VPNS = "orgs_vpns"
-    ORGS_CLIENTS___WAN = "orgs_clients___wan"
     ORGS_WEBHOOKS = "orgs_webhooks"
-    ORGS_CLIENTS___WIRED = "orgs_clients___wired"
-    ORGS_WLANS = "orgs_wlans"
-    ORGS_WXRULES = "orgs_wxrules"
-    ORGS_WXTAGS = "orgs_wxtags"
-    ADMINS = "admins"
     SELF_ACCOUNT = "self_account"
-    SELF_AUDIT_LOGS = "self_audit_logs"
-    SELF_ALARMS = "self_alarms"
     SITES = "sites"
-    SITES_DERIVED_CONFIG = "sites_derived_config"
-    SITES_CLIENTS___WIRELESS = "sites_clients___wireless"
+    SITES_WAN = "sites_wan"
+    SITES_CLIENTS = "sites_clients"
     SITES_DEVICES = "sites_devices"
     SITES_SYNTHETIC_TESTS = "sites_synthetic_tests"
     SITES_EVENTS = "sites_events"
-    SITES_EVPN_TOPOLOGIES = "sites_evpn_topologies"
-    SITES_GUESTS = "sites_guests"
+    SITES_LAN = "sites_lan"
     SITES_INSIGHTS = "sites_insights"
-    ORGS_NAC_FINGERPRINTS = "orgs_nac_fingerprints"
     SITES_ROGUES = "sites_rogues"
     SITES_MAPS = "sites_maps"
-    SITES_MAPS___AUTO_ZONE = "sites_maps___auto_zone"
     SITES_MXEDGES = "sites_mxedges"
-    SITES_CLIENTS___NAC = "sites_clients___nac"
-    SITES_PSKS = "sites_psks"
+    SITES_WLANS = "sites_wlans"
     SITES_RFDIAGS = "sites_rfdiags"
     SITES_RRM = "sites_rrm"
-    SITES_SETTING = "sites_setting"
     SITES_SLES = "sites_sles"
     SITES_STATS = "sites_stats"
-    SITES_STATS___APPS = "sites_stats___apps"
-    SITES_STATS___CALLS = "sites_stats___calls"
-    SITES_STATS___CLIENTS_WIRELESS = "sites_stats___clients_wireless"
-    SITES_STATS___DISCOVERED_SWITCHES = "sites_stats___discovered_switches"
-    SITES_STATS___MXEDGES = "sites_stats___mxedges"
-    SITES_STATS___WXRULES = "sites_stats___wxrules"
-    SITES_VPNS = "sites_vpns"
-    SITES_CLIENTS___WAN = "sites_clients___wan"
     SITES_WAN_USAGES = "sites_wan_usages"
     SITES_WEBHOOKS = "sites_webhooks"
-    SITES_CLIENTS___WIRED = "sites_clients___wired"
-    SITES_WLANS = "sites_wlans"
-    SITES_WXRULES = "sites_wxrules"
-    SITES_WXTAGS = "sites_wxtags"
 
 
 TOOLS = {
-    "admins": {
-        "tools": ["getAdminRegistrationInfo"],
-        "description": "Admin tools can be used to create, manage or authenticate Mist administrators.\n\nTo register administrators into an existing MSP account or Organization, please check: * [Invite Msp Admin](/#operations/inviteMspAdmin) * [Invite Org Admin](/#operations/inviteOrgAdmin)",
+    "constants_definitions": {
+        "description": "tools to retrieve constant values that can be used in different parts of the configuration",
+        "tools": [
+            "listApChannels",
+            "listApLedDefinition",
+            "listFingerprintTypes",
+            "listInsightMetrics",
+            "listLicenseTypes",
+            "listWebhookTopics",
+        ],
+    },
+    "constants_events": {
+        "description": "tools to retrieve the definitions of the Mist events. These definitions are providing example of the Webhook payloads",
+        "tools": [
+            "listAlarmDefinitions",
+            "listClientEventsDefinitions",
+            "listDeviceEventsDefinitions",
+            "listMxEdgeEventsDefinitions",
+            "listNacEventsDefinitions",
+            "listOtherDeviceEventsDefinitions",
+            "listSystemEventsDefinitions",
+        ],
+    },
+    "constants_models": {
+        "description": "tools to retrieve the list of Hardware Models and their features",
+        "tools": [
+            "listDeviceModels",
+            "listMxEdgeModels",
+            "listSupportedOtherDeviceModels",
+        ],
+    },
+    "devices_config": {
+        "description": "Configuration related to devices. It provides access to various device configurations such as AP templates, device profiles, and more.",
+        "tools": [
+            "listOrgAptemplates",
+            "listOrgDeviceProfiles",
+            "listSiteApTemplateDerived",
+            "listSiteDeviceProfilesDerived",
+        ],
     },
     "orgs": {
-        "tools": ["getOrg", "searchOrgEvents"],
         "description": "An organization usually represents a customer - which has inventories, licenses. An Organization can contain multiple sites. A site usually represents a deployment at the same location (a campus, an office).",
-    },
-    "orgs_alarms": {
-        "tools": ["countOrgAlarms", "searchOrgAlarms"],
-        "description": "Alarms are triggered based on certain events. Alarms could be configured using an Alarm Template.",
+        "tools": ["getOrg", "searchOrgEvents", "getOrgSettings"],
     },
     "orgs_alarm_templates": {
+        "description": "An Alarm Template is a set of Alarm Rules that could be applied to\none or more sites (while each site can only pick one Alarm Template), or to the\nwhole org.\n\n\nOnce created, the Alarm template must be assigned with the `alarmtemplate_id` attribute to one of the following\n* the whole org with the [Update Org](/#operations/updateOrg) tool\n* one or multiple sites with the [Update Site Info](/#operations/updateSiteInfo) tool",
         "tools": [
             "listOrgAlarmTemplates",
             "listOrgSuppressedAlarms",
             "getOrgAlarmTemplate",
         ],
-        "description": "An Alarm Template is a set of Alarm Rules that could be applied to\none or more sites (while each site can only pick one Alarm Template), or to the\nwhole org.\n\n\nOnce created, the Alarm template must be assigned with the `alarmtemplate_id` attribute to one of the following\n* the whole org with the [Update Org](/#operations/updateOrg) tool\n* one or multiple sites with the [Update Site Info](/#operations/updateSiteInfo) tool",
     },
-    "orgs_ap_templates": {
-        "tools": ["listOrgAptemplates", "getOrgAptemplate"],
-        "description": "AP Templates are defining Wi-Fi and AP settings that can be assigned to Access Points based on different types of rules.\n\nAP Templates must be assigned to one or multiple sites to be used.",
+    "orgs_alarms": {
+        "description": "Alarms are triggered based on certain events. Alarms could be configured using an Alarm Template.",
+        "tools": ["countOrgAlarms", "searchOrgAlarms"],
     },
-    "orgs_antivirus_profiles": {
-        "tools": ["listOrgAntivirusProfiles", "getOrgAntivirusProfile"],
-        "description": "Antivirus profiles are used to define the content to scan for any malware and the action to be taken when malware is detected. \nThese profiles can be assigned to Content Security policies to scan Web, file transfer, and e-mail traffic. \nThe profiles help in ensuring that the network is protected from malicious content by specifying fallback options and notification methods when malware is detected or when the antivirus system experiences errors.\n\n\nKey Features of Antivirus Profiles:\n\n* Content Scanning: Defines the content to scan for malware.\n* Action on Detection: Specifies the action to be taken when malware is detected.\n* Fallback Options: Configures actions to be taken when the antivirus system encounters errors.\n* Notification Options: Sets up methods to notify users when a fallback occurs or a virus is detected.",
-    },
-    "orgs_clients___nac": {
-        "tools": [
-            "countOrgNacClients",
-            "countOrgNacClientEvents",
-            "searchOrgNacClientEvents",
-            "searchOrgNacClients",
-        ],
-        "description": "NAC Clients are devices connected to the network and authenticated by Juniper Mist Access Assurance.",
-    },
-    "orgs_clients___wan": {
-        "tools": [
-            "countOrgWanClientEvents",
-            "countOrgWanClients",
-            "searchOrgWanClientEvents",
-            "searchOrgWanClients",
-        ],
-        "description": "WAN Clients are devices connected to a Juniper SRX or SSX gateway monitor or managed by Mist",
-    },
-    "orgs_clients___wired": {
-        "tools": ["countOrgWiredClients", "searchOrgWiredClients"],
-        "description": "Wired Clients are Wired devices connected to a Juniper switch monitored or managed by Mist.",
-    },
-    "orgs_clients___wireless": {
+    "orgs_clients": {
+        "description": "Clients for the organizations. It provides access to various client types such as NAC, WAN, wired, and wireless clients.",
         "tools": [
             "countOrgWirelessClients",
             "searchOrgWirelessClientEvents",
             "searchOrgWirelessClients",
             "countOrgWirelessClientsSessions",
             "searchOrgWirelessClientSessions",
+            "listOrgGuestAuthorizations",
+            "countOrgGuestAuthorizations",
+            "searchOrgGuestAuthorization",
+            "getOrgGuestAuthorization",
+            "countOrgNacClients",
+            "countOrgNacClientEvents",
+            "searchOrgNacClientEvents",
+            "searchOrgNacClients",
+            "countOrgWanClientEvents",
+            "countOrgWanClients",
+            "searchOrgWanClientEvents",
+            "searchOrgWanClients",
+            "countOrgWiredClients",
+            "searchOrgWiredClients",
         ],
-        "description": "Wireless Clients are Wi-Fi devices connected to a Juniper Mist Access Point.",
-    },
-    "orgs_device_profiles": {
-        "tools": ["listOrgDeviceProfiles", "getOrgDeviceProfile"],
-        "description": "While Templates / RF Templates / Network Templates / Gateway Templates provides powerful ways to control how a Device\\'s configuration is derived for a Site. There are cases where you\\'d like another level of control at the Org Level.\nA Device Profile contains a subset of Device\\'s configurations you\\'d like a device to have. It will be merged at runtime when we\\'re provisioning an AP.",
     },
     "orgs_devices": {
+        "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices",
         "tools": [
             "listOrgDevices",
             "countOrgDevices",
@@ -193,247 +156,149 @@ TOOLS = {
             "listOrgDevicesSummary",
             "getOrgJuniperDevicesCommand",
         ],
-        "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices",
-    },
-    "orgs_evpn_topologies": {
-        "tools": ["listOrgEvpnTopologies", "getOrgEvpnTopology"],
-        "description": "EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP - separating control plane (MAC / IP Learning) from forwarding plane.\nIn our implementation, following the steps to deploy EVPN topologies in a Site",
     },
     "orgs_devices___others": {
+        "description": "tool for 3rd party devices",
         "tools": [
             "listOrgOtherDevices",
             "countOrgOtherDeviceEvents",
             "searchOrgOtherDeviceEvents",
             "getOrgOtherDevice",
         ],
-        "description": "tool for 3rd party devices",
     },
-    "orgs_gateway_templates": {
-        "tools": ["listOrgGatewayTemplates", "getOrgGatewayTemplate"],
-        "description": "Gateway Template is applied to a site for gateway(s) in a site.\n\nWhen Templates are not used, Site Setting holds settings for multiple device types and they can differ to set device_type specific configs, use this whatever is defined under `gateway` will overwrite/shadow the one at root-level",
-    },
-    "orgs_guests": {
-        "tools": [
-            "listOrgGuestAuthorizations",
-            "countOrgGuestAuthorizations",
-            "searchOrgGuestAuthorization",
-            "getOrgGuestAuthorization",
-        ],
-        "description": "Guests are users who are accessing the wi-fi network as a temporary or non-permanent visitor.",
-    },
-    "orgs_idp_profiles": {
-        "tools": ["listOrgIdpProfiles", "getOrgIdpProfile"],
-        "description": "An IDP profile is a set of predefined rules and actions that determine how the Intrusion Detection and Prevention (IDP) system handles network traffic.\n\nIt allows you to selectively enforce attack detection and prevention techniques on your network. The profile includes a set of IDP signatures and rules recommended by Juniper Networks, and each attack type and severity has a specific action associated with it, such as closing the TCP connection, dropping the packet, or sending an alert.\n\nThe IDP profile can be applied to an application policy to monitor and analyze network events for signs of incidents, violations, or threats to security policies.",
+    "orgs_events": {
+        "description": "Orgs Events are all the system level changes at the org level",
+        "tools": ["countOrgSystemEvents", "searchOrgSystemEvents"],
     },
     "orgs_inventory": {
-        "tools": ["getOrgInventory", "countOrgInventory", "searchOrgInventory"],
         "description": "The Org Inventory allows administrators to view and manage all devices registered (claimed) to the Organization.",
+        "tools": ["getOrgInventory", "countOrgInventory", "searchOrgInventory"],
     },
-    "orgs_advanced_anti_malware_profiles": {
-        "tools": ["listOrgAAMWProfiles", "getOrgAAMWProfile"],
-        "description": 'The "Advanced Anti-Malware" feature in Sky ATP is a comprehensive security solution that leverages multiple techniques to detect and prevent malware attacks. Here are the key components of this feature:\n* **Flow-Based Antivirus Policy**: The policy checks inbound and outbound traffic to stop malware, quarantine infected systems, prevent data exfiltration, and disrupt lateral movement.\n* **Machine Learning-Based Threat Detection**: Sky ATP uses machine learning to identify zero-day threats and detect malware that traditional antivirus software might miss.\n* **Integration with SRX Series Firewalls**: The SRX Series firewalls integrate with Sky ATP to block known malicious file downloads and outbound Command and Control (C&C) traffic. This integration ensures that malware is quickly identified and dropped before it can infect a host.\n* **Real-Time Threat Intelligence**: Sky ATP distributes third-party threat intelligence feeds to all ATP-subscribed SRX firewalls for immediate action, reducing the attack surface.\n\nThese components collectively provide a robust and automated threat detection and remediation solution, simplifying cybersecurity infrastructure and processes for organizations.\n\nFor more details, you can refer to the Juniper documentation on advanced anti-malware policy configuration.',
-    },
-    "orgs_integration_skyatp": {
-        "tools": ["getOrgSkyAtpIntegration"],
-        "description": "Sky Advanced Threat Prevention (Sky ATP) is a cloud-based security designed to detect and mitigate advanced threats in real-time, ensuring the security and integrity of your network.  \nThe integration of Sky ATP with Mist is a strategic move to enhance the security posture of wireless networks by leveraging the capabilities of both solutions.\n\n\nThe integration of Sky ATP with Mist enhances the security of wireless networks by providing real-time threat alerts and mitigation capabilities. Here are the key benefits of this integration:\n\n* Enhanced Security: Adds another layer of security to the robust mechanisms already in place within the Mist WLAN platform. It leverages artificial intelligence (AI) for tighter security, lower operational costs, and optimized user experience.\n* Real-Time Threat Detection: Quickly identifies devices on the network that are infected with malware and takes appropriate actions. This ensures that security risks are assessed and mitigated promptly when users and devices are connected to wireless networks.\n* Improved Device Tracking: Allows for better tracking of client hosts as Mist supplies client MAC addresses to Juniper ATP Cloud. This information is crucial for identifying and mitigating threats.\n* Streamlined Security Events: Threat alerts detected by Juniper SRX Series Firewalls and ATP Cloud are automatically streamed to Mist, enabling administrators to quickly assess security risks and take appropriate actions such as quarantine or enforce security policies.",
+    "orgs_lan": {
+        "description": "Switches Configuration related objects for the organizations. It provides access to LAN related objects such as EVPN topologies and network templates.",
+        "tools": ["listOrgEvpnTopologies", "listOrgNetworkTemplates"],
     },
     "orgs_licenses": {
+        "description": "Licenses are a type of service or access that customers can purchase for various features or services offered by a company.\n\nSubscriptions can have different statuses, such as active, expired, exceeded, or trial, depending on their validity and usage. The status of a subscription determines whether it is currently active and valid, has expired, has exceeded the allowed usage limit, or is in a trial period.\n\nLicenses can be activated using an activation code, and the activation process confirms the inputted code and activates the subscription.",
         "tools": [
             "GetOrgLicenseAsyncClaimStatus",
             "getOrgLicensesSummary",
             "getOrgLicensesBySite",
         ],
-        "description": "Licenses are a type of service or access that customers can purchase for various features or services offered by a company.\n\nSubscriptions can have different statuses, such as active, expired, exceeded, or trial, depending on their validity and usage. The status of a subscription determines whether it is currently active and valid, has expired, has exceeded the allowed usage limit, or is in a trial period.\n\nLicenses can be activated using an activation code, and the activation process confirms the inputted code and activates the subscription.",
     },
     "orgs_logs": {
-        "tools": ["listOrgAuditLogs", "countOrgAuditLogs"],
         "description": "Audit Logs are records of activities initiated by users, providing a history of actions such as accessing, creating, updating, or deleting resources or components at the Org level.\n\nThese logs allow superusers and network administrators to track and maintain a record of user actions, including who performed specific actions and when.\n\nAudit logs are useful for monitoring user activity, investigating security breaches, ensuring compliance with regulations, and tracing configuration changes in a network.\n\nThey can be filtered and analyzed to view specific information and granular-level details of each event.",
+        "tools": ["listOrgAuditLogs", "countOrgAuditLogs"],
     },
     "orgs_marvis": {
-        "tools": ["troubleshootOrg"],
         "description": "Marvis is an AI-driven, interactive virtual network assistant that streamlines network operations, simplifies troubleshooting, and provides an enhanced user experience.\nIt offers real-time network visibility, comprehensive insights, and automation customized for your network.\nMarvis can proactively identify issues, interpret their impact, determine root causes, and recommend fixes.\nIt consists of components such as Marvis Actions, Marvis Minis, Conversational Assistant, Marvis Client, and Marvis Query Language.",
-    },
-    "orgs_mxclusters": {
-        "tools": ["listOrgMxEdgeClusters", "getOrgMxEdgeCluster"],
-        "description": "A Mist Edge Cluster (MxCluster) is a group of Juniper Mist Edge devices that are configured to work together in order to provide high availability and load balancing for the tunneling of traffic from access points (APs). The cluster can consist of a single edge device or multiple edge devices.",
+        "tools": ["troubleshootOrg"],
     },
     "orgs_mxedges": {
+        "description": "MX Edge related objects for the organizations. It provides access to Mist Edges, Mist Clusters, and Mist Tunnels.",
         "tools": [
+            "listOrgMxEdgeClusters",
             "listOrgMxEdges",
             "countOrgMxEdges",
             "countOrgSiteMxEdgeEvents",
             "searchOrgMistEdgeEvents",
             "searchOrgMxEdges",
             "getOrgMxEdgeUpgradeInfo",
-            "getOrgMxEdge",
+            "listOrgMxTunnels",
         ],
-        "description": "A Mist Edge (MxEdge) is a physical or virtual appliance that is deployed in a network to provide centralized data path for user traffic or as a RADIUS Proxy, which was traditionally performed by legacy wireless controllers. It keeps all the control and management functions in the Mist Cloud, offering a microservices architecture to the campus.",
     },
-    "orgs_mxtunnels": {
-        "tools": ["listOrgMxTunnels", "getOrgMxTunnel"],
-        "description": "A Mist Tunnel (MxTunnel) is a configuration object that allows for the tunneling of user VLANs from the Access Points (APs) to a central point on the network.\n\nIt specifies the VLAN IDs that need to be tunneled and assigns the tunnel to a primary or secondary mist edge cluster. The mist tunnel also includes settings for tunnel fail over, auto-preemption, and other parameters related to tunnel termination services.",
-    },
-    "orgs_nac_fingerprints": {
-        "tools": ["countOrgClientFingerprints", "searchOrgClientFingerprints"],
-        "description": "The NAC IDP allows users to integrate with various Identity Providers (IDPs) to enhance authentication and access control. Admins can configure identity providers such as microsoft EntraID, okta workforce identity cloud, and google workspace idp.",
-    },
-    "orgs_nac_tags": {
-        "tools": ["listOrgNacTags", "getOrgNacTag"],
-        "description": 'NAC Tags are the building blocks to compose nacrules.\nThey can either appear in the "matching" / "not_matching" sections of a nacrule, in which case they play the role of classifiers, or they could appear in the "apply_tags" section of the of a nacrule, in which case they influence the result.\nWhen the "type" field of nactag is "match", it can be used as the classifier of a nacrule.\n- "match" field specifies the attribute name and "values" field specifies the list of attribute values to match on.\n- When multiple values are specified, its treated as an OR condition between those values. This behavior can be changed by setting "match_all" field to "true", in which case it is treated as an AND condition between those values.\n- By default, exact match is performed.\n\nThis behavior can be changed as follows:\n- Adding `-` at the beginning will perform suffix match (ex: -staff will match foo-staff and bar-staff)\n- Adding `-` at the end will perform prefix match (ex: foo- will match foo-staff and foo-interns)\n- Adding `!` at both ends will perform substring match (ex: printer will match hp-printer-bldg1, brother-printer-lab)\n- Adding `!` at the beginning will perform negation of the match (ex: !ssid-guest will match any string that is not ssid-guest)\n- Note: when negation should be used along with suffix/substring operation, ! should always precede \\* (ex: !guest will match any string that is not ending with guest)\n\nWhen the "type" field of nactag is NOT "match", it can be used as the result of a nacrule. "type" field identifies the action to take and the corresponding field would provide any associated parameters to that action. When the "type" field of nactag is NOT "match" and is any of the result type also supported by usermac table(`vlan`), "allow_usermac_override" field can be set to true to allow the override by usermac result',
-    },
-    "orgs_stats": {
-        "tools": ["getOrgStats"],
-        "description": "tools to retrieve statistics about the Mist Org and related items",
-    },
-    "orgs_stats___bgp_peers": {
-        "tools": ["countOrgBgpStats", "searchOrgBgpStats"],
-        "description": "tools to retrieve statistics about the BGP Peers (WAN Assurance)",
-    },
-    "orgs_stats___devices": {
-        "tools": ["listOrgDevicesStats"],
-        "description": "tools to retrieve statistics about the Mist Managed and Monitored Devices at the Org level\n\n\nBy default, the tool only returns a subset of the available fields. Additional fields can be requested by adding the query parameter `fields=` and the list of fields, or `fields=*` to retrieve all the available fields.",
-    },
-    "orgs_stats___mxedges": {
-        "tools": ["listOrgMxEdgesStats", "getOrgMxEdgeStats"],
-        "description": "tools to retrieve statistics about the Mist Edges at the Org level",
-    },
-    "orgs_stats___other_devices": {
-        "tools": ["getOrgOtherDeviceStats"],
-        "description": "tools to retrieve statistics about the Other/3rd party devices at the Org level",
-    },
-    "orgs_stats___ports": {
-        "tools": ["countOrgSwOrGwPorts", "searchOrgSwOrGwPorts"],
-        "description": "tools to retrieve statistics about the Wired Ports at the Org level",
-    },
-    "orgs_stats___sites": {
-        "tools": ["listOrgSiteStats"],
-        "description": "tools to retrieve statistics about the Organization Sites",
-    },
-    "orgs_stats___tunnels": {
-        "tools": ["countOrgTunnelsStats", "searchOrgTunnelsStats"],
-        "description": "tools to retrieve statistics about the Mist Tunnels at the Org level",
-    },
-    "orgs_stats___vpn_peers": {
-        "tools": ["countOrgPeerPathStats", "searchOrgPeerPathStats"],
-        "description": "tools to retrieve statistics about the VPN Peers (WAN Assurance)",
-    },
-    "orgs_nac_rules": {
-        "tools": ["listOrgNacRules", "getOrgNacRule"],
-        "description": 'The NAC Rules (or Auth Policies) are a set of rules that devices and users must fulfill in order to gain access to the network and use network resources.\n\nJuniper Mist Access Assurance evaluates authentication requests based on the specified policy conditions. If a user or device satisfies the conditions, Mist Access Assurance applies actions that either allow or deny access to the user or device.\n\nThese actions can also apply attributes such as VLAN and role to the allowed users. Mist Access Assurance uses "NAC Tags" (or Auth Policy Labels) as the policy matching criteria and as a policy action for allowed users. NAC Tags can be managed with the [Orgs NAC Tags tools]($h/Orgs%20NAC%20Tags/_overview)',
-    },
-    "orgs_network_templates": {
-        "tools": ["listOrgNetworkTemplates", "getOrgNetworkTemplate"],
-        "description": "A Network Template is a configuration template that allows for the consistent and standardized configuration of switches across an organization's network infrastructure.\n\nIt includes settings such as radius and ntp servers, shared elements like iot or corporate networks, and port profiles for specific devices.\n\nSwitch templates can be applied at the site level, and they make the initial setup of switches easy and adaptable to specific site or switch settings.",
-    },
-    "orgs_networks": {
-        "tools": ["listOrgNetworks", "getOrgNetwork"],
-        "description": "A Network refers to a group or segment of users that are defined for use across the entire organization.",
-    },
-    "orgs_psks": {
-        "tools": ["listOrgPsks", "getOrgPsk"],
-        "description": "A multi PSK (Pre-Shared Key) is a feature that allows the use of multiple PSKs for securing network connections.\n\nIt provides a simple and comprehensive way to onboard client devices without relying on client mac addresses.\n\nEach psk has its own key name, which can be used for user-level accountability, key rotation, and visibility in the management platform. It supports the creation, rotation, and auto-expiration of PSKs, and allows vlan assignment and role assignment for dynamic per-user policies.\n\nMulti PSKs create virtual broadcast domains and can be used for end-user onboarding via authenticated sso login.\n\nMist supports three methods of Org PSKs lookup: * local * radius * cloud",
-    },
-    "orgs_rf_templates": {
-        "tools": ["listOrgRfTemplates", "getOrgRfTemplate"],
-        "description": "Rf Templates are a feature in Juniper Mist wireless assurance that allow for uniform radio configurations to be applied across all sites in an organization.\n\nThese templates can be customized to include model-specific exceptions and settings for different use cases.\n\nRF Templates enable the management of radio bands, channel width, transmission power, and ap antenna gain.\n\nThey provide a centralized way to configure and apply these settings to all access points within an organization.",
-    },
-    "orgs_security_policies": {
-        "tools": ["listOrgSecPolicies", "getOrgSecPolicy"],
-        "description": 'Security Policy is designed to audit / catch discrepancies between\n"what\'s intended to be running" versus "what\'s actually running" in a network. \n\nMany big organizations have separated Security and IT team (for good reasons). Each site can be assigned a security policy.\n Whenever an AP is provisioned, the configuration will be checked against the security policy.\n Any violations will be flagged in [Device Config History](/#operations/searchSiteDeviceConfigHistory) where you can search for the when and where the violation occurs.',
-    },
-    "orgs_services": {
-        "tools": ["listOrgServices", "getOrgService"],
-        "description": "A Service refers to the applications that network users will connect to. These applications represent traffic destinations and are essential for defining network policies and security configurations.\n\nApplications can be defined manually in the Juniper Mist cloud portal. They can be categorized as: * Custom Applications: Defined using IP prefixes, protocols, and port ranges. * Predefined Applications: Selected from a list of common applications (e.g., Social Media, Microsoft Teams). * URL Categories: Used to define applications based on specific URLs.",
-    },
-    "orgs_service_policies": {
-        "tools": ["listOrgServicePolicies", "getOrgServicePolicy"],
-        "description": "Services Policies are a security policy that defines who can access applications, they are used to control access to applications and ensure proper traffic management within a network.\n\nIt determines the source network or users that are allowed or denied access to specific applications or destinations.\n\nThe policy also includes options such as traffic steering profiles, which define the paths that the traffic should follow.\n\nService policies can be defined at the organization level or within a wan edge template or hub profile.",
-    },
-    "orgs_setting": {
-        "tools": ["getOrgSettings"],
-        "description": "tools to manage the Mist Organization Settings",
+    "orgs_nac": {
+        "description": "NAC related objects for the organizations. It provides access to NAC Endpoints, NAC fingerprints, tags, and rules.",
+        "tools": [
+            "listOrgNacRules",
+            "listOrgNacTags",
+            "searchOrgUserMacs",
+            "getOrgUserMac",
+            "countOrgClientFingerprints",
+            "searchOrgClientFingerprints",
+        ],
     },
     "orgs_sitegroups": {
-        "tools": ["listOrgSiteGroups", "getOrgSiteGroup"],
         "description": "Site groups are a group of sites under the same Org. It's many-to-many mapping to sites",
+        "tools": ["listOrgSiteGroups", "getOrgSiteGroup"],
     },
     "orgs_sites": {
-        "tools": ["listOrgSites", "countOrgSites", "searchOrgSites"],
         "description": "tools to Create or Get the Organization Sites.\n\n\nUse the [Site Settings](https://www.juniper.net/documentation/us/en/software/mist/api/http/api/sites/setting/overview) to configure or update the Site information.",
-    },
-    "orgs_site_templates": {
-        "tools": ["listOrgSiteTemplates", "getOrgSiteTemplate"],
-        "description": "Site templates are pre-configured sets of attributes and settings that can be applied to one or more sites in a Mist Organization.\n\nThese templates allow for quick and consistent configuration of sites by grouping common attributes together.\n\nThey can include settings such as Auto-Upgrade features, wan edge configurations, switch configurations and other network parameters.\n\nBy applying a site template, the same configuration can be easily replicated across multiple sites, simplifying network management and ensuring consistency.",
+        "tools": ["countOrgSites", "searchOrgSites", "listOrgSiteTemplates"],
     },
     "orgs_sles": {
-        "tools": ["getOrgSitesSle", "getOrgSle"],
         "description": "Org SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network.\n\nThey are generated through data science and machine learning algorithms and provide insights into various aspects of the network, such as coverage, capacity, connectivity, and performance.\n\nMist SLEs help identify when users do not have sufficient network quality, when they face issues with connecting or roaming between access points, and when there are problems on the wired network.",
+        "tools": ["getOrgSitesSle", "getOrgSle"],
     },
-    "orgs_wlan_templates": {
-        "tools": ["listOrgTemplates", "getOrgTemplate"],
-        "description": "A WLAN template is a collection of WLAN policies, Tunneling Policies, and WxLAN policies. \nIt is used for creating and managing WLAN configurations at an organizational level. \n\n\nWLAN templates allow for modular and scalable configuration by grouping together the settings for multiple SSIDs. \nThese templates can be applied to specific sites, site groups, or the entire organization, making it easier to manage and automate configuration across multiple locations. \n\n\nWLAN templates are especially useful for organizations with multiple sites or plans for future expansion.",
+    "orgs_stats": {
+        "description": "Statistics for the organizations. It provides access to various statistics related to the organization, such as BGP peers, devices, MX edges, other devices, ports, sites, tunnels, and VPN peers.",
+        "tools": [
+            "getOrgStats",
+            "countOrgBgpStats",
+            "searchOrgBgpStats",
+            "listOrgDevicesStats",
+            "listOrgMxEdgesStats",
+            "getOrgOtherDeviceStats",
+            "countOrgSwOrGwPorts",
+            "searchOrgSwOrGwPorts",
+            "listOrgSiteStats",
+            "countOrgTunnelsStats",
+            "searchOrgTunnelsStats",
+            "countOrgPeerPathStats",
+            "searchOrgPeerPathStats",
+        ],
     },
-    "orgs_user_macs": {
-        "tools": ["searchOrgUserMacs", "getOrgUserMac"],
-        "description": "NAC User MACs (Endpoints) provide a database of endpoints identified by their MAC addresses. They can be used assign each endpoint with various attributes, such as name, VLAN, role and client label. Once an endpoint is labeled, the label name can be used to create [NAC Tags]($h/Orgs%20NAC%20Tags/_overview) as match criteria.\n\n[NAC Tags]($h/Orgs%20NAC%20Tags/_overview) can be used to create Tags regrouping one or multiple endpoint MAC Addresses, but the use of the User MACs provides additional features:\n* possibility to assign specific attributes, like a Name, a Radius Group, a VLAN ID, ...\n* possibility to assign one or multiple Tags (Labels) to a User MAC\n* improved management for large list of MAC Addresses",
-    },
-    "orgs_vpns": {
-        "tools": ["listOrgVpns", "getOrgVpn"],
-        "description": "VPNs endpoints are used to create the WAN Assurance Overlay configuration between a Hub and one\nor multiple WAN Edge Gateways.\n\n\nWhen configuring the Hub and Spokes from the Mist UI, the UI is automatically creating or updating\nthe VPNs objects based on the configuration. \nWhen the configuration is directly done with the APIs, the VPN object must be manually managed.",
+    "orgs_wan": {
+        "description": "WAN Configuration related objects for the organizations. It provides access to WAN related objects such as VPNs.",
+        "tools": [
+            "listOrgAAMWProfiles",
+            "listOrgAntivirusProfiles",
+            "listOrgGatewayTemplates",
+            "listOrgIdpProfiles",
+            "listOrgNetworks",
+            "listOrgSecPolicies",
+            "listOrgServicePolicies",
+            "listOrgServices",
+            "listOrgVpns",
+        ],
     },
     "orgs_webhooks": {
+        "description": "An Org Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url.\n\nIt enables the collection of information about various topics such as device events, alarms, and audits updates at the org level.\n\nThe Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
         "tools": [
             "listOrgWebhooks",
-            "getOrgWebhook",
             "countOrgWebhooksDeliveries",
             "searchOrgWebhooksDeliveries",
         ],
-        "description": "An Org Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url.\n\nIt enables the collection of information about various topics such as device events, alarms, and audits updates at the org level.\n\nThe Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
     },
     "orgs_wlans": {
-        "tools": ["listOrgWlans", "getOrgWLAN"],
         "description": "An Org Wlan is a wireless local area network that is configured at the Org level and applied to a WLAN template.\n\nIt allows for the creation and management of wireless network settings, such as SSIDs (service set identifiers), authentication settings, VLAN configurations, etc...\n\nOrg WLANs are created and managed at the org level and can only be referenced and used within the WLAN Templates.",
-    },
-    "orgs_wxrules": {
-        "tools": ["listOrgWxRules", "getOrgWxRule"],
-        "description": "ORg WxRules are a set of rules, restrictions, and settings that can be applied to WLANs within a specific WLAN Template.\n\nThese policies determine how the devices and traffic are treated by the network and can be used to control access, define VLANs, and apply labels to users and resources.",
-    },
-    "orgs_wxtags": {
         "tools": [
+            "listOrgPsks",
+            "listOrgRfTemplates",
+            "listOrgTemplates",
+            "listOrgWlans",
+            "getOrgWLAN",
+            "listOrgWxRules",
             "listOrgWxTags",
             "getOrgApplicationList",
-            "getOrgWxTag",
             "getOrgCurrentMatchingClientsOfAWxTag",
         ],
-        "description": "Wxtags are tags or groups that can be created and used within the Org.\n\nThey are used to classify users and resources and can be applied to Access Points, WLAN configurations or WxRules within that site.\n\nOrg WxTags are created and managed at the org level and can only be referenced and used within the org level configuration.",
+    },
+    "self_account": {
+        "description": "tools related to the currently connected user account.",
+        "tools": [
+            "getSelf",
+            "getSelfLoginFailures",
+            "listSelfAuditLogs",
+            "getSelfApiUsage",
+        ],
     },
     "sites": {
-        "tools": ["getSiteInfo"],
         "description": "A site represents a project, a deployment. For MSP, it can be as small as a coffee shop or a five-star 600-room hotel. A site contains a set of Maps, Wlans, Policies, Zones.",
+        "tools": ["getSiteInfo", "getSiteSetting", "getSiteSettingDerived"],
     },
-    "sites_clients___nac": {
-        "tools": [
-            "countSiteNacClients",
-            "countSiteNacClientEvents",
-            "searchSiteNacClientEvents",
-            "searchSiteNacClients",
-        ],
-        "description": "NAC Clients are devices connected to the network and authenticated by Juniper Mist Access Assurance.",
-    },
-    "sites_clients___wan": {
-        "tools": [
-            "countSiteWanClientEvents",
-            "countSiteWanClients",
-            "searchSiteWanClientEvents",
-            "searchSiteWanClients",
-        ],
-        "description": "WAN Clients are devices connected to a Juniper SRX or SSX gateway monitor or managed by Mist",
-    },
-    "sites_clients___wired": {
-        "tools": ["countSiteWiredClients", "searchSiteWiredClients"],
-        "description": "Wired Clients are Wired devices connected to a Juniper switch monitored or managed by Mist.",
-    },
-    "sites_clients___wireless": {
+    "sites_clients": {
+        "description": "Clients for the sites. It provides access to various client types such as NAC, WAN, wired, and wireless clients.",
         "tools": [
             "countSiteWirelessClients",
             "countSiteWirelessClientEvents",
@@ -442,10 +307,25 @@ TOOLS = {
             "countSiteWirelessClientSessions",
             "searchSiteWirelessClientSessions",
             "getSiteEventsForClient",
+            "listSiteAllGuestAuthorizations",
+            "countSiteGuestAuthorizations",
+            "listSiteAllGuestAuthorizationsDerived",
+            "searchSiteGuestAuthorization",
+            "getSiteGuestAuthorization",
+            "countSiteNacClients",
+            "countSiteNacClientEvents",
+            "searchSiteNacClientEvents",
+            "searchSiteNacClients",
+            "countSiteWanClientEvents",
+            "countSiteWanClients",
+            "searchSiteWanClientEvents",
+            "searchSiteWanClients",
+            "countSiteWiredClients",
+            "searchSiteWiredClients",
         ],
-        "description": "Wireless Clients are Wi-Fi devices connected to a Juniper Mist Access Point.",
     },
     "sites_devices": {
+        "description": "Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
         "tools": [
             "listSiteDevices",
             "countSiteDeviceConfigHistory",
@@ -457,74 +337,46 @@ TOOLS = {
             "countSiteDeviceLastConfig",
             "searchSiteDeviceLastConfigs",
             "searchSiteDevices",
-            "getSiteDevice",
         ],
-        "description": "Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
-    },
-    "orgs_events": {
-        "tools": ["countOrgSystemEvents", "searchOrgSystemEvents"],
-        "description": "Orgs Events are all the system level changes at the org level",
     },
     "sites_events": {
-        "tools": [
-            "listSiteRoamingEvents",
-            "countSiteSystemEvents",
-            "searchSiteSystemEvents",
-        ],
         "description": "Site events are issues or incidents that affect site-assigned access points (aps) and radius, dhcp, and dns servers.\n\nThey can be investigated and monitored using the insights dashboard in the juniper mist portal. the dashboard provides a summary of site events, including information about the impacted devices and contributing events.\n\nSite events can be categorized as resolved or acknowledged, and additional details can be accessed by clicking on the event.",
-    },
-    "sites_evpn_topologies": {
-        "tools": ["listSiteEvpnTopologies", "getSiteEvpnTopology"],
-        "description": "EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN / MP-BGP - separating control plane (MAC / IP Learning) from forwarding plane.\n\nIn our implementation, following the steps to deploy EVPN topologies in a Site",
-    },
-    "sites_guests": {
-        "tools": [
-            "listSiteAllGuestAuthorizations",
-            "countSiteGuestAuthorizations",
-            "listSiteAllGuestAuthorizationsDerived",
-            "searchSiteGuestAuthorization",
-            "getSiteGuestAuthorization",
-        ],
-        "description": "Guests are users who are accessing the wi-fi network as a temporary or non-permanent visitor.",
+        "tools": ["countSiteSystemEvents", "searchSiteSystemEvents"],
     },
     "sites_insights": {
+        "description": "Insights is a feature that provides an overview of network experience across the entire site, access points, or clients.\n\nIt offers useful information about current conditions, such as telemetry data from wired switches, edge devices, wireless clients, access points, network applications, and bluetooth low energy (ble) tags.\n\nThese insights can be used to correct issues, make changes, and ensure a good network experience for users.",
         "tools": [
             "getSiteInsightMetricsForClient",
             "getSiteInsightMetricsForDevice",
             "getSiteInsightMetrics",
         ],
-        "description": "Insights is a feature that provides an overview of network experience across the entire site, access points, or clients.\n\nIt offers useful information about current conditions, such as telemetry data from wired switches, edge devices, wireless clients, access points, network applications, and bluetooth low energy (ble) tags.\n\nThese insights can be used to correct issues, make changes, and ensure a good network experience for users.",
+    },
+    "sites_lan": {
+        "description": "Switches Configuration related objects for the sites. It provides access to LAN related objects such as EVPN topologies and network templates.",
+        "tools": ["listSiteEvpnTopologies", "listSiteNetworkTemplateDerived"],
     },
     "sites_maps": {
-        "tools": ["listSiteMaps", "getSiteMap"],
         "description": "A Site Map is a visual representation of the layout and structure of a location, such as a building or campus.\n\nIt includes accurate information about the placement, positions, heights, and orientations of Juniper Mist Access Points (APs) and other devices in the deployment.\n\nThe floorplan is an essential component of location services as it enables the location engine to generate accurate location estimates for client devices, assets, and users at the site.",
-    },
-    "sites_maps___auto_zone": {
-        "tools": ["getSiteMapAutoZoneStatus"],
-        "description": "The auto zones service is a map parsing service that uses map image data to suggest spaces to designate as location zones.",
+        "tools": ["listSiteMaps"],
     },
     "sites_mxedges": {
+        "description": "MxEdges (Mist Edges) at the site level are deployed to tunnel traffic at each site due to network constraints or security concerns.\n\nThey can be assigned to a specific site and configured to provide tunneling and radius proxy services for the access points (APs) in that site.\n\nThese Mist Edges allow for the extension of user vlans from the corporate network to the aps, and they support features such as auto preemption for failover, dual tunneling to different mist edge clusters, and anchor tunnels for traffic routing to dmz areas.",
         "tools": [
             "listSiteMxEdges",
             "countSiteMxEdgeEvents",
             "searchSiteMistEdgeEvents",
-            "getSiteMxEdge",
         ],
-        "description": "MxEdges (Mist Edges) at the site level are deployed to tunnel traffic at each site due to network constraints or security concerns.\n\nThey can be assigned to a specific site and configured to provide tunneling and radius proxy services for the access points (APs) in that site.\n\nThese Mist Edges allow for the extension of user vlans from the corporate network to the aps, and they support features such as auto preemption for failover, dual tunneling to different mist edge clusters, and anchor tunnels for traffic routing to dmz areas.",
-    },
-    "sites_psks": {
-        "tools": ["listSitePsks", "getSitePsk"],
-        "description": "A multi PSK (Pre-Shared Key) is a feature that allows the use of multiple PSKs for securing network connections.\n\nIt provides a simple and comprehensive way to onboard client devices without relying on client mac addresses.\n\nEach psk has its own key name, which can be used for user-level accountability, key rotation, and visibility in the management platform. It supports the creation, rotation, and auto-expiration of psks, and allows vlan assignment and role assignment for dynamic per-user policies.\n\nMulti PSKs create virtual broadcast domains and can be used for end-user onboarding via authenticated sso login.\n\nMist supports two methods of Site PSKs lookup: * local * radius",
     },
     "sites_rfdiags": {
+        "description": "Rf Diags is a feature in Juniper Mist location services that allows users to replay recorded sessions of the RF (radio frequency) environment.\n\nIt enables users to gain an understanding of current issues, troubleshoot problems, and review recordings for further analysis or to share with customer support.",
         "tools": [
             "getSiteSiteRfdiagRecording",
             "getSiteRfdiagRecording",
             "downloadSiteRfdiagRecording",
         ],
-        "description": "Rf Diags is a feature in Juniper Mist location services that allows users to replay recorded sessions of the RF (radio frequency) environment.\n\nIt enables users to gain an understanding of current issues, troubleshoot problems, and review recordings for further analysis or to share with customer support.",
     },
     "sites_rogues": {
+        "description": "Rogues are unauthorized wireless access points that are installed on a network without authorization.\n\nThey can be connected to the LAN via an ethernet cable, similar to a pc, and are typically set up by individuals with malicious intent or by employees trying to cover a dead spot with their own wi-fi hotspot.",
         "tools": [
             "listSiteRogueAPs",
             "listSiteRogueClients",
@@ -532,22 +384,18 @@ TOOLS = {
             "searchSiteRogueEvents",
             "getSiteRogueAP",
         ],
-        "description": "Rogues are unauthorized wireless access points that are installed on a network without authorization.\n\nThey can be connected to the LAN via an ethernet cable, similar to a pc, and are typically set up by individuals with malicious intent or by employees trying to cover a dead spot with their own wi-fi hotspot.",
     },
     "sites_rrm": {
+        "description": "RRM, or Radio Resource Management, is a tool used by large multi-site organizations to efficiently manage their RF spectrum.\n\nIt involves making decisions on channel and power settings for access points (APs) based on factors such as user experience, client count, client usage, and interference.\n\nMist RRM uses a reinforcement learning-based feedback model to monitor the impact of changes in channel and power settings on the capacity and performance of the wireless network. It adapts dynamically to changing conditions throughout the day and aims to optimize wireless coverage and capacity across a site.",
         "tools": [
             "getSiteCurrentChannelPlanning",
             "getSiteCurrentRrmConsiderations",
             "listSiteRrmEvents",
             "listSiteCurrentRrmNeighbors",
         ],
-        "description": "RRM, or Radio Resource Management, is a tool used by large multi-site organizations to efficiently manage their RF spectrum.\n\nIt involves making decisions on channel and power settings for access points (APs) based on factors such as user experience, client count, client usage, and interference.\n\nMist RRM uses a reinforcement learning-based feedback model to monitor the impact of changes in channel and power settings on the capacity and performance of the wireless network. It adapts dynamically to changing conditions throughout the day and aims to optimize wireless coverage and capacity across a site.",
-    },
-    "sites_setting": {
-        "tools": ["getSiteSetting", "getSiteSettingDerived"],
-        "description": "Site settings refer to the configuration and management of of site within a Mist Organization.\n\nThese settings include access point settings, firmware upgrade schedules, and various features such as location services, occupancy analytics, and engagement analytics.",
     },
     "sites_sles": {
+        "description": "Site SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network.\n\nThey are generated through data science and machine learning algorithms and provide insights into various aspects of the network, such as coverage, capacity, connectivity, and performance.\n\nMist SLEs help identify when users do not have sufficient network quality, when they face issues with connecting or roaming between access points, and when there are problems on the wired network.",
         "tools": [
             "getSiteSleClassifierDetails",
             "listSiteSleMetricClassifiers",
@@ -565,178 +413,82 @@ TOOLS = {
             "getSiteSleThreshold",
             "listSiteSlesMetrics",
         ],
-        "description": "Site SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network.\n\nThey are generated through data science and machine learning algorithms and provide insights into various aspects of the network, such as coverage, capacity, connectivity, and performance.\n\nMist SLEs help identify when users do not have sufficient network quality, when they face issues with connecting or roaming between access points, and when there are problems on the wired network.",
-    },
-    "sites_synthetic_tests": {
-        "tools": ["getSiteDeviceSyntheticTest", "searchSiteSyntheticTest"],
-        "description": "Synthetic Tests (Marvis Minis) are a feature of Juniper Networks' Mist platform, designed to proactively identify and resolve network issues before they impact users by simulating user connections and validating network configurations.\n\n\nHere are the key points about Marvis Minis:\n\n* Proactive Testing: Marvis Minis perform user connection tests to validate connectivity and application reachability issues on your network. These tests run automatically every hour and can also be initiated manually by an admin user.\n* Scope and Stress Management: By default, Marvis Minis run on a few APs based on the scope it automatically learns, and it can expand the scope to other APs and switches if necessary, without causing additional stress on network services.\n* Integration with Mist AI: Data from Marvis Minis is continuously fed back into the Mist AI engine, providing additional insights for AIOps responses. This data is also integrated into Marvis Actions for proactive resolution and validation.\n* Subscription and Accessibility: Marvis Minis are available at no extra charge with a Marvis VNA subscription and do not require additional hardware or software.",
-    },
-    "sites_vpns": {
-        "tools": ["listSiteVpnsDerived"],
-        "description": "tools to retrieve the list of Org VPNs configuration available for the Site",
-    },
-    "sites_wan_usages": {
-        "tools": ["countSiteWanUsage", "searchSiteWanUsage"],
-        "description": "tools to retrieve WAN Assurance statistics about the WAN Usage",
-    },
-    "sites_webhooks": {
-        "tools": [
-            "listSiteWebhooks",
-            "getSiteWebhook",
-            "countSiteWebhooksDeliveries",
-            "searchSiteWebhooksDeliveries",
-        ],
-        "description": "A Site Webhook is a configuration that allows real-time events and data from a specific site to be pushed to a provided url.\n\nIt enables the collection of information about various topics such as device events, alarms, audits, client sessions and location updates at the site level.\n\nThe Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
-    },
-    "sites_wlans": {
-        "tools": ["listSiteWlans", "listSiteWlanDerived", "getSiteWlan"],
-        "description": "A Site Wlan is a wireless local area network that is configured and applied to a specific site within an organization.\n\nIt allows for the creation and management of wireless network settings, such as SSIDs (service set identifiers), authentication settings, VLAN configurations, etc... for a particular site.\n\nSite Wlans are created and managed at the site level and can only be referenced and used within that particular site.",
-    },
-    "sites_wxrules": {
-        "tools": ["listSiteWxRules", "ListSiteWxRulesDerived", "getSiteWxRule"],
-        "description": "Site WxRules are a set of rules, restrictions, and settings that can be applied to WLANs within a specific site.\n\nThese policies determine how the devices and traffic are treated by the network and can be used to control access, define VLANs, and apply labels to users and resources.\n\nSite WxRules are created and managed at the site level and are applied after the site-level WxRules.",
-    },
-    "sites_wxtags": {
-        "tools": ["listSiteWxTags", "getSiteApplicationList", "getSiteWxTag"],
-        "description": "Wxtags are tags or groups that can be created and used within a specific site.\n\nThey are used to classify users and resources and can be applied to Access Points, WLAN configurations or WxRules within that site.\n\nSite WxTags are created and managed at the site level and can only be referenced and used within that particular site.",
     },
     "sites_stats": {
-        "tools": ["getSiteStats"],
-        "description": "The stats are providing access to raw data about a specific type of entities.",
-    },
-    "sites_stats___apps": {
-        "tools": ["countSiteApps"],
-        "description": "tools to retrieve the stats of the Applications used on side",
-    },
-    "sites_stats___calls": {
+        "description": "Statistics for the sites. It provides access to various statistics related to the site, such as application statistics, call statistics, client statistics, and more.",
         "tools": [
+            "getSiteStats",
+            "countSiteApps",
             "troubleshootSiteCall",
             "countSiteCalls",
             "searchSiteCalls",
             "getSiteCallsSummary",
             "listSiteTroubleshootCalls",
-        ],
-        "description": "tools to retrieve the stats of the calls (Zoom/Teams) detected by Mist",
-    },
-    "sites_stats___clients_wireless": {
-        "tools": [
             "listSiteWirelessClientsStats",
-            "getSiteWirelessClientStats",
-            "getSiteWirelessClientsStatsByMap",
-            "listSiteUnconnectedClientStats",
-        ],
-        "description": "tools to retrieve the stats of the wireless clients detected (connected or not connected) on this site.",
-    },
-    "sites_stats___mxedges": {
-        "tools": ["listSiteMxEdgesStats", "getSiteMxEdgeStats"],
-        "description": "tools to retrieve statistics about the Mist Edges at the Site level",
-    },
-    "sites_stats___wxrules": {
-        "tools": ["getSiteWxRulesUsage"],
-        "description": "tools to retrieve WxRules statistics for the current Site",
-    },
-    "sites_stats___discovered_switches": {
-        "tools": [
             "searchSiteDiscoveredSwitchesMetrics",
             "countSiteDiscoveredSwitches",
             "listSiteDiscoveredSwitchesMetrics",
             "searchSiteDiscoveredSwitches",
+            "getSiteWirelessClientsStatsByMap",
+            "listSiteUnconnectedClientStats",
+            "listSiteMxEdgesStats",
+            "getSiteWxRulesUsage",
         ],
-        "description": "tools to retrieve statistics about the Discovered Switches at the Site level",
     },
-    "constants_definitions": {
-        "tools": [
-            "listApChannels",
-            "listApLEslVersions",
-            "listApLedDefinition",
-            "listAppCategoryDefinitions",
-            "listAppSubCategoryDefinitions",
-            "listApplications",
-            "listCountryCodes",
-            "listFingerprintTypes",
-            "listGatewayApplications",
-            "listInsightMetrics",
-            "listSiteLanguages",
-            "listLicenseTypes",
-            "listMarvisClientVersions",
-            "listStates",
-            "listTrafficTypes",
-            "listWebhookTopics",
-        ],
-        "description": "tools to retrieve constant values that can be used in different parts of the configuration",
+    "sites_synthetic_tests": {
+        "description": "Synthetic Tests (Marvis Minis) are a feature of Juniper Networks' Mist platform, designed to proactively identify and resolve network issues before they impact users by simulating user connections and validating network configurations.\n\n\nHere are the key points about Marvis Minis:\n\n* Proactive Testing: Marvis Minis perform user connection tests to validate connectivity and application reachability issues on your network. These tests run automatically every hour and can also be initiated manually by an admin user.\n* Scope and Stress Management: By default, Marvis Minis run on a few APs based on the scope it automatically learns, and it can expand the scope to other APs and switches if necessary, without causing additional stress on network services.\n* Integration with Mist AI: Data from Marvis Minis is continuously fed back into the Mist AI engine, providing additional insights for AIOps responses. This data is also integrated into Marvis Actions for proactive resolution and validation.\n* Subscription and Accessibility: Marvis Minis are available at no extra charge with a Marvis VNA subscription and do not require additional hardware or software.",
+        "tools": ["getSiteDeviceSyntheticTest", "searchSiteSyntheticTest"],
     },
-    "constants_events": {
-        "tools": [
-            "listAlarmDefinitions",
-            "listClientEventsDefinitions",
-            "listDeviceEventsDefinitions",
-            "listMxEdgeEventsDefinitions",
-            "listNacEventsDefinitions",
-            "listOtherDeviceEventsDefinitions",
-            "listSystemEventsDefinitions",
-        ],
-        "description": "tools to retrieve the definitions of the Mist events. These definitions are providing example of the Webhook payloads",
-    },
-    "constants_models": {
-        "tools": [
-            "getGatewayDefaultConfig",
-            "listDeviceModels",
-            "listMxEdgeModels",
-            "listSupportedOtherDeviceModels",
-        ],
-        "description": "tools to retrieve the list of Hardware Models and their features",
-    },
-    "self_account": {
-        "tools": [
-            "getSelf",
-            "getSelfLoginFailures",
-            "verifySelfEmail",
-            "getSelfApiUsage",
-        ],
-        "description": "tools related to the currently connected user account.",
-    },
-    "self_alarms": {
-        "tools": ["listAlarmSubscriptions"],
-        "description": "tools related to the alarm subscriptions for the currently connected user account.",
-    },
-    "self_audit_logs": {
-        "tools": ["listSelfAuditLogs"],
-        "description": "tools related to the audit logs subscriptions for the currently connected user account.",
-    },
-    "utilities_upgrade": {
-        "tools": [
-            "listOrgDeviceUpgrades",
-            "getOrgDeviceUpgrade",
-            "listOrgAvailableDeviceVersions",
-            "listOrgMxEdgeUpgrades",
-            "getOrgMxEdgeUpgrade",
-            "listOrgSsrUpgrades",
-            "listOrgAvailableSsrVersions",
-            "listSiteDeviceUpgrades",
-            "getSiteDeviceUpgrade",
-            "listSiteAvailableDeviceVersions",
-            "getSiteSsrUpgrade",
-        ],
-        "description": "tools used to manage device upgrades for a single device, at the site level or at the organization level.",
-    },
-    "sites_derived_config": {
+    "sites_wan": {
+        "description": "WAN Configuration related objects for the sites. It provides access to WAN related objects such as applications, gateway templates, security intelligence profiles, service policies, services, networks, and VPNs.",
         "tools": [
             "listSiteApps",
-            "listSiteApTemplateDerived",
-            "listSiteDeviceProfilesDerived",
             "listSiteGatewayTemplateDerived",
             "listSiteNetworksDerived",
-            "listSiteNetworkTemplateDerived",
-            "listSiteRfTemplateDerived",
             "listSiteSecIntelProfilesDerived",
             "listSiteServicePoliciesDerived",
             "listSiteServicesDerived",
             "countSiteServicePathEvents",
             "searchSiteServicePathEvents",
-            "listSiteSiteTemplateDerived",
-            "countSiteSkyatpEvents",
-            "searchSiteSkyatpEvents",
+            "listSiteVpnsDerived",
         ],
-        "description": "Derived configuration for the sites. It provides access to configuration objects derived from the Org level templates and configuration objects and the Site level configuration",
+    },
+    "sites_wan_usages": {
+        "description": "tools to retrieve WAN Assurance statistics about the WAN Usage",
+        "tools": ["countSiteWanUsage", "searchSiteWanUsage"],
+    },
+    "sites_webhooks": {
+        "description": "A Site Webhook is a configuration that allows real-time events and data from a specific site to be pushed to a provided url.\n\nIt enables the collection of information about various topics such as device events, alarms, audits, client sessions and location updates at the site level.\n\nThe Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
+        "tools": [
+            "listSiteWebhooks",
+            "countSiteWebhooksDeliveries",
+            "searchSiteWebhooksDeliveries",
+        ],
+    },
+    "sites_wlans": {
+        "description": "A Site Wlan is a wireless local area network that is configured and applied to a specific site within an organization.\n\nIt allows for the creation and management of wireless network settings, such as SSIDs (service set identifiers), authentication settings, VLAN configurations, etc... for a particular site.\n\nSite Wlans are created and managed at the site level and can only be referenced and used within that particular site.",
+        "tools": [
+            "listSitePsks",
+            "listSiteRfTemplateDerived",
+            "listSiteWlans",
+            "listSiteWlanDerived",
+            "listSiteWxRules",
+            "ListSiteWxRulesDerived",
+            "listSiteWxTags",
+            "getSiteApplicationList",
+        ],
+    },
+    "utilities_upgrade": {
+        "description": "tools used to manage device upgrades for a single device, at the site level or at the organization level.",
+        "tools": [
+            "listOrgDeviceUpgrades",
+            "listOrgAvailableDeviceVersions",
+            "listOrgMxEdgeUpgrades",
+            "listOrgSsrUpgrades",
+            "listOrgAvailableSsrVersions",
+            "listSiteDeviceUpgrades",
+            "listSiteAvailableDeviceVersions",
+            "getSiteSsrUpgrade",
+        ],
     },
 }

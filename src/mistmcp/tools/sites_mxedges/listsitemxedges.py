@@ -19,7 +19,7 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 
@@ -42,6 +42,12 @@ async def listSiteMxEdges(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
+    mxedge_id: Annotated[
+        Optional[UUID],
+        Field(
+            description="""ID of the MX Edge to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Site Mist Edges"""
 
@@ -59,8 +65,6 @@ async def listSiteMxEdges(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -70,12 +74,17 @@ async def listSiteMxEdges(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.mxedges.listSiteMxEdges(
-        apisession,
-        site_id=str(site_id),
-        limit=limit,
-        page=page,
-    )
+    if mxedge_id:
+        response = mistapi.api.v1.sites.mxedges.getSiteMxEdge(
+            apisession, site_id=str(site_id), mxedge_id=str(mxedge_id)
+        )
+    else:
+        response = mistapi.api.v1.sites.mxedges.listSiteMxEdges(
+            apisession,
+            site_id=str(site_id),
+            limit=limit,
+            page=page,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

@@ -145,8 +145,7 @@ def create_session_aware_mcp_server(config: ServerConfig) -> SessionAwareFastMCP
 
     # Base server instructions
     base_instructions = """
-Mist MCP Server is a multi-client server that provides access to the Juniper Mist MCP API.
-It allows multiple clients to manage their network (Wi-Fi, LAN, WAN, NAC) using the Mist MCP API.
+Mist MCP Server provides access to the Juniper Mist MCP API to manage their network (Wi-Fi, LAN, WAN, NAC).
 
 Each client maintains their own session with independent tool configurations.
 Use 'manageMcpTools' to enable/disable tools for your specific session.
@@ -167,7 +166,7 @@ Your tool access is session-specific - other clients cannot see or modify your t
     # Create the session-aware server
     mcp = SessionAwareFastMCP(
         config=config,
-        name="Mist MCP Server (Multi-Client)",
+        name="Mist MCP Server",
         instructions=base_instructions
         + mode_instructions
         + config.get_description_suffix(),

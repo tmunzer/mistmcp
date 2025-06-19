@@ -19,7 +19,7 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
 
@@ -54,6 +54,12 @@ class Status(Enum):
 async def listSiteDeviceUpgrades(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     status: Status = Status.NONE,
+    upgrade_id: Annotated[
+        Optional[UUID],
+        Field(
+            description="""ID of the Device Upgrade to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Get all upgrades for site"""
 
@@ -71,8 +77,6 @@ async def listSiteDeviceUpgrades(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -82,11 +86,16 @@ async def listSiteDeviceUpgrades(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.devices.listSiteDeviceUpgrades(
-        apisession,
-        site_id=str(site_id),
-        status=status.value,
-    )
+    if upgrade_id:
+        response = mistapi.api.v1.sites.devices.getSiteDeviceUpgrade(
+            apisession, site_id=str(site_id), upgrade_id=str(upgrade_id)
+        )
+    else:
+        response = mistapi.api.v1.sites.devices.listSiteDeviceUpgrades(
+            apisession,
+            site_id=str(site_id),
+            status=status.value,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

@@ -19,7 +19,7 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 
@@ -40,6 +40,12 @@ mcp = mcp_instance.get()
 )
 async def listOrgMxEdgeUpgrades(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    upgrade_id: Annotated[
+        Optional[UUID],
+        Field(
+            description="""ID of the MX Edge Upgrade to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Org Mist Edge Upgrades"""
 
@@ -57,8 +63,6 @@ async def listOrgMxEdgeUpgrades(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -68,10 +72,15 @@ async def listOrgMxEdgeUpgrades(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(
-        apisession,
-        org_id=str(org_id),
-    )
+    if upgrade_id:
+        response = mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(
+            apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
+        )
+    else:
+        response = mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(
+            apisession,
+            org_id=str(org_id),
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

@@ -52,6 +52,12 @@ async def listSiteDevices(
     name: Optional[str] = None,
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
+    device_id: Annotated[
+        Optional[UUID],
+        Field(
+            description="""ID of the Device to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Get list of devices on the site."""
 
@@ -69,8 +75,6 @@ async def listSiteDevices(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -80,14 +84,19 @@ async def listSiteDevices(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.devices.listSiteDevices(
-        apisession,
-        site_id=str(site_id),
-        type=type.value,
-        name=name,
-        limit=limit,
-        page=page,
-    )
+    if device_id:
+        response = mistapi.api.v1.sites.devices.getSiteDevice(
+            apisession, site_id=str(site_id), device_id=str(device_id)
+        )
+    else:
+        response = mistapi.api.v1.sites.devices.listSiteDevices(
+            apisession,
+            site_id=str(site_id),
+            type=type.value,
+            name=name,
+            limit=limit,
+            page=page,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
