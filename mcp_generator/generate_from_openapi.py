@@ -32,133 +32,50 @@ from typing import Dict, List
 
 import yaml
 
+FILE_PATH = os.path.realpath(__file__)
+DIR_PATH = os.path.dirname(FILE_PATH)
+
 # Configuration Constants
 OPENAPI_PATH = (
-    "./mist_openapi/mist.openapi.yaml"  # Path to the OpenAPI specification file
+    os.path.join(
+        DIR_PATH, "../mist_openapi/mist.openapi.yaml"
+    )  # Path to the OpenAPI specification file
 )
 OUTPUT_DIR = Path(
-    "./src/mistmcp/tools"
+    os.path.join(DIR_PATH, "../src/mistmcp/tools")
 )  # Directory where generated tool files will be placed
 TOOLS_MODULE = "mistmcp.tools"  # Base module name for imports
-INIT_FILE = Path("./src/mistmcp//tools/__init__.py")  # Path to package __init__ file
-# TOOLS_FILE = Path("./src/mistmcp/tools.json")  # File storing tool configuration
-TOOLS_HELPER_FILE = Path("./src/mistmcp/tool_helper.py")  # Helper file for tools
+INIT_FILE = Path(
+    os.path.join(
+        DIR_PATH, "../src/mistmcp/tools/__init__.py"
+    )  # Path to package __init__ file
+)
+# TOOLS_FILE = Path("../src/mistmcp/tools.json")  # File storing tool configuration
+TOOLS_HELPER_FILE = Path(
+    os.path.join(DIR_PATH, "../src/mistmcp/tool_helper.py")  # Helper file for tools
+)
 # List of API tags that should be excluded from tool generation
 # These tags represent endpoints that are either deprecated, internal,
 # or not relevant for general API usage
-EXCLUDED_TAGS = [
-    "Admins Login",
-    "Admins Logout",
-    "Admins Lookup",
-    "Admins Recover Password",
-    "Admins Login - OAuth2",
-    "Installer",
-    "MSPs",
-    "MSPs Admins",
-    "MSPs Inventory",
-    "MSPs Logo",
-    "MSPs Logs",
-    "MSPs Licenses",
-    "MSPs Marvis",
-    "MSPs Org Groups",
-    "MSPs Orgs",
-    "MSPs SLEs",
-    "MSPs SSO Roles",
-    "MSPs SSO",
-    "MSPs Tickets",
-    "Orgs Admins",
-    "Orgs API Tokens",
-    "Orgs Assets",
-    "Orgs Asset Filters",
-    "Orgs Clients - Marvis",
-    "Orgs Clients - SDK",
-    "Orgs Cert",
-    "Orgs Devices - SSR",
-    "Orgs Maps",
-    "Orgs Marvis Invites",
-    "Orgs Integration Cradlepoint",
-    "Orgs CRL",
-    "Orgs Integration Juniper",
-    "Orgs Integration Zscaler",
-    "Orgs SCEP",
-    "Orgs Integration JSE",
-    "Orgs JSI",
-    "Orgs Linked Applications",
-    "Orgs NAC IDP",
-    "Orgs NAC Portals",
-    "Orgs NAC CRL",
-    "Orgs Premium Analytics",
-    "Orgs Psk Portals",
-    "Orgs SecIntel Profiles",
-    "Orgs SDK Invites",
-    "Orgs SDK Templates",
-    "Orgs SSO Roles",
-    "Orgs SSO",
-    "Orgs Tickets",
-    "Orgs Vars",
-    "Sites Anomaly",
-    "Sites Asset Filters",
-    "Sites Assets",
-    "Sites Devices - Wired",
-    "Sites Beacons",
-    "Sites JSE",
-    "Sites Licenses",
-    "Sites Location",
-    "Sites RSSI Zones",
-    "Sites UI Settings",
-    "Sites vBeacons",
-    "Sites Zones",
-    "Sites Stats - Assets",
-    "Sites Stats - Beacons",
-    "Sites Stats - Clients SDK",
-    "Sites Stats - Zones",
-    "Self API Token",
-    "Self OAuth2",
-    "Self MFA",
-    "Samples Webhooks",
-    "Utilities Common",
-    "Utilities WAN",
-    "Utilities LAN",
-    "Utilities Wi-Fi",
-    "Utilities PCAPs",
-    "Utilities Location",
-    "Utilities MxEdge",
-    # In addition, exclude some site level tags that are redundant with the Org API calls
-    # or not useful for MCP
-    "Orgs Stats - Assets",
-    "Orgs WxTunnels",
-    "Sites Stats - BGP Peers",
-    "Sites Stats - Devices",
-    "Sites Stats - Ports",
-    "Sites Devices - Wireless",
-    "Sites Devices - WAN Cluster",
-    "Sites Alarms",
-    "Sites Devices - Others",
-    "Sites Devices - Wired - Virtual Chassis",
-    "Sites Maps - Auto-placement",
-    "Sites Maps - Auto-zone",
-    "Sites Vpns",
-    "Sites WxTunnels",
-]
 
-CUSTOM_TAGS_DEFS = {
-    "sites_derived_config": "Derived configuration for the sites. It provides access to configuration objects derived from the Org level templates and configuration objects and the Site level configuration",
-}
+with open(os.path.join(DIR_PATH, "excluded_tags.yaml"), "r", encoding="utf-8") as f:
+    EXCLUDED_TAGS = yaml.safe_load(f)
 
-CUSTOM_TAGS = {
-    "sites applications": "sites_derived_config",
-    "sites ap templates": "sites_derived_config",
-    "sites device profiles": "sites_derived_config",
-    "sites gateway templates": "sites_derived_config",
-    "sites networks": "sites_derived_config",
-    "sites network templates": "sites_derived_config",
-    "sites rf templates": "sites_derived_config",
-    "sites skyatp": "sites_derived_config",
-    "sites secintel profiles": "sites_derived_config",
-    "sites service policies": "sites_derived_config",
-    "sites services": "sites_derived_config",
-    "sites site templates": "sites_derived_config",
-}
+with open(
+    os.path.join(DIR_PATH, "excluded_operation_ids.yaml"), "r", encoding="utf-8"
+) as f:
+    EXCLUDED_OPERATION_IDS = yaml.safe_load(f)
+
+with open(os.path.join(DIR_PATH, "custom_tags_def.yaml"), "r", encoding="utf-8") as f:
+    CUSTOM_TAGS_DEFS = yaml.safe_load(f)
+
+with open(os.path.join(DIR_PATH, "custom_tags.yaml"), "r", encoding="utf-8") as f:
+    CUSTOM_TAGS = yaml.safe_load(f)
+
+with open(
+    os.path.join(DIR_PATH, "tools_optimization.yaml"), "r", encoding="utf-8"
+) as f:
+    OPTIMIZED_TOOLS = yaml.safe_load(f)
 
 # Type translation mapping from OpenAPI types to Python types
 # This dictionary maps OpenAPI type definitions to their Python equivalents
@@ -185,6 +102,17 @@ INIT_TEMPLATE = """\"\"\"
 \"\"\"
 
 {tools_import}
+"""
+
+REQ_TEMPLATE = """
+    response = {request}
+"""
+
+REQ_OPTIMIZED_TEMPLATE = """
+    if {parameter}:
+        response = {custom_request}
+    else:
+        response = {request}
 """
 
 # Template for individual tool files
@@ -245,8 +173,6 @@ async def {operationId}(
             raise ClientError(
                 "Missing required parameters: 'cloud' and 'X-Authorization' header"
             )
-        if not apitoken.startswith("Bearer "):
-            raise ClientError("X-Authorization header must start with 'Bearer ' prefix")
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
@@ -256,7 +182,7 @@ async def {operationId}(
         apitoken=apitoken,
     )
 
-    response = {mistapi_request}
+    {request}
 
     if response.status_code != 200:
         api_error = {{
@@ -323,13 +249,13 @@ def class_name_from_operation_id(operation_id: str) -> str:
 # Parameter Processing Functions
 
 
-def _extract_param(data: dict):
+def _extract_param(openapi_schemas: dict, data: dict):
     """Extract and normalize parameter information from OpenAPI spec."""
     tmp = {}
     if data:
         if data["schema"].get("$ref"):
             ref_name = data["schema"]["$ref"].split("/")[-1:][0]
-            ref = openapi_schemas.get(ref_name)
+            ref = openapi_schemas.get(ref_name, {})
             tmp = {
                 "name": data["name"].replace(" ", "_").replace("-", "_"),
                 "required": data.get("required", False),
@@ -372,6 +298,8 @@ def _add_import(imports: dict, package: str, module: str = "") -> None:
 
 
 def _process_params(
+    openapi_schemas: dict,
+    openapi_parameters: dict,
     endpoint_params: list,
     imports: dict,
     models: str,
@@ -379,15 +307,18 @@ def _process_params(
     parameters: str,
     mistapi_parameters: str,
     force_default: bool = False,
+    optimization_parameter_name: str | None = None,
 ):
     """Process endpoint parameters and generate corresponding Python code."""
     for parameter in endpoint_params:
+        if parameter.get("name") == "optimization_parameter_name":
+            continue
         if parameter.get("$ref"):
             ref_name = parameter["$ref"].split("/")[-1:][0]
-            data = openapi_parameters.get(ref_name)
-            tmp_param = _extract_param(data)
+            data = openapi_parameters.get(ref_name, {})
+            tmp_param = _extract_param(openapi_schemas, data)
         else:
-            tmp_param = _extract_param(parameter)
+            tmp_param = _extract_param(openapi_schemas, parameter)
 
         tmp_type = TRANSLATION.get(tmp_param["type"])
         tmp_optional = ""
@@ -494,11 +425,19 @@ def _process_params(
         parameters += (
             f"    {tmp_param['name']}: {tmp_type}{tmp_optional}{tmp_default},\n"
         )
-        mistapi_parameters += tmp_mistapi_parameters
+
+        if parameter.get("name") != optimization_parameter_name:
+            mistapi_parameters += tmp_mistapi_parameters
     return imports, models, enums, parameters, mistapi_parameters
 
 
-def gen_endpoint_parameters(path_parameters: list, endpoint: dict):
+def gen_endpoint_parameters(
+    openapi_parameters: dict,
+    openapi_schemas: dict,
+    path_parameters: list,
+    endpoint: dict,
+    optimization_parameter_name: str | None = None,
+):
     """Generate complete parameter definitions for an endpoint."""
     imports = ""
     models = ""
@@ -507,6 +446,8 @@ def gen_endpoint_parameters(path_parameters: list, endpoint: dict):
     mistapi_parameters = ""
     tmp_imports: dict = {}
     tmp_imports, models, enums, parameters, mistapi_parameters = _process_params(
+        openapi_schemas,
+        openapi_parameters,
         path_parameters,
         tmp_imports,
         models,
@@ -514,8 +455,11 @@ def gen_endpoint_parameters(path_parameters: list, endpoint: dict):
         parameters,
         mistapi_parameters,
         False,
+        optimization_parameter_name,
     )
     tmp_imports, models, enums, parameters, mistapi_parameters = _process_params(
+        openapi_schemas,
+        openapi_parameters,
         endpoint.get("parameters", []),
         tmp_imports,
         models,
@@ -523,6 +467,7 @@ def gen_endpoint_parameters(path_parameters: list, endpoint: dict):
         parameters,
         mistapi_parameters,
         True,
+        optimization_parameter_name,
     )
     for package, modules in tmp_imports.items():
         if modules:
@@ -562,7 +507,7 @@ def _gen_folder_and_file_paths(endpoint: str):
     return folder_path_parts, file_name
 
 
-def _get_tag_defs() -> dict:
+def _get_tag_defs(openapi_tags) -> dict:
     defs = {}
     for tag in openapi_tags:
         if tag.get("name") in EXCLUDED_TAGS or CUSTOM_TAGS.get(tag.get("name").lower()):
@@ -595,7 +540,7 @@ def _gen_tools_init(tools_import: dict):
     return "\n".join(tmp)
 
 
-def main() -> None:
+def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> None:
     """Main function to process the OpenAPI spec and generate tool files.
 
     This function:
@@ -605,7 +550,7 @@ def main() -> None:
     4. Generates necessary files with proper imports and configurations
     """
     tag_to_tools: Dict[str, List[str]] = {}
-    root_tag_defs = _get_tag_defs()
+    root_tag_defs = _get_tag_defs(openapi_tags)
     root_tools_import: dict = {}
     root_enums: list = []
     root_functions: dict = {}
@@ -613,18 +558,28 @@ def main() -> None:
     for path, methods in openapi_paths.items():
         for method, details in methods.items():
             if method.lower() == "get":
-                readOnlyHint = True
-                destructiveHint = False
+                read_only_hint = True
+                destructive_hint = False
             elif method.lower() == "delete":
-                destructiveHint = True
-                readOnlyHint = False
+                destructive_hint = True
+                read_only_hint = False
                 continue
             elif method.lower() in ["post", "put"]:
-                destructiveHint = True
-                readOnlyHint = False
+                destructive_hint = True
+                read_only_hint = False
                 continue
             else:
                 continue
+
+            imports = ""
+            models = ""
+            enums = ""
+            parameters = ""
+            mistapi_parameters = ""
+            tag = ""
+            optimization_parameter_name = ""
+            optimization_request = ""
+            request = ""
 
             tags = details.get("tags", ["Untagged"])
             if len(tags) > 0 and tags[0] in EXCLUDED_TAGS:
@@ -633,26 +588,69 @@ def main() -> None:
             operation_id = details.get("operationId") or snake_case(
                 path.strip("/").replace("/", "_")
             )
+            if operation_id in EXCLUDED_OPERATION_IDS:
+                continue
+            elif OPTIMIZED_TOOLS.get(operation_id):
+                if OPTIMIZED_TOOLS[operation_id].get("skip", False):
+                    continue
+                if OPTIMIZED_TOOLS[operation_id].get("add_parameter"):
+                    parameter = {
+                        "name": OPTIMIZED_TOOLS[operation_id]["add_parameter"]["name"],
+                        "description": OPTIMIZED_TOOLS[operation_id][
+                            "add_parameter"
+                        ].get("description", ""),
+                        "in": "query",
+                        "schema": {
+                            "type": OPTIMIZED_TOOLS[operation_id]["add_parameter"][
+                                "type"
+                            ],
+                        },
+                    }
+                    if OPTIMIZED_TOOLS[operation_id]["add_parameter"].get("format"):
+                        parameter["schema"]["format"] = OPTIMIZED_TOOLS[operation_id][
+                            "add_parameter"
+                        ]["format"]
+
+                    if not details.get("parameters"):
+                        details["parameters"] = []
+                    details["parameters"].append(parameter)
+
+                    optimization_parameter_name = OPTIMIZED_TOOLS[operation_id][
+                        "add_parameter"
+                    ]["name"]
+                    optimization_request = OPTIMIZED_TOOLS[operation_id].get(
+                        "custom_request"
+                    )
+
             description = details.get("description", "")
 
             tag = tags[0]
             if CUSTOM_TAGS.get(tag.lower()):
                 tag = CUSTOM_TAGS[tag.lower()]
 
-            imports = ""
-            models = ""
-            enums = ""
-            parameters = ""
-            mistapi_parameters = ""
-
             imports, models, enums, parameters, mistapi_parameters = (
-                gen_endpoint_parameters(methods.get("parameters", []), details)
+                gen_endpoint_parameters(
+                    openapi_parameters,
+                    openapi_schemas,
+                    methods.get("parameters", []),
+                    details,
+                    optimization_parameter_name,
+                )
             )
 
             folder_path_parts, file_name = _gen_folder_and_file_paths(path)
             mistapi_request = f"""mistapi.{".".join(folder_path_parts)}.{file_name}.{operation_id}(
             apisession,
 {mistapi_parameters}    )"""
+
+            if optimization_parameter_name:
+                request = REQ_OPTIMIZED_TEMPLATE.format(
+                    parameter=optimization_parameter_name,
+                    custom_request=optimization_request,
+                    request=mistapi_request,
+                )
+            else:
+                request = REQ_TEMPLATE.format(request=mistapi_request)
 
             tool_code = TOOL_TEMPLATE.format(
                 class_name=operation_id.capitalize(),
@@ -662,10 +660,10 @@ def main() -> None:
                 operationId=operation_id,
                 description=description.replace("\n", ""),
                 tag=tag,
-                readOnlyHint=readOnlyHint,
-                destructiveHint=destructiveHint,
+                readOnlyHint=read_only_hint,
+                destructiveHint=destructive_hint,
                 parameters=parameters,
-                mistapi_request=mistapi_request,
+                request=request,
             )
 
             tag_dir = OUTPUT_DIR / snake_case(tag)
@@ -700,37 +698,42 @@ def main() -> None:
             ## root_tag_defs
             root_tag_defs[snake_case(snake_case(tag))]["tools"].append(operation_id)
 
+    final_tag_tools = {}
+    for tag_name, tag_data in root_tag_defs.items():
+        if tag_data.get("tools"):
+            final_tag_tools[tag_name] = tag_data
+
     print("Generated tools grouped by tag:")
     for tag, files in tag_to_tools.items():
         print(f"{tag}:")
-        for f in files:
-            print(f"  - {f}")
+        for file in files:
+            print(f"  - {file}")
 
     print("Generated tools grouped by tag:")
     for tag, files in tag_to_tools.items():
         print(f'{snake_case(tag).upper()} = "{snake_case(tag).lower()}"')
 
-    with open(INIT_FILE, "w") as f_init:
+    with open(INIT_FILE, "w", encoding="utf-8") as f_init:
         f_init.write(
             INIT_TEMPLATE.format(tools_import=_gen_tools_init(root_tools_import))
         )
 
-    with open(TOOLS_HELPER_FILE, "w") as f_tool:
+    with open(TOOLS_HELPER_FILE, "w", encoding="utf-8") as f_tool:
         f_tool.write(
             TOOLS_HELPER.format(
                 enums="\n".join(root_enums),
-                tools=json.dumps(root_tag_defs),
+                tools=json.dumps(final_tag_tools, indent=4, sort_keys=True),
             )
         )
 
     print(" TAGS SUMMARY ".center(80, "-"))
     tools = 0
-    for tag, tag_data in root_tag_defs.items():
+    for tag, tag_data in final_tag_tools.items():
         tools += len(tag_data["tools"])
         print(f"{tag}: {len(tag_data['tools'])} tools")
 
     print(" CATEGORY SUMMARY ".center(80, "-"))
-    print(f"Total categories: {len(root_tag_defs)}")
+    print(f"Total categories: {len(final_tag_tools)}")
     print(f"Total tools: {tools}")
 
 
@@ -740,11 +743,11 @@ if __name__ == "__main__":
         shutil.rmtree(OUTPUT_DIR)
 
     # Load and parse the OpenAPI specification
-    with open(OPENAPI_PATH, "r") as f:
+    with open(OPENAPI_PATH, "r", encoding="utf-8") as f:
         openapi_json = yaml.safe_load(f)
-    openapi_paths = openapi_json.get("paths")
-    openapi_tags = openapi_json.get("tags")
-    openapi_parameters = openapi_json.get("components", {}).get("parameters")
-    openapi_schemas = openapi_json.get("components", {}).get("schemas")
+    OPENAPI_PATHS = openapi_json.get("paths")
+    OPENAPI_TAGS = openapi_json.get("tags")
+    OPENAPI_PARAMETERS = openapi_json.get("components", {}).get("parameters")
+    OPENAPI_SCHEMAS = openapi_json.get("components", {}).get("schemas")
 
-    main()
+    main(OPENAPI_PATHS, OPENAPI_TAGS, OPENAPI_PARAMETERS, OPENAPI_SCHEMAS)
