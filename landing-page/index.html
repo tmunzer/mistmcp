@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mist MCP Server - AI-Powered Network Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="github-dark.min.css">
+    <script src="highlight.min.js"></script>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#gradient)"
+                            stroke="rgba(255,255,255,0.1)" stroke-width="0.5" />
+                        <path d="M8 12h16v2H8v-2zm0 4h16v2H8v-2zm0 4h12v2H8v-2z" fill="white" opacity="0.9" />
+                        <defs>
+                            <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#3B82F6" />
+                                <stop offset="1" stop-color="#1E40AF" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span>Mist MCP</span>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#setup">Setup</a>
+                <a href="#tools">Tools</a>
+                <a href="#docs">Documentation</a>
+                <a href="https://github.com/tmunzer/mistmcp" target="_blank" class="github-link">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-text">AI-Powered Network Management</span>
+                </div>
+                <h1 class="hero-title">
+                    Bridge LLMs with
+                    <span class="gradient-text">Juniper Mist</span>
+                </h1>
+                <p class="hero-description">
+                    A Model Context Protocol (MCP) server that provides AI-powered access to Juniper Mist networking
+                    APIs with multi-client session management. Enable Large Language Models like Claude to interact with
+                    your cloud-managed network infrastructure.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="scrollToSection('setup')">
+                        Get Started
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7l5 5-5 5M6 12h12" />
+                        </svg>
+                    </button>
+                    <button class="btn btn-secondary" onclick="scrollToSection('features')">
+                        Learn More
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">45</div>
+                        <div class="stat-label">Tool Categories</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">256</div>
+                        <div class="stat-label">API Tools</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">Multi</div>
+                        <div class="stat-label">Client Support</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why Choose Mist MCP?</h2>
+                <p>Powerful features designed for modern AI-driven network management</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <h3>Multi-Client Architecture</h3>
+                    <p>Multiple MCP clients can connect simultaneously with independent tool configurations and complete
+                        session isolation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                        </svg>
+                    </div>
+                    <h3>Dynamic Tool Management</h3>
+                    <p>Enable and disable tool categories at runtime per client session. Choose from managed, all, or
+                        custom loading strategies.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h3>Transport Flexibility</h3>
+                    <p>Supports both STDIO and HTTP transport modes. Perfect for local development or remote access
+                        scenarios.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                    <h3>Intelligent Organization</h3>
+                    <p>Tools grouped by functionality: organizations, sites, devices, clients, monitoring, and analytics
+                        for easy navigation.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3>AI-Ready Integration</h3>
+                    <p>Built specifically for Large Language Models like Claude, with intelligent context and session
+                        management.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3>Comprehensive Coverage</h3>
+                    <p>Access to 256 API tools across 45 categories covering all aspects of Juniper Mist network
+                        management.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Setup Section -->
+    <section id="setup" class="setup">
+        <div class="container">
+            <div class="section-header">
+                <h2>Quick Setup</h2>
+                <p>Choose between hosted or local installation - both get you started in minutes</p>
+            </div>
+            <div class="setup-content">
+                <!-- Setup Options Tabs -->
+                <div class="setup-tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" data-tab="hosted">🌐 Hosted (Fastest)</button>
+                        <button class="tab-button" data-tab="local">💻 Local Installation</button>
+                    </div>
+
+                    <!-- Hosted Option -->
+                    <div class="tab-content active" id="hosted-tab">
+                        <div class="setup-option-header">
+                            <div class="option-badge hosted">Recommended</div>
+                            <h3>Use Hosted MCP Server</h3>
+                            <p>Connect directly to our hosted MCP server at <strong>mcp.mist-lab.fr</strong> - no
+                                installation required!</p>
+                        </div>
+
+                        <div class="setup-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Get Your Mist API Token</h4>
+                                    <p>Visit <strong>Mist Dashboard → Organization → Settings → API Tokens</strong> to
+                                        create a new token.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Configure Claude Desktop</h4>
+                                    <p>Add to your <code>claude_desktop_config.json</code>:</p>
+                                    <div class="code-block">
+                                        <pre><code class="language-json">{
+  "mcpServers": {
+    "mist-http": {
+      "command": "npx",
+        "args": [
+          "-y", 
+          "mcp-remote",
+          "https://mcp.mist-lab.fr/mcp/?cloud=api.mist.com",
+          "--header",
+          "X-Authorization:${MIST_APITOKEN}",
+          "--transport",
+          "http-only"
+        ],
+        "env": {
+          "MIST_APITOKEN": "your-api-token"
+        }
+      }
+  }
+}</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Start Using</h4>
+                                    <p>Restart Claude Desktop and start managing your Mist network with AI!</p>
+                                    <div class="quick-tips">
+                                        <h5>💡 Quick Tips:</h5>
+                                        <ul>
+                                            <li>The LLM will <code>getSelf</code> to verify your connection and get the
+                                                list of available Organizations</li>
+                                            <li>The LLM will <code>manageMcpTools</code> to enable tool categories</li>
+                                            <li>Try: "Show me my organization's sites"</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setup-benefits">
+                            <h4>✨ Benefits of Hosted Version:</h4>
+                            <ul>
+                                <li>🚀 <strong>Instant Setup</strong> - No installation or dependencies</li>
+                                <li>🔄 <strong>Always Updated</strong> - Latest features and bug fixes</li>
+                                <li>🛡️ <strong>Secure</strong> - HTTPS encryption and secure token handling</li>
+                                <li>⚡ <strong>High Performance</strong> - Optimized cloud infrastructure</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Local Installation Option -->
+                    <div class="tab-content" id="local-tab">
+                        <div class="setup-option-header">
+                            <div class="option-badge local">Self-Hosted</div>
+                            <h3>Local Installation</h3>
+                            <p>Install and run the MCP server locally for full control and customization.</p>
+                        </div>
+
+                        <div class="setup-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Clone & Install</h4>
+                                    <p>Download and install the MCP server from GitHub</p>
+                                    <div class="code-block">
+                                        <pre><code class="language-bash"># Clone the repository
+git clone https://github.com/tmunzer/mistmcp.git
+cd mistmcp
+
+# Install dependencies (using uv - recommended)
+uv sync
+
+# Or using pip
+pip install -e .</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Configure Environment</h4>
+                                    <p>Set up your Mist API credentials</p>
+                                    <div class="code-block">
+                                        <pre><code class="language-bash"># Create .env file
+MIST_API_TOKEN=your_mist_api_token_here
+MIST_HOST=api.mist.com  # or your custom host</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Configure Claude Desktop</h4>
+                                    <p>Add to your <code>claude_desktop_config.json</code>:</p>
+                                    <div class="code-block">
+                                        <pre><code class="language-json">{
+  "mcpServers": {
+    "mist-local": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/absolute/path/to/mistmcp",
+        "run",
+        "mistmcp"
+      ],
+      "env": {
+        "MIST_ENV_FILE": ".env"
+      }
+    }
+  }
+}</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h4>Test & Start Using</h4>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setup-benefits">
+                            <h4>🔧 Benefits of Local Installation:</h4>
+                            <ul>
+                                <li>🎛️ <strong>Full Control</strong> - Customize and modify as needed</li>
+                                <li>🔒 <strong>Private</strong> - Your data never leaves your environment</li>
+                                <li>⚡ <strong>Performance</strong> - Optimized for your specific setup</li>
+                                <li>🧪 <strong>Development</strong> - Perfect for contributing or testing</li>
+                            </ul>
+                        </div>
+
+                        <div class="setup-modes">
+                            <h4>Alternative Transport Modes</h4>
+                            <div class="modes-grid">
+                                <div class="mode-card">
+                                    <h5>STDIO Mode (Default)</h5>
+                                    <p>Direct integration with MCP clients</p>
+                                    <div class="code-snippet">
+                                        <code>uv run mistmcp --mode managed</code>
+                                    </div>
+                                </div>
+                                <div class="mode-card">
+                                    <h5>HTTP Mode</h5>
+                                    <p>Remote access via HTTP transport</p>
+                                    <div class="code-snippet">
+                                        <code>uv run mistmcp --transport http --port 8000</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tool Categories Section -->
+    <section id="tools" class="tools">
+        <div class="container">
+            <div class="section-header">
+                <h2>Tool Categories</h2>
+                <p>Comprehensive access to Juniper Mist APIs organized by functionality</p>
+            </div>
+            <div class="tools-content">
+                <div class="tools-overview">
+                    <div class="overview-stats">
+                        <div class="overview-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="stat-number">45</div>
+                                <div class="stat-label">Categories</div>
+                            </div>
+                        </div>
+                        <div class="overview-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="stat-number">256</div>
+                                <div class="stat-label">API Tools</div>
+                            </div>
+                        </div>
+                        <div class="overview-stat">
+                            <div class="stat-icon">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="stat-number">Real-time</div>
+                                <div class="stat-label">Management</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-groups">
+                    <div class="category-group">
+                        <h3>Essential Tools</h3>
+                        <p>Core tools available in all sessions</p>
+                        <div class="category-pills">
+                            <span class="pill essential">getSelf</span>
+                            <span class="pill essential">manageMcpTools</span>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>Organization Management</h3>
+                        <p>Organization-level configuration and monitoring</p>
+                        <div class="category-pills">
+                            <span class="pill org">orgs</span>
+                            <span class="pill org">orgs_devices</span>
+                            <span class="pill org">orgs_clients</span>
+                            <span class="pill org">orgs_sites</span>
+                            <span class="pill org">orgs_stats</span>
+                            <span class="pill org">orgs_alarms</span>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>Site Management</h3>
+                        <p>Site-specific configuration and operations</p>
+                        <div class="category-pills">
+                            <span class="pill site">sites</span>
+                            <span class="pill site">sites_devices</span>
+                            <span class="pill site">sites_clients</span>
+                            <span class="pill site">sites_stats</span>
+                            <span class="pill site">sites_sles</span>
+                            <span class="pill site">sites_insights</span>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>Network Configuration</h3>
+                        <p>WLAN, WAN, and LAN configuration tools</p>
+                        <div class="category-pills">
+                            <span class="pill network">orgs_wlans</span>
+                            <span class="pill network">orgs_wan</span>
+                            <span class="pill network">orgs_lan</span>
+                            <span class="pill network">sites_wlans</span>
+                            <span class="pill network">sites_wan</span>
+                            <span class="pill network">sites_lan</span>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>Advanced Features</h3>
+                        <p>Specialized tools for advanced network management</p>
+                        <div class="category-pills">
+                            <span class="pill advanced">orgs_marvis</span>
+                            <span class="pill advanced">orgs_nac</span>
+                            <span class="pill advanced">sites_rfdiags</span>
+                            <span class="pill advanced">sites_rrm</span>
+                            <span class="pill advanced">utilities_upgrade</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Section -->
+    <section id="docs" class="docs">
+        <div class="container">
+            <div class="section-header">
+                <h2>Documentation & Resources</h2>
+                <p>Everything you need to get the most out of Mist MCP server</p>
+            </div>
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <div class="doc-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <h3>Getting Started Guide</h3>
+                    <p>Complete setup instructions and configuration examples</p>
+                    <a href="https://github.com/tmunzer/mistmcp#-installation--setup" target="_blank" class="doc-link">
+                        Read Guide
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <h3>API Reference</h3>
+                    <p>Complete tool categories and API endpoint documentation</p>
+                    <a href="https://github.com/tmunzer/mistmcp#-tool-categories" target="_blank" class="doc-link">
+                        View Reference
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                    </div>
+                    <h3>Source Code</h3>
+                    <p>Explore the codebase and contribute to the project</p>
+                    <a href="https://github.com/tmunzer/mistmcp" target="_blank" class="doc-link">
+                        View on GitHub
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="doc-card">
+                    <div class="doc-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3>Support & Issues</h3>
+                    <p>Get help and report issues on GitHub</p>
+                    <a href="https://github.com/tmunzer/mistmcp/issues" target="_blank" class="doc-link">
+                        Get Support
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#footerGradient)"
+                                stroke="rgba(255,255,255,0.1)" stroke-width="0.5" />
+                            <path d="M8 12h16v2H8v-2zm0 4h16v2H8v-2zm0 4h12v2H8v-2z" fill="white" opacity="0.9" />
+                            <defs>
+                                <linearGradient id="footerGradient" x1="0" y1="0" x2="32" y2="32"
+                                    gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#3B82F6" />
+                                    <stop offset="1" stop-color="#1E40AF" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <span>Mist MCP Server</span>
+                    </div>
+                    <p>AI-powered bridge between LLMs and Juniper Mist networking infrastructure with multi-client
+                        session support.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Resources</h4>
+                        <a href="https://github.com/tmunzer/mistmcp" target="_blank">GitHub Repository</a>
+                        <a href="https://github.com/tmunzer/mistmcp#-installation--setup"
+                            target="_blank">Documentation</a>
+                        <a href="https://github.com/tmunzer/mistmcp/issues" target="_blank">Issues & Support</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Tools</h4>
+                        <a href="#tools">Tool Categories</a>
+                        <a href="https://github.com/tmunzer/mistmcp#-tool-categories" target="_blank">API Reference</a>
+                        <a href="#setup">Quick Setup</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copy">
+                    <p>&copy; 2025 Thomas Munzer. Released under MIT License.</p>
+                </div>
+                <div class="footer-author">
+                    <a href="https://github.com/tmunzer" target="_blank">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                        </svg>
+                        @tmunzer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
