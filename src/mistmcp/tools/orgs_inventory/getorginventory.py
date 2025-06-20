@@ -104,7 +104,7 @@ async def getOrgInventory(
         model=model,
         type=type.value,
         mac=mac,
-        site_id=str(site_id),
+        site_id=str(site_id) if site_id else None,
         vc_mac=vc_mac,
         vc=vc,
         unassigned=unassigned,

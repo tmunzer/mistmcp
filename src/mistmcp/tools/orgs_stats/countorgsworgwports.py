@@ -225,7 +225,7 @@ async def countOrgSwOrGwPorts(
         stp_role=stp_role.value,
         auth_state=auth_state.value,
         up=up,
-        site_id=str(site_id),
+        site_id=str(site_id) if site_id else None,
         start=start,
         end=end,
         duration=duration,

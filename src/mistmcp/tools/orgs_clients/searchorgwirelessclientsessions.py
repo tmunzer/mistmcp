@@ -120,7 +120,7 @@ async def searchOrgWirelessClientSessions(
         client_username=client_username,
         client_os=client_os,
         ssid=ssid,
-        wlan_id=str(wlan_id),
+        wlan_id=str(wlan_id) if wlan_id else None,
         psk_id=psk_id,
         psk_name=psk_name,
         limit=limit,

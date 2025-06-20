@@ -179,7 +179,7 @@ async def searchSiteDevices(
         power_constrained=power_constrained,
         ip_address=ip_address,
         mxtunnel_status=mxtunnel_status.value,
-        mxedge_id=str(mxedge_id),
+        mxedge_id=str(mxedge_id) if mxedge_id else None,
         lldp_system_name=lldp_system_name,
         lldp_system_desc=lldp_system_desc,
         lldp_port_id=lldp_port_id,

@@ -101,7 +101,7 @@ async def listOrgAuditLogs(
     response = mistapi.api.v1.orgs.logs.listOrgAuditLogs(
         apisession,
         org_id=str(org_id),
-        site_id=str(site_id),
+        site_id=str(site_id) if site_id else None,
         admin_name=admin_name,
         message=message,
         sort=sort.value,

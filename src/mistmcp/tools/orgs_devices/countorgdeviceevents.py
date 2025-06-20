@@ -111,7 +111,7 @@ async def countOrgDeviceEvents(
         apisession,
         org_id=str(org_id),
         distinct=distinct.value,
-        site_id=str(site_id),
+        site_id=str(site_id) if site_id else None,
         ap=ap,
         apfw=apfw,
         model=model,

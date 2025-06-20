@@ -103,7 +103,7 @@ async def troubleshootOrg(
         apisession,
         org_id=str(org_id),
         mac=mac,
-        site_id=str(site_id),
+        site_id=str(site_id) if site_id else None,
         start=start,
         end=end,
         type=type.value,

@@ -135,7 +135,7 @@ async def searchOrgWirelessClients(
     response = mistapi.api.v1.orgs.clients.searchOrgWirelessClients(
         apisession,
         org_id=str(org_id),
-        site_id=str(site_id),
+        site_id=str(site_id) if site_id else None,
         mac=mac,
         ip_address=ip_address,
         hostname=hostname,

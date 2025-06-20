@@ -364,9 +364,12 @@ def _process_params(
             if tmp_param["format"] == "uuid":
                 _add_import(imports, "uuid", "UUID")
                 tmp_type = "UUID"
-                tmp_mistapi_parameters = (
-                    f"            {tmp_param['name']}=str({tmp_param['name']}),\n"
-                )
+                if tmp_param["required"]:
+                    tmp_mistapi_parameters = (
+                        f"            {tmp_param['name']}=str({tmp_param['name']}),\n"
+                    )
+                else:
+                    tmp_mistapi_parameters = f"            {tmp_param['name']}=str({tmp_param['name']}) if {tmp_param['name']} else None,\n"
 
             elif tmp_param["enum"]:
                 _add_import(imports, "enum", "Enum")

@@ -129,7 +129,7 @@ async def countOrgWirelessClientsSessions(
         client_model=client_model,
         client_os=client_os,
         ssid=ssid,
-        wlan_id=str(wlan_id),
+        wlan_id=str(wlan_id) if wlan_id else None,
         start=start,
         end=end,
         duration=duration,

@@ -103,7 +103,7 @@ async def searchOrgInventory(
         mac=mac,
         vc_mac=vc_mac,
         master_mac=master_mac,
-        site_id=str(site_id),
+        site_id=str(site_id) if site_id else None,
         serial=serial,
         master=master,
         sku=sku,
