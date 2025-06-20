@@ -62,7 +62,7 @@ def generate_table():
     return "\n".join(table_lines)
 
 
-def update_readme():
+def update_readme() -> bool:
     """Update the README.md file with new table"""
     with open("README.md", "r") as f:
         content = f.read()

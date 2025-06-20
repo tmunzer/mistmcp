@@ -420,6 +420,19 @@ listSiteWebhooks:
 getSiteWebhook:
   skip: true
 
+listOrgsWlans:
+  add_parameter:
+    name: wlan_id
+    type: string
+    format: uuid
+    description:
+      ID of the WLAN to filter by. Providing this parameter will return
+      only the specified object and may provide additional information.
+  custom_request: mistapi.api.v1.orgs.wlans.getOrgWLAN(apisession,
+    org_id=str(org_id), wlan_id=str(wlan_id))
+getOrgWLAN:
+  skip: true
+
 listSiteWlans:
   add_parameter:
     name: wlan_id
@@ -460,7 +473,7 @@ getSiteWxTag:
   skip: true
 
 listSiteWirelessClientsStats:
-  add_parameter:
+  add_parameters:
     name: client_mac
     type: string
     description: MAC Address of the Wireless Client to filter by. Providing this
@@ -533,4 +546,51 @@ listSiteDeviceUpgrades:
   custom_request: mistapi.api.v1.sites.devices.getSiteDeviceUpgrade(apisession,
     site_id=str(site_id), upgrade_id=str(upgrade_id))
 getSiteDeviceUpgrade:
+  skip: true
+
+searchOrgUserMacs:
+  add_parameter:
+    name: usermac_id
+    type: string
+    format: uuid
+    description: ID of the User MAC to filter by. Providing this parameter
+      will return only the specified object and may provide additional information.
+  custom_request: mistapi.api.v1.orgs.usermacs.getOrgUserMac(apisession, org_id=str(org_id), usermac_id=str(usermac_id))
+getOrgUserMac:
+  skip: true
+
+listSiteRogueAPs:
+  add_parameter:
+    name: rogue_bssid
+    type: string
+    description:
+      BSSID of the Rogue Access Point to filter by. Providing this parameter
+      will return only the specified object and may provide additional information.
+  custom_request:
+    mistapi.api.v1.sites.rogues.getSiteRogueAP(apisession,site_id=str(site_id),
+    rogue_bssid=rogue_bssid)
+getSiteRogueAP:
+  skip: true
+
+searchSiteSyntheticTest:
+  add_parameter:
+    name: device_id
+    type: string
+    format: uuid
+    description:
+      ID of the Device that ran the test to filter by. Providing this parameter
+      will return only the specified object and may provide additional information.
+  custom_request: mistapi.api.v1.sites.devices.getSiteDeviceSyntheticTest(apisession, site_id=str(site_id), device_id=str(device_id))
+getSiteDeviceSyntheticTest:
+  skip: true
+
+listOrgSiteGroups:
+  add_parameter:
+    name: sitegroup_id
+    type: string
+    format: uuid
+    description: ID of the Site Group to filter by. Providing this parameter
+      will return only the specified object and may provide additional information.
+  custom_request: mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(sitegroup_id))
+getOrgSiteGroup:
   skip: true

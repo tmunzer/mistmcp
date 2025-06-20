@@ -11,3 +11,15 @@
 - getGatewayDefaultConfig
 - verifySelfEmail
 - listSiteSiteTemplateDerived
+- getSiteWirelessClientsStatsByMap
+- listSiteUnconnectedClientStats
+- downloadSiteRfdiagRecording
+- listOrgDevices
+- countOrgDeviceLastConfigs
+- searchOrgDeviceLastConfigs
+- countOrgSystemEvents
+- searchOrgSystemEvents
+- countSiteSystemEvents
+- searchSiteSystemEvents
+- countSiteDevices
+- countSiteDeviceEvents

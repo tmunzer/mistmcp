@@ -1,11 +1,24 @@
 "self audit logs": "self_account"
-"orgs setting": "orgs"
 "sites setting": "sites"
-# devices_config
-"sites ap templates": "devices_config"
-"orgs ap templates": "devices_config"
-"sites device profiles": "devices_config"
-"orgs device profiles": "devices_config"
+"orgs sitegroups": "orgs_sites"
+# orgs
+"orgs alarms": "orgs"
+"orgs setting": "orgs"
+"orgs events": "orgs"
+# sites
+"sites maps": "sites"
+# mxedges
+"orgs mxedges": "mxedges"
+"orgs mxclusters": "mxedges"
+"orgs mxtunnels": "mxedges"
+"sites mxedges": "mxedges"
+# templates_alarms
+"orgs alarm templates": "templates_alarms"
+# templates_devices
+"sites ap templates": "templates_devices"
+"orgs ap templates": "templates_devices"
+"sites device profiles": "templates_devices"
+"orgs device profiles": "templates_devices"
 # orgs_sites
 "orgs site templates": "orgs_sites"
 # sites_stats
@@ -25,58 +38,60 @@
 "orgs stats - tunnels": "orgs_stats"
 "orgs stats - vpn peers": "orgs_stats"
 # orgs_clients
-"orgs clients - nac": "orgs_clients"
-"orgs clients - wan": "orgs_clients"
-"orgs clients - wired": "orgs_clients"
-"orgs clients - wireless": "orgs_clients"
-"orgs guests": "orgs_clients"
-# sites_clients
-"sites clients - nac": "sites_clients"
-"sites clients - wan": "sites_clients"
-"sites clients - wired": "sites_clients"
-"sites clients - wireless": "sites_clients"
-"sites guests": "sites_clients"
+"orgs clients - nac": "clients"
+"orgs clients - wan": "clients"
+"orgs clients - wired": "clients"
+"orgs clients - wireless": "clients"
+"orgs guests": "clients"
+"sites guests": "clients"
 # sites_wlans
 "sites wxrules": "sites_wlans"
 "sites wxtags": "sites_wlans"
 "sites psks": "sites_wlans"
 "sites rf templates": "sites_wlans"
-# sites_lan
-"sites evpn topologies": "sites_lan"
-"sites network templates": "sites_lan"
-# sites_wan
-"sites applications": "sites_wan"
-"sites gateway templates": "sites_wan"
-"sites secintel profiles": "sites_wan"
-"sites service policies": "sites_wan"
-"sites services": "sites_wan"
-"sites networks": "sites_wan"
-"sites vpns": "sites_wan"
+# templates_switches
+"sites evpn topologies": "templates_switches"
+"sites network templates": "templates_switches"
+"orgs evpn topologies": "templates_switches"
+"orgs network templates": "templates_switches"
+# templates_wan
+"sites applications": "templates_wan"
+"sites gateway templates": "templates_wan"
+"sites secintel profiles": "templates_wan"
+"sites service policies": "templates_wan"
+"sites services": "templates_wan"
+"sites networks": "templates_wan"
+"sites vpns": "templates_wan"
+"orgs gateway templates": "templates_wan"
+"orgs vpns": "templates_wan"
+"orgs antivirus profiles": "templates_wan"
+"orgs advanced anti malware profiles": "templates_wan"
+"orgs security policies": "templates_wan"
+"orgs services": "templates_wan"
+"orgs service policies": "templates_wan"
+"orgs idp profiles": "templates_wan"
+"orgs networks": "templates_wan"
 # orgs_wlans
 "orgs wlan templates": "orgs_wlans"
 "orgs wxrules": "orgs_wlans"
 "orgs rf templates": "orgs_wlans"
 "orgs wxtags": "orgs_wlans"
 "orgs psks": "orgs_wlans"
-# orgs_lan
-"orgs evpn topologies": "orgs_lan"
-"orgs network templates": "orgs_lan"
-# orgs_wan
-"orgs gateway templates": "orgs_wan"
-"orgs vpns": "orgs_wan"
-"orgs antivirus profiles": "orgs_wan"
-"orgs advanced anti malware profiles": "orgs_wan"
-"orgs security policies": "orgs_wan"
-"orgs services": "orgs_wan"
-"orgs service policies": "orgs_wan"
-"orgs idp profiles": "orgs_wan"
-"orgs networks": "orgs_wan"
+
 # orgs_nac
 "orgs nac fingerprints": "orgs_nac"
 "orgs nac tags": "orgs_nac"
 "orgs nac rules": "orgs_nac"
 "orgs user macs": "orgs_nac"
-# orgs_mxedges:
-"orgs mxedges": "orgs_mxedges"
-"orgs mxclusters": "orgs_mxedges"
-"orgs mxtunnels": "orgs_mxedges"
+
+# webhooks
+"orgs webhooks": "webhooks"
+"sites webhooks": "webhooks"
+
+# marvis
+"sites synthetic tests": marvis
+"orgs marvis": marvis
+
+# devices:
+"orgs devices": "devices"
+"sites devices": "devices"

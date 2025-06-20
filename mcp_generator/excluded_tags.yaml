@@ -94,3 +94,11 @@
 - Sites Vpns
 - Sites WxTunnels
 - Sites Skyatp
+- Constants Events
+- Constants Models
+- Orgs Devices - Others
+## These information can be retrieved from the Org API calls
+- Sites Clients - NAC
+- Sites Clients - Wan
+- Sites Clients - Wired
+- Sites Clients - Wireless

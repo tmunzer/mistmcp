@@ -48,6 +48,12 @@ async def searchOrgUserMacs(
     ] = None,
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
+    usermac_id: Annotated[
+        Optional[UUID],
+        Field(
+            description="""ID of the User MAC to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Search Org User MACs"""
 
@@ -74,14 +80,19 @@ async def searchOrgUserMacs(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.usermacs.searchOrgUserMacs(
-        apisession,
-        org_id=str(org_id),
-        mac=mac,
-        labels=labels,
-        limit=limit,
-        page=page,
-    )
+    if usermac_id:
+        response = mistapi.api.v1.orgs.usermacs.getOrgUserMac(
+            apisession, org_id=str(org_id), usermac_id=str(usermac_id)
+        )
+    else:
+        response = mistapi.api.v1.orgs.usermacs.searchOrgUserMacs(
+            apisession,
+            org_id=str(org_id),
+            mac=mac,
+            labels=labels,
+            limit=limit,
+            page=page,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
