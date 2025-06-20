@@ -27,29 +27,34 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-class Distinct(Enum):
-    HOSTNAME = "hostname"
-    IP = "ip"
-    MAC = "mac"
-    MFG = "mfg"
-    NETWORK = "network"
+class Sort(Enum):
+    _TIMESTAMP = "-timestamp"
+    ADMIN_ID = "admin_id"
+    SITE_ID = "site_id"
+    TIMESTAMP = "timestamp"
+    NONE = None
 
 
 @mcp.tool(
     enabled=True,
-    name="countOrgWanClients",
-    description="""Count by Distinct Attributes of Org WAN Clients""",
-    tags={"clients"},
+    name="listOrgAuditLogs",
+    description="""Get List of change logs for the current Org""",
+    tags={"orgs"},
     annotations={
-        "title": "countOrgWanClients",
+        "title": "listOrgAuditLogs",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def countOrgWanClients(
+async def listOrgAuditLogs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    distinct: Distinct = Distinct.MAC,
+    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
+    admin_name: Annotated[
+        Optional[str], Field(description="""Admin name or email""")
+    ] = None,
+    message: Annotated[Optional[str], Field(description="""Message""")] = None,
+    sort: Annotated[Sort, Field(description="""Sort order""")] = Sort.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -66,8 +71,9 @@ async def countOrgWanClients(
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
+    page: Annotated[int, Field(ge=1, default=1)] = 1,
 ) -> dict:
-    """Count by Distinct Attributes of Org WAN Clients"""
+    """Get List of change logs for the current Org"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -92,14 +98,18 @@ async def countOrgWanClients(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.wan_clients.countOrgWanClients(
+    response = mistapi.api.v1.orgs.logs.listOrgAuditLogs(
         apisession,
         org_id=str(org_id),
-        distinct=distinct.value,
+        site_id=str(site_id) if site_id else None,
+        admin_name=admin_name,
+        message=message,
+        sort=sort.value,
         start=start,
         end=end,
         duration=duration,
         limit=limit,
+        page=page,
     )
 
     if response.status_code != 200:

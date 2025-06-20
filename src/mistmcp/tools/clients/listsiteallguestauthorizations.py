@@ -46,6 +46,12 @@ async def listSiteAllGuestAuthorizations(
             description="""UUID of single or multiple (Comma separated) WLAN under Site `site_id` (to filter by WLAN)"""
         ),
     ] = None,
+    guest_mac: Annotated[
+        Optional[str],
+        Field(
+            description="""MAC Address of the Guest client to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Site Guest Authorizations"""
 
@@ -72,11 +78,16 @@ async def listSiteAllGuestAuthorizations(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.guests.listSiteAllGuestAuthorizations(
-        apisession,
-        site_id=str(site_id),
-        wlan_id=wlan_id,
-    )
+    if guest_mac:
+        response = mistapi.api.v1.sites.guests.getSiteGuestAuthorization(
+            apisession, org_id=str(site_id), guest_mac=guest_mac
+        )
+    else:
+        response = mistapi.api.v1.sites.guests.listSiteAllGuestAuthorizations(
+            apisession,
+            site_id=str(site_id),
+            wlan_id=wlan_id,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

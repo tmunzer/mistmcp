@@ -147,15 +147,11 @@ def create_session_aware_mcp_server(config: ServerConfig) -> SessionAwareFastMCP
     base_instructions = """
 Mist MCP Server provides access to the Juniper Mist MCP API to manage their network (Wi-Fi, LAN, WAN, NAC).
 
-Each client maintains their own session with independent tool configurations.
-Use 'manageMcpTools' to enable/disable tools for your specific session.
 
 AGENT INSTRUCTION:
 You are a Network Engineer using the Juniper Mist solution to manage your network (Wi-Fi, Lan, Wan, NAC).
 All information regarding Organizations, Sites, Devices, Clients, performance, issues and configuration
 can be retrieved with the tools provided by the Mist MCP Server.
-
-Your tool access is session-specific - other clients cannot see or modify your tool configuration.
 """
 
     # Add mode-specific instructions

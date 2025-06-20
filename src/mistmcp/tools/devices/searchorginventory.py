@@ -19,30 +19,59 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
+from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
+class Type(Enum):
+    AP = "ap"
+    GATEWAY = "gateway"
+    SWITCH = "switch"
+
+
 @mcp.tool(
     enabled=True,
-    name="countOrgBgpStats",
-    description="""Count by Distinct Attributes of Org BGP Stats""",
-    tags={"orgs_stats"},
+    name="searchOrgInventory",
+    description="""Search in the Org Inventory""",
+    tags={"devices"},
     annotations={
-        "title": "countOrgBgpStats",
+        "title": "searchOrgInventory",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def countOrgBgpStats(
+async def searchOrgInventory(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    type: Type = Type.AP,
+    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
+    vc_mac: Annotated[
+        Optional[str], Field(description="""Virtual Chassis MAC Address""")
+    ] = None,
+    master_mac: Annotated[
+        Optional[str],
+        Field(description="""Master device mac for virtual mac cluster"""),
+    ] = None,
+    site_id: Annotated[
+        Optional[UUID],
+        Field(description="""Site id if assigned, null if not assigned"""),
+    ] = None,
+    serial: Annotated[Optional[str], Field(description="""Device serial""")] = None,
+    master: Annotated[Optional[str], Field(description="""true / false""")] = None,
+    sku: Annotated[Optional[str], Field(description="""Device sku""")] = None,
+    version: Annotated[Optional[str], Field(description="""Device version""")] = None,
+    status: Annotated[Optional[str], Field(description="""Device status""")] = None,
+    text: Annotated[
+        Optional[str], Field(description="""Wildcards for name, mac, serial""")
+    ] = None,
     limit: Annotated[int, Field(default=100)] = 100,
+    page: Annotated[int, Field(ge=1, default=1)] = 1,
 ) -> dict:
-    """Count by Distinct Attributes of Org BGP Stats"""
+    """Search in the Org Inventory"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -67,10 +96,22 @@ async def countOrgBgpStats(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.stats.countOrgBgpStats(
+    response = mistapi.api.v1.orgs.inventory.searchOrgInventory(
         apisession,
         org_id=str(org_id),
+        type=type.value,
+        mac=mac,
+        vc_mac=vc_mac,
+        master_mac=master_mac,
+        site_id=str(site_id) if site_id else None,
+        serial=serial,
+        master=master,
+        sku=sku,
+        version=version,
+        status=status,
+        text=text,
         limit=limit,
+        page=page,
     )
 
     if response.status_code != 200:

@@ -27,100 +27,52 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-class Distinct(Enum):
-    HOSTNAME = "hostname"
-    IP = "ip"
-    LLDP_MGMT_ADDR = "lldp_mgmt_addr"
-    LLDP_PORT_ID = "lldp_port_id"
-    LLDP_SYSTEM_DESC = "lldp_system_desc"
-    LLDP_SYSTEM_NAME = "lldp_system_name"
-    MAC = "mac"
-    MODEL = "model"
-    MXEDGE_ID = "mxedge_id"
-    MXTUNNEL_STATUS = "mxtunnel_status"
-    SITE_ID = "site_id"
-    VERSION = "version"
-
-
-class Mxtunnel_status(Enum):
-    DOWN = "down"
-    UP = "up"
-    NONE = None
-
-
 class Type(Enum):
     AP = "ap"
     GATEWAY = "gateway"
     SWITCH = "switch"
+    NONE = None
 
 
 @mcp.tool(
     enabled=True,
-    name="countOrgDevices",
-    description="""Count by Distinct Attributes of Org Devices""",
+    name="getOrgInventory",
+    description="""Get Org Inventory### VC (Virtual-Chassis) Management Starting with the April release, Virtual Chassis devices in Mist will now usea cloud-assigned virtual MAC address as the device ID, instead of the physicalMAC address of the FPC0 member.**Retrieving the device ID or Site ID of a Virtual Chassis:**1. Use this API call with the query parameters `vc=true` and `mac` set to the MAC address of the VC member.2. In the response, check the `vc_mac` and `mac` fields:    - If `vc_mac` is empty or not present, the device is not part of a Virtual Chassis.    The `device_id` and `site_id` will be available in the device information.    - If `vc_mac` differs from the `mac` field, the device is part of a Virtual Chassis    but is not the device used to generate the Virtual Chassis ID. Use the `vc_mac` value with the [Get Org Inventory](/#operations/getOrgInventory)    API call to retrieve the `device_id` and `site_id`.    - If `vc_mac` matches the `mac` field, the device is the device used to generate the Virtual Chassis ID and he `device_id` and `site_id` will be available    in the device information.      This is the case if the device is the Virtual Chassis "virtual device" (MAC starting with `020003`) or if the device is the Virtual Chassis FPC0 and the Virtual Chassis is still using the FPC0 MAC address to generate the device ID.""",
     tags={"devices"},
     annotations={
-        "title": "countOrgDevices",
+        "title": "getOrgInventory",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def countOrgDevices(
+async def getOrgInventory(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    distinct: Distinct = Distinct.MODEL,
-    hostname: Annotated[
-        Optional[str], Field(description="""Partial / full hostname""")
-    ] = None,
-    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
+    serial: Annotated[Optional[str], Field(description="""Device serial""")] = None,
     model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    managed: Annotated[
-        Optional[str],
-        Field(
-            description="""for switches and gateways, to filter on managed/unmanaged devices. enum: `true`, `false`"""
-        ),
-    ] = None,
-    mac: Annotated[Optional[str], Field(description="""AP mac""")] = None,
-    version: Annotated[Optional[str], Field(description="""Version""")] = None,
-    ip_address: Optional[str] = None,
-    mxtunnel_status: Annotated[
-        Mxtunnel_status, Field(description="""MxTunnel status, enum: `up`, `down`""")
-    ] = Mxtunnel_status.NONE,
-    mxedge_id: Annotated[
+    type: Type = Type.NONE,
+    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
+    site_id: Annotated[
         Optional[UUID],
-        Field(description="""Mist Edge id, if AP is connecting to a Mist Edge"""),
+        Field(description="""Site id if assigned, null if not assigned"""),
     ] = None,
-    lldp_system_name: Annotated[
-        Optional[str], Field(description="""LLDP system name""")
+    vc_mac: Annotated[
+        Optional[str], Field(description="""Virtual Chassis MAC Address""")
     ] = None,
-    lldp_system_desc: Annotated[
-        Optional[str], Field(description="""LLDP system description""")
+    vc: Annotated[
+        Optional[bool], Field(description="""To display Virtual Chassis members""")
     ] = None,
-    lldp_port_id: Annotated[
-        Optional[str], Field(description="""LLDP port id""")
-    ] = None,
-    lldp_mgmt_addr: Annotated[
-        Optional[str], Field(description="""LLDP management ip address""")
-    ] = None,
-    type: Type = Type.AP,
-    start: Annotated[
+    unassigned: Annotated[
+        bool, Field(description="""To display Unassigned devices""", default=True)
+    ] = True,
+    modified_after: Annotated[
         Optional[int],
-        Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
-        ),
+        Field(description="""Filter on inventory last modified time, in epoch"""),
     ] = None,
-    end: Annotated[
-        Optional[int],
-        Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
-        ),
-    ] = None,
-    duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
+    page: Annotated[int, Field(ge=1, default=1)] = 1,
 ) -> dict:
-    """Count by Distinct Attributes of Org Devices"""
+    """Get Org Inventory### VC (Virtual-Chassis) Management Starting with the April release, Virtual Chassis devices in Mist will now usea cloud-assigned virtual MAC address as the device ID, instead of the physicalMAC address of the FPC0 member.**Retrieving the device ID or Site ID of a Virtual Chassis:**1. Use this API call with the query parameters `vc=true` and `mac` set to the MAC address of the VC member.2. In the response, check the `vc_mac` and `mac` fields:    - If `vc_mac` is empty or not present, the device is not part of a Virtual Chassis.    The `device_id` and `site_id` will be available in the device information.    - If `vc_mac` differs from the `mac` field, the device is part of a Virtual Chassis    but is not the device used to generate the Virtual Chassis ID. Use the `vc_mac` value with the [Get Org Inventory](/#operations/getOrgInventory)    API call to retrieve the `device_id` and `site_id`.    - If `vc_mac` matches the `mac` field, the device is the device used to generate the Virtual Chassis ID and he `device_id` and `site_id` will be available    in the device information.      This is the case if the device is the Virtual Chassis "virtual device" (MAC starting with `020003`) or if the device is the Virtual Chassis FPC0 and the Virtual Chassis is still using the FPC0 MAC address to generate the device ID."""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -145,28 +97,20 @@ async def countOrgDevices(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.devices.countOrgDevices(
+    response = mistapi.api.v1.orgs.inventory.getOrgInventory(
         apisession,
         org_id=str(org_id),
-        distinct=distinct.value,
-        hostname=hostname,
-        site_id=str(site_id) if site_id else None,
+        serial=serial,
         model=model,
-        managed=managed,
-        mac=mac,
-        version=version,
-        ip_address=ip_address,
-        mxtunnel_status=mxtunnel_status.value,
-        mxedge_id=str(mxedge_id) if mxedge_id else None,
-        lldp_system_name=lldp_system_name,
-        lldp_system_desc=lldp_system_desc,
-        lldp_port_id=lldp_port_id,
-        lldp_mgmt_addr=lldp_mgmt_addr,
         type=type.value,
-        start=start,
-        end=end,
-        duration=duration,
+        mac=mac,
+        site_id=str(site_id) if site_id else None,
+        vc_mac=vc_mac,
+        vc=vc,
+        unassigned=unassigned,
+        modified_after=modified_after,
         limit=limit,
+        page=page,
     )
 
     if response.status_code != 200:

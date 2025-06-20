@@ -5,6 +5,7 @@
 "orgs alarms": "orgs"
 "orgs setting": "orgs"
 "orgs events": "orgs"
+"orgs logs": "orgs"
 # sites
 "sites maps": "sites"
 # mxedges
@@ -95,3 +96,4 @@
 # devices:
 "orgs devices": "devices"
 "sites devices": "devices"
+"orgs inventory": "devices"

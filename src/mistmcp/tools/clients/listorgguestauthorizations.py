@@ -19,7 +19,7 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 
@@ -40,6 +40,12 @@ mcp = mcp_instance.get()
 )
 async def listOrgGuestAuthorizations(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    guest_mac: Annotated[
+        Optional[str],
+        Field(
+            description="""MAC Address of the Guest client to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Org Guest Authorizations"""
 
@@ -66,10 +72,15 @@ async def listOrgGuestAuthorizations(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.guests.listOrgGuestAuthorizations(
-        apisession,
-        org_id=str(org_id),
-    )
+    if guest_mac:
+        response = mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(
+            apisession, org_id=str(org_id), guest_mac=guest_mac
+        )
+    else:
+        response = mistapi.api.v1.orgs.guests.listOrgGuestAuthorizations(
+            apisession,
+            org_id=str(org_id),
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

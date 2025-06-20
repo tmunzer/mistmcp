@@ -594,3 +594,23 @@ listOrgSiteGroups:
   custom_request: mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(sitegroup_id))
 getOrgSiteGroup:
   skip: true
+
+listOrgGuestAuthorizations:
+  add_parameter:
+    name: guest_mac
+    type: string
+    description: MAC Address of the Guest client to filter by. Providing this parameter
+      will return only the specified object and may provide additional information.
+  custom_request: mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(apisession, org_id=str(org_id), guest_mac=guest_mac)
+getOrgGuestAuthorization:
+  skip: true
+
+listSiteAllGuestAuthorizations:
+  add_parameter:
+    name: guest_mac
+    type: string
+    description: MAC Address of the Guest client to filter by. Providing this parameter
+      will return only the specified object and may provide additional information.
+  custom_request: mistapi.api.v1.sites.guests.getSiteGuestAuthorization(apisession, org_id=str(site_id), guest_mac=guest_mac)
+getSiteGuestAuthorization:
+  skip: true

@@ -25,8 +25,6 @@ class McpToolsCategory(Enum):
     UTILITIES_UPGRADE = "utilities_upgrade"
     TEMPLATES_SWITCHES = "templates_switches"
     ORGS_SLES = "orgs_sles"
-    ORGS_INVENTORY = "orgs_inventory"
-    ORGS_LOGS = "orgs_logs"
     MXEDGES = "mxedges"
     ORGS_NAC = "orgs_nac"
     ORGS_WLANS = "orgs_wlans"
@@ -50,31 +48,19 @@ TOOLS = {
     "clients": {
         "description": "Clients related objects for the sites and organizations. It provides access to clients, guests, and NAC clients. Defining the `site_id` parameter will return the clients for the specified site, while leaving it empty will return the clients for the whole organization.",
         "tools": [
-            "countOrgWirelessClients",
-            "countOrgWirelessClientEvents",
             "searchOrgWirelessClientEvents",
             "searchOrgWirelessClients",
-            "countOrgWirelessClientsSessions",
             "searchOrgWirelessClientSessions",
             "listOrgGuestAuthorizations",
-            "countOrgGuestAuthorizations",
             "searchOrgGuestAuthorization",
-            "getOrgGuestAuthorization",
-            "countOrgNacClients",
-            "countOrgNacClientEvents",
             "searchOrgNacClientEvents",
             "searchOrgNacClients",
-            "countOrgWanClientEvents",
-            "countOrgWanClients",
             "searchOrgWanClientEvents",
             "searchOrgWanClients",
-            "countOrgWiredClients",
             "searchOrgWiredClients",
             "listSiteAllGuestAuthorizations",
-            "countSiteGuestAuthorizations",
             "listSiteAllGuestAuthorizationsDerived",
             "searchSiteGuestAuthorization",
-            "getSiteGuestAuthorization",
         ],
     },
     "constants_definitions": {
@@ -91,19 +77,16 @@ TOOLS = {
     "devices": {
         "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices. Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
         "tools": [
-            "countOrgDevices",
-            "countOrgDeviceEvents",
             "searchOrgDeviceEvents",
             "listOrgApsMacs",
             "searchOrgDevices",
             "listOrgDevicesSummary",
+            "getOrgInventory",
+            "searchOrgInventory",
             "getOrgJuniperDevicesCommand",
             "listSiteDevices",
-            "countSiteDeviceConfigHistory",
             "searchSiteDeviceConfigHistory",
             "searchSiteDeviceEvents",
-            "exportSiteDevices",
-            "countSiteDeviceLastConfig",
             "searchSiteDeviceLastConfigs",
             "searchSiteDevices",
         ],
@@ -117,14 +100,11 @@ TOOLS = {
         "tools": [
             "listOrgMxEdgeClusters",
             "listOrgMxEdges",
-            "countOrgMxEdges",
-            "countOrgSiteMxEdgeEvents",
             "searchOrgMistEdgeEvents",
             "searchOrgMxEdges",
             "getOrgMxEdgeUpgradeInfo",
             "listOrgMxTunnels",
             "listSiteMxEdges",
-            "countSiteMxEdgeEvents",
             "searchSiteMistEdgeEvents",
         ],
     },
@@ -132,15 +112,11 @@ TOOLS = {
         "description": "An organization usually represents a customer - which has inventories, licenses. An Organization can contain multiple sites. A site usually represents a deployment at the same location (a campus, an office).",
         "tools": [
             "getOrg",
-            "countOrgAlarms",
             "searchOrgAlarms",
             "searchOrgEvents",
+            "listOrgAuditLogs",
             "getOrgSettings",
         ],
-    },
-    "orgs_inventory": {
-        "description": "The Org Inventory allows administrators to view and manage all devices registered (claimed) to the Organization.",
-        "tools": ["getOrgInventory", "countOrgInventory", "searchOrgInventory"],
     },
     "orgs_licenses": {
         "description": "Licenses are a type of service or access that customers can purchase for various features or services offered by a company.\n\nSubscriptions can have different statuses, such as active, expired, exceeded, or trial, depending on their validity and usage. The status of a subscription determines whether it is currently active and valid, has expired, has exceeded the allowed usage limit, or is in a trial period.\n\nLicenses can be activated using an activation code, and the activation process confirms the inputted code and activates the subscription.",
@@ -150,28 +126,18 @@ TOOLS = {
             "getOrgLicensesBySite",
         ],
     },
-    "orgs_logs": {
-        "description": "Audit Logs are records of activities initiated by users, providing a history of actions such as accessing, creating, updating, or deleting resources or components at the Org level.\n\nThese logs allow superusers and network administrators to track and maintain a record of user actions, including who performed specific actions and when.\n\nAudit logs are useful for monitoring user activity, investigating security breaches, ensuring compliance with regulations, and tracing configuration changes in a network.\n\nThey can be filtered and analyzed to view specific information and granular-level details of each event.",
-        "tools": ["listOrgAuditLogs", "countOrgAuditLogs"],
-    },
     "orgs_nac": {
         "description": "NAC related objects for the organizations. It provides access to NAC Endpoints, NAC fingerprints, tags, and rules.",
         "tools": [
             "listOrgNacRules",
             "listOrgNacTags",
             "searchOrgUserMacs",
-            "countOrgClientFingerprints",
             "searchOrgClientFingerprints",
         ],
     },
     "orgs_sites": {
         "description": "tools to Create or Get the Organization Sites.\n\n\nUse the [Site Settings](https://www.juniper.net/documentation/us/en/software/mist/api/http/api/sites/setting/overview) to configure or update the Site information.",
-        "tools": [
-            "listOrgSiteGroups",
-            "countOrgSites",
-            "searchOrgSites",
-            "listOrgSiteTemplates",
-        ],
+        "tools": ["listOrgSiteGroups", "searchOrgSites", "listOrgSiteTemplates"],
     },
     "orgs_sles": {
         "description": "Org SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network.\n\nThey are generated through data science and machine learning algorithms and provide insights into various aspects of the network, such as coverage, capacity, connectivity, and performance.\n\nMist SLEs help identify when users do not have sufficient network quality, when they face issues with connecting or roaming between access points, and when there are problems on the wired network.",
@@ -181,17 +147,13 @@ TOOLS = {
         "description": "Statistics for the organizations. It provides access to various statistics related to the organization, such as BGP peers, devices, MX edges, other devices, ports, sites, tunnels, and VPN peers.",
         "tools": [
             "getOrgStats",
-            "countOrgBgpStats",
             "searchOrgBgpStats",
             "listOrgDevicesStats",
             "listOrgMxEdgesStats",
             "getOrgOtherDeviceStats",
-            "countOrgSwOrGwPorts",
             "searchOrgSwOrGwPorts",
             "listOrgSiteStats",
-            "countOrgTunnelsStats",
             "searchOrgTunnelsStats",
-            "countOrgPeerPathStats",
             "searchOrgPeerPathStats",
         ],
     },
@@ -240,12 +202,7 @@ TOOLS = {
     },
     "sites_rogues": {
         "description": "Rogues are unauthorized wireless access points that are installed on a network without authorization.\n\nThey can be connected to the LAN via an ethernet cable, similar to a pc, and are typically set up by individuals with malicious intent or by employees trying to cover a dead spot with their own wi-fi hotspot.",
-        "tools": [
-            "listSiteRogueAPs",
-            "listSiteRogueClients",
-            "countSiteRogueEvents",
-            "searchSiteRogueEvents",
-        ],
+        "tools": ["listSiteRogueAPs", "listSiteRogueClients", "searchSiteRogueEvents"],
     },
     "sites_rrm": {
         "description": "RRM, or Radio Resource Management, is a tool used by large multi-site organizations to efficiently manage their RF spectrum.\n\nIt involves making decisions on channel and power settings for access points (APs) based on factors such as user experience, client count, client usage, and interference.\n\nMist RRM uses a reinforcement learning-based feedback model to monitor the impact of changes in channel and power settings on the capacity and performance of the wireless network. It adapts dynamically to changing conditions throughout the day and aims to optimize wireless coverage and capacity across a site.",
@@ -280,15 +237,12 @@ TOOLS = {
         "description": "Statistics for the sites. It provides access to various statistics related to the site, such as application statistics, call statistics, client statistics, and more.",
         "tools": [
             "getSiteStats",
-            "countSiteApps",
             "troubleshootSiteCall",
-            "countSiteCalls",
             "searchSiteCalls",
             "getSiteCallsSummary",
             "listSiteTroubleshootCalls",
             "listSiteWirelessClientsStats",
             "searchSiteDiscoveredSwitchesMetrics",
-            "countSiteDiscoveredSwitches",
             "listSiteDiscoveredSwitchesMetrics",
             "searchSiteDiscoveredSwitches",
             "listSiteMxEdgesStats",
@@ -297,7 +251,7 @@ TOOLS = {
     },
     "sites_wan_usages": {
         "description": "tools to retrieve WAN Assurance statistics about the WAN Usage",
-        "tools": ["countSiteWanUsage", "searchSiteWanUsage"],
+        "tools": ["searchSiteWanUsage"],
     },
     "sites_wlans": {
         "description": "A Site Wlan is a wireless local area network that is configured and applied to a specific site within an organization.\n\nIt allows for the creation and management of wireless network settings, such as SSIDs (service set identifiers), authentication settings, VLAN configurations, etc... for a particular site.\n\nSite Wlans are created and managed at the site level and can only be referenced and used within that particular site.",
@@ -356,7 +310,6 @@ TOOLS = {
             "listSiteSecIntelProfilesDerived",
             "listSiteServicePoliciesDerived",
             "listSiteServicesDerived",
-            "countSiteServicePathEvents",
             "searchSiteServicePathEvents",
             "listSiteVpnsDerived",
         ],
@@ -378,10 +331,8 @@ TOOLS = {
         "description": "A Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url.\n\nIt enables the collection of information about various topics such as device events, alarms, and audits updates at the org level.\n\nThe Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
         "tools": [
             "listOrgWebhooks",
-            "countOrgWebhooksDeliveries",
             "searchOrgWebhooksDeliveries",
             "listSiteWebhooks",
-            "countSiteWebhooksDeliveries",
             "searchSiteWebhooksDeliveries",
         ],
     },

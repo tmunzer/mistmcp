@@ -17,9 +17,9 @@ from .constants_definitions import listinsightmetrics as listinsightmetrics
 from .constants_definitions import listlicensetypes as listlicensetypes
 from .constants_definitions import listwebhooktopics as listwebhooktopics
 from .orgs import getorg as getorg
-from .orgs import countorgalarms as countorgalarms
 from .orgs import searchorgalarms as searchorgalarms
 from .orgs import searchorgevents as searchorgevents
+from .orgs import listorgauditlogs as listorgauditlogs
 from .orgs import getorgsettings as getorgsettings
 from .templates_wan import listorgaamwprofiles as listorgaamwprofiles
 from .templates_wan import listorgantivirusprofiles as listorgantivirusprofiles
@@ -42,7 +42,6 @@ from .templates_wan import (
     listsiteservicepoliciesderived as listsiteservicepoliciesderived,
 )
 from .templates_wan import listsiteservicesderived as listsiteservicesderived
-from .templates_wan import countsiteservicepathevents as countsiteservicepathevents
 from .templates_wan import searchsiteservicepathevents as searchsiteservicepathevents
 from .templates_wan import listsitevpnsderived as listsitevpnsderived
 from .templates_alarms import listorgalarmtemplates as listorgalarmtemplates
@@ -59,46 +58,31 @@ from .orgs_licenses import (
 )
 from .orgs_licenses import getorglicensessummary as getorglicensessummary
 from .orgs_licenses import getorglicensesbysite as getorglicensesbysite
-from .clients import countorgwirelessclients as countorgwirelessclients
-from .clients import countorgwirelessclientevents as countorgwirelessclientevents
 from .clients import searchorgwirelessclientevents as searchorgwirelessclientevents
 from .clients import searchorgwirelessclients as searchorgwirelessclients
-from .clients import countorgwirelessclientssessions as countorgwirelessclientssessions
 from .clients import searchorgwirelessclientsessions as searchorgwirelessclientsessions
 from .clients import listorgguestauthorizations as listorgguestauthorizations
-from .clients import countorgguestauthorizations as countorgguestauthorizations
 from .clients import searchorgguestauthorization as searchorgguestauthorization
-from .clients import getorgguestauthorization as getorgguestauthorization
-from .clients import countorgnacclients as countorgnacclients
-from .clients import countorgnacclientevents as countorgnacclientevents
 from .clients import searchorgnacclientevents as searchorgnacclientevents
 from .clients import searchorgnacclients as searchorgnacclients
-from .clients import countorgwanclientevents as countorgwanclientevents
-from .clients import countorgwanclients as countorgwanclients
 from .clients import searchorgwanclientevents as searchorgwanclientevents
 from .clients import searchorgwanclients as searchorgwanclients
-from .clients import countorgwiredclients as countorgwiredclients
 from .clients import searchorgwiredclients as searchorgwiredclients
 from .clients import listsiteallguestauthorizations as listsiteallguestauthorizations
-from .clients import countsiteguestauthorizations as countsiteguestauthorizations
 from .clients import (
     listsiteallguestauthorizationsderived as listsiteallguestauthorizationsderived,
 )
 from .clients import searchsiteguestauthorization as searchsiteguestauthorization
-from .clients import getsiteguestauthorization as getsiteguestauthorization
-from .devices import countorgdevices as countorgdevices
-from .devices import countorgdeviceevents as countorgdeviceevents
 from .devices import searchorgdeviceevents as searchorgdeviceevents
 from .devices import listorgapsmacs as listorgapsmacs
 from .devices import searchorgdevices as searchorgdevices
 from .devices import listorgdevicessummary as listorgdevicessummary
+from .devices import getorginventory as getorginventory
+from .devices import searchorginventory as searchorginventory
 from .devices import getorgjuniperdevicescommand as getorgjuniperdevicescommand
 from .devices import listsitedevices as listsitedevices
-from .devices import countsitedeviceconfighistory as countsitedeviceconfighistory
 from .devices import searchsitedeviceconfighistory as searchsitedeviceconfighistory
 from .devices import searchsitedeviceevents as searchsitedeviceevents
-from .devices import exportsitedevices as exportsitedevices
-from .devices import countsitedevicelastconfig as countsitedevicelastconfig
 from .devices import searchsitedevicelastconfigs as searchsitedevicelastconfigs
 from .devices import searchsitedevices as searchsitedevices
 from .utilities_upgrade import listorgdeviceupgrades as listorgdeviceupgrades
@@ -123,26 +107,17 @@ from .templates_switches import (
 )
 from .orgs_sles import getorgsitessle as getorgsitessle
 from .orgs_sles import getorgsle as getorgsle
-from .orgs_inventory import getorginventory as getorginventory
-from .orgs_inventory import countorginventory as countorginventory
-from .orgs_inventory import searchorginventory as searchorginventory
-from .orgs_logs import listorgauditlogs as listorgauditlogs
-from .orgs_logs import countorgauditlogs as countorgauditlogs
 from .mxedges import listorgmxedgeclusters as listorgmxedgeclusters
 from .mxedges import listorgmxedges as listorgmxedges
-from .mxedges import countorgmxedges as countorgmxedges
-from .mxedges import countorgsitemxedgeevents as countorgsitemxedgeevents
 from .mxedges import searchorgmistedgeevents as searchorgmistedgeevents
 from .mxedges import searchorgmxedges as searchorgmxedges
 from .mxedges import getorgmxedgeupgradeinfo as getorgmxedgeupgradeinfo
 from .mxedges import listorgmxtunnels as listorgmxtunnels
 from .mxedges import listsitemxedges as listsitemxedges
-from .mxedges import countsitemxedgeevents as countsitemxedgeevents
 from .mxedges import searchsitemistedgeevents as searchsitemistedgeevents
 from .orgs_nac import listorgnacrules as listorgnacrules
 from .orgs_nac import listorgnactags as listorgnactags
 from .orgs_nac import searchorgusermacs as searchorgusermacs
-from .orgs_nac import countorgclientfingerprints as countorgclientfingerprints
 from .orgs_nac import searchorgclientfingerprints as searchorgclientfingerprints
 from .orgs_wlans import listorgpsks as listorgpsks
 from .orgs_wlans import listorgrftemplates as listorgrftemplates
@@ -155,29 +130,22 @@ from .orgs_wlans import (
     getorgcurrentmatchingclientsofawxtag as getorgcurrentmatchingclientsofawxtag,
 )
 from .orgs_sites import listorgsitegroups as listorgsitegroups
-from .orgs_sites import countorgsites as countorgsites
 from .orgs_sites import searchorgsites as searchorgsites
 from .orgs_sites import listorgsitetemplates as listorgsitetemplates
 from .orgs_stats import getorgstats as getorgstats
-from .orgs_stats import countorgbgpstats as countorgbgpstats
 from .orgs_stats import searchorgbgpstats as searchorgbgpstats
 from .orgs_stats import listorgdevicesstats as listorgdevicesstats
 from .orgs_stats import listorgmxedgesstats as listorgmxedgesstats
 from .orgs_stats import getorgotherdevicestats as getorgotherdevicestats
-from .orgs_stats import countorgsworgwports as countorgsworgwports
 from .orgs_stats import searchorgsworgwports as searchorgsworgwports
 from .orgs_stats import listorgsitestats as listorgsitestats
-from .orgs_stats import countorgtunnelsstats as countorgtunnelsstats
 from .orgs_stats import searchorgtunnelsstats as searchorgtunnelsstats
-from .orgs_stats import countorgpeerpathstats as countorgpeerpathstats
 from .orgs_stats import searchorgpeerpathstats as searchorgpeerpathstats
 from .marvis import troubleshootorg as troubleshootorg
 from .marvis import searchsitesynthetictest as searchsitesynthetictest
 from .webhooks import listorgwebhooks as listorgwebhooks
-from .webhooks import countorgwebhooksdeliveries as countorgwebhooksdeliveries
 from .webhooks import searchorgwebhooksdeliveries as searchorgwebhooksdeliveries
 from .webhooks import listsitewebhooks as listsitewebhooks
-from .webhooks import countsitewebhooksdeliveries as countsitewebhooksdeliveries
 from .webhooks import searchsitewebhooksdeliveries as searchsitewebhooksdeliveries
 from .self_account import getself as getself
 from .self_account import getselfloginfailures as getselfloginfailures
@@ -196,7 +164,6 @@ from .sites_insights import (
 from .sites_insights import getsiteinsightmetrics as getsiteinsightmetrics
 from .sites_rogues import listsiterogueaps as listsiterogueaps
 from .sites_rogues import listsiterogueclients as listsiterogueclients
-from .sites_rogues import countsiterogueevents as countsiterogueevents
 from .sites_rogues import searchsiterogueevents as searchsiterogueevents
 from .sites_wlans import listsitepsks as listsitepsks
 from .sites_wlans import listsiterftemplatederived as listsiterftemplatederived
@@ -236,9 +203,7 @@ from .sites_sles import getsiteslesummary as getsiteslesummary
 from .sites_sles import getsiteslethreshold as getsiteslethreshold
 from .sites_sles import listsiteslesmetrics as listsiteslesmetrics
 from .sites_stats import getsitestats as getsitestats
-from .sites_stats import countsiteapps as countsiteapps
 from .sites_stats import troubleshootsitecall as troubleshootsitecall
-from .sites_stats import countsitecalls as countsitecalls
 from .sites_stats import searchsitecalls as searchsitecalls
 from .sites_stats import getsitecallssummary as getsitecallssummary
 from .sites_stats import listsitetroubleshootcalls as listsitetroubleshootcalls
@@ -246,12 +211,10 @@ from .sites_stats import listsitewirelessclientsstats as listsitewirelessclients
 from .sites_stats import (
     searchsitediscoveredswitchesmetrics as searchsitediscoveredswitchesmetrics,
 )
-from .sites_stats import countsitediscoveredswitches as countsitediscoveredswitches
 from .sites_stats import (
     listsitediscoveredswitchesmetrics as listsitediscoveredswitchesmetrics,
 )
 from .sites_stats import searchsitediscoveredswitches as searchsitediscoveredswitches
 from .sites_stats import listsitemxedgesstats as listsitemxedgesstats
 from .sites_stats import getsitewxrulesusage as getsitewxrulesusage
-from .sites_wan_usages import countsitewanusage as countsitewanusage
 from .sites_wan_usages import searchsitewanusage as searchsitewanusage

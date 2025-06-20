@@ -593,6 +593,8 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             )
             if operation_id in EXCLUDED_OPERATION_IDS:
                 continue
+            elif operation_id.startswith("count"):
+                continue
             elif OPTIMIZED_TOOLS.get(operation_id):
                 if OPTIMIZED_TOOLS[operation_id].get("skip", False):
                     continue
@@ -705,6 +707,8 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     for tag_name, tag_data in root_tag_defs.items():
         if tag_data.get("tools"):
             final_tag_tools[tag_name] = tag_data
+        else:
+            print(f"Warning: Tag '{tag_name}' has no tools defined, skipping.")
 
     print("Generated tools grouped by tag:")
     for tag, files in tag_to_tools.items():
