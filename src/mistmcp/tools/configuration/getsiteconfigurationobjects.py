@@ -108,7 +108,7 @@ async def getSiteConfigurationObjects(
 
     match object_type.value:
         case "devices":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.devices.getSiteDevice(
                     apisession, site_id=str(site_id), device_id=str(object_id)
                 )
@@ -117,7 +117,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "evpn_topologies":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.evpn_topologies.getSiteEvpnTopology(
                     apisession, site_id=str(site_id), evpn_topology_id=str(object_id)
                 )
@@ -126,7 +126,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "maps":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.maps.getSiteMap(
                     apisession, site_id=str(site_id), map_id=str(object_id)
                 )
@@ -135,7 +135,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "mxedges":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.mxedges.getSiteMxEdge(
                     apisession, site_id=str(site_id), mxedge_id=str(object_id)
                 )
@@ -144,7 +144,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "psks":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.psks.getSitePsk(
                     apisession, site_id=str(site_id), psk_id=str(object_id)
                 )
@@ -153,7 +153,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "webhooks":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.webhooks.getSiteWebhook(
                     apisession, site_id=str(site_id), webhook_id=str(object_id)
                 )
@@ -162,7 +162,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "wlans":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.wlans.getSiteWlan(
                     apisession, site_id=str(site_id), wlan_id=str(object_id)
                 )
@@ -171,7 +171,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "wxrules":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.wxrules.getSiteWxRule(
                     apisession, site_id=str(site_id), wxrule_id=str(object_id)
                 )
@@ -180,7 +180,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "wxtags":
-            if None:
+            if object_id:
                 response = mistapi.api.v1.sites.wxtags.getSiteWxTag(
                     apisession, site_id=str(site_id), wxtag_id=str(object_id)
                 )
