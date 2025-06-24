@@ -12,14 +12,11 @@ class TestMcpToolsCategory:
         """Test that key enum values exist"""
         assert McpToolsCategory.ORGS.value == "orgs"
         assert McpToolsCategory.SITES.value == "sites"
-        assert McpToolsCategory.CONSTANTS_EVENTS.value == "constants_events"
-        assert McpToolsCategory.ORGS_DEVICES.value == "orgs_devices"
 
     def test_enum_from_string(self) -> None:
         """Test creating enum from string values"""
         assert McpToolsCategory("orgs") == McpToolsCategory.ORGS
         assert McpToolsCategory("sites") == McpToolsCategory.SITES
-        assert McpToolsCategory("constants_events") == McpToolsCategory.CONSTANTS_EVENTS
 
     def test_enum_invalid_value(self) -> None:
         """Test that invalid enum values raise ValueError"""

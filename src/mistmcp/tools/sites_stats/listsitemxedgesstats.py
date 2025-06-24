@@ -58,9 +58,9 @@ async def listSiteMxEdgesStats(
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
     mxedge_id: Annotated[
-        Optional[UUID],
+        Optional[str],
         Field(
-            description="""ID of the MX Edge to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
         ),
     ] = None,
 ) -> dict:
@@ -91,7 +91,7 @@ async def listSiteMxEdgesStats(
 
     if mxedge_id:
         response = mistapi.api.v1.sites.stats.getSiteMxEdgeStats(
-            apisession, site_id=str(site_id), mxedge_id=str(mxedge_id)
+            apisession, site_id=str(site_id), mxedge_id=mxedge_id
         )
     else:
         response = mistapi.api.v1.sites.stats.listSiteMxEdgesStats(

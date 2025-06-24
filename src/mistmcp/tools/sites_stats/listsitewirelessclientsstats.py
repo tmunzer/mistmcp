@@ -60,7 +60,7 @@ async def listSiteWirelessClientsStats(
     client_mac: Annotated[
         Optional[str],
         Field(
-            description="""MAC Address of the Wireless Client to filter by. Providing this parameter will return only the specified object and may provide additional information."""
+            description="""MAC address of the client to filter stats by. Optional, if not provided all clients will be listed."""
         ),
     ] = None,
 ) -> dict:
@@ -91,7 +91,7 @@ async def listSiteWirelessClientsStats(
 
     if client_mac:
         response = mistapi.api.v1.sites.stats.getSiteWirelessClientStats(
-            apisession, site_id=str(site_id), client_mac=str(client_mac)
+            apisession, site_id=str(site_id), client_mac=client_mac
         )
     else:
         response = mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(

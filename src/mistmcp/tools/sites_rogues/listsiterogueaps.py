@@ -72,6 +72,12 @@ async def listSiteRogueAPs(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
+    rogue_bssid: Annotated[
+        Optional[str],
+        Field(
+            description="""BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Site Rogue/Neighbor APs"""
 
@@ -98,16 +104,21 @@ async def listSiteRogueAPs(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.insights.listSiteRogueAPs(
-        apisession,
-        site_id=str(site_id),
-        type=type.value,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-        interval=interval,
-    )
+    if rogue_bssid:
+        response = mistapi.api.v1.sites.rogues.getSiteRogueAP(
+            apisession, site_id=str(site_id), rogue_bssid=rogue_bssid
+        )
+    else:
+        response = mistapi.api.v1.sites.insights.listSiteRogueAPs(
+            apisession,
+            site_id=str(site_id),
+            type=type.value,
+            limit=limit,
+            start=start,
+            end=end,
+            duration=duration,
+            interval=interval,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

@@ -72,31 +72,10 @@ class ToolLoader:
                     # Look for the tool function
                     if hasattr(module, "getSelf"):
                         tool = getattr(module, "getSelf")
-                        # In FastMCP 2.8+, the decorator returns a Tool object, so we can call enable() on it
-                        if hasattr(tool, "enable"):
-                            tool.enable()
-                            self.loaded_tools.append("getSelf")
-                            if self.config.debug:
-                                print("Loaded essential tool: getSelf")
-                        else:
-                            # For FastMCP 1.x pattern, manually register the tool
-                            mcp_instance.tool(
-                                name="getSelf",
-                                description="Get 'whoami' and privileges (which org and which sites I have access to)",
-                                enabled=True,
-                            )(tool)
-                            self.loaded_tools.append("getSelf")
-                            if self.config.debug:
-                                print(
-                                    "Loaded essential tool: getSelf (manual registration)"
-                                )
-                        return
-                    elif hasattr(module, "add_tool"):
-                        # Call add_tool function if it exists (old FastMCP 1.x pattern)
-                        module.add_tool()
+                        tool.enable()
                         self.loaded_tools.append("getSelf")
                         if self.config.debug:
-                            print("Loaded essential tool: getSelf (via add_tool)")
+                            print("Loaded essential tool: getSelf")
                         return
                     else:
                         if self.config.debug:
@@ -217,57 +196,19 @@ class ToolLoader:
                     # Restore original instance
                     mistmcp.server_factory.mcp_instance.set(original_instance)
 
-                    # Look for the tool function or add_tool function
-                    if hasattr(module, tool_name):
-                        # Skip if already loaded
-                        if tool_name in self.loaded_tools:
-                            if self.config.debug:
-                                print(f"Tool {tool_name} already loaded, skipping")
-                            continue
-
-                        tool = getattr(module, tool_name)
-                        # Register the tool directly with the MCP instance
-                        # The decorator returns a Tool object, so we can call enable() on it
-                        if hasattr(tool, "enable"):
-                            tool.enable()
-                            self.loaded_tools.append(tool_name)
-                            if self.config.debug:
-                                print(
-                                    f"Loaded tool: {tool_name} from category {category}"
-                                )
-                        else:
-                            # For FastMCP 1.x pattern, manually register the tool
-                            description = f"Tool {tool_name} from category {category}"
-                            mcp_instance.tool(
-                                name=tool_name, description=description, enabled=True
-                            )(tool)
-                            self.loaded_tools.append(tool_name)
-                            if self.config.debug:
-                                print(
-                                    f"Loaded tool: {tool_name} from category {category} (manual registration)"
-                                )
-                    elif hasattr(module, "add_tool"):
-                        # Call add_tool function if it exists (old FastMCP 1.x pattern)
-                        # But check if the tool is already loaded first
-                        if tool_name in self.loaded_tools:
-                            if self.config.debug:
-                                print(
-                                    f"Tool {tool_name} already loaded, skipping add_tool"
-                                )
-                            continue
-
-                        module.add_tool()
-                        self.loaded_tools.append(tool_name)
+                    # Skip if already loaded
+                    if tool_name in self.loaded_tools:
                         if self.config.debug:
-                            print(
-                                f"Loaded tool: {tool_name} from category {category} (via add_tool)"
-                            )
-                    else:
-                        if self.config.debug:
-                            print(
-                                f"Warning: No {tool_name} function or add_tool function found in {module_path}"
-                            )
+                            print(f"Tool {tool_name} already loaded, skipping")
                         continue
+
+                    tool = getattr(module, tool_name)
+                    # Register the tool directly with the MCP instance
+                    # The decorator returns a Tool object, so we can call enable() on it
+                    tool.enable()
+                    self.loaded_tools.append(tool_name)
+                    if self.config.debug:
+                        print(f"Loaded tool: {tool_name} from category {category}")
 
                 except (ImportError, AttributeError) as e:
                     if self.config.debug:
