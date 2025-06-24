@@ -1,616 +1,458 @@
-listOrgAptemplates:
-  add_parameter:
-    name: aptemplate_id
-    type: string
-    format: uuid
-    description:
-      ID of the AP Template to filter by. Providing this parameter will
-      return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(apisession, org_id=str(org_id),
-    aptemplate_id=str(aptemplate_id))
-getOrgAptemplate:
-  skip: true
+getOrgConfigurationObjects:
+  type: tool_consolidation
+  tags: [configuration]
+  description: Retrieve configuration objects from a specified organization or site.
+  read_only_hint: true
+  destructive_hint: false
+  parameters:
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization or site to retrieve configuration objects from.
+      required: true
+    - name: object_type
+      schema:
+        type: string
+      description: Type of configuration object to retrieve.
+      required: true
+    - name: object_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned.
+  requests:
+    alarmtemplates:
+      list:
+        operationId: listOrgAlarmTemplates
+        function: mistapi.api.v1.orgs.alarmtemplates.listOrgAlarmTemplates(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgAlarmTemplate
+        function: mistapi.api.v1.orgs.alarmtemplates.getOrgAlarmTemplate(apisession, org_id=str(org_id), alarmtemplate_id=str(object_id))
 
-listOrgAntivirusProfiles:
-  add_parameter:
-    name: avprofile_id
-    type: string
-    format: uuid
-    description:
-      ID of the Antivirus Profile to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.orgs.avprofiles.getOrgAntivirusProfile(apisession,
-    org_id=str(org_id), avprofile=str(avprofile_id))
-getOrgAntivirusProfile:
-  skip: true
+    wlans:
+      list:
+        operationId: listOrgWlans
+        function: mistapi.api.v1.orgs.wlans.listOrgWlans(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgWlan
+        function: mistapi.api.v1.orgs.wlans.getOrgWLAN(apisession, org_id=str(org_id), wlan_id=str(object_id))
 
-listOrgDeviceProfiles:
-  add_parameter:
-    name: deviceprofile_id
-    type: string
-    format: uuid
-    description: ID of the Device Profile to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.orgs.deviceprofiles.getOrgDeviceProfile(apisession,
-    org_id=str(org_id), deviceprofile_id=str(deviceprofile_id))
-getOrgDeviceProfile:
-  skip: true
 
-listOrgEvpnTopologies:
-  add_parameter:
-    name: evpn_topology_id
-    type: string
-    format: uuid
-    description: ID of the EVPN Topology to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.orgs.evpn_topologies.getOrgEvpnTopology(apisession,
-    org_id=str(org_id), evpn_topology_id=str(evpn_topology_id))
-getOrgEvpnTopology:
-  skip: true
-listOrgGatewayTemplates:
-  add_parameter:
-    name: gatewaytemplate_id
-    type: string
-    format: uuid
-    description:
-      ID of the Gateway Template to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.orgs.gatewaytemplates.getOrgGatewayTemplate(apisession,
-    org_id=str(org_id), gatewaytemplate_id=str(gatewaytemplate_id))
-getOrgGatewayTemplate:
-  skip: true
+    sitegroups:
+      list:
+        operationId: listOrgSiteGroups
+        function: mistapi.api.v1.orgs.sitegroups.listOrgSiteGroups(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgSiteGroup
+        function: mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(object_id))
 
-listOrgIdpProfiles:
-  add_parameter:
-    name: idpprofile_id
-    type: string
-    format: uuid
-    description:
-      ID of the IDP Profile to filter by. Providing this parameter will
-      return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.idpprofiles.getOrgIdpProfile(apisession,
-    org_id=str(org_id), idpprofile_id=str(idpprofile_id))
-getOrgIdpProfile:
-  skip: true
+    aptemplates:
+      list:
+        operationId: listOrgAptemplates
+        function: mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgAptemplate
+        function:
+          mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id))
 
-listOrgAAMWProfiles:
-  add_parameter:
-    name: aamwprofile_id
-    type: string
-    format: uuid
-    description:
-      ID of the AAMW Profile to filter by. Providing this parameter will
-      return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.aamwprofiles.getOrgAAMWProfile(apisession,
-    org_id=str(org_id), aamwprofile_id=str(aamwprofile_id))
-getOrgAAMWProfile:
-  skip: true
 
-listOrgMxEdgeClusters:
-  add_parameter:
-    name: mxcluster_id
-    type: string
-    format: uuid
-    description:
-      ID of the MX Edge Cluster to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.mxclusters.getOrgMxEdgeCluster(apisession,
-    org_id=str(org_id), mxcluster_id=str(mxcluster_id))
-getOrgMxEdgeCluster:
-  skip: true
+    avprofiles:
+      list:
+        operationId: listOrgAntivirusProfiles
+        function: mistapi.api.v1.orgs.avprofiles.listOrgAntivirusProfiles(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgAntivirusProfile
+        function: mistapi.api.v1.orgs.avprofiles.getOrgAntivirusProfile(apisession, org_id=str(org_id), avprofile_id=str(object_id))
 
-listOrgMxEdges:
-  add_parameter:
-    name: mxedge_id
-    type: string
-    format: uuid
-    description:
-      ID of the MX Edge to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.mxedges.getOrgMxEdge(apisession,
-    org_id=str(org_id), mxedge_id=str(mxedge_id))
-getOrgMxEdge:
-  skip: true
 
-listOrgMxTunnels:
-  add_parameter:
-    name: mxtunnel_id
-    type: string
-    format: uuid
-    description: ID of the MX Tunnel to filter by. Providing this parameter will
-      return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.mxtunnels.getOrgMxTunnel(apisession,
-    org_id=str(org_id), mxtunnel_id=str(mxtunnel_id))
-getOrgMxTunnel:
-  skip: true
+    devices:
+      list:
+        operationId: listOrgDevices
+        function: mistapi.api.v1.orgs.devices.listOrgDevices(apisession, org_id=str(org_id))
 
-listOrgNacTags:
-  add_parameter:
-    name: nactag_id
-    type: string
-    format: uuid
-    description:
-      ID of the NAC Tag to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.nactags.getOrgNacTag(apisession,
-    org_id=str(org_id), nactag_id=str(nactag_id))
-getOrgNacTag:
-  skip: true
+    deviceprofiles:
+      list:
+        operationId: listOrgDeviceProfiles
+        function: mistapi.api.v1.orgs.deviceprofiles.listOrgDeviceProfiles(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgDeviceProfile
+        function: mistapi.api.v1.orgs.deviceprofiles.getOrgDeviceProfile(apisession, org_id=str(org_id), deviceprofile_id=str(object_id))
 
-listOrgMxEdgesStats:
-  add_parameter:
-    name: mxedge_id
-    type: string
-    format: uuid
-    description:
-      ID of the MX Edge to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.stats.getOrgMxEdgeStats(apisession,
-    org_id=str(org_id), mxedge_id=str(mxedge_id))
-getOrgMxEdgeStats:
-  skip: true
 
-listOrgNacRules:
-  add_parameter:
-    name: nacrule_id
-    type: string
-    format: uuid
-    description: ID of the NAC Rule to filter by. Providing this parameter will
-      return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.nacrules.getOrgNacRule(apisession,
-    org_id=str(org_id), nacrule_id=str(nacrule_id))
-getOrgNacRule:
-  skip: true
+    evpn_topologies:
+      list:
+        operationId: listOrgEvpnTopologies
+        function: mistapi.api.v1.orgs.evpn_topologies.listOrgEvpnTopologies(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgEvpnTopology
+        function: mistapi.api.v1.orgs.evpn_topologies.getOrgEvpnTopology(apisession, org_id=str(org_id), evpn_topology_id=str(object_id))
 
-listOrgNetworkTemplates:
-  add_parameter:
-    name: networktemplate_id
-    type: string
-    format: uuid
-    description:
-      ID of the Network Template to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.orgs.networktemplates.getOrgNetworkTemplate(apisession,
-    org_id=str(org_id), networktemplate_id=str(networktemplate_id))
-getOrgNetworkTemplate:
-  skip: true
 
-listOrgNetworks:
-  add_parameter:
-    name: network_id
-    type: string
-    format: uuid
-    description:
-      ID of the Network to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.networks.getOrgNetwork(apisession,
-    org_id=str(org_id), network_id=str(network_id))
-getOrgNetwork:
-  skip: true
+    gatewaytemplates:
+      list:
+        operationId: listOrgGatewayTemplates
+        function: mistapi.api.v1.orgs.gatewaytemplates.listOrgGatewayTemplates(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgGatewayTemplate
+        function: mistapi.api.v1.orgs.gatewaytemplates.getOrgGatewayTemplate(apisession, org_id=str(org_id), gatewaytemplate_id=str(object_id))
 
-listOrgPsks:
-  add_parameter:
-    name: psk_id
-    type: string
-    format: uuid
-    description:
-      ID of the PSK to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.psks.getOrgPsk(apisession,
-    org_id=str(org_id), psk_id=str(psk_id))
-getOrgPsk:
-  skip: true
 
-listOrgRfTemplates:
-  add_parameter:
-    name: rftemplate_id
-    type: string
-    format: uuid
-    description:
-      ID of the RF Template to filter by. Providing this parameter will
-      return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.rftemplates.getOrgRfTemplate(apisession,
-    org_id=str(org_id), rftemplate_id=str(rftemplate_id))
-getOrgRfTemplate:
-  skip: true
+    idpprofiles:
+      list:
+        operationId: listOrgIdpProfiles
+        function: mistapi.api.v1.orgs.idpprofiles.listOrgIdpProfiles(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgIdpProfile
+        function: mistapi.api.v1.orgs.idpprofiles.getOrgIdpProfile(apisession, org_id=str(org_id), idpprofile_id=str(object_id))
 
-listOrgSecPolicies:
-  add_parameter:
-    name: secpolicy_id
-    type: string
-    format: uuid
-    description:
-      ID of the Security Policy to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.secpolicies.getOrgSecPolicy(apisession,
-    org_id=str(org_id), secpolicy_id=str(secpolicy_id))
-getOrgSecPolicy:
-  skip: true
 
-listOrgServices:
-  add_parameter:
-    name: service_id
-    type: string
-    format: uuid
-    description:
-      ID of the Service to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.services.getOrgService(apisession,
-    org_id=str(org_id), service_id=str(service_id))
-getOrgService:
-  skip: true
+    aamwprofiles:
+      list:
+        operationId: listOrgAAMWProfiles
+        function: mistapi.api.v1.orgs.aamwprofiles.listOrgAAMWProfiles(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgAAMWProfile
+        function: mistapi.api.v1.orgs.aamwprofiles.getOrgAAMWProfile(apisession, org_id=str(org_id), aamwprofile_id=str(object_id))
 
-listOrgServicePolicies:
-  add_parameter:
-    name: servicepolicy_id
-    type: string
-    format: uuid
-    description: ID of the Service Policy to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.orgs.servicepolicies.getOrgServicePolicy(apisession,
-    org_id=str(org_id), servicepolicy_id=str(servicepolicy_id))
-getOrgServicePolicy:
-  skip: true
 
-listOrgSites:
-  skip: true
+    mxclusters:
+      list:
+        operationId: listOrgMxEdgeClusters
+        function: mistapi.api.v1.orgs.mxclusters.listOrgMxEdgeClusters(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgMxEdgeCluster
+        function: mistapi.api.v1.orgs.mxclusters.getOrgMxEdgeCluster(apisession, org_id=str(org_id), mxcluster_id=str(object_id))
 
-listOrgSiteTemplates:
-  add_parameter:
-    name: sitetemplate_id
-    type: string
-    format: uuid
-    description: ID of the Site Template to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.orgs.sitetemplates.getOrgSiteTemplate(apisession,
-    org_id=str(org_id), sitetemplate_id=str(sitetemplate_id))
-getOrgSiteTemplate:
-  skip: true
 
-listOrgTemplates:
-  add_parameter:
-    name: template_id
-    type: string
-    format: uuid
-    description: ID of the Template to filter by. Providing this parameter will
-      return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.templates.getOrgTemplate(apisession,
-    org_id=str(org_id), template_id=str(template_id))
-getOrgTemplate:
-  skip: true
+    mxedges:
+      list:
+        operationId: listOrgMxEdges
+        function: mistapi.api.v1.orgs.mxedges.listOrgMxEdges(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgMxEdge
+        function: mistapi.api.v1.orgs.mxedges.getOrgMxEdge(apisession, org_id=str(org_id), mxedge_id=str(object_id))
 
-listOrgVpns:
-  add_parameter:
-    name: vpn_id
-    type: string
-    format: uuid
-    description:
-      ID of the VPN to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.vpns.getOrgVpn(apisession,
-    org_id=str(org_id), vpn_id=str(vpn_id))
-getOrgVpn:
-  skip: true
 
-listOrgWebhooks:
-  add_parameter:
-    name: webhook_id
-    type: string
-    format: uuid
-    description:
-      ID of the Webhook to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.webhooks.getOrgWebhook(apisession,
-    org_id=str(org_id), webhook_id=str(webhook_id))
-getOrgWebhook:
-  skip: true
+    mxtunnels:
+      list:
+        operationId: listOrgMxTunnels
+        function: mistapi.api.v1.orgs.mxtunnels.listOrgMxTunnels(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgMxTunnel
+        function: mistapi.api.v1.orgs.mxtunnels.getOrgMxTunnel(apisession, org_id=str(org_id), mxtunnel_id=str(object_id))
 
-listOrgWxRules:
-  add_parameter:
-    name: wxrule_id
-    type: string
-    format: uuid
-    description:
-      ID of the WX Rule to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.wxrules.getOrgWxRule(apisession,
-    org_id=str(org_id), wxrule_id=str(wxrule_id))
-getOrgWxRule:
-  skip: true
 
-listOrgWxTags:
-  add_parameter:
-    name: wxtag_id
-    type: string
-    format: uuid
-    description:
-      ID of the WX Tag to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.wxtags.getOrgWxTag(apisession,
-    org_id=str(org_id), wxtag_id=str(wxtag_id))
-getOrgWxTag:
-  skip: true
+    nactags:
+      list:
+        operationId: listOrgNacTags
+        function: mistapi.api.v1.orgs.nactags.listOrgNacTags(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgNacTag
+        function: mistapi.api.v1.orgs.nactags.getOrgNacTag(apisession, org_id=str(org_id), nactag_id=str(object_id))
 
-listSiteDevices:
-  add_parameter:
-    name: device_id
-    type: string
-    format: uuid
-    description:
-      ID of the Device to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.devices.getSiteDevice(apisession,
-    site_id=str(site_id), device_id=str(device_id))
-getSiteDevice:
-  skip: true
 
-listSiteRoamingEvents:
-  skip: true
+    nacrules:
+      list:
+        operationId: listOrgNacRules
+        function: mistapi.api.v1.orgs.nacrules.listOrgNacRules(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgNacRule
+        function: mistapi.api.v1.orgs.nacrules.getOrgNacRule(apisession, org_id=str(org_id), nacrule_id=str(object_id))
 
-listSiteEvpnTopologies:
-  add_parameter:
-    name: evpn_topology_id
-    type: string
-    format: uuid
-    description: ID of the EVPN Topology to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.sites.evpn_topologies.getSiteEvpnTopology(apisession,
-    site_id=str(site_id), evpn_topology_id=str(evpn_topology_id))
-getSiteEvpnTopology:
-  skip: true
 
-listSiteMaps:
-  add_parameter:
-    name: map_id
-    type: string
-    format: uuid
-    description:
-      ID of the Map to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.maps.getSiteMap(apisession,
-    site_id=str(site_id), map_id=str(map_id))
-getSiteMap:
-  skip: true
+    networktemplates:
+      list:
+        operationId: listOrgNetworkTemplates
+        function: mistapi.api.v1.orgs.networktemplates.listOrgNetworkTemplates(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgNetworkTemplate
+        function: mistapi.api.v1.orgs.networktemplates.getOrgNetworkTemplate(apisession, org_id=str(org_id), networktemplate_id=str(object_id))
 
-listSiteMxEdges:
-  add_parameter:
-    name: mxedge_id
-    type: string
-    format: uuid
-    description:
-      ID of the MX Edge to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.mxedges.getSiteMxEdge(apisession,
-    site_id=str(site_id), mxedge_id=str(mxedge_id))
-getSiteMxEdge:
-  skip: true
 
-listSitePsks:
-  add_parameter:
-    name: psk_id
-    type: string
-    format: uuid
-    description:
-      ID of the PSK to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.psks.getSitePsk(apisession,
-    site_id=str(site_id), psk_id=str(psk_id))
-getSitePsk:
-  skip: true
+    networks:
+      list:
+        operationId: listOrgNetworks
+        function: mistapi.api.v1.orgs.networks.listOrgNetworks(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgNetwork
+        function: mistapi.api.v1.orgs.networks.getOrgNetwork(apisession, org_id=str(org_id), network_id=str(object_id))
 
-listSiteWebhooks:
-  add_parameter:
-    name: webhook_id
-    type: string
-    format: uuid
-    description:
-      ID of the Webhook to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.webhooks.getSiteWebhook(apisession,
-    site_id=str(site_id), webhook_id=str(webhook_id))
-getSiteWebhook:
-  skip: true
 
-listOrgsWlans:
-  add_parameter:
-    name: wlan_id
-    type: string
-    format: uuid
-    description:
-      ID of the WLAN to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.wlans.getOrgWLAN(apisession,
-    org_id=str(org_id), wlan_id=str(wlan_id))
-getOrgWLAN:
-  skip: true
+    psks:
+      list:
+        operationId: listOrgPsks
+        function: mistapi.api.v1.orgs.psks.listOrgPsks(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgPsk
+        function: mistapi.api.v1.orgs.psks.getOrgPsk(apisession, org_id=str(org_id), psk_id=str(object_id))
 
-listSiteWlans:
-  add_parameter:
-    name: wlan_id
-    type: string
-    format: uuid
-    description:
-      ID of the WLAN to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.wlans.getSiteWlan(apisession,
-    site_id=str(site_id), wlan_id=str(wlan_id))
-getSiteWlan:
-  skip: true
 
-listSiteWxRules:
-  add_parameter:
-    name: wxrule_id
-    type: string
-    format: uuid
-    description:
-      ID of the WX Rule to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.wxrules.getSiteWxRule(apisession,
-    site_id=str(site_id), wxrule_id=str(wxrule_id))
-getSiteWxRule:
-  skip: true
+    rftemplates:
+      list:
+        operationId: listOrgRfTemplates
+        function: mistapi.api.v1.orgs.rftemplates.listOrgRfTemplates(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgRfTemplate
+        function: mistapi.api.v1.orgs.rftemplates.getOrgRfTemplate(apisession, org_id=str(org_id), rftemplate_id=str(object_id))
 
-listSiteWxTags:
-  add_parameter:
-    name: wxtag_id
-    type: string
-    format: uuid
-    description:
-      ID of the WX Tag to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.wxtags.getSiteWxTag(apisession,
-    site_id=str(site_id), wxtag_id=str(wxtag_id))
-getSiteWxTag:
-  skip: true
 
-listSiteWirelessClientsStats:
-  add_parameters:
-    name: client_mac
-    type: string
-    description: MAC Address of the Wireless Client to filter by. Providing this
-      parameter will return only the specified object and may provide additional
-      information.
-  custom_request:
-    mistapi.api.v1.sites.stats.getSiteWirelessClientStats(apisession,
-    site_id=str(site_id), client_mac=str(client_mac))
-getSiteWirelessClientStats:
-  skip: true
+    secpolicies:
+      list:
+        operationId: listOrgSecPolicies
+        function: mistapi.api.v1.orgs.secpolicies.listOrgSecPolicies(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgSecPolicy
+        function: mistapi.api.v1.orgs.secpolicies.getOrgSecPolicy(apisession, org_id=str(org_id), secpolicy_id=str(object_id))
 
-listSiteMxEdgesStats:
-  add_parameter:
-    name: mxedge_id
-    type: string
-    format: uuid
-    description:
-      ID of the MX Edge to filter by. Providing this parameter will return
-      only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.stats.getSiteMxEdgeStats(apisession,
-    site_id=str(site_id), mxedge_id=str(mxedge_id))
-getSiteMxEdgeStats:
-  skip: true
 
-listOrgDeviceUpgrades:
-  add_parameter:
-    name: upgrade_id
-    type: string
-    format: uuid
-    description: ID of the Device Upgrade to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession,
-    org_id=str(org_id), upgrade_id=str(upgrade_id))
-getOrgDeviceUpgrade:
-  skip: true
+    services:
+      list:
+        operationId: listOrgServices
+        function: mistapi.api.v1.orgs.services.listOrgServices(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgService
+        function: mistapi.api.v1.orgs.services.getOrgService(apisession, org_id=str(org_id), service_id=str(object_id))
 
-listOrgMxEdgeUpgrades:
-  add_parameter:
-    name: upgrade_id
-    type: string
-    format: uuid
-    description:
-      ID of the MX Edge Upgrade to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(apisession,
-    org_id=str(org_id), upgrade_id=str(upgrade_id))
-getOrgMxEdgeUpgrade:
-  skip: true
 
-# listOrgSsrUpgrades:
-#   add_parameter:
-#     name: upgrade_id
-#     type: string
-#     format: uuid
-#     description:
-#       ID of the SSR Upgrade to filter by. Providing this parameter will
-#       return only the specified object and may provide additional information.
-#   custom_request: mistapi.api.v1.orgs.upgrades.getOrgSsrUpgrade(apisession,
-#     org_id=str(org_id), upgrade_id=str(upgrade_id))
-# getOrgSsrUpgrade:
-#   skip: true
+    servicepolicies:
+      list:
+        operationId: listOrgServicePolicies
+        function: mistapi.api.v1.orgs.servicepolicies.listOrgServicePolicies(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgServicePolicy
+        function: mistapi.api.v1.orgs.servicepolicies.getOrgServicePolicy(apisession, org_id=str(org_id), servicepolicy_id=str(object_id))
 
-listSiteDeviceUpgrades:
-  add_parameter:
-    name: upgrade_id
-    type: string
-    format: uuid
-    description: ID of the Device Upgrade to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.devices.getSiteDeviceUpgrade(apisession,
-    site_id=str(site_id), upgrade_id=str(upgrade_id))
-getSiteDeviceUpgrade:
-  skip: true
 
-searchOrgUserMacs:
-  add_parameter:
-    name: usermac_id
-    type: string
-    format: uuid
-    description: ID of the User MAC to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.usermacs.getOrgUserMac(apisession, org_id=str(org_id), usermac_id=str(usermac_id))
-getOrgUserMac:
-  skip: true
+    sites:
+      list:
+        operationId: listOrgSites
+        function: mistapi.api.v1.orgs.sites.listOrgSites(apisession, org_id=str(org_id))
 
-listSiteRogueAPs:
-  add_parameter:
-    name: rogue_bssid
-    type: string
-    description:
-      BSSID of the Rogue Access Point to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request:
-    mistapi.api.v1.sites.rogues.getSiteRogueAP(apisession,site_id=str(site_id),
-    rogue_bssid=rogue_bssid)
-getSiteRogueAP:
-  skip: true
+    sitetemplates:
+      list:
+        operationId: listOrgSiteTemplates
+        function: mistapi.api.v1.orgs.sitetemplates.listOrgSiteTemplates(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgSiteTemplate
+        function: mistapi.api.v1.orgs.sitetemplates.getOrgSiteTemplate(apisession, org_id=str(org_id), sitetemplate_id=str(object_id))
 
-searchSiteSyntheticTest:
-  add_parameter:
-    name: device_id
-    type: string
-    format: uuid
-    description:
-      ID of the Device that ran the test to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.devices.getSiteDeviceSyntheticTest(apisession, site_id=str(site_id), device_id=str(device_id))
-getSiteDeviceSyntheticTest:
-  skip: true
 
-listOrgSiteGroups:
-  add_parameter:
-    name: sitegroup_id
-    type: string
-    format: uuid
-    description: ID of the Site Group to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(sitegroup_id))
-getOrgSiteGroup:
-  skip: true
+    templates:
+      list:
+        operationId: listOrgTemplates
+        function: mistapi.api.v1.orgs.templates.listOrgTemplates(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgTemplate
+        function: mistapi.api.v1.orgs.templates.getOrgTemplate(apisession, org_id=str(org_id), template_id=str(object_id))
 
-listOrgGuestAuthorizations:
-  add_parameter:
-    name: guest_mac
-    type: string
-    description: MAC Address of the Guest client to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(apisession, org_id=str(org_id), guest_mac=guest_mac)
-getOrgGuestAuthorization:
-  skip: true
 
-listSiteAllGuestAuthorizations:
-  add_parameter:
-    name: guest_mac
-    type: string
-    description: MAC Address of the Guest client to filter by. Providing this parameter
-      will return only the specified object and may provide additional information.
-  custom_request: mistapi.api.v1.sites.guests.getSiteGuestAuthorization(apisession, org_id=str(site_id), guest_mac=guest_mac)
-getSiteGuestAuthorization:
-  skip: true
+    vpns:
+      list:
+        operationId: listOrgVpns
+        function: mistapi.api.v1.orgs.vpns.listOrgVpns(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgVpn
+        function: mistapi.api.v1.orgs.vpns.getOrgVpn(apisession, org_id=str(org_id), vpn_id=str(object_id))
+
+
+    webhooks:
+      list:
+        operationId: listOrgWebhooks
+        function: mistapi.api.v1.orgs.webhooks.listOrgWebhooks(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgWebhook
+        function: mistapi.api.v1.orgs.webhooks.getOrgWebhook(apisession, org_id=str(org_id), webhook_id=str(object_id))
+
+
+    wxrules:
+      list:
+        operationId: listOrgWxRules
+        function: mistapi.api.v1.orgs.wxrules.listOrgWxRules(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgWxRule
+        function: mistapi.api.v1.orgs.wxrules.getOrgWxRule(apisession, org_id=str(org_id), wxrule_id=str(object_id))
+
+
+    wxtags:
+      list:
+        operationId: listOrgWxTags
+        function: mistapi.api.v1.orgs.wxtags.listOrgWxTags(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgWxTag
+        function: mistapi.api.v1.orgs.wxtags.getOrgWxTag(apisession, org_id=str(org_id), wxtag_id=str(object_id))
+
+
+getSiteConfigurationObjects:
+  type: tool_consolidation
+  tags: [configuration]
+  description: Retrieve configuration objects from a specified site. The "_derived" tools are used to retrieve derived configuration objects that are generated from the org level objects with jinja2 variables resolved with the site variables.
+  read_only_hint: true
+  destructive_hint: false
+  parameters:
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to retrieve configuration objects from.
+      required: true
+    - name: object_type
+      schema:
+        type: string
+      description: Type of configuration object to retrieve.
+      required: true
+    - name: object_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned.
+  requests:
+    devices:
+      list:
+        operationId: listSiteDevices
+        function: mistapi.api.v1.sites.devices.listSiteDevices(apisession, site_id=str(site_id))
+      get:
+        operationId: getSiteDevice
+        function: mistapi.api.v1.sites.devices.getSiteDevice(apisession, site_id=str(site_id), device_id=str(object_id))
+
+
+    evpn_topologies:
+      list:
+        operationId: listSiteEvpnTopologies
+        function: mistapi.api.v1.sites.evpn_topologies.listSiteEvpnTopologies(apisession, site_id=str(site_id))
+      get:
+        operationId: getSiteEvpnTopology
+        function: mistapi.api.v1.sites.evpn_topologies.getSiteEvpnTopology(apisession, site_id=str(site_id), evpn_topology_id=str(object_id))
+
+
+    maps:
+      list:
+        operationId: listSiteMaps
+        function: mistapi.api.v1.sites.maps.listSiteMaps(apisession, site_id=str(site_id))
+      get:
+        operationId: getSiteMap
+        function: mistapi.api.v1.sites.maps.getSiteMap(apisession, site_id=str(site_id), map_id=str(object_id))
+
+
+    mxedges:
+      list:
+        operationId: listSiteMxEdges
+        function: mistapi.api.v1.sites.mxedges.listSiteMxEdges(apisession, site_id=str(site_id))
+      get:
+        operationId: getSiteMxEdge
+        function: mistapi.api.v1.sites.mxedges.getSiteMxEdge(apisession, site_id=str(site_id), mxedge_id=str(object_id))
+
+
+    psks:
+      list:
+        operationId: listSitePsks
+        function: mistapi.api.v1.sites.psks.listSitePsks(apisession, site_id=str(site_id))
+      get:
+        operationId: getSitePsk
+        function: mistapi.api.v1.sites.psks.getSitePsk(apisession, site_id=str(site_id), psk_id=str(object_id))
+
+
+    webhooks:
+      list:
+        operationId: listSiteWebhooks
+        function: mistapi.api.v1.sites.webhooks.listSiteWebhooks(apisession, site_id=str(site_id))
+      get:
+        operationId: getSiteWebhook
+        function: mistapi.api.v1.sites.webhooks.getSiteWebhook(apisession, site_id=str(site_id), webhook_id=str(object_id))
+
+
+    wlans:
+      list:
+        operationId: listSiteWlans
+        function: mistapi.api.v1.sites.wlans.listSiteWlans(apisession, site_id=str(site_id))
+      get:
+        operationId: getSiteWlan
+        function: mistapi.api.v1.sites.wlans.getSiteWlan(apisession, site_id=str(site_id), wlan_id=str(object_id))
+
+
+    wxrules:
+      list:
+        operationId: listSiteWxRules
+        function: mistapi.api.v1.sites.wxrules.listSiteWxRules(apisession, site_id=str(site_id))
+      get:
+        operationId: getSiteWxRule
+        function: mistapi.api.v1.sites.wxrules.getSiteWxRule(apisession, site_id=str(site_id), wxrule_id=str(object_id))
+
+
+    wxtags:
+      list:
+        operationId: listSiteWxTags
+        function: mistapi.api.v1.sites.wxtags.listSiteWxTags(apisession, site_id=str(site_id))
+      get:
+        operationId: getSiteWxTag
+        function: mistapi.api.v1.sites.wxtags.getSiteWxTag(apisession, site_id=str(site_id), wxtag_id=str(object_id))
+
+
+    rftemplates_derived:
+      list:
+        operationId: listSiteRfTemplateDerived
+        function: mistapi.api.v1.sites.rftemplates.listSiteRfTemplateDerived(apisession, site_id=str(site_id))
+
+    wlans_derived:
+      list:
+        operationId: listSiteWlanDerived
+        function: mistapi.api.v1.sites.wlans.listSiteWlanDerived(apisession, site_id=str(site_id))
+
+    wxrules_derived:
+      list:
+        operationId: ListSiteWxRulesDerived
+        function: mistapi.api.v1.sites.wxrules.ListSiteWxRulesDerived(apisession, site_id=str(site_id))
+
+    # avprofiles_derived:
+    #   list:
+    #     operationId: listSiteAntivirusProfilesDerived
+    #     function: mistapi.api.v1.sites.avprofiles.listSiteAntivirusProfilesDerived(apisession, site_id=str(site_id))
+
+    # idpprofiles_derived:
+    #   list:
+    #     operationId: listSiteIdpProfilesDerived
+    #     function: mistapi.api.v1.sites.idpprofiles.listSiteIdpProfilesDerived(apisession, site_id=str(site_id))
+
+    # aamwprofiles_derived:
+    #   list:
+    #     operationId: listSiteAAMWProfilesDerived
+    #     function: mistapi.api.v1.sites.aamwprofiles.listSiteAAMWProfilesDerived(apisession, site_id=str(site_id))
+
+    aptemplates_derived:
+      list:
+        operationId: listSiteApTemplateDerived
+        function: mistapi.api.v1.sites.networktemplates.listSiteApTemplateDerived(apisession, site_id=str(site_id))
+    networktemplates_derived:
+      list:
+        operationId: listSiteNetworkTemplateDerived
+        function: mistapi.api.v1.sites.networktemplates.listSiteNetworkTemplateDerived(apisession, site_id=str(site_id))
+
+    gatewaytemplates_derived:
+      list:
+        operationId: listSiteGatewayTemplateDerived
+        function: mistapi.api.v1.sites.gatewaytemplates.listSiteGatewayTemplateDerived(apisession, site_id=str(site_id))
+
+    deviceprofiles_derived:
+      list:
+        operationId: listSiteDeviceProfilesDerived
+        function: mistapi.api.v1.sites.deviceprofiles.listSiteDeviceProfilesDerived(apisession, site_id=str(site_id))
+
+    networks_derived:
+      list:
+        operationId: listSiteNetworksDerived
+        function: mistapi.api.v1.sites.networks.listSiteNetworksDerived(apisession, site_id=str(site_id))
+
+    services_derived:
+      list:
+        operationId: listSiteServicesDerived
+        function: mistapi.api.v1.sites.services.listSiteServicesDerived(apisession, site_id=str(site_id))
+
+    servicepolicies_derived:
+      list:
+        operationId: listSiteServicePoliciesDerived
+        function: mistapi.api.v1.sites.servicepolicies.listSiteServicePoliciesDerived(apisession, site_id=str(site_id))
+
+    vpns_derived:
+      list:
+        operationId: listSiteVpnsDerived
+        function: mistapi.api.v1.sites.vpns.listSiteVpnsDerived(apisession, site_id=str(site_id))

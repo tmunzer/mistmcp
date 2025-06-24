@@ -19,7 +19,7 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 
@@ -40,12 +40,6 @@ mcp = mcp_instance.get()
 )
 async def listOrgDeviceUpgrades(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    upgrade_id: Annotated[
-        Optional[UUID],
-        Field(
-            description="""ID of the Device Upgrade to filter by. Providing this parameter will return only the specified object and may provide additional information."""
-        ),
-    ] = None,
 ) -> dict:
     """Get List of Org multiple devices upgrades"""
 
@@ -72,15 +66,10 @@ async def listOrgDeviceUpgrades(
         apitoken=apitoken,
     )
 
-    if upgrade_id:
-        response = mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(
-            apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
-        )
-    else:
-        response = mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(
-            apisession,
-            org_id=str(org_id),
-        )
+    response = mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(
+        apisession,
+        org_id=str(org_id),
+    )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

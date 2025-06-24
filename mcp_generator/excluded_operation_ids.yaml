@@ -24,3 +24,10 @@
 - countSiteDevices
 - countSiteDeviceEvents
 - exportSiteDevices
+- listOrgGuestAuthorizations
+- listSiteAllGuestAuthorizations
+- listSiteAllGuestAuthorizationsDerived
+- listSiteSecIntelProfilesDerived
+- listSiteAvailableDeviceVersions
+- listApLedDefinition
+- listApChannels

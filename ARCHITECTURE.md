@@ -163,13 +163,13 @@ Core session management tools (`getSelf`, `manageMcpTools`) with session state i
 ```
 1. Mist API token provided via environment variables (MIST_APITOKEN)
 2. Token loaded at server startup from environment
-3. Token validated on first API call 
+3. Token validated on first API call
 4. Session stores validated credentials for duration of process
 5. All subsequent API calls use stored session credentials
 6. Single session per process - credentials persist until shutdown
 ```
 
-#### HTTP Mode Authentication  
+#### HTTP Mode Authentication
 ```
 1. Mist API token provided in HTTP headers per request
 2. Headers: 'X-Authorization' and Query Parameter: 'cloud' for each API call
@@ -222,7 +222,7 @@ Core session management tools (`getSelf`, `manageMcpTools`) with session state i
 
 ### Session Data
 - **Metadata**: Session ID, creation time, client info
-- **Configuration**: Tool loading mode, enabled categories  
+- **Configuration**: Tool loading mode, enabled categories
 - **Credentials**: Mist API token and host per session (STDIO mode only)
 - **State**: Enabled tools, last activity tracking
 
@@ -297,7 +297,7 @@ listOrgAptemplates:
     name: aptemplate_id
     type: string
     format: uuid
-    description: ID of the AP Template to filter by. Providing this parameter 
+    description: ID of the AP Template to filter by. Providing this parameter
       will return only the specified object and may provide additional information.
   custom_request: mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(...)
 
@@ -341,7 +341,7 @@ listSiteDevices:
 
 listSiteWlans:
   skip: true  # Use listOrgsWlans with site_id parameter instead
-  
+
 # Organization-level endpoints handle both org-wide and site-specific queries
 searchOrgDevices:
   # Can filter by site_id to get site-specific devices
@@ -351,7 +351,7 @@ searchOrgDevices:
 #### Benefits of Site-Level Consolidation
 
 1. **Reduced Tool Count**: Eliminate duplicate functionality between org and site levels
-2. **Consistent Interface**: Single endpoint pattern for both org-wide and site-specific queries  
+2. **Consistent Interface**: Single endpoint pattern for both org-wide and site-specific queries
 3. **Enhanced Flexibility**: Organization endpoints often have richer filtering options
 4. **Simplified Mental Model**: Fewer endpoints to understand and manage
 5. **Better Scalability**: Organization-level endpoints typically handle larger datasets more efficiently
@@ -363,7 +363,7 @@ The optimization currently covers:
 1. **Configuration Objects** - List/Get pattern merging:
    - AP Templates, Gateway Templates, Device Profiles
    - Security Policies, Service Policies, NAC Rules
-   - Networks, VPNs, PSKs, Webhooks  
+   - Networks, VPNs, PSKs, Webhooks
    - Site Maps, MX Edges, EVPN Topologies
 
 2. **Site-Level Consolidation** - Removing redundant site endpoints:
@@ -378,12 +378,12 @@ The optimization currently covers:
 ```
 ❌ Before: Multiple tools per template type
 - listOrgAptemplates + getOrgAptemplate
-- listOrgGatewayTemplates + getOrgGatewayTemplate  
+- listOrgGatewayTemplates + getOrgGatewayTemplate
 - listOrgSiteTemplates + getOrgSiteTemplate
 
 ✅ After: Consolidated tools with enhanced parameters
 - listOrgAptemplates (+ optional aptemplate_id for details)
-- listOrgGatewayTemplates (+ optional gatewaytemplate_id for details)  
+- listOrgGatewayTemplates (+ optional gatewaytemplate_id for details)
 - listOrgSiteTemplates (+ optional sitetemplate_id for details)
 ```
 
@@ -396,7 +396,7 @@ The optimization currently covers:
 
 ✅ After: Single tools with site filtering
 - searchOrgDevices(site_id="abc123")
-- searchOrgWirelessClients(site_id="abc123")  
+- searchOrgWirelessClients(site_id="abc123")
 - listOrgsWlans(site_id="abc123")
 ```
 

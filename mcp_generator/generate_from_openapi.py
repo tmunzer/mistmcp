@@ -76,6 +76,8 @@ with open(
     os.path.join(DIR_PATH, "tools_optimization.yaml"), "r", encoding="utf-8"
 ) as f:
     OPTIMIZED_TOOLS = yaml.safe_load(f)
+    if not OPTIMIZED_TOOLS:
+        OPTIMIZED_TOOLS = {}
 
 # Type translation mapping from OpenAPI types to Python types
 # This dictionary maps OpenAPI type definitions to their Python equivalents
@@ -557,6 +559,102 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     root_tools_import: dict = {}
     root_enums: list = []
     root_functions: dict = {}
+    processed_operation_ids = []
+
+    for func_name, func_data in OPTIMIZED_TOOLS.items():
+        if func_data.get("type") == "tool_consolidation":
+            description = func_data.get("description", "")
+            tag = func_data.get("tags", [])[0]
+
+            enums_optim = []
+            request = "match object_type.value:\n"
+
+            for object_type, details in func_data.get("requests", {}).items():
+                enums_optim.append(object_type)
+                request += f"        case '{object_type}':\n"
+                if details.get("get"):
+                    request += (
+                        f"            if object_id:\n"
+                        f"                response = {details['get'].get('function', '')}\n"
+                        f"            else:\n"
+                    )
+                    processed_operation_ids.append(
+                        details["get"].get("operationId", "").lower()
+                    )
+                request += f"                response = {details['list'].get('function', '')}\n"
+                processed_operation_ids.append(
+                    details["list"].get("operationId", "").lower()
+                )
+            request += """
+        case _:
+            raise ToolError({
+                "status_code": 400,
+                "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}"
+            })
+            """
+
+            for param in func_data.get("parameters", []):
+                if param.get("name") == "object_type":
+                    param["schema"]["enum"] = enums_optim
+            imports, models, enums, parameters, mistapi_parameters = (
+                gen_endpoint_parameters(
+                    openapi_parameters,
+                    openapi_schemas,
+                    func_data.get("parameters", []),
+                    {},
+                    None,
+                )
+            )
+
+            folder_path_parts, file_name = _gen_folder_and_file_paths(
+                "/api/v1/orgs/{org_id}/consolidated"
+            )
+
+            tool_code = TOOL_TEMPLATE.format(
+                class_name=func_name.capitalize(),
+                imports=imports,
+                models=models,
+                enums=enums,
+                operationId=func_name,
+                description=description.replace("\n", ""),
+                tag=tag,
+                readOnlyHint=func_data.get("read_only_hint", False),
+                destructiveHint=func_data.get("destructive_hint", True),
+                parameters=parameters,
+                request=request,
+            )
+
+            tag_dir = OUTPUT_DIR / snake_case(tag)
+            tag_dir.mkdir(parents=True, exist_ok=True)
+            init_file = tag_dir / "__init__.py"
+            init_file.write_text("")
+            tool_file = tag_dir / f"{snake_case(func_name)}.py"
+            tool_file.write_text(tool_code)
+            tag_to_tools.setdefault(tag, []).append(str(tool_file))
+
+            ## tool_tools_import
+            if not root_tools_import.get(snake_case(tag)):
+                root_tools_import[snake_case(tag)] = []
+            root_tools_import[snake_case(tag)].append(snake_case(func_name))
+            ## root_enums
+            if (
+                f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
+                not in root_enums
+            ):
+                root_enums.append(
+                    f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
+                )
+            ## root_functions
+            if not root_functions.get(snake_case(snake_case(tag))):
+                root_functions[snake_case(snake_case(tag))] = []
+            root_functions[snake_case(snake_case(tag))].append(
+                f"{snake_case(func_name)}.add_tool()"
+            )
+            root_functions[snake_case(snake_case(tag))].append(
+                f"TOOL_REMOVE_FCT.append({snake_case(func_name)}.remove_tool)"
+            )
+            ## root_tag_defs
+            root_tag_defs[snake_case(snake_case(tag))]["tools"].append(func_name)
 
     for path, methods in openapi_paths.items():
         for method, details in methods.items():
@@ -593,40 +691,12 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             )
             if operation_id in EXCLUDED_OPERATION_IDS:
                 continue
-            elif operation_id.startswith("count"):
+            if operation_id.lower() in processed_operation_ids:
                 continue
-            elif OPTIMIZED_TOOLS.get(operation_id):
-                if OPTIMIZED_TOOLS[operation_id].get("skip", False):
-                    continue
-                if OPTIMIZED_TOOLS[operation_id].get("add_parameter"):
-                    parameter = {
-                        "name": OPTIMIZED_TOOLS[operation_id]["add_parameter"]["name"],
-                        "description": OPTIMIZED_TOOLS[operation_id][
-                            "add_parameter"
-                        ].get("description", ""),
-                        "in": "query",
-                        "schema": {
-                            "type": OPTIMIZED_TOOLS[operation_id]["add_parameter"][
-                                "type"
-                            ],
-                        },
-                    }
-                    if OPTIMIZED_TOOLS[operation_id]["add_parameter"].get("format"):
-                        parameter["schema"]["format"] = OPTIMIZED_TOOLS[operation_id][
-                            "add_parameter"
-                        ]["format"]
+            if operation_id.startswith("count"):
+                continue
 
-                    if not details.get("parameters"):
-                        details["parameters"] = []
-                    details["parameters"].append(parameter)
-
-                    optimization_parameter_name = OPTIMIZED_TOOLS[operation_id][
-                        "add_parameter"
-                    ]["name"]
-                    optimization_request = OPTIMIZED_TOOLS[operation_id].get(
-                        "custom_request"
-                    )
-
+            processed_operation_ids.append(operation_id.lower())
             description = details.get("description", "")
 
             tag = tags[0]
@@ -740,6 +810,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
         print(f"{tag}: {len(tag_data['tools'])} tools")
 
     print(" CATEGORY SUMMARY ".center(80, "-"))
+    print(f"Total API Calls: {len(processed_operation_ids)}")
     print(f"Total categories: {len(final_tag_tools)}")
     print(f"Total tools: {tools}")
 

@@ -13,15 +13,6 @@
 "orgs mxclusters": "mxedges"
 "orgs mxtunnels": "mxedges"
 "sites mxedges": "mxedges"
-# templates_alarms
-"orgs alarm templates": "templates_alarms"
-# templates_devices
-"sites ap templates": "templates_devices"
-"orgs ap templates": "templates_devices"
-"sites device profiles": "templates_devices"
-"orgs device profiles": "templates_devices"
-# orgs_sites
-"orgs site templates": "orgs_sites"
 # sites_stats
 "sites stats - apps": "sites_stats"
 "sites stats - calls": "sites_stats"
@@ -29,7 +20,7 @@
 "sites stats - mxedges": "sites_stats"
 "sites stats - wxrules": "sites_stats"
 "sites stats - discovered switches": "sites_stats"
-# sites_stats
+# orgs
 "orgs stats - bgp peers": "orgs_stats"
 "orgs stats - devices": "orgs_stats"
 "orgs stats - mxedges": "orgs_stats"
@@ -45,39 +36,6 @@
 "orgs clients - wireless": "clients"
 "orgs guests": "clients"
 "sites guests": "clients"
-# sites_wlans
-"sites wxrules": "sites_wlans"
-"sites wxtags": "sites_wlans"
-"sites psks": "sites_wlans"
-"sites rf templates": "sites_wlans"
-# templates_switches
-"sites evpn topologies": "templates_switches"
-"sites network templates": "templates_switches"
-"orgs evpn topologies": "templates_switches"
-"orgs network templates": "templates_switches"
-# templates_wan
-"sites applications": "templates_wan"
-"sites gateway templates": "templates_wan"
-"sites secintel profiles": "templates_wan"
-"sites service policies": "templates_wan"
-"sites services": "templates_wan"
-"sites networks": "templates_wan"
-"sites vpns": "templates_wan"
-"orgs gateway templates": "templates_wan"
-"orgs vpns": "templates_wan"
-"orgs antivirus profiles": "templates_wan"
-"orgs advanced anti malware profiles": "templates_wan"
-"orgs security policies": "templates_wan"
-"orgs services": "templates_wan"
-"orgs service policies": "templates_wan"
-"orgs idp profiles": "templates_wan"
-"orgs networks": "templates_wan"
-# orgs_wlans
-"orgs wlan templates": "orgs_wlans"
-"orgs wxrules": "orgs_wlans"
-"orgs rf templates": "orgs_wlans"
-"orgs wxtags": "orgs_wlans"
-"orgs psks": "orgs_wlans"
 
 # orgs_nac
 "orgs nac fingerprints": "orgs_nac"

@@ -21,66 +21,75 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
-class Type(Enum):
-    ARP = "arp"
-    CURL = "curl"
-    DHCP = "dhcp"
-    DHCP6 = "dhcp6"
-    DNS = "dns"
-    LAN_CONNECTIVITY = "lan_connectivity"
-    RADIUS = "radius"
-    SPEEDTEST = "speedtest"
-    NONE = None
-
-
-class Protocol(Enum):
-    PING = "ping"
-    TRACEROUTE = "traceroute"
-    NONE = None
-
-
 @mcp.tool(
     enabled=True,
-    name="searchSiteSyntheticTest",
-    description="""Search Site Synthetic Testing""",
-    tags={"marvis"},
+    name="searchSiteServicePathEvents",
+    description="""Search Service Path Events""",
+    tags={"Sites Services"},
     annotations={
-        "title": "searchSiteSyntheticTest",
+        "title": "searchSiteServicePathEvents",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def searchSiteSyntheticTest(
+async def searchSiteServicePathEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mac: Annotated[Optional[str], Field(description="""Device MAC Address""")] = None,
+    type: Annotated[
+        Optional[str], Field(description="""Event type, e.g. GW_SERVICE_PATH_DOWN""")
+    ] = None,
+    text: Annotated[
+        Optional[str],
+        Field(
+            description="""Description of the event including the reason it is triggered"""
+        ),
+    ] = None,
+    peer_port_id: Annotated[
+        Optional[str], Field(description="""Port ID of the peer gateway""")
+    ] = None,
+    peer_mac: Annotated[
+        Optional[str], Field(description="""MAC address of the peer gateway""")
+    ] = None,
+    vpn_name: Annotated[Optional[str], Field(description="""Peer name""")] = None,
+    vpn_path: Annotated[Optional[str], Field(description="""Peer path name""")] = None,
+    policy: Annotated[
+        Optional[str],
+        Field(description="""Service policy associated with that specific path"""),
+    ] = None,
     port_id: Annotated[
-        Optional[str],
-        Field(description="""Port_id used to run the test (for SSR only)"""),
+        Optional[str], Field(description="""Network interface""")
     ] = None,
-    vlan_id: Annotated[Optional[str], Field(description="""VLAN ID""")] = None,
-    by: Annotated[
-        Optional[str], Field(description="""Entity who triggers the test""")
+    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
+    version: Annotated[
+        Optional[str], Field(description="""Device firmware version""")
     ] = None,
-    reason: Annotated[
-        Optional[str], Field(description="""Test failure reason""")
+    timestamp: Annotated[
+        Optional[float], Field(description="""Start time, in epoch""")
     ] = None,
-    type: Annotated[Type, Field(description="""Synthetic test type""")] = Type.NONE,
-    protocol: Annotated[
-        Protocol, Field(description="""Connectivity protocol""")
-    ] = Protocol.NONE,
-    tenant: Annotated[
-        Optional[str],
-        Field(description="""Tenant network in which lan_connectivity test was run"""),
+    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
+    start: Annotated[
+        Optional[int],
+        Field(
+            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+        ),
     ] = None,
+    end: Annotated[
+        Optional[int],
+        Field(
+            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+        ),
+    ] = None,
+    duration: Annotated[
+        str, Field(description="""Duration like 7d, 2w""", default="1d")
+    ] = "1d",
+    limit: Annotated[int, Field(default=100)] = 100,
 ) -> dict:
-    """Search Site Synthetic Testing"""
+    """Search Service Path Events"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -105,17 +114,25 @@ async def searchSiteSyntheticTest(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.synthetic_test.searchSiteSyntheticTest(
+    response = mistapi.api.v1.sites.services.searchSiteServicePathEvents(
         apisession,
         site_id=str(site_id),
-        mac=mac,
+        type=type,
+        text=text,
+        peer_port_id=peer_port_id,
+        peer_mac=peer_mac,
+        vpn_name=vpn_name,
+        vpn_path=vpn_path,
+        policy=policy,
         port_id=port_id,
-        vlan_id=vlan_id,
-        by=by,
-        reason=reason,
-        type=type.value,
-        protocol=protocol.value,
-        tenant=tenant,
+        model=model,
+        version=version,
+        timestamp=timestamp,
+        mac=mac,
+        start=start,
+        end=end,
+        duration=duration,
+        limit=limit,
     )
 
     if response.status_code != 200:
