@@ -135,11 +135,12 @@ from fastmcp.server.dependencies import get_context, get_http_request
 from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
 from mistmcp.config import config
-from mistmcp.server_factory import mcp_instance
+#from mistmcp.server_factory import mcp_instance
+from mistmcp.server_factory import mcp
 
 {imports}
 
-mcp = mcp_instance.get()
+#mcp = mcp_instance.get()
 
 {models}
 {enums}
@@ -576,7 +577,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
                 request += f"        case '{object_type}':\n"
                 if details.get("get"):
                     request += (
-                        f"            if {func_data.get('if_filter')}:\n"
+                        f"            if {func_data.get('if_filter', 'object_id')}:\n"
                         f"                response = {details['get'].get('function', '')}\n"
                         f"            else:\n"
                     )
