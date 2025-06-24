@@ -11,71 +11,60 @@
 """
 
 import json
-import mistapi
-from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError, ClientError, NotFoundError
-from starlette.requests import Request
-from mistmcp.config import config
-from mistmcp.server_factory import mcp_instance
-
-from pydantic import Field
+from enum import Enum
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
 
+import mistapi
+from fastmcp.exceptions import ClientError, NotFoundError, ToolError
+from fastmcp.server.dependencies import get_context, get_http_request
+from pydantic import Field
+from starlette.requests import Request
+
+from mistmcp.config import config
+from mistmcp.server_factory import mcp_instance
 
 mcp = mcp_instance.get()
 
 
-class For_site(Enum):
-    ALL = "all"
-    TRUE = "true"
-    FALSE = "false"
-    NONE = None
+class Device_type(Enum):
+    AP = "ap"
+    SWITCH = "switch"
+    SRX = "srx"
+    MXEDGE = "mxedge"
+    SSR = "ssr"
 
 
 @mcp.tool(
     enabled=True,
-    name="listOrgMxEdgesStats",
-    description="""Get List of Org MxEdge Stats""",
-    tags={"orgs_stats"},
+    name="listUpgrades",
+    description="""List all available upgrades for the organization.""",
+    tags={"utilities_upgrade"},
     annotations={
-        "title": "listOrgMxEdgesStats",
+        "title": "listUpgrades",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listOrgMxEdgesStats(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[
-        For_site, Field(description="""Filter for site level mist edges""")
-    ] = For_site.NONE,
-    start: Annotated[
-        Optional[int],
+async def listUpgrades(
+    org_id: Annotated[
+        UUID, Field(description="""ID of the organization to list upgrades for.""")
+    ],
+    device_type: Annotated[
+        Device_type,
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Type of device to filter upgrades by. Optional, if not provided all upgrades will be listed."""
         ),
-    ] = None,
-    end: Annotated[
-        Optional[int],
+    ],
+    upgrade_id: Annotated[
+        Optional[UUID],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
-        ),
-    ] = None,
-    duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-    mxedge_id: Annotated[
-        Optional[str],
-        Field(
-            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
+            description="""ID of the specific upgrade to retrieve. Optional, if not provided all upgrades will be listed."""
         ),
     ] = None,
 ) -> dict:
-    """Get List of Org MxEdge Stats"""
+    """List all available upgrades for the organization."""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -100,21 +89,61 @@ async def listOrgMxEdgesStats(
         apitoken=apitoken,
     )
 
-    if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(
-            apisession, org_id=str(org_id), mxedge_id=mxedge_id
-        )
-    else:
-        response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
-            apisession,
-            org_id=str(org_id),
-            for_site=for_site.value,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
-        )
+    object_type = device_type
+    match object_type.value:
+        case "ap":
+            if upgrade_id:
+                response = mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(
+                    apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
+                )
+            else:
+                response = mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(
+                    apisession, org_id=str(org_id)
+                )
+        case "switch":
+            if upgrade_id:
+                response = mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(
+                    apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
+                )
+            else:
+                response = mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(
+                    apisession, org_id=str(org_id)
+                )
+        case "srx":
+            if upgrade_id:
+                response = mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(
+                    apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
+                )
+            else:
+                response = mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(
+                    apisession, org_id=str(org_id)
+                )
+        case "mxedge":
+            if upgrade_id:
+                response = mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(
+                    apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
+                )
+            else:
+                response = mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(
+                    apisession, org_id=str(org_id)
+                )
+        case "ssr":
+            if upgrade_id:
+                response = mistapi.api.v1.orgs.ssr.getOrgSsrUpgrade(
+                    apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
+                )
+            else:
+                response = mistapi.api.v1.orgs.ssr.listOrgSsrUpgrades(
+                    apisession, org_id=str(org_id)
+                )
+
+        case _:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Device_type]}",
+                }
+            )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

@@ -57,6 +57,12 @@ async def listSiteMxEdgesStats(
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
+    mxedge_id: Annotated[
+        Optional[str],
+        Field(
+            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Site MxEdges Stats"""
 
@@ -83,15 +89,20 @@ async def listSiteMxEdgesStats(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.stats.listSiteMxEdgesStats(
-        apisession,
-        site_id=str(site_id),
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
-    )
+    if mxedge_id:
+        response = mistapi.api.v1.sites.stats.getSiteMxEdgeStats(
+            apisession, site_id=str(site_id), mxedge_id=mxedge_id
+        )
+    else:
+        response = mistapi.api.v1.sites.stats.listSiteMxEdgesStats(
+            apisession,
+            site_id=str(site_id),
+            start=start,
+            end=end,
+            duration=duration,
+            limit=limit,
+            page=page,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

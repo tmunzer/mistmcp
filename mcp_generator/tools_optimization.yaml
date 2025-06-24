@@ -1,3 +1,134 @@
+listSiteWirelessClientsStats:
+  type: tool_optimization
+  add_parameters:
+    - name: client_mac
+      schema:
+        type: string
+      description: MAC address of the client to filter stats by. Optional, if not provided all clients will be listed.
+  custom_request: mistapi.api.v1.sites.stats.getSiteWirelessClientStats(apisession, site_id=str(site_id), client_mac=client_mac)
+getSiteWirelessClientStats:
+  skip: true
+
+listSiteMxEdgesStats:
+  type: tool_optimization
+  add_parameters:
+    - name: mxedge_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed.
+  custom_request: mistapi.api.v1.sites.stats.getSiteMxEdgeStats(apisession, site_id=str(site_id), mxedge_id=mxedge_id)
+getSiteMxEdgeStats:
+  skip: true
+
+listOrgMxEdgesStats:
+  type: tool_optimization
+  add_parameters:
+    - name: mxedge_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed.
+  custom_request: mistapi.api.v1.sites.stats.org_id(apisession, org_id=str(org_id), mxedge_id=mxedge_id)
+org_id:
+  skip: true
+
+listSiteRogueAPs:
+  type: tool_optimization
+  add_parameters:
+    - name: rogue_bssid
+      schema:
+        type: string
+      description: BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed.
+  custom_request: mistapi.api.v1.sites.rogues.getSiteRogueAP(apisession, site_id=str(site_id), rogue_bssid=rogue_bssid)
+getSiteRogueAP:
+  skip: true
+
+searchOrgGuestAuthorization:
+  type: tool_optimization
+  add_parameters:
+    - name: guest_mac
+      schema:
+        type: string
+      description: MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed.
+  custom_request: mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(apisession, org_id=str(org_id), guest_mac=guest_mac)
+getOrgGuestAuthorization:
+  skip: true
+
+searchSiteGuestAuthorization:
+  type: tool_optimization
+  add_parameters:
+    - name: guest_mac
+      schema:
+        type: string
+      description: MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed.
+  custom_request: mistapi.api.v1.sites.guests.getSiteGuestAuthorization(apisession, site_id=str(site_id), guest_mac=guest_mac)
+getSiteGuestAuthorization:
+  skip: true
+
+listUpgrades:
+  type: tool_consolidation
+  tags: [utilities_upgrade]
+  description: List all available upgrades for the organization.
+  read_only_hint: true
+  destructive_hint: false
+  match_name: device_type
+  if_filter: upgrade_id
+  parameters:
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to list upgrades for.
+      required: true
+    - name: device_type
+      schema:
+        type: string
+      required: true
+      description: Type of device to filter upgrades by. Optional, if not provided all upgrades will be listed.
+    - name: upgrade_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the specific upgrade to retrieve. Optional, if not provided all upgrades will be listed.
+  requests:
+    ap:
+      list:
+        operationId: listOrgDeviceUpgrades
+        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgDeviceUpgrade
+        function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+    switch:
+      list:
+        operationId: listOrgDeviceUpgrades
+        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgDeviceUpgrade
+        function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+    srx:
+      list:
+        operationId: listOrgDeviceUpgrades
+        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgDeviceUpgrade
+        function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+    mxedge:
+      list:
+        operationId: listOrgMxEdgeUpgrades
+        function: mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgMxEdgeUpgrade
+        function: mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+    ssr:
+      list:
+        operationId: listOrgSsrUpgrades
+        function: mistapi.api.v1.orgs.ssr.listOrgSsrUpgrades(apisession, org_id=str(org_id))
+      get:
+        operationId: getOrgSsrUpgrade
+        function: mistapi.api.v1.orgs.ssr.getOrgSsrUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+
+
 getOrgConfigurationObjects:
   type: tool_consolidation
   tags: [configuration]
@@ -390,47 +521,47 @@ getSiteConfigurationObjects:
 
     rftemplates_derived:
       list:
-        operationId: listSiteRfTemplateDerived
-        function: mistapi.api.v1.sites.rftemplates.listSiteRfTemplateDerived(apisession, site_id=str(site_id))
+        operationId: listSiteRfTemplatesDerived
+        function: mistapi.api.v1.sites.rftemplates.listSiteRfTemplatesDerived(apisession, site_id=str(site_id))
 
     wlans_derived:
       list:
-        operationId: listSiteWlanDerived
-        function: mistapi.api.v1.sites.wlans.listSiteWlanDerived(apisession, site_id=str(site_id))
+        operationId: listSiteWlansDerived
+        function: mistapi.api.v1.sites.wlans.listSiteWlansDerived(apisession, site_id=str(site_id))
 
     wxrules_derived:
       list:
         operationId: ListSiteWxRulesDerived
         function: mistapi.api.v1.sites.wxrules.ListSiteWxRulesDerived(apisession, site_id=str(site_id))
 
-    # avprofiles_derived:
-    #   list:
-    #     operationId: listSiteAntivirusProfilesDerived
-    #     function: mistapi.api.v1.sites.avprofiles.listSiteAntivirusProfilesDerived(apisession, site_id=str(site_id))
+    avprofiles_derived:
+      list:
+        operationId: listSiteAntivirusProfilesDerived
+        function: mistapi.api.v1.sites.avprofiles.listSiteAntivirusProfilesDerived(apisession, site_id=str(site_id))
 
-    # idpprofiles_derived:
-    #   list:
-    #     operationId: listSiteIdpProfilesDerived
-    #     function: mistapi.api.v1.sites.idpprofiles.listSiteIdpProfilesDerived(apisession, site_id=str(site_id))
+    idpprofiles_derived:
+      list:
+        operationId: listSiteIdpProfilesDerived
+        function: mistapi.api.v1.sites.idpprofiles.listSiteIdpProfilesDerived(apisession, site_id=str(site_id))
 
-    # aamwprofiles_derived:
-    #   list:
-    #     operationId: listSiteAAMWProfilesDerived
-    #     function: mistapi.api.v1.sites.aamwprofiles.listSiteAAMWProfilesDerived(apisession, site_id=str(site_id))
+    aamwprofiles_derived:
+      list:
+        operationId: listSiteAAMWProfilesDerived
+        function: mistapi.api.v1.sites.aamwprofiles.listSiteAAMWProfilesDerived(apisession, site_id=str(site_id))
 
     aptemplates_derived:
       list:
-        operationId: listSiteApTemplateDerived
-        function: mistapi.api.v1.sites.networktemplates.listSiteApTemplateDerived(apisession, site_id=str(site_id))
+        operationId: listSiteApTemplatesDerived
+        function: mistapi.api.v1.sites.aptemplates.listSiteApTemplatesDerived(apisession, site_id=str(site_id))
     networktemplates_derived:
       list:
-        operationId: listSiteNetworkTemplateDerived
-        function: mistapi.api.v1.sites.networktemplates.listSiteNetworkTemplateDerived(apisession, site_id=str(site_id))
+        operationId: listSiteNetworkTemplatesDerived
+        function: mistapi.api.v1.sites.networktemplates.listSiteNetworkTemplatesDerived(apisession, site_id=str(site_id))
 
     gatewaytemplates_derived:
       list:
-        operationId: listSiteGatewayTemplateDerived
-        function: mistapi.api.v1.sites.gatewaytemplates.listSiteGatewayTemplateDerived(apisession, site_id=str(site_id))
+        operationId: listSiteGatewayTemplatesDerived
+        function: mistapi.api.v1.sites.gatewaytemplates.listSiteGatewayTemplatesDerived(apisession, site_id=str(site_id))
 
     deviceprofiles_derived:
       list:
@@ -456,3 +587,7 @@ getSiteConfigurationObjects:
       list:
         operationId: listSiteVpnsDerived
         function: mistapi.api.v1.sites.vpns.listSiteVpnsDerived(apisession, site_id=str(site_id))
+    sitetemplates_derived:
+      list:
+        operationId: listSiteSiteTemplatesDerived
+        function: mistapi.api.v1.sites.sitetemplates.listSiteSiteTemplatesDerived(apisession, site_id=str(site_id))

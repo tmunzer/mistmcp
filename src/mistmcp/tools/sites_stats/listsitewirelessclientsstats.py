@@ -57,6 +57,12 @@ async def listSiteWirelessClientsStats(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
+    client_mac: Annotated[
+        Optional[str],
+        Field(
+            description="""MAC address of the client to filter stats by. Optional, if not provided all clients will be listed."""
+        ),
+    ] = None,
 ) -> dict:
     """Get List of Site All Clients Stats Details"""
 
@@ -83,15 +89,20 @@ async def listSiteWirelessClientsStats(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(
-        apisession,
-        site_id=str(site_id),
-        wired=wired,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-    )
+    if client_mac:
+        response = mistapi.api.v1.sites.stats.getSiteWirelessClientStats(
+            apisession, site_id=str(site_id), client_mac=client_mac
+        )
+    else:
+        response = mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(
+            apisession,
+            site_id=str(site_id),
+            wired=wired,
+            limit=limit,
+            start=start,
+            end=end,
+            duration=duration,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

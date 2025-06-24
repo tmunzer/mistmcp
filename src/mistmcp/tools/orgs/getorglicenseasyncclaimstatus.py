@@ -21,61 +21,30 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
-class For_site(Enum):
-    ALL = "all"
-    TRUE = "true"
-    FALSE = "false"
-    NONE = None
-
-
 @mcp.tool(
     enabled=True,
-    name="listOrgMxEdgesStats",
-    description="""Get List of Org MxEdge Stats""",
-    tags={"orgs_stats"},
+    name="GetOrgLicenseAsyncClaimStatus",
+    description="""Get Processing Status for Async Claim""",
+    tags={"orgs"},
     annotations={
-        "title": "listOrgMxEdgesStats",
+        "title": "GetOrgLicenseAsyncClaimStatus",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listOrgMxEdgesStats(
+async def GetOrgLicenseAsyncClaimStatus(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[
-        For_site, Field(description="""Filter for site level mist edges""")
-    ] = For_site.NONE,
-    start: Annotated[
-        Optional[int],
-        Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
-        ),
-    ] = None,
-    end: Annotated[
-        Optional[int],
-        Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
-        ),
-    ] = None,
-    duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-    mxedge_id: Annotated[
-        Optional[str],
-        Field(
-            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
-        ),
+    detail: Annotated[
+        Optional[bool], Field(description="""Request license details""")
     ] = None,
 ) -> dict:
-    """Get List of Org MxEdge Stats"""
+    """Get Processing Status for Async Claim"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -100,21 +69,11 @@ async def listOrgMxEdgesStats(
         apitoken=apitoken,
     )
 
-    if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(
-            apisession, org_id=str(org_id), mxedge_id=mxedge_id
-        )
-    else:
-        response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
-            apisession,
-            org_id=str(org_id),
-            for_site=for_site.value,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
-        )
+    response = mistapi.api.v1.orgs.claim.GetOrgLicenseAsyncClaimStatus(
+        apisession,
+        org_id=str(org_id),
+        detail=detail,
+    )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

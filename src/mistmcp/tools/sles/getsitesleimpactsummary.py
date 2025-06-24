@@ -27,30 +27,55 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-class For_site(Enum):
-    ALL = "all"
-    TRUE = "true"
-    FALSE = "false"
+class Scope(Enum):
+    AP = "ap"
+    CLIENT = "client"
+    GATEWAY = "gateway"
+    SITE = "site"
+    SWITCH = "switch"
+
+
+class Fields(Enum):
+    AP = "ap"
+    BAND = "band"
+    CHASSIS = "chassis"
+    CLIENT = "client"
+    DEVICE_OS = "device_os"
+    DEVICE_TYPE = "device_type"
+    GATEWAY = "gateway"
+    GATEWAY_ZONES = "gateway_zones"
+    INTERFACE = "interface"
+    MXEDGE = "mxedge"
+    PEER_PATH = "peer_path"
+    SERVER = "server"
+    SWITCH = "switch"
+    VLAN = "vlan"
+    WLAN = "wlan"
     NONE = None
 
 
 @mcp.tool(
     enabled=True,
-    name="listOrgMxEdgesStats",
-    description="""Get List of Org MxEdge Stats""",
-    tags={"orgs_stats"},
+    name="getSiteSleImpactSummary",
+    description="""Get impact summary counts optionally filtered by classifier and failure type * Wireless SLE Fields: `wlan`, `device_type`, `device_os` ,`band`, `ap`, `server`, `mxedge`* Wired SLE Fields: `switch`, `client`, `vlan`, `interface`, `chassis`* WAN SLE Fields: `gateway`, `client`, `interface`, `chassis`, `peer_path`, `gateway_zones`""",
+    tags={"sles"},
     annotations={
-        "title": "listOrgMxEdgesStats",
+        "title": "getSiteSleImpactSummary",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listOrgMxEdgesStats(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[
-        For_site, Field(description="""Filter for site level mist edges""")
-    ] = For_site.NONE,
+async def getSiteSleImpactSummary(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    scope: Scope,
+    scope_id: Annotated[
+        str,
+        Field(
+            description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`"""
+        ),
+    ],
+    metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
     start: Annotated[
         Optional[int],
         Field(
@@ -66,16 +91,10 @@ async def listOrgMxEdgesStats(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-    mxedge_id: Annotated[
-        Optional[str],
-        Field(
-            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
-        ),
-    ] = None,
+    fields: Fields = Fields.NONE,
+    classifier: Optional[str] = None,
 ) -> dict:
-    """Get List of Org MxEdge Stats"""
+    """Get impact summary counts optionally filtered by classifier and failure type * Wireless SLE Fields: `wlan`, `device_type`, `device_os` ,`band`, `ap`, `server`, `mxedge`* Wired SLE Fields: `switch`, `client`, `vlan`, `interface`, `chassis`* WAN SLE Fields: `gateway`, `client`, `interface`, `chassis`, `peer_path`, `gateway_zones`"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -100,21 +119,18 @@ async def listOrgMxEdgesStats(
         apitoken=apitoken,
     )
 
-    if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(
-            apisession, org_id=str(org_id), mxedge_id=mxedge_id
-        )
-    else:
-        response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
-            apisession,
-            org_id=str(org_id),
-            for_site=for_site.value,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
-        )
+    response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
+        apisession,
+        site_id=str(site_id),
+        scope=scope.value,
+        scope_id=scope_id,
+        metric=metric,
+        start=start,
+        end=end,
+        duration=duration,
+        fields=fields.value,
+        classifier=classifier,
+    )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

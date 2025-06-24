@@ -21,36 +21,70 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
-class For_site(Enum):
-    ALL = "all"
-    TRUE = "true"
-    FALSE = "false"
-    NONE = None
-
-
 @mcp.tool(
     enabled=True,
-    name="listOrgMxEdgesStats",
-    description="""Get List of Org MxEdge Stats""",
-    tags={"orgs_stats"},
+    name="searchOrgSites",
+    description="""Search Sites""",
+    tags={"orgs"},
     annotations={
-        "title": "listOrgMxEdgesStats",
+        "title": "searchOrgSites",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listOrgMxEdgesStats(
+async def searchOrgSites(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[
-        For_site, Field(description="""Filter for site level mist edges""")
-    ] = For_site.NONE,
+    analytic_enabled: Annotated[
+        Optional[bool], Field(description="""If Advanced Analytic feature is enabled""")
+    ] = None,
+    app_waking: Annotated[
+        Optional[bool], Field(description="""If App Waking feature is enabled""")
+    ] = None,
+    asset_enabled: Annotated[
+        Optional[bool], Field(description="""If Asset Tracking is enabled""")
+    ] = None,
+    auto_upgrade_enabled: Annotated[
+        Optional[bool], Field(description="""If Auto Upgrade feature is enabled""")
+    ] = None,
+    auto_upgrade_version: Annotated[
+        Optional[str], Field(description="""If Auto Upgrade feature is enabled""")
+    ] = None,
+    country_code: Annotated[
+        Optional[str], Field(description="""Site country code""")
+    ] = None,
+    honeypot_enabled: Annotated[
+        Optional[bool], Field(description="""If Honeypot detection is enabled""")
+    ] = None,
+    id: Annotated[Optional[str], Field(description="""Site id""")] = None,
+    locate_unconnected: Annotated[
+        Optional[bool], Field(description="""If unconnected client are located""")
+    ] = None,
+    mesh_enabled: Annotated[
+        Optional[bool], Field(description="""If Mesh feature is enabled""")
+    ] = None,
+    name: Annotated[Optional[str], Field(description="""Site name""")] = None,
+    rogue_enabled: Annotated[
+        Optional[bool], Field(description="""If Rogue detection is enabled""")
+    ] = None,
+    remote_syslog_enabled: Annotated[
+        Optional[bool], Field(description="""If Remote Syslog is enabled""")
+    ] = None,
+    rtsa_enabled: Annotated[
+        Optional[bool], Field(description="""If managed mobility feature is enabled""")
+    ] = None,
+    vna_enabled: Annotated[
+        Optional[bool], Field(description="""If Virtual Network Assistant is enabled""")
+    ] = None,
+    wifi_enabled: Annotated[
+        Optional[bool], Field(description="""If Wi-Fi feature is enabled""")
+    ] = None,
+    limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
         Field(
@@ -66,16 +100,8 @@ async def listOrgMxEdgesStats(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-    mxedge_id: Annotated[
-        Optional[str],
-        Field(
-            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
-        ),
-    ] = None,
 ) -> dict:
-    """Get List of Org MxEdge Stats"""
+    """Search Sites"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -100,21 +126,30 @@ async def listOrgMxEdgesStats(
         apitoken=apitoken,
     )
 
-    if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(
-            apisession, org_id=str(org_id), mxedge_id=mxedge_id
-        )
-    else:
-        response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
-            apisession,
-            org_id=str(org_id),
-            for_site=for_site.value,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
-        )
+    response = mistapi.api.v1.orgs.sites.searchOrgSites(
+        apisession,
+        org_id=str(org_id),
+        analytic_enabled=analytic_enabled,
+        app_waking=app_waking,
+        asset_enabled=asset_enabled,
+        auto_upgrade_enabled=auto_upgrade_enabled,
+        auto_upgrade_version=auto_upgrade_version,
+        country_code=country_code,
+        honeypot_enabled=honeypot_enabled,
+        id=id,
+        locate_unconnected=locate_unconnected,
+        mesh_enabled=mesh_enabled,
+        name=name,
+        rogue_enabled=rogue_enabled,
+        remote_syslog_enabled=remote_syslog_enabled,
+        rtsa_enabled=rtsa_enabled,
+        vna_enabled=vna_enabled,
+        wifi_enabled=wifi_enabled,
+        limit=limit,
+        start=start,
+        end=end,
+        duration=duration,
+    )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

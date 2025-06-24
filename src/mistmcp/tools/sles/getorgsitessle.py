@@ -27,30 +27,28 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-class For_site(Enum):
-    ALL = "all"
-    TRUE = "true"
-    FALSE = "false"
+class Sle(Enum):
+    WAN = "wan"
+    WIFI = "wifi"
+    WIRED = "wired"
     NONE = None
 
 
 @mcp.tool(
     enabled=True,
-    name="listOrgMxEdgesStats",
-    description="""Get List of Org MxEdge Stats""",
-    tags={"orgs_stats"},
+    name="getOrgSitesSle",
+    description="""Get Org Sites SLE""",
+    tags={"sles"},
     annotations={
-        "title": "listOrgMxEdgesStats",
+        "title": "getOrgSitesSle",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listOrgMxEdgesStats(
+async def getOrgSitesSle(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[
-        For_site, Field(description="""Filter for site level mist edges""")
-    ] = For_site.NONE,
+    sle: Sle = Sle.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -66,16 +64,16 @@ async def listOrgMxEdgesStats(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-    mxedge_id: Annotated[
+    interval: Annotated[
         Optional[str],
         Field(
-            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
+            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
+    limit: Annotated[int, Field(default=100)] = 100,
+    page: Annotated[int, Field(ge=1, default=1)] = 1,
 ) -> dict:
-    """Get List of Org MxEdge Stats"""
+    """Get Org Sites SLE"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -100,21 +98,17 @@ async def listOrgMxEdgesStats(
         apitoken=apitoken,
     )
 
-    if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(
-            apisession, org_id=str(org_id), mxedge_id=mxedge_id
-        )
-    else:
-        response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
-            apisession,
-            org_id=str(org_id),
-            for_site=for_site.value,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
-        )
+    response = mistapi.api.v1.orgs.insights.getOrgSitesSle(
+        apisession,
+        org_id=str(org_id),
+        sle=sle.value,
+        start=start,
+        end=end,
+        duration=duration,
+        interval=interval,
+        limit=limit,
+        page=page,
+    )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

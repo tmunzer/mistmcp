@@ -40,6 +40,9 @@ class Object_type(Enum):
     RFTEMPLATES_DERIVED = "rftemplates_derived"
     WLANS_DERIVED = "wlans_derived"
     WXRULES_DERIVED = "wxrules_derived"
+    AVPROFILES_DERIVED = "avprofiles_derived"
+    IDPPROFILES_DERIVED = "idpprofiles_derived"
+    AAMWPROFILES_DERIVED = "aamwprofiles_derived"
     APTEMPLATES_DERIVED = "aptemplates_derived"
     NETWORKTEMPLATES_DERIVED = "networktemplates_derived"
     GATEWAYTEMPLATES_DERIVED = "gatewaytemplates_derived"
@@ -48,6 +51,7 @@ class Object_type(Enum):
     SERVICES_DERIVED = "services_derived"
     SERVICEPOLICIES_DERIVED = "servicepolicies_derived"
     VPNS_DERIVED = "vpns_derived"
+    SITETEMPLATES_DERIVED = "sitetemplates_derived"
 
 
 @mcp.tool(
@@ -104,7 +108,7 @@ async def getSiteConfigurationObjects(
 
     match object_type.value:
         case "devices":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.devices.getSiteDevice(
                     apisession, site_id=str(site_id), device_id=str(object_id)
                 )
@@ -113,7 +117,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "evpn_topologies":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.evpn_topologies.getSiteEvpnTopology(
                     apisession, site_id=str(site_id), evpn_topology_id=str(object_id)
                 )
@@ -122,7 +126,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "maps":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.maps.getSiteMap(
                     apisession, site_id=str(site_id), map_id=str(object_id)
                 )
@@ -131,7 +135,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "mxedges":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.mxedges.getSiteMxEdge(
                     apisession, site_id=str(site_id), mxedge_id=str(object_id)
                 )
@@ -140,7 +144,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "psks":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.psks.getSitePsk(
                     apisession, site_id=str(site_id), psk_id=str(object_id)
                 )
@@ -149,7 +153,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "webhooks":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.webhooks.getSiteWebhook(
                     apisession, site_id=str(site_id), webhook_id=str(object_id)
                 )
@@ -158,7 +162,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "wlans":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.wlans.getSiteWlan(
                     apisession, site_id=str(site_id), wlan_id=str(object_id)
                 )
@@ -167,7 +171,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "wxrules":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.wxrules.getSiteWxRule(
                     apisession, site_id=str(site_id), wxrule_id=str(object_id)
                 )
@@ -176,7 +180,7 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "wxtags":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.sites.wxtags.getSiteWxTag(
                     apisession, site_id=str(site_id), wxtag_id=str(object_id)
                 )
@@ -185,30 +189,42 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id)
                 )
         case "rftemplates_derived":
-            response = mistapi.api.v1.sites.rftemplates.listSiteRfTemplateDerived(
+            response = mistapi.api.v1.sites.rftemplates.listSiteRfTemplatesDerived(
                 apisession, site_id=str(site_id)
             )
         case "wlans_derived":
-            response = mistapi.api.v1.sites.wlans.listSiteWlanDerived(
+            response = mistapi.api.v1.sites.wlans.listSiteWlansDerived(
                 apisession, site_id=str(site_id)
             )
         case "wxrules_derived":
             response = mistapi.api.v1.sites.wxrules.ListSiteWxRulesDerived(
                 apisession, site_id=str(site_id)
             )
+        case "avprofiles_derived":
+            response = mistapi.api.v1.sites.avprofiles.listSiteAntivirusProfilesDerived(
+                apisession, site_id=str(site_id)
+            )
+        case "idpprofiles_derived":
+            response = mistapi.api.v1.sites.idpprofiles.listSiteIdpProfilesDerived(
+                apisession, site_id=str(site_id)
+            )
+        case "aamwprofiles_derived":
+            response = mistapi.api.v1.sites.aamwprofiles.listSiteAAMWProfilesDerived(
+                apisession, site_id=str(site_id)
+            )
         case "aptemplates_derived":
-            response = mistapi.api.v1.sites.networktemplates.listSiteApTemplateDerived(
+            response = mistapi.api.v1.sites.aptemplates.listSiteApTemplatesDerived(
                 apisession, site_id=str(site_id)
             )
         case "networktemplates_derived":
             response = (
-                mistapi.api.v1.sites.networktemplates.listSiteNetworkTemplateDerived(
+                mistapi.api.v1.sites.networktemplates.listSiteNetworkTemplatesDerived(
                     apisession, site_id=str(site_id)
                 )
             )
         case "gatewaytemplates_derived":
             response = (
-                mistapi.api.v1.sites.gatewaytemplates.listSiteGatewayTemplateDerived(
+                mistapi.api.v1.sites.gatewaytemplates.listSiteGatewayTemplatesDerived(
                     apisession, site_id=str(site_id)
                 )
             )
@@ -234,6 +250,10 @@ async def getSiteConfigurationObjects(
             )
         case "vpns_derived":
             response = mistapi.api.v1.sites.vpns.listSiteVpnsDerived(
+                apisession, site_id=str(site_id)
+            )
+        case "sitetemplates_derived":
+            response = mistapi.api.v1.sites.sitetemplates.listSiteSiteTemplatesDerived(
                 apisession, site_id=str(site_id)
             )
 

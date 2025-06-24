@@ -61,6 +61,12 @@ async def searchSiteGuestAuthorization(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
+    guest_mac: Annotated[
+        Optional[str],
+        Field(
+            description="""MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed."""
+        ),
+    ] = None,
 ) -> dict:
     """Search Authorized Guest"""
 
@@ -87,17 +93,22 @@ async def searchSiteGuestAuthorization(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.guests.searchSiteGuestAuthorization(
-        apisession,
-        site_id=str(site_id),
-        wlan_id=wlan_id,
-        auth_method=auth_method,
-        ssid=ssid,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-    )
+    if guest_mac:
+        response = mistapi.api.v1.sites.guests.getSiteGuestAuthorization(
+            apisession, site_id=str(site_id), guest_mac=guest_mac
+        )
+    else:
+        response = mistapi.api.v1.sites.guests.searchSiteGuestAuthorization(
+            apisession,
+            site_id=str(site_id),
+            wlan_id=wlan_id,
+            auth_method=auth_method,
+            ssid=ssid,
+            limit=limit,
+            start=start,
+            end=end,
+            duration=duration,
+        )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

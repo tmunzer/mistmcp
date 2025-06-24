@@ -116,7 +116,7 @@ async def getOrgConfigurationObjects(
 
     match object_type.value:
         case "alarmtemplates":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.alarmtemplates.getOrgAlarmTemplate(
                     apisession, org_id=str(org_id), alarmtemplate_id=str(object_id)
                 )
@@ -125,7 +125,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "wlans":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.wlans.getOrgWLAN(
                     apisession, org_id=str(org_id), wlan_id=str(object_id)
                 )
@@ -134,7 +134,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "sitegroups":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(
                     apisession, org_id=str(org_id), sitegroup_id=str(object_id)
                 )
@@ -143,7 +143,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "aptemplates":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(
                     apisession, org_id=str(org_id), aptemplate_id=str(object_id)
                 )
@@ -152,7 +152,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "avprofiles":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.avprofiles.getOrgAntivirusProfile(
                     apisession, org_id=str(org_id), avprofile_id=str(object_id)
                 )
@@ -165,7 +165,7 @@ async def getOrgConfigurationObjects(
                 apisession, org_id=str(org_id)
             )
         case "deviceprofiles":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.deviceprofiles.getOrgDeviceProfile(
                     apisession, org_id=str(org_id), deviceprofile_id=str(object_id)
                 )
@@ -174,7 +174,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "evpn_topologies":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.evpn_topologies.getOrgEvpnTopology(
                     apisession, org_id=str(org_id), evpn_topology_id=str(object_id)
                 )
@@ -183,7 +183,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "gatewaytemplates":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.gatewaytemplates.getOrgGatewayTemplate(
                     apisession, org_id=str(org_id), gatewaytemplate_id=str(object_id)
                 )
@@ -192,7 +192,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "idpprofiles":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.idpprofiles.getOrgIdpProfile(
                     apisession, org_id=str(org_id), idpprofile_id=str(object_id)
                 )
@@ -201,7 +201,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "aamwprofiles":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.aamwprofiles.getOrgAAMWProfile(
                     apisession, org_id=str(org_id), aamwprofile_id=str(object_id)
                 )
@@ -210,7 +210,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "mxclusters":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.mxclusters.getOrgMxEdgeCluster(
                     apisession, org_id=str(org_id), mxcluster_id=str(object_id)
                 )
@@ -219,7 +219,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "mxedges":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.mxedges.getOrgMxEdge(
                     apisession, org_id=str(org_id), mxedge_id=str(object_id)
                 )
@@ -228,7 +228,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "mxtunnels":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.mxtunnels.getOrgMxTunnel(
                     apisession, org_id=str(org_id), mxtunnel_id=str(object_id)
                 )
@@ -237,7 +237,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "nactags":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.nactags.getOrgNacTag(
                     apisession, org_id=str(org_id), nactag_id=str(object_id)
                 )
@@ -246,7 +246,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "nacrules":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.nacrules.getOrgNacRule(
                     apisession, org_id=str(org_id), nacrule_id=str(object_id)
                 )
@@ -255,7 +255,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "networktemplates":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.networktemplates.getOrgNetworkTemplate(
                     apisession, org_id=str(org_id), networktemplate_id=str(object_id)
                 )
@@ -264,7 +264,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "networks":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.networks.getOrgNetwork(
                     apisession, org_id=str(org_id), network_id=str(object_id)
                 )
@@ -273,7 +273,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "psks":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.psks.getOrgPsk(
                     apisession, org_id=str(org_id), psk_id=str(object_id)
                 )
@@ -282,7 +282,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "rftemplates":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.rftemplates.getOrgRfTemplate(
                     apisession, org_id=str(org_id), rftemplate_id=str(object_id)
                 )
@@ -291,7 +291,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "secpolicies":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.secpolicies.getOrgSecPolicy(
                     apisession, org_id=str(org_id), secpolicy_id=str(object_id)
                 )
@@ -300,7 +300,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "services":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.services.getOrgService(
                     apisession, org_id=str(org_id), service_id=str(object_id)
                 )
@@ -309,7 +309,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "servicepolicies":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.servicepolicies.getOrgServicePolicy(
                     apisession, org_id=str(org_id), servicepolicy_id=str(object_id)
                 )
@@ -322,7 +322,7 @@ async def getOrgConfigurationObjects(
                 apisession, org_id=str(org_id)
             )
         case "sitetemplates":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.sitetemplates.getOrgSiteTemplate(
                     apisession, org_id=str(org_id), sitetemplate_id=str(object_id)
                 )
@@ -331,7 +331,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "templates":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.templates.getOrgTemplate(
                     apisession, org_id=str(org_id), template_id=str(object_id)
                 )
@@ -340,7 +340,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "vpns":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.vpns.getOrgVpn(
                     apisession, org_id=str(org_id), vpn_id=str(object_id)
                 )
@@ -349,7 +349,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "webhooks":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.webhooks.getOrgWebhook(
                     apisession, org_id=str(org_id), webhook_id=str(object_id)
                 )
@@ -358,7 +358,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "wxrules":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.wxrules.getOrgWxRule(
                     apisession, org_id=str(org_id), wxrule_id=str(object_id)
                 )
@@ -367,7 +367,7 @@ async def getOrgConfigurationObjects(
                     apisession, org_id=str(org_id)
                 )
         case "wxtags":
-            if object_id:
+            if None:
                 response = mistapi.api.v1.orgs.wxtags.getOrgWxTag(
                     apisession, org_id=str(org_id), wxtag_id=str(object_id)
                 )

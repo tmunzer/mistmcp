@@ -31,3 +31,13 @@
 - listSiteAvailableDeviceVersions
 - listApLedDefinition
 - listApChannels
+- getOrgMxEdgeUpgradeInfo
+- searchOrgMxEdges
+- listSiteDeviceUpgrades
+- getSiteDeviceUpgrade
+- getSiteSsrUpgrade
+- searchOrgInventory
+- getOrgJuniperDevicesCommand
+- getOrgUserMac
+# not working
+- listSiteApps

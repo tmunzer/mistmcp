@@ -336,9 +336,8 @@ def _process_params(
             r_tmp = re.findall(r, description)
             if r_tmp:
                 description = re.sub(r, f"`{r_tmp[0]}`", description)
-            annotations.append(
-                f'description="""{description.replace('"', "'").replace("\n", " ")}"""'
-            )
+            cleaned_description = description.replace('"', "'").replace("\n", " ")
+            annotations.append(f'description="""{cleaned_description}"""')
         elif tmp_param["name"].endswith("_id"):
             _add_import(imports, "pydantic", "Field")
             _add_import(imports, "typing", "Annotated")
@@ -565,16 +564,19 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
         if func_data.get("type") == "tool_consolidation":
             description = func_data.get("description", "")
             tag = func_data.get("tags", [])[0]
-
             enums_optim = []
-            request = "match object_type.value:\n"
+            request = "\n"
+            match_name = func_data.get("match_name", "object_type")
+            if func_data.get("match_name"):
+                request += f"    object_type = {func_data.get('match_name')}\n"
+            request += "    match object_type.value:\n"
 
             for object_type, details in func_data.get("requests", {}).items():
                 enums_optim.append(object_type)
                 request += f"        case '{object_type}':\n"
                 if details.get("get"):
                     request += (
-                        f"            if object_id:\n"
+                        f"            if {func_data.get('if_filter')}:\n"
                         f"                response = {details['get'].get('function', '')}\n"
                         f"            else:\n"
                     )
@@ -594,7 +596,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             """
 
             for param in func_data.get("parameters", []):
-                if param.get("name") == "object_type":
+                if param.get("name") == match_name:
                     param["schema"]["enum"] = enums_optim
             imports, models, enums, parameters, mistapi_parameters = (
                 gen_endpoint_parameters(
@@ -695,7 +697,31 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
                 continue
             if operation_id.startswith("count"):
                 continue
+            if OPTIMIZED_TOOLS.get(operation_id):
+                if OPTIMIZED_TOOLS[operation_id].get("skip", False):
+                    continue
+                for new_parameter in OPTIMIZED_TOOLS[operation_id].get(
+                    "add_parameters", []
+                ):
+                    parameter = {
+                        "name": new_parameter["name"],
+                        "description": new_parameter.get("description", ""),
+                        "in": "query",
+                        "schema": {
+                            "type": new_parameter["schema"]["type"],
+                        },
+                    }
+                    if new_parameter.get("format"):
+                        parameter["schema"]["format"] = new_parameter["format"]
 
+                    if not details.get("parameters"):
+                        details["parameters"] = []
+                    details["parameters"].append(parameter)
+
+                    optimization_parameter_name = new_parameter["name"]
+                    optimization_request = OPTIMIZED_TOOLS[operation_id].get(
+                        "custom_request"
+                    )
             processed_operation_ids.append(operation_id.lower())
             description = details.get("description", "")
 

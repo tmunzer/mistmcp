@@ -21,36 +21,45 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
-class For_site(Enum):
-    ALL = "all"
-    TRUE = "true"
-    FALSE = "false"
-    NONE = None
-
-
 @mcp.tool(
     enabled=True,
-    name="listOrgMxEdgesStats",
-    description="""Get List of Org MxEdge Stats""",
-    tags={"orgs_stats"},
+    name="searchSiteWanUsage",
+    description="""Search Site WAN Usages""",
+    tags={"sites_stats"},
     annotations={
-        "title": "listOrgMxEdgesStats",
+        "title": "searchSiteWanUsage",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listOrgMxEdgesStats(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[
-        For_site, Field(description="""Filter for site level mist edges""")
-    ] = For_site.NONE,
+async def searchSiteWanUsage(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
+    peer_mac: Annotated[
+        Optional[str], Field(description="""Peer MAC address""")
+    ] = None,
+    port_id: Annotated[
+        Optional[str], Field(description="""Port ID for the device""")
+    ] = None,
+    peer_port_id: Annotated[
+        Optional[str], Field(description="""Peer Port ID for the device""")
+    ] = None,
+    policy: Annotated[
+        Optional[str], Field(description="""Policy for the wan path""")
+    ] = None,
+    tenant: Annotated[
+        Optional[str],
+        Field(description="""Tenant network in which the packet is sent"""),
+    ] = None,
+    path_type: Annotated[
+        Optional[str], Field(description="""path_type of the port""")
+    ] = None,
     start: Annotated[
         Optional[int],
         Field(
@@ -68,14 +77,8 @@ async def listOrgMxEdgesStats(
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
-    mxedge_id: Annotated[
-        Optional[str],
-        Field(
-            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
-        ),
-    ] = None,
 ) -> dict:
-    """Get List of Org MxEdge Stats"""
+    """Search Site WAN Usages"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -100,21 +103,22 @@ async def listOrgMxEdgesStats(
         apitoken=apitoken,
     )
 
-    if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(
-            apisession, org_id=str(org_id), mxedge_id=mxedge_id
-        )
-    else:
-        response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
-            apisession,
-            org_id=str(org_id),
-            for_site=for_site.value,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
-        )
+    response = mistapi.api.v1.sites.wan_usages.searchSiteWanUsage(
+        apisession,
+        site_id=str(site_id),
+        mac=mac,
+        peer_mac=peer_mac,
+        port_id=port_id,
+        peer_port_id=peer_port_id,
+        policy=policy,
+        tenant=tenant,
+        path_type=path_type,
+        start=start,
+        end=end,
+        duration=duration,
+        limit=limit,
+        page=page,
+    )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

@@ -21,36 +21,42 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
-class For_site(Enum):
-    ALL = "all"
-    TRUE = "true"
-    FALSE = "false"
-    NONE = None
-
-
 @mcp.tool(
     enabled=True,
-    name="listOrgMxEdgesStats",
-    description="""Get List of Org MxEdge Stats""",
-    tags={"orgs_stats"},
+    name="searchOrgMistEdgeEvents",
+    description="""Search Org Mist Edge Events""",
+    tags={"devices"},
     annotations={
-        "title": "listOrgMxEdgesStats",
+        "title": "searchOrgMistEdgeEvents",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listOrgMxEdgesStats(
+async def searchOrgMistEdgeEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[
-        For_site, Field(description="""Filter for site level mist edges""")
-    ] = For_site.NONE,
+    mxedge_id: Annotated[Optional[str], Field(description="""Mist edge id""")] = None,
+    mxcluster_id: Annotated[
+        Optional[str], Field(description="""Mist edge cluster id""")
+    ] = None,
+    type: Annotated[
+        Optional[str],
+        Field(
+            description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
+        ),
+    ] = None,
+    service: Annotated[
+        Optional[str],
+        Field(description="""Service running on mist edge(mxagent, tunterm etc)"""),
+    ] = None,
+    component: Annotated[
+        Optional[str], Field(description="""Component like PS1, PS2""")
+    ] = None,
     start: Annotated[
         Optional[int],
         Field(
@@ -67,15 +73,8 @@ async def listOrgMxEdgesStats(
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-    mxedge_id: Annotated[
-        Optional[str],
-        Field(
-            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
-        ),
-    ] = None,
 ) -> dict:
-    """Get List of Org MxEdge Stats"""
+    """Search Org Mist Edge Events"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -100,21 +99,19 @@ async def listOrgMxEdgesStats(
         apitoken=apitoken,
     )
 
-    if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(
-            apisession, org_id=str(org_id), mxedge_id=mxedge_id
-        )
-    else:
-        response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
-            apisession,
-            org_id=str(org_id),
-            for_site=for_site.value,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
-        )
+    response = mistapi.api.v1.orgs.mxedges.searchOrgMistEdgeEvents(
+        apisession,
+        org_id=str(org_id),
+        mxedge_id=mxedge_id,
+        mxcluster_id=mxcluster_id,
+        type=type,
+        service=service,
+        component=component,
+        start=start,
+        end=end,
+        duration=duration,
+        limit=limit,
+    )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

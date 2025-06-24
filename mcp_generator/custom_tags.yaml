@@ -2,17 +2,15 @@
 "sites setting": "sites"
 "orgs sitegroups": "orgs_sites"
 # orgs
+"orgs alarm templates": "orgs"
 "orgs alarms": "orgs"
 "orgs setting": "orgs"
 "orgs events": "orgs"
 "orgs logs": "orgs"
+"orgs licenses": "orgs"
+"orgs sites": "orgs"
 # sites
 "sites maps": "sites"
-# mxedges
-"orgs mxedges": "mxedges"
-"orgs mxclusters": "mxedges"
-"orgs mxtunnels": "mxedges"
-"sites mxedges": "mxedges"
 # sites_stats
 "sites stats - apps": "sites_stats"
 "sites stats - calls": "sites_stats"
@@ -20,6 +18,8 @@
 "sites stats - mxedges": "sites_stats"
 "sites stats - wxrules": "sites_stats"
 "sites stats - discovered switches": "sites_stats"
+"sites wxtags": "sites_stats"
+"sites wan usages": "sites_stats"
 # orgs
 "orgs stats - bgp peers": "orgs_stats"
 "orgs stats - devices": "orgs_stats"
@@ -36,6 +36,7 @@
 "orgs clients - wireless": "clients"
 "orgs guests": "clients"
 "sites guests": "clients"
+"sites events": "clients"
 
 # orgs_nac
 "orgs nac fingerprints": "orgs_nac"
@@ -55,3 +56,9 @@
 "orgs devices": "devices"
 "sites devices": "devices"
 "orgs inventory": "devices"
+"orgs mxedges": "devices"
+"sites mxedges": "devices"
+
+# sles
+"orgs sles": "sles"
+"sites sles": "sles"
