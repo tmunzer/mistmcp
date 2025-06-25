@@ -1,13 +1,13 @@
 # Mist MCP Server
 
-A Model Context Protocol (MCP) server that provides AI-powered access to Juniper Mist networking APIs with **multi-client session management**. This project enables Large Language Models (LLMs) like Claude to interact with Mist cloud-managed network infrastructure through a comprehensive set of tools.
+A Model Context Protocol (MCP) server that provides AI-powered access to Juniper Mist networking APIs. This project enables Large Language Models (LLMs) like Claude to interact with Mist cloud-managed network infrastructure through a comprehensive set of **256 optimized tools** across **29 categories**.
+
+Key innovation: **Intelligent tool consolidation** reduces what would be 300+ individual API tools to 256 optimized tools through advanced consolidation strategies, including two powerful **Configuration Object Consolidation** tools that replace 80+ individual configuration management tools.
 
 
 ## 📑 Table of Contents
 
 - [🚀 Features](#-features)
-- [⚠️ Compatibility Notice](#️-compatibility-notice)
-    - [Alternative Configurations](#alternative-configurations)
 - [🛠️ Installation & Setup](#️-installation--setup)
     - [Prerequisites](#prerequisites)
     - [1. Install Dependencies](#1-install-dependencies)
@@ -15,19 +15,14 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
     - [Command Line Options](#command-line-options)
     - [HTTP Mode Query Parameters](#http-mode-query-parameters)
     - [Environment Variables](#environment-variables)
-    - [Tool Loading Modes](#tool-loading-modes)
     - [Transport Modes](#transport-modes)
 - [🔧 Configuration](#-configuration)
     - [STDIO Mode (Recommended)](#stdio-mode-recommended)
     - [HTTP Mode (Remote Access)](#http-mode-remote-access)
 - [🔧 Tool Categories](#-tool-categories)
-    - [Essential Tools (Always Available)](#essential-tools-always-available)
-    - [Core Categories](#core-categories)
-    - [Device Management](#device-management)
-    - [Client Monitoring](#client-monitoring)
-    - [Network & Security](#network--security)
-    - [Monitoring & Analytics](#monitoring--analytics)
-    - [Advanced Features](#advanced-features)
+    - [Essential Tools](#essential-tools)
+    - [Configuration Object Consolidation](#configuration-object-consolidation)
+    - [Remaining Tool Categories](#remaining-tool-categories)
 - [⚠️ Current Limitations](#️-current-limitations)
 - [🤝 Contributing](#-contributing)
     - [Development Setup](#development-setup)
@@ -37,32 +32,13 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
 
 ## 🚀 Features
 
-- **🌍 Multi-Client Architecture**: Multiple MCP clients can connect simultaneously with independent tool configurations
-- **🔄 Dynamic Tool Management**: Enable/disable tool categories at runtime per client session
-- **📊 Session Isolation**: Complete isolation between different client sessions
-- **🎯 Flexible Loading Modes**: Managed (default), All, or Custom tool loading strategies
+- **🤖 AI-Optimized Tool Design**: Advanced tool consolidation with 98% reduction in configuration management tools
+- **🔧 256 Specialized Tools** across 29 categories covering all Mist APIs
+- **⚡ Configuration Object Consolidation**: Two powerful tools replace 80+ individual configuration management tools
 - **📡 Transport Flexibility**: Supports both STDIO and HTTP transport modes
 - **🏗️ Intelligent Organization**: Tools grouped by functionality (orgs, sites, devices, clients, etc.)
 - **🛡️ Type Safety**: Full type validation using Pydantic models
-- **🤖 AI-Optimized**: Designed specifically for LLM interaction patterns
-
-## ⚠️ Compatibility Notice
-
-**Dynamic Tool Management Requirement**: The managed mode (default) leverages MCP's dynamic tool discovery feature for optimal performance and memory usage. However, this feature has limited client support.
-
-**Important**: Before using managed mode, verify your MCP client supports dynamic tool discovery in the [official MCP client feature matrix](https://modelcontextprotocol.io/clients#feature-support-matrix).
-
-### Alternative Configurations
-
-If your client doesn't support dynamic discovery:
-
-```bash
-# Use 'all' mode to load all tools at startup
-uv run mistmcp --mode all
-
-# Or use 'custom' mode with specific categories
-uv run mistmcp --mode custom --categories orgs,sites,devices
-```
+- **🌟 Derived Configuration Support**: Site-level templates with resolved Jinja2 variables
 
 
 ## 🛠️ Installation & Setup
@@ -88,18 +64,16 @@ uv run mistmcp [OPTIONS]
 
 OPTIONS:
     -t, --transport MODE    Transport mode: stdio (default) or http
-    -m, --mode MODE         Tool loading mode: managed (default), all, custom
-    -c, --categories LIST   Comma-separated tool categories (for custom mode)
     --host HOST             HTTP server host (default: 127.0.0.1)
+    -p, --port PORT         HTTP server port (default: 8000)
     -e, --env-file PATH     Path to .env file
     -d, --debug             Enable debug output
     -h, --help              Show help message
 
 EXAMPLES:
-    uv run mistmcp                                    # Default: stdio + managed mode
-    uv run mistmcp --mode all --debug                 # All tools with debug
+    uv run mistmcp                                    # Default: stdio mode
+    uv run mistmcp --debug                            # With debug output
     uv run mistmcp --transport http --host 0.0.0.0    # HTTP on all interfaces
-    uv run mistmcp --mode custom --categories orgs,sites
 ```
 
 ### HTTP Mode Query Parameters
@@ -110,20 +84,15 @@ When using HTTP transport, configure the server via URL query parameters:
 - `cloud` - Mist API host (e.g., `api.mist.com`)
 
 **Optional:**
-- `mode` - Tool loading mode: `managed` (default), `all`, or `custom`
-- `categories` - Comma-separated tool categories (for custom mode)
 - `debug` - Enable debug output: `true` or `false`
 
 **Example URLs:**
 ```bash
-# Default managed mode
+# Default
 http://localhost:8000/mcp/?cloud=api.mist.com
 
-# All tools with debug enabled
-http://localhost:8000/mcp/?cloud=api.mist.com&mode=all&debug=true
-
-# Custom mode with specific categories
-http://localhost:8000/mcp/?cloud=api.mist.com&mode=custom&categories=orgs,sites,devices
+# With debug enabled
+http://localhost:8000/mcp/?cloud=api.mist.com&debug=true
 ```
 
 ### Environment Variables
@@ -136,22 +105,9 @@ Configure via environment variables or `.env` files:
 | `MIST_HOST` | **Required** | Not used | - | Mist API host (e.g., `api.mist.com`, `api.eu.mist.com`) |
 | `MIST_ENV_FILE` | Optional | Optional | - | Path to .env file containing Mist credentials |
 | `MISTMCP_TRANSPORT_MODE` | Optional | **Required** | `stdio` | Transport mode: `stdio` or `http` |
-| `MISTMCP_TOOL_LOADING_MODE` | Optional | Optional | `managed` | Tool loading strategy: `managed`, `all`, or `custom` |
-| `MISTMCP_TOOL_CATEGORIES` | Optional | Optional | - | Comma-separated list of tool categories (for `custom` mode) |
 | `MISTMCP_HOST` | Not used | Optional | `127.0.0.1` | HTTP server bind address |
 | `MISTMCP_PORT` | Not used | Optional | `8000` | HTTP server port |
-| `MISTMCP_DEBUG` | Optional | Optional | `false` | Enable debug logging: `true` or `false` |
-
 > **💡 Note:** `MIST_APITOKEN` and `MIST_HOST` can be provided either directly or via a `.env` file specified in `MIST_ENV_FILE`.
-
-
-### Tool Loading Modes
-
-| Mode | Description | Memory Usage | Use Case |
-|------|-------------|--------------|----------|
-| **managed** (default) | Only essential tools loaded, others enabled on-demand | Lowest | Recommended for most users |
-| **all** | All tools loaded at startup | Highest | Power users, automation |
-| **custom** | Pre-load specific categories | Medium | Tailored configurations |
 
 ### Transport Modes
 
@@ -175,35 +131,17 @@ Best for local usage with Claude Desktop or VS Code.
 ```json
 {
     "mcpServers": {
-        "mist-mcp-one": {
+        "mist-mcp": {
             "command": "uv",
             "args": [
                 "--directory",
                 "/absolute/path/to/mistmcp",
                 "run",
-                "mistmcp",
-                "--mode",
-                "managed"
+                "mistmcp"
             ],
             "env": {
                 "MIST_APITOKEN": "your-api-token",
                 "MIST_HOST": "api.mist.com"
-            }
-        },
-        "mist-mcp-two": {
-            "command": "uv",
-            "args": [
-                "--directory",
-                "/absolute/path/to/mistmcp",
-                "run",
-                "mistmcp",
-                "--mode",
-                "custom",
-                "--categories",
-                "orgs,sites"
-            ],
-            "env": {
-                "MIST_ENV_FILE": ".env"
             }
         }
     }
@@ -265,13 +203,45 @@ If your laptop has SSL interception enabled (e.g. corporate network), you may ne
 
 ## 🔧 Tool Categories
 
-The server organizes tools into logical categories. Use `manageMcpTools` to enable categories as needed:
+The server provides **256 specialized tools** organized across **29 categories**. A key innovation is **Configuration Object Consolidation** - two powerful tools replace what would otherwise be 80+ individual configuration management tools.
 
-### Essential Tools (Always Available)
+### Essential Tools
 - **`getSelf`** - User and organization information
-- **`manageMcpTools`** - Enable/disable tool categories dynamically (only in managed mode)
 
-### Available Tool Categories
+### Configuration Object Consolidation ⭐
+
+**Revolutionary optimization**: Instead of 80+ individual configuration tools, we provide 2 powerful consolidated tools:
+
+| Tool | Scope | Object Types | Description |
+|------|-------|--------------|-------------|
+| **`getOrgConfigurationObjects`** | Organization | 26 types | Access all org-level configuration objects (templates, policies, devices, networks, etc.) |
+| **`getSiteConfigurationObjects`** | Site | 19 types | Access all site-level configuration objects + derived configurations with Jinja2 resolution |
+
+**Usage Examples:**
+```python
+# Organization WLAN management - replaces listOrgWlans + getOrgWlan
+getOrgConfigurationObjects(org_id="...", object_type="wlans")  # List all
+getOrgConfigurationObjects(org_id="...", object_type="wlans", object_id="...")  # Get specific
+
+# Site device management with derived configs
+getSiteConfigurationObjects(site_id="...", object_type="devices")  # Site devices
+getSiteConfigurationObjects(site_id="...", object_type="aptemplates_derived")  # Org templates + site variables
+```
+
+**Supported Object Types:**
+- **Organization (26 types)**: `alarmtemplates`, `wlans`, `sitegroups`, `aptemplates`, `avprofiles`, `devices`, `deviceprofiles`, `evpn_topologies`, `gatewaytemplates`, `idpprofiles`, `aamwprofiles`, `mxclusters`, `mxedges`, `mxtunnels`, `nactags`, `nacrules`, `networktemplates`, `networks`, `psks`, `rftemplates`, `secpolicies`, `services`, `servicepolicies`, `sites`, `sitetemplates`, `templates`, `vpns`, `webhooks`, `wxrules`, `wxtags`
+- **Site (19 types)**: `devices`, `evpn_topologies`, `maps`, `mxedges`, `psks`, `webhooks`, `wlans`, `wxrules`, `wxtags` + **10 derived types**: `rftemplates_derived`, `wlans_derived`, `wxrules_derived`, `aptemplates_derived`, `networktemplates_derived`, `gatewaytemplates_derived`, `deviceprofiles_derived`, `networks_derived`, `services_derived`, `servicepolicies_derived`, `vpns_derived`
+
+**Consolidation Benefits:**
+- **98% Tool Reduction**: 80+ configuration tools → 2 consolidated tools
+- **Consistent Interface**: Same parameter pattern (`object_type`, optional `object_id`) across all configuration types
+- **Enhanced Functionality**: Single tool handles both list and get operations
+- **Derived Configuration Support**: Site-level access to org templates with resolved Jinja2 variables
+- **Future-Proof**: Easily extensible to new configuration object types
+
+### Remaining Tool Categories
+
+The following categories contain specialized tools that complement the configuration object consolidation:
 
 | Category | Description | Tools | Tool List |
 |----------|-------------|-------|-----------|
@@ -309,17 +279,16 @@ Each client session maintains independent tool configurations for complete isola
 
 ## ⚠️ Current Limitations
 
-- **Beta Quality**: Multi-client architecture is stable but under active development
 - **API Authentication**: Requires manual Mist API token configuration
 - **Rate Limiting**: No built-in rate limiting for API calls
-- **Memory Usage**: "All" mode loads all tools, consuming significant memory
+- **Error Handling**: Limited retry logic for transient API failures
 
 ## 🤝 Contributing
 
 Contributions welcome! Priority areas:
-- **Performance optimization** for multi-client scenarios
-- **API rate limiting and caching** implementation
-- **Test coverage** for session isolation
+- **Performance optimization** and caching
+- **API rate limiting and retry logic** implementation
+- **Test coverage** expansion
 - **Documentation** improvements and examples
 
 ### Development Setup
@@ -339,4 +308,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-*AI-powered bridge between LLMs and Juniper Mist networking infrastructure with multi-client session support.*
+*AI-powered bridge between LLMs and Juniper Mist networking infrastructure.*

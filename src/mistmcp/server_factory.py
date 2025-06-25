@@ -1,4 +1,4 @@
-"""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -12,137 +12,23 @@
 
 import sys
 
-from mistmcp.config import ServerConfig, ToolLoadingMode
-from mistmcp.session_aware_server import (
-    SessionAwareFastMCP,
-    create_session_aware_mcp_server,
-)
-from mistmcp.session_manager import session_manager
-from mistmcp.tool_loader import ToolLoader
+from fastmcp import FastMCP
 
+# Create the MCP server
+try:
+    mcp = FastMCP(
+        name="Mist MCP Server",
+        instructions="""
+You are a Network Engineer using the Juniper Mist solution to manage your network (Wi-Fi, Lan, Wan, NAC).
+All the information regarding the Organizations, Sites, Devices (Wi-Fi, Wired, and Wan), Clients (Wi-Fi, Wired, Wan and NAC), performance, issues and configuration can be retrieved with the tools provided by the Mist MCP Server.
 
-class McpInstance:
-    """
-    Singleton-like container for managing MCP (Model Context Protocol) instance.
-    This class provides a simple way to store and retrieve a SessionAwareFastMCP
-    instance globally within the application.
-    """
-
-    current_mcp_instance: SessionAwareFastMCP
-
-    def get(self) -> SessionAwareFastMCP:
-        """
-        Retrieve the current MCP instance.
-        Returns:
-            SessionAwareFastMCP: The currently stored MCP instance.
-        """
-        return self.current_mcp_instance
-
-    def set(self, instance: SessionAwareFastMCP) -> None:
-        """
-        Set the current MCP instance.
-        Args:
-            instance (SessionAwareFastMCP): The MCP instance to store.
-        """
-        self.current_mcp_instance = instance
-
-
-mcp_instance = McpInstance()
-
-
-def get_current_mcp():
-    """Get the current MCP instance"""
-    try:
-        return mcp_instance.get()
-    except AttributeError:
-        # current_mcp_instance hasn't been set yet
-        return None
-
-
-def create_mcp_server(config: ServerConfig):
-    """
-    Create and configure a session-aware MCP server based on the provided configuration.
-
-    This creates a multi-client server where each client maintains independent tool configurations
-    through session management.
-    """
-
-    # Create the server with appropriate configuration
-    try:
-        # Create the session-aware server instead of regular FastMCP
-        mcp = create_session_aware_mcp_server(config)
-
-        # Store the instance globally BEFORE loading tools
-        mcp_instance.set(mcp)
-
-        # Load tools based on configuration
-        tool_loader = ToolLoader(config)
-        tool_loader.load_tools(mcp)
-
-        if config.debug:
-            print("Session-aware MCP Server created successfully")
-            print(tool_loader.get_loaded_tools_summary())
-            print(
-                f"Session manager initialized with default tools: {session_manager.default_enabled_tools}"
-            )
-
-        return mcp
-
-    except Exception as e:
-        print(f"Error creating session-aware MCP server: {e}", file=sys.stderr)
-        if config.debug:
-            import traceback
-
-            traceback.print_exc()
-        raise
-
-
-def get_mode_instructions(config: ServerConfig) -> str:
-    """
-    Get mode-specific instructions for the agent
-    """
-
-    if config.tool_loading_mode == ToolLoadingMode.MANAGED:
-        return """
-MANAGED MODE: Tools are loaded dynamically as needed.
-
-By default, only essential tools are enabled. Use the `manageMcpTools` tool to enable or disable tools within the Mist MCP server:
-* The tools are grouped by category, meaning activating a new category may give access to multiple tools
-* If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
-* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
-* Anticipate the required parameters. For example, the user is asking for a resource at the site level, be sure to be able to get the `site_id` information.
-* DO NOT keep categories if they are not required for the next steps.
-
-IMPORTANT:
+AGENT INSTRUCTIONS:
 * Before acting, think twice, take a deep breath, plan your move, and then, start acting.
-* After updating the list of tools, stop and ask the user if it is ok to continue with: "**Are you ready to continue with the new set of tools?**"
-"""
+* After updating the list of tools, stop and ask the user if it is ok to continue
+        """,
+        on_duplicate_tools="replace",
+        mask_error_details=False,
+    )
 
-    if config.tool_loading_mode == ToolLoadingMode.ALL:
-        return """
-ALL TOOLS MODE: All available tools are loaded and ready to use.
-
-All tool categories have been pre-loaded, so you can use any Mist API functionality immediately without needing to manage tools.
-
-IMPORTANT:
-* If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
-* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
-* All tools are available - no need to use `manageMcpTools`
-"""
-
-    if config.tool_loading_mode == ToolLoadingMode.CUSTOM:
-        categories = ", ".join(config.tool_categories)
-        return f"""
-CUSTOM MODE: Pre-loaded with specific tool categories: {categories}
-
-The following tool categories have been pre-loaded and are available for immediate use:
-{categories}
-
-You can use `manageMcpTools` to enable additional categories or modify the current selection if needed.
-
-IMPORTANT:
-* If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
-* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
-"""
-
-    return ""
+except Exception as e:
+    print(f"Mist MCP Error: {e}", file=sys.stderr)

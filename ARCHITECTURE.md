@@ -6,44 +6,30 @@
 - [🧩 Core Components](#-core-components)
   - [1. Entry Point (`__main__.py`)](#1-entry-point-__main__py)
   - [2. Server Factory (`server_factory.py`)](#2-server-factory-server_factorypy)
-  - [3. Session-Aware Server (`session_aware_server.py`)](#3-session-aware-server-session_aware_serverpy)
-  - [4. Session Manager (`session_manager.py`)](#4-session-manager-session_managerpy)
-  - [5. Tool Management System](#5-tool-management-system)
-    - [Tool Manager (`tool_manager.py`)](#tool-manager-tool_managerpy)
+  - [3. Tool Management System](#3-tool-management-system)
     - [Tool Loader (`tool_loader.py`)](#tool-loader-tool_loaderpy)
     - [Tool Helper (`tool_helper.py`)](#tool-helper-tool_helperpy)
-  - [6. Configuration System (`config.py`)](#6-configuration-system-configpy)
-  - [7. Session Middleware (`session_middleware.py`)](#7-session-middleware-session_middlewarepy)
-  - [8. Session Tools (`session_tools.py`)](#8-session-tools-session_toolspy)
+  - [4. Configuration System (`config.py`)](#4-configuration-system-configpy)
 - [🔄 Data Flow](#-data-flow)
-  - [1. Client Connection Flow](#1-client-connection-flow)
+  - [1. Server Startup Flow](#1-server-startup-flow)
   - [2. Tool Loading Flow](#2-tool-loading-flow)
   - [3. Tool Execution Flow](#3-tool-execution-flow)
-  - [4. Dynamic Tool Management Flow](#4-dynamic-tool-management-flow)
 - [🔐 Security Architecture](#-security-architecture)
   - [Authentication Flow](#authentication-flow)
     - [STDIO Mode Authentication](#stdio-mode-authentication)
     - [HTTP Mode Authentication](#http-mode-authentication)
-    - [Authentication Comparison](#authentication-comparison)
-  - [Session Isolation](#session-isolation)
   - [Configuration Security](#configuration-security)
-    - [STDIO Mode Security](#stdio-mode-security)
-    - [HTTP Mode Security](#http-mode-security)
-- [📊 Session Management](#-session-management)
-  - [Session Lifecycle](#session-lifecycle)
-  - [Session Data](#session-data)
 - [⚡ Tool Optimization](#-tool-optimization)
-  - [Dynamic Tool Loading](#dynamic-tool-loading)
+  - [Configuration Object Consolidation](#configuration-object-consolidation)
   - [API Call Grouping and Consolidation](#api-call-grouping-and-consolidation)
   - [Optimization Examples](#optimization-examples)
   - [Current Limitations](#current-limitations)
-  - [Future Enhancement Opportunities](#future-enhancement-opportunities)
 
 This document provides a comprehensive overview of the Mist Model Context Protocol (MCP) server architecture, explaining how it enables AI assistants to interact with Juniper Mist networking infrastructure.
 
 ## 🏗️ High-Level Architecture
 
-The Mist MCP server is built as a modular, session-aware system that bridges Large Language Models (LLMs) with the Juniper Mist Cloud API. It provides secure, multi-client access with dynamic tool management capabilities.
+The Mist MCP server is built as a modular system that bridges Large Language Models (LLMs) with the Juniper Mist Cloud API. All 256 tools across 29 categories are loaded at startup for immediate availability.
 
 ```
 ┌─────────────────┐                    ┌──────────────────┐                    ┌─────────────────┐
@@ -91,68 +77,50 @@ Application entry point handling CLI arguments, environment configuration, and s
 ### 2. Server Factory (`server_factory.py`)
 Factory pattern for creating configured MCP server instances with `McpInstance` singleton and transport mode abstraction.
 
-### 3. Session-Aware Server (`session_aware_server.py`)
-Enhanced FastMCP server providing multi-client session support, per-session tool filtering, and HTTP query parameter handling.
+## 🧩 Core Components
 
-### 4. Session Manager (`session_manager.py`)
-Manages multiple client sessions with `ClientSession` dataclass, lifecycle management, and per-client configurations.
+### 1. Entry Point (`__main__.py`)
+Application entry point handling CLI arguments, environment configuration, and server initialization with transport mode selection.
 
-### 5. Tool Management System
+### 2. Server Factory (`server_factory.py`)
+Factory pattern for creating configured MCP server instances with `McpInstance` singleton and transport mode abstraction. Creates a standard FastMCP server and loads all available tools.
 
-#### Tool Manager (`tool_manager.py`)
-Runtime tool management with `manageMcpTools` function for dynamic tool enabling/disabling and category-based organization.
+### 3. Tool Management System
 
 #### Tool Loader (`tool_loader.py`)
-Dynamic loading of MCP tools with three modes: **Managed** (on-demand), **All** (startup), **Custom** (specific categories).
+Loads all available MCP tools from the 29 categories at server startup. Handles tool registration, module importing, and dependency injection.
 
 #### Tool Helper (`tool_helper.py`)
 Tool discovery utilities providing category enumeration, metadata management, and category-to-tool mapping.
 
-### 6. Configuration System (`config.py`)
-Centralized configuration with `ToolLoadingMode` enum, `ServerConfig` class, supporting environment variables, CLI arguments, and configuration files.
-
-### 7. Session Middleware (`session_middleware.py`)
-Request/response middleware for session identification, tracking, context injection, and cleanup.
-
-### 8. Session Tools (`session_tools.py`)
-Core session management tools (`getSelf`, `manageMcpTools`) with session state inspection and configuration interfaces.
+### 4. Configuration System (`config.py`)
+Simplified configuration with `ServerConfig` class, supporting environment variables, CLI arguments, and configuration files. Always loads all tools.
 
 ## 🔄 Data Flow
 
-### 1. Client Connection Flow
+### 1. Server Startup Flow
 ```
-1. Client connects via STDIO or HTTP
-2. Session Manager creates new ClientSession
-3. Session gets unique identifier and default configuration
-4. Essential tools (getSelf, manageMcpTools) are registered
-5. Client can discover and invoke available tools
+1. CLI arguments and environment variables parsed
+2. Server configuration created
+3. FastMCP server instance created
+4. All 256 tools across 29 categories loaded at startup
+5. Server ready to accept client connections
 ```
 
 ### 2. Tool Loading Flow
 ```
-1. Client requests tool list via get_tools()
-2. SessionAwareFastMCP.get_tools() called
-3. Current session retrieved from Session Manager
-4. Tools filtered based on session configuration
-5. Filtered tool list returned to client
+1. Essential tools (getSelf) loaded first
+2. All category tools loaded from tools.json configuration
+3. Each tool module dynamically imported and registered
+4. Tools enabled and available immediately
 ```
 
 ### 3. Tool Execution Flow
 ```
 1. Client invokes specific tool
-2. Session context injected into tool execution
-3. Tool accesses session-specific Mist API configuration
-4. API call made to Mist Cloud with session credentials
-5. Response processed and returned to client
-```
-
-### 4. Dynamic Tool Management Flow
-```
-1. Client calls manageMcpTools with desired categories
-2. Tool Manager validates categories against available tools
-3. Session configuration updated with new tool set
-4. Tools dynamically loaded/unloaded as needed
-5. Updated tool list available for subsequent requests
+2. Tool accesses Mist API configuration from environment
+3. API call made to Mist Cloud with credentials
+4. Response processed and returned to client
 ```
 
 ## 🔐 Security Architecture
@@ -164,9 +132,7 @@ Core session management tools (`getSelf`, `manageMcpTools`) with session state i
 1. Mist API token provided via environment variables (MIST_APITOKEN)
 2. Token loaded at server startup from environment
 3. Token validated on first API call
-4. Session stores validated credentials for duration of process
-5. All subsequent API calls use stored session credentials
-6. Single session per process - credentials persist until shutdown
+4. All subsequent API calls use stored credentials
 ```
 
 #### HTTP Mode Authentication
@@ -176,110 +142,48 @@ Core session management tools (`getSelf`, `manageMcpTools`) with session state i
 3. Token validated on each request - no server-side storage
 4. Stateless authentication - no credential persistence
 5. Each HTTP request carries its own authentication context
-6. Multiple clients can use different credentials simultaneously
 ```
 
-#### Authentication Comparison
-
-| Aspect | STDIO Mode | HTTP Mode |
-|--------|------------|-----------|
-| **Token Source** | Environment variables | HTTP headers per request |
-| **Token Storage** | Server memory (session) | Not stored (stateless) |
-| **Persistence** | Process lifetime | Request lifetime |
-| **Multi-client** | Single credential set | Per-request credentials |
-| **Security Model** | Trusted process environment | Zero-trust per request |
-
-### Session Isolation
-- Each client maintains independent session state
-- API credentials scoped per session
-- Tool configurations isolated between sessions
-- No cross-session data leakage
-
 ### Configuration Security
-
-#### STDIO Mode Security
-- Sensitive data (API tokens) loaded from environment variables
-- Credentials stored in session memory for process duration
-- Environment variable support for secure credential management
-- Optional `.env` file support for development
-- Process-level isolation provides security boundary
-
-#### HTTP Mode Security
-- No server-side credential storage (stateless)
-- Authentication data transmitted in HTTP headers per request
-- Each request is independently authenticated
-- No credential persistence reduces attack surface
-- Supports per-client different API tokens and endpoints
-- Relies on HTTPS for credential protection in transit
-
-
-## 📊 Session Management
-
-### Session Lifecycle
-1. **Creation**: New session on client connection with unique identifier and default configuration
-2. **Activity**: Track last activity timestamp with essential tools (`getSelf`, `manageMcpTools`) registered
-3. **Maintenance**: Periodic cleanup of expired sessions and automatic removal after inactivity timeout
-
-### Session Data
-- **Metadata**: Session ID, creation time, client info
-- **Configuration**: Tool loading mode, enabled categories
-- **Credentials**: Mist API token and host per session (STDIO mode only)
-- **State**: Enabled tools, last activity tracking
-
+- **STDIO Mode**: Credentials loaded from environment variables and stored in memory
+- **HTTP Mode**: Stateless authentication with per-request credential validation
+- **Environment Support**: Secure credential management via environment variables or `.env` files
+- **HTTPS Required**: All communication with Mist API secured via HTTPS
 
 ## ⚡ Tool Optimization
 
-The Mist MCP server implements several optimization strategies to manage the large number of available Mist API endpoints efficiently while maintaining performance and usability.
+The Mist MCP server implements revolutionary optimization strategies to manage the large number of available Mist API endpoints efficiently.
 
-### Dynamic Tool Loading
+### Configuration Object Consolidation
 
 #### The Challenge
-The Mist API contains hundreds of endpoints across multiple categories. Loading all tools at startup would:
-- Consume excessive memory
-- Slow down initialization
-- Overwhelm AI clients with too many tool choices
-- Reduce tool discovery efficiency
+The Mist API contains hundreds of configuration-related endpoints. Without consolidation:
+- Each object type would require separate list/get tools
+- 80+ individual tools needed for configuration management
+- Inconsistent parameter patterns across tools
+- Poor scalability for new object types
 
-#### The Solution: Managed Loading Mode
+#### The Solution: Unified Configuration Tools
+Instead of 80+ individual tools, we provide 2 powerful consolidated tools:
+
+**Organization Level:**
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   AI Client     │    │   MCP Server     │    │   Tool Pool     │
-│                 │    │                  │    │   (300+ tools)  │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-        │                        │                        │
-        │ 1. Connect             │                        │
-        │───────────────────────►│                        │
-        │                        │ 2. Load Essential Only │
-        │                        │◄──────────────────────►│
-        │ 3. See 2 tools         │                        │
-        │◄───────────────────────│                        │
-        │                        │                        │
-        │ 4. manageMcpTools      │                        │
-        │   ["orgs", "sites"]    │                        │
-        │───────────────────────►│ 5. Load Categories     │
-        │                        │◄──────────────────────►│
-        │ 6. See X+2 tools       │                        │
-        │◄───────────────────────│                        │
+getOrgConfigurationObjects(org_id, object_type, [object_id])
 ```
+Handles 26 object types: `alarmtemplates`, `wlans`, `sitegroups`, `aptemplates`, `avprofiles`, `devices`, `deviceprofiles`, `evpn_topologies`, `gatewaytemplates`, `idpprofiles`, `aamwprofiles`, `mxclusters`, `mxedges`, `mxtunnels`, `nactags`, `nacrules`, `networktemplates`, `networks`, `psks`, `rftemplates`, `secpolicies`, `services`, `servicepolicies`, `sites`, `sitetemplates`, `templates`, `vpns`, `webhooks`, `wxrules`, `wxtags`
 
-#### Loading Modes
-1. **Managed Mode (Default)**
-   - Start with essential tools only (`getSelf`, `manageMcpTools`)
-   - Load additional tools on-demand via `manageMcpTools`
-   - Memory efficient and responsive
-   - Preferred for most use cases
+**Site Level:**
+```
+getSiteConfigurationObjects(site_id, object_type, [object_id])
+```
+Handles 19 object types plus 10 derived types with Jinja2 variable resolution.
 
-2. **All Mode**
-   - Load all available tools at startup
-   - Higher memory usage but immediate access
-   - Suitable for power users and automation scripts
-
-3. **Custom Mode**
-   - Load specific tool categories at startup
-   - Balance between managed and all modes
-   - Configured via `MISTMCP_TOOL_CATEGORIES`
-
-### API Call Grouping and Consolidation
+#### Benefits
+- **98% Tool Reduction**: 80+ tools → 2 consolidated tools
+- **Consistent Interface**: Same parameter pattern across all object types
+- **Enhanced Functionality**: Single tool handles both list and get operations
+- **Derived Configuration**: Site-level access to org templates with resolved variables
+- **Future-Proof**: Easily extensible to new object types
 
 #### The Challenge
 The Mist API has fine-grained endpoints that often require multiple calls to complete common tasks:
@@ -400,25 +304,32 @@ The optimization currently covers:
 - listOrgsWlans(site_id="abc123")
 ```
 
-**Result**: 30-50% reduction in tool count while maintaining full API coverage.
+### Optimization Examples
 
-#### Current Limitations
+**Before Consolidation:**
+```
+- listOrgWlans + getOrgWlan
+- listOrgDeviceProfiles + getOrgDeviceProfile
+- listOrgNetworks + getOrgNetwork
+- listSiteDevices + getSiteDevice
+... 80+ individual configuration tools
+```
 
-The optimization is **currently limited** to:
-- List/Get endpoint pairs for configuration objects
-- Site/Organization endpoint consolidation with basic filtering
-- Parameter enhancement rather than true composite operations
-- Simple ID-based filtering for detailed object retrieval
-- Does not yet include complex multi-endpoint workflows or statistics aggregation
+**After Consolidation:**
+```
+- getOrgConfigurationObjects(org_id, object_type, [object_id])
+- getSiteConfigurationObjects(site_id, object_type, [object_id])
+... 2 consolidated configuration tools
+```
 
-#### Future Enhancement Opportunities
+**Result**: 98% reduction in configuration management tools while maintaining full API coverage.
 
-The architecture supports expanding to more sophisticated optimizations:
-- Cross-entity data aggregation (device + config + stats + events)
-- Workflow-based composite operations
-- Multi-step administrative tasks
-- Analytics and reporting combinations
+### Current Limitations
 
-This targeted optimization approach reduces tool count by approximately 30-50% for configuration management while maintaining full API coverage and preparing the foundation for more advanced composite operations.
+- **Error Handling**: Limited retry logic for transient API failures
+- **Rate Limiting**: No built-in rate limiting for API calls
+- **Caching**: No response caching implementation yet
+
+---
 
 This architecture enables secure, scalable, and flexible AI-powered network management through the Model Context Protocol, providing a robust foundation for LLM integration with Juniper Mist infrastructure.

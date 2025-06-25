@@ -11,20 +11,22 @@
 """
 
 import json
-from enum import Enum
+import mistapi
+from fastmcp.server.dependencies import get_context, get_http_request
+from fastmcp.exceptions import ToolError, ClientError, NotFoundError
+from starlette.requests import Request
+from mistmcp.config import config
+
+# from mistmcp.server_factory import mcp_instance
+from mistmcp.server_factory import mcp
+
+from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
+from enum import Enum
 
-import mistapi
-from fastmcp.exceptions import ClientError, NotFoundError, ToolError
-from fastmcp.server.dependencies import get_context, get_http_request
-from pydantic import Field
-from starlette.requests import Request
 
-from mistmcp.config import config
-from mistmcp.server_factory import mcp_instance
-
-mcp = mcp_instance.get()
+# mcp = mcp_instance.get()
 
 
 class Device_type(Enum):
@@ -141,7 +143,7 @@ async def listUpgrades(
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Device_type]}",
+                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}",
                 }
             )
 
