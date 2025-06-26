@@ -107,15 +107,15 @@ def get_mode_instructions(config: ServerConfig) -> str:
 MANAGED MODE: Tools are loaded dynamically as needed.
 
 By default, only essential tools are enabled. Use the `manageMcpTools` tool to enable or disable tools within the Mist MCP server:
-* The tools are grouped by category, meaning activating a new category may give access to multiple tools
-* If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
-* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
-* Anticipate the required parameters. For example, the user is asking for a resource at the site level, be sure to be able to get the `site_id` information.
-* DO NOT keep categories if they are not required for the next steps.
+1. The tools are grouped by category, meaning activating a new category may give access to multiple tools
+2. If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
+3. If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
+4. Anticipate the required parameters. For example, the user is asking for a resource at the site level, be sure to be able to get the `site_id` information.
+5. DO NOT keep categories if they are not required for the next steps.
 
 IMPORTANT:
 * Before acting, think twice, take a deep breath, plan your move, and then, start acting.
-* After updating the list of tools, stop and ask the user if it is ok to continue with: "**Are you ready to continue with the new set of tools?**"
+* After updating the list of tools, stop and ask the user if it is ok to continue
 """
 
     if config.tool_loading_mode == ToolLoadingMode.ALL:
@@ -127,7 +127,7 @@ All tool categories have been pre-loaded, so you can use any Mist API functional
 IMPORTANT:
 * If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
 * If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
-* All tools are available - no need to use `manageMcpTools`
+* All tools are available - no need to use `manageMcpTools` unless you want to reduce the tool set
 """
 
     if config.tool_loading_mode == ToolLoadingMode.CUSTOM:
@@ -143,6 +143,7 @@ You can use `manageMcpTools` to enable additional categories or modify the curre
 IMPORTANT:
 * If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
 * If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
+* Use `manageMcpTools` only if you need tools from categories not currently loaded
 """
 
     return ""

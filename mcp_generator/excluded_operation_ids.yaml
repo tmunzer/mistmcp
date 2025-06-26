@@ -41,3 +41,21 @@
 - getOrgUserMac
 # not working
 - listSiteApps
+# derived
+- listSiteRfTemplatesDerived
+- listSiteWlansDerived
+- ListSiteWxRulesDerived
+- listSiteAntivirusProfilesDerived
+- listSiteIdpProfilesDerived
+- listSiteAAMWProfilesDerived
+- listSiteApTemplatesDerived
+- listSiteNetworkTemplatesDerived
+- listSiteGatewayTemplatesDerived
+- listSiteDeviceProfilesDerived
+- listSiteNetworksDerived
+- listSiteServicesDerived
+- listSiteServicePoliciesDerived
+- listSiteVpnsDerived
+- listSiteSiteTemplatesDerived
+- listOrgSecPolicies
+- getOrgSecPolicy
