@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
+# from mistmcp.server_factory import mcp
 
 from pydantic import Field
 from typing import Annotated

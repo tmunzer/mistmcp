@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
+# from mistmcp.server_factory import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -37,21 +38,6 @@ class Object_type(Enum):
     WLANS = "wlans"
     WXRULES = "wxrules"
     WXTAGS = "wxtags"
-    RFTEMPLATES_DERIVED = "rftemplates_derived"
-    WLANS_DERIVED = "wlans_derived"
-    WXRULES_DERIVED = "wxrules_derived"
-    AVPROFILES_DERIVED = "avprofiles_derived"
-    IDPPROFILES_DERIVED = "idpprofiles_derived"
-    AAMWPROFILES_DERIVED = "aamwprofiles_derived"
-    APTEMPLATES_DERIVED = "aptemplates_derived"
-    NETWORKTEMPLATES_DERIVED = "networktemplates_derived"
-    GATEWAYTEMPLATES_DERIVED = "gatewaytemplates_derived"
-    DEVICEPROFILES_DERIVED = "deviceprofiles_derived"
-    NETWORKS_DERIVED = "networks_derived"
-    SERVICES_DERIVED = "services_derived"
-    SERVICEPOLICIES_DERIVED = "servicepolicies_derived"
-    VPNS_DERIVED = "vpns_derived"
-    SITETEMPLATES_DERIVED = "sitetemplates_derived"
 
 
 @mcp.tool(
@@ -188,74 +174,6 @@ async def getSiteConfigurationObjects(
                 response = mistapi.api.v1.sites.wxtags.listSiteWxTags(
                     apisession, site_id=str(site_id)
                 )
-        case "rftemplates_derived":
-            response = mistapi.api.v1.sites.rftemplates.listSiteRfTemplatesDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "wlans_derived":
-            response = mistapi.api.v1.sites.wlans.listSiteWlansDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "wxrules_derived":
-            response = mistapi.api.v1.sites.wxrules.ListSiteWxRulesDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "avprofiles_derived":
-            response = mistapi.api.v1.sites.avprofiles.listSiteAntivirusProfilesDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "idpprofiles_derived":
-            response = mistapi.api.v1.sites.idpprofiles.listSiteIdpProfilesDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "aamwprofiles_derived":
-            response = mistapi.api.v1.sites.aamwprofiles.listSiteAAMWProfilesDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "aptemplates_derived":
-            response = mistapi.api.v1.sites.aptemplates.listSiteApTemplatesDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "networktemplates_derived":
-            response = (
-                mistapi.api.v1.sites.networktemplates.listSiteNetworkTemplatesDerived(
-                    apisession, site_id=str(site_id)
-                )
-            )
-        case "gatewaytemplates_derived":
-            response = (
-                mistapi.api.v1.sites.gatewaytemplates.listSiteGatewayTemplatesDerived(
-                    apisession, site_id=str(site_id)
-                )
-            )
-        case "deviceprofiles_derived":
-            response = (
-                mistapi.api.v1.sites.deviceprofiles.listSiteDeviceProfilesDerived(
-                    apisession, site_id=str(site_id)
-                )
-            )
-        case "networks_derived":
-            response = mistapi.api.v1.sites.networks.listSiteNetworksDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "services_derived":
-            response = mistapi.api.v1.sites.services.listSiteServicesDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "servicepolicies_derived":
-            response = (
-                mistapi.api.v1.sites.servicepolicies.listSiteServicePoliciesDerived(
-                    apisession, site_id=str(site_id)
-                )
-            )
-        case "vpns_derived":
-            response = mistapi.api.v1.sites.vpns.listSiteVpnsDerived(
-                apisession, site_id=str(site_id)
-            )
-        case "sitetemplates_derived":
-            response = mistapi.api.v1.sites.sitetemplates.listSiteSiteTemplatesDerived(
-                apisession, site_id=str(site_id)
-            )
 
         case _:
             raise ToolError(

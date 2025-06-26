@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
+# from mistmcp.server_factory import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -48,7 +49,6 @@ class Object_type(Enum):
     NETWORKS = "networks"
     PSKS = "psks"
     RFTEMPLATES = "rftemplates"
-    SECPOLICIES = "secpolicies"
     SERVICES = "services"
     SERVICEPOLICIES = "servicepolicies"
     SITES = "sites"
@@ -288,15 +288,6 @@ async def getOrgConfigurationObjects(
                 )
             else:
                 response = mistapi.api.v1.orgs.rftemplates.listOrgRfTemplates(
-                    apisession, org_id=str(org_id)
-                )
-        case "secpolicies":
-            if object_id:
-                response = mistapi.api.v1.orgs.secpolicies.getOrgSecPolicy(
-                    apisession, org_id=str(org_id), secpolicy_id=str(object_id)
-                )
-            else:
-                response = mistapi.api.v1.orgs.secpolicies.listOrgSecPolicies(
                     apisession, org_id=str(org_id)
                 )
         case "services":
