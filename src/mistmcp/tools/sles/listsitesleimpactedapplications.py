@@ -35,7 +35,7 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteSleImpactedApplications",
     description="""For WAN SLEs. List the impacted interfaces optionally filtered by classifier and failure type""",
     tags={"sles"},

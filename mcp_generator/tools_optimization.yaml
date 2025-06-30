@@ -359,7 +359,7 @@ getOrgConfigurationObjects:
         function: mistapi.api.v1.orgs.sitetemplates.getOrgSiteTemplate(apisession, org_id=str(org_id), sitetemplate_id=str(object_id))
 
 
-    templates:
+    wlantemplates:
       list:
         operationId: listOrgTemplates
         function: mistapi.api.v1.orgs.templates.listOrgTemplates(apisession, org_id=str(org_id))

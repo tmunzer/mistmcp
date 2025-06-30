@@ -37,7 +37,7 @@ class Sort(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgAuditLogs",
     description="""Get List of change logs for the current Org""",
     tags={"orgs"},

@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgMxEdgeStats",
     description="""Get Org MxEdge Details Stats""",
     tags={"orgs_stats"},

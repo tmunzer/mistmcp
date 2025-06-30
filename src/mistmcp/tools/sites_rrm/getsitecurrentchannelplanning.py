@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteCurrentChannelPlanning",
     description="""Get Current Channel Planning""",
     tags={"Sites RRM"},

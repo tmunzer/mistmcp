@@ -37,7 +37,7 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteSleThreshold",
     description="""Get the SLE threshold""",
     tags={"sles"},

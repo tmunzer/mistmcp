@@ -36,7 +36,7 @@ class Sle(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgSitesSle",
     description="""Get Org Sites SLE""",
     tags={"sles"},

@@ -53,7 +53,7 @@ class Object_type(Enum):
     SERVICEPOLICIES = "servicepolicies"
     SITES = "sites"
     SITETEMPLATES = "sitetemplates"
-    TEMPLATES = "templates"
+    WLANTEMPLATES = "wlantemplates"
     VPNS = "vpns"
     WEBHOOKS = "webhooks"
     WXRULES = "wxrules"
@@ -61,7 +61,7 @@ class Object_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgConfigurationObjects",
     description="""Retrieve configuration objects from a specified organization or site.""",
     tags={"configuration"},
@@ -321,7 +321,7 @@ async def getOrgConfigurationObjects(
                 response = mistapi.api.v1.orgs.sitetemplates.listOrgSiteTemplates(
                     apisession, org_id=str(org_id)
                 )
-        case "templates":
+        case "wlantemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.templates.getOrgTemplate(
                     apisession, org_id=str(org_id), template_id=str(object_id)

@@ -34,7 +34,7 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteSleImpactedWirelessClients",
     description="""For Wireless SLEs. List the impacted wireless users optionally filtered by classifier and failure type""",
     tags={"sles"},

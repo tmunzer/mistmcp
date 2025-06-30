@@ -15,26 +15,23 @@ help: ## Show this help message
 	@echo 'Targets:'
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-init: ## Development setup
-	uv sync
-
-install: ## Install project in development mode
+init: setup-openapi ## Development setup with OpenAPI
 	uv sync
 
 install-prod: ## Install project for production
 	uv sync --no-dev
 
 test: ## Run tests
-	uv run pytest
+	uv run python -m pytest
 
 test-cov: ## Run tests with coverage
-	uv run pytest --cov=src/mistapi --cov-report=html --cov-report=term-missing
+	uv run python -m pytest --cov=src/mistapi --cov-report=html --cov-report=term-missing
 
 test-unit: ## Run specific test markers - unit tests
-	uv run pytest -m unit
+	uv run python -m pytest -m unit
 
 test-integration: ## Run specific test markers - integration tests
-	uv run pytest -m integration
+	uv run python -m pytest -m integration
 
 lint: ## Check code quality
 	uv run ruff check src tests
@@ -60,8 +57,8 @@ publish: clean build ## Publish to PyPI
 	uv run twine upload dist/*
 
 generate: ## Run the code generation script
-	cd mist_openapi && git pull && cd ..
 	uv run python ./mcp_generator/generate_from_openapi.py $(VERSION)
+	$(MAKE) format
 
 deps: ## Show dependency tree
 	uv tree
@@ -87,3 +84,12 @@ check: clean format pre-commit test ## Run all checks and tests
 docker:
 	docker buildx build --platform linux/amd64 -t tmunzer/mistmcp:latest .
 # docker buildx build --platform linux/amd64,linux/arm64 -t tmunzer/mistmcp:latest .
+
+
+setup-openapi: ## Initialize or update OpenAPI submodule
+	@if [ ! -d "mist_openapi/.git" ]; then \
+		echo "Initializing OpenAPI submodule..."; \
+		git submodule update --init mist_openapi; \
+	fi
+	@echo "Updating OpenAPI submodule..."; \
+	git submodule update --remote mist_openapi

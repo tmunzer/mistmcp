@@ -41,7 +41,7 @@ class Object_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteConfigurationObjects",
     description="""Retrieve configuration objects from a specified site. The "_derived" tools are used to retrieve derived configuration objects that are generated from the org level objects with jinja2 variables resolved with the site variables.""",
     tags={"configuration"},

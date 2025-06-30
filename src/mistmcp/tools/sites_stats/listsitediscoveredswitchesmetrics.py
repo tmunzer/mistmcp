@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteDiscoveredSwitchesMetrics",
     description="""Discovered switches related metrics, lists related switch system names & details if not compliant""",
     tags={"sites_stats"},

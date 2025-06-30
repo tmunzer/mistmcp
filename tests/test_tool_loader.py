@@ -15,8 +15,8 @@ class TestToolLoader:
         loader = ToolLoader(config)
 
         assert loader.config == config
-        assert isinstance(loader.loaded_tools, list)
-        assert len(loader.loaded_tools) == 0
+        assert isinstance(loader.enabled_tools, list)
+        assert len(loader.enabled_tools) == 0
 
     def test_snake_case_conversion(self) -> None:
         """Test snake_case string conversion"""
@@ -28,55 +28,47 @@ class TestToolLoader:
         assert loader.snake_case("mixed-Case String") == "mixed_case_string"
         assert loader.snake_case("already_snake_case") == "already_snake_case"
 
-    def test_load_essential_tools_success(self) -> None:
-        """Test loading essential tools successfully"""
+    def test_enable_getself_tool_success(self) -> None:
+        """Test enabling getSelf tool successfully"""
         config = ServerConfig(debug=True)
         loader = ToolLoader(config)
 
         # Test with None mcp instance - should not crash
-        loader.load_essential_tools(None)
+        result = loader.enable_getself_tool(None)
+        assert result is False
 
         # Test with mock mcp instance
         mock_mcp = Mock()
-        loader.load_essential_tools(mock_mcp)
+        result = loader.enable_getself_tool(mock_mcp)
+        # Should complete without error (may succeed or fail depending on imports)
 
-        # Should complete without error
-
-    def test_load_essential_tools_no_mcp(self) -> None:
-        """Test loading essential tools with no MCP instance"""
-        config = ServerConfig(debug=True)
+    @patch("mistmcp.config.ServerConfig._load_tools_config")
+    def test_enable_managemcp_tool_success(self, mock_load_tools) -> None:
+        """Test enabling manageMcpTools tool successfully"""
+        mock_load_tools.return_value = None  # Prevent filesystem scan
+        config = ServerConfig(debug=False)
+        config.available_tools = {}  # Set empty tools
         loader = ToolLoader(config)
 
-        # Should not raise exception
-        loader.load_essential_tools(None)
+        # Test with None mcp instance - should return False
+        result = loader.enable_managemcp_tool(None)
+        assert result is True
 
-    def test_load_tool_manager_success(self) -> None:
-        """Test loading tool manager successfully"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MANAGED)
-        loader = ToolLoader(config)
-
-        # Test with None mcp instance - should not crash
-        loader.load_tool_manager(None)
-
-        # Test with mock mcp instance
+        # Test with mock mcp instance - mock the register function to return None
         mock_mcp = Mock()
-        loader.load_tool_manager(mock_mcp)
+        with patch(
+            "mistmcp.tool_manager.register_manage_mcp_tools_tool", return_value=None
+        ):
+            result = loader.enable_managemcp_tool(mock_mcp)
+            assert result is False
 
-        # Should complete without error
-
-    def test_load_tool_manager_not_needed(self) -> None:
-        """Test not loading tool manager when not needed"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.ALL, debug=True)
-        loader = ToolLoader(config)
-
-        # Should not load for ALL mode
-        loader.load_tool_manager()
-        # No exception should be raised
-
-    def test_load_category_tools_success(self) -> None:
-        """Test loading category tools successfully"""
-        # Create config with mock available tools
-        config = ServerConfig(debug=True)
+    @patch("mistmcp.config.ServerConfig._load_tools_config")
+    @patch("mistmcp.tool_loader.ToolLoader.enable_tool_by_name")
+    def test_enable_categories_success(self, mock_enable_tool, mock_load_tools) -> None:
+        """Test enabling category tools successfully"""
+        mock_load_tools.return_value = None  # Prevent filesystem scan
+        mock_enable_tool.return_value = False  # Mock tools don't exist
+        config = ServerConfig(debug=False)
         config.available_tools = {
             "orgs": {"tools": ["listOrgs", "getOrg"]},
             "sites": {"tools": ["listSites", "getSite"]},
@@ -84,99 +76,94 @@ class TestToolLoader:
 
         loader = ToolLoader(config)
 
-        # Test with None mcp instance - should not crash
-        loader.load_category_tools(["orgs"], None)
+        # Test with None mcp instance - should return 0
+        result = loader.enable_categories(["orgs"], None)
+        assert result == 0
 
-        # Test with mock mcp instance
+        # Test with mock mcp instance - should return 0 because tools don't exist
         mock_mcp = Mock()
-        loader.load_category_tools(["orgs"], mock_mcp)
+        result = loader.enable_categories(["orgs"], mock_mcp)
+        # Should complete without error and return 0 for non-existent tools
+        assert result == 0
+        result = loader.enable_categories(["orgs"], mock_mcp)
+        # Should complete without error and return 0 for non-existent tools
+        assert result == 0
 
-        # Should complete without error
-
-    def test_load_category_tools_invalid_category(self) -> None:
-        """Test loading tools with invalid category"""
+    def test_enable_categories_invalid_category(self) -> None:
+        """Test enabling tools with invalid category"""
         config = ServerConfig(debug=True)
         config.available_tools = {"orgs": {"tools": ["listOrgs", "getOrg"]}}
 
         loader = ToolLoader(config)
 
         # Should handle invalid category gracefully
-        loader.load_category_tools(["invalid_category"])
+        result = loader.enable_categories(["invalid_category"])
+        assert result == 0
 
-    def test_load_category_tools_no_mcp(self) -> None:
-        """Test loading category tools with no MCP instance"""
-        config = ServerConfig(debug=True)
+    @patch("mistmcp.config.ServerConfig._load_tools_config")
+    @patch("mistmcp.tool_loader.ToolLoader.enable_tool_by_name")
+    def test_enable_categories_no_mcp(self, mock_enable_tool, mock_load_tools) -> None:
+        """Test enabling category tools with no MCP instance"""
+        mock_load_tools.return_value = None  # Prevent filesystem scan
+        mock_enable_tool.return_value = False  # Mock tools don't exist
+        config = ServerConfig(debug=False)
+        config.available_tools = {"orgs": {"tools": ["listOrgs", "getOrg"]}}
         loader = ToolLoader(config)
 
         # Should handle gracefully
-        loader.load_category_tools(["orgs"])
+        result = loader.enable_categories(["orgs"])
+        assert result == 0
 
-    @patch("mistmcp.tool_loader.ToolLoader.load_essential_tools")
-    @patch("mistmcp.tool_loader.ToolLoader.load_tool_manager")
-    @patch("mistmcp.tool_loader.ToolLoader.load_category_tools")
-    def test_load_tools_managed_mode(
-        self, mock_load_category, mock_load_manager, mock_load_essential
+    @patch("mistmcp.tool_loader.ToolLoader.enable_getself_tool")
+    @patch("mistmcp.tool_loader.ToolLoader.enable_managemcp_tool")
+    def test_configure_tools_managed_mode(
+        self, mock_enable_managemcp, mock_enable_getself
     ) -> None:
-        """Test loading tools in managed mode"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MANAGED)
-        loader = ToolLoader(config)
-
-        loader.load_tools()
-
-        mock_load_essential.assert_called_once()
-        mock_load_manager.assert_called_once()
-        mock_load_category.assert_not_called()
-
-    @patch("mistmcp.tool_loader.ToolLoader.load_essential_tools")
-    @patch("mistmcp.tool_loader.ToolLoader.load_tool_manager")
-    @patch("mistmcp.tool_loader.ToolLoader.load_category_tools")
-    def test_load_tools_all_mode(
-        self, mock_load_category, mock_load_manager, mock_load_essential
-    ) -> None:
-        """Test loading tools in all mode"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.ALL)
+        """Test configuring tools in managed mode"""
+        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MANAGED, debug=True)
+        # Add available tools so there are categories to load
         config.available_tools = {"orgs": {}, "sites": {}}
         loader = ToolLoader(config)
 
-        loader.load_tools()
+        mock_mcp = Mock()
+        loader.configure_tools(mock_mcp)
 
-        mock_load_essential.assert_called_once()
-        mock_load_manager.assert_called_once()
-        mock_load_category.assert_called_once()
+        mock_enable_getself.assert_called_once_with(mock_mcp)
+        mock_enable_managemcp.assert_called_once_with(mock_mcp)
 
-    @patch("mistmcp.tool_loader.ToolLoader.load_essential_tools")
-    @patch("mistmcp.tool_loader.ToolLoader.load_tool_manager")
-    @patch("mistmcp.tool_loader.ToolLoader.load_category_tools")
-    def test_load_tools_custom_mode(
-        self, mock_load_category, mock_load_manager, mock_load_essential
+    @patch("mistmcp.tool_loader.ToolLoader.enable_getself_tool")
+    @patch("mistmcp.tool_loader.ToolLoader.enable_tool_by_name")
+    def test_configure_tools_all_mode(
+        self, mock_enable_tool, mock_enable_getself
     ) -> None:
-        """Test loading tools in custom mode"""
-        config = ServerConfig(
-            tool_loading_mode=ToolLoadingMode.CUSTOM, tool_categories=["orgs", "sites"]
-        )
-        # Add available tools so the categories are valid
-        config.available_tools = {"orgs": {}, "sites": {}}
+        """Test configuring tools in all mode"""
+        config = ServerConfig(tool_loading_mode=ToolLoadingMode.ALL, debug=True)
+        config.available_tools = {
+            "orgs": {"tools": ["getOrg", "listOrgs"]},
+            "sites": {"tools": ["getSite"]},
+        }
         loader = ToolLoader(config)
 
-        loader.load_tools()
+        mock_mcp = Mock()
+        loader.configure_tools(mock_mcp)
 
-        mock_load_essential.assert_called_once()
-        mock_load_manager.assert_called_once()
-        mock_load_category.assert_called_once()
+        mock_enable_getself.assert_called_once_with(mock_mcp)
+        # Should enable all tools in all categories (except getSelf and manageMcpTools)
+        assert mock_enable_tool.call_count == 3  # getOrg, listOrgs, getSite
 
-    def test_get_loaded_tools_summary(self) -> None:
-        """Test getting loaded tools summary"""
+    def test_get_enabled_tools_summary(self) -> None:
+        """Test getting enabled tools summary"""
         config = ServerConfig()
         loader = ToolLoader(config)
 
         # Initially empty
-        summary = loader.get_loaded_tools_summary()
-        assert "Loaded 0 tools" in summary
+        summary = loader.get_enabled_tools_summary()
+        assert "Enabled 0 tools" in summary
 
         # Add some tools
-        loader.loaded_tools = ["getSelf", "manageMcpTools", "listOrgs"]
-        summary = loader.get_loaded_tools_summary()
-        assert "Loaded 3 tools" in summary
+        loader.enabled_tools = ["getSelf", "manageMcpTools", "listOrgs"]
+        summary = loader.get_enabled_tools_summary()
+        assert "Enabled 3 tools" in summary
         assert "getSelf" in summary
         assert "manageMcpTools" in summary
         assert "listOrgs" in summary

@@ -35,7 +35,7 @@ class Band(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteCurrentRrmNeighbors",
     description="""List Current RRM observed neighbors""",
     tags={"Sites RRM"},

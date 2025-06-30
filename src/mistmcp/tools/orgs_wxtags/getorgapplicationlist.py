@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgApplicationList",
     description="""Get Application List""",
     tags={"Orgs WxTags"},

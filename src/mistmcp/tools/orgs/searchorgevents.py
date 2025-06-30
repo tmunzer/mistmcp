@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgEvents",
     description="""Search Org eventsSupported Event Types:- CRADLEPOINT_SYNC_FAILED- ORG_CA_CERT_ADDED- ORG_CA_CERT_REGENERATED""",
     tags={"orgs"},

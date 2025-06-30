@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="GetOrgLicenseAsyncClaimStatus",
     description="""Get Processing Status for Async Claim""",
     tags={"orgs"},

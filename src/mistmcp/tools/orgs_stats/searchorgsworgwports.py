@@ -61,7 +61,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgSwOrGwPorts",
     description="""Search Switch / Gateway Ports""",
     tags={"orgs_stats"},

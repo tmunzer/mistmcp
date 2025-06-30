@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgSiteStats",
     description="""Get List of Org Site Stats""",
     tags={"orgs_stats"},

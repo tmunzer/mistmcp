@@ -41,7 +41,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgDevices",
     description="""Search Org Devices""",
     tags={"devices"},

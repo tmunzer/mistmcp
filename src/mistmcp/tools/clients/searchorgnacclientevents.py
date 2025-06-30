@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgNacClientEvents",
     description="""Search NAC Client Events""",
     tags={"clients"},

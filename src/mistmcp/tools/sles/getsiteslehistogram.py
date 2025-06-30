@@ -37,7 +37,7 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteSleHistogram",
     description="""Get the histogram for the SLE metric""",
     tags={"sles"},

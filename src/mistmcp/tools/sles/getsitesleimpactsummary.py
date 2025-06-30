@@ -56,7 +56,7 @@ class Fields(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteSleImpactSummary",
     description="""Get impact summary counts optionally filtered by classifier and failure type * Wireless SLE Fields: `wlan`, `device_type`, `device_os` ,`band`, `ap`, `server`, `mxedge`* Wired SLE Fields: `switch`, `client`, `vlan`, `interface`, `chassis`* WAN SLE Fields: `gateway`, `client`, `interface`, `chassis`, `peer_path`, `gateway_zones`""",
     tags={"sles"},

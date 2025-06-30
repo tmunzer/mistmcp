@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgCurrentMatchingClientsOfAWxTag",
     description="""Get Current Matching Clients of a WXLAN Tag""",
     tags={"Orgs WxTags"},

@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteInsightMetricsForDevice",
     description="""Get AP Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)""",
     tags={"Sites Insights"},

@@ -36,7 +36,7 @@ class For_site(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgMxEdgesStats",
     description="""Get List of Org MxEdge Stats""",
     tags={"orgs_stats"},

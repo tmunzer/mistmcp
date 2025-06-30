@@ -35,7 +35,7 @@ class Client_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgClientFingerprints",
     description="""Search Client Fingerprints""",
     tags={"orgs_nac"},

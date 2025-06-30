@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteWxRulesUsage",
     description="""Get Wxlan Rule usage""",
     tags={"sites_stats"},

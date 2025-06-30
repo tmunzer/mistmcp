@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgOtherDeviceStats",
     description="""Get Otherdevice Stats""",
     tags={"orgs_stats"},

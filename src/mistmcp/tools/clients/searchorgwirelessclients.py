@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgWirelessClients",
     description="""Search Org Wireless Clients""",
     tags={"clients"},

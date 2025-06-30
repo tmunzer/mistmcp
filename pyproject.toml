@@ -20,7 +20,7 @@ classifiers = [
   "Topic :: System :: Networking",
   "Development Status :: 4 - Beta",
 ]
-dependencies = ["FastMCP", "marvin", "mcp[cli]>=1.9.2", "mistapi>=0.56.3"]
+dependencies = ["FastMCP", "marvin", "mcp[cli]>=1.9.2", "mistapi>=0.56.4"]
 
 [project.urls]
 "Source" = "https://github.com/tmunzer/mistmcp"
@@ -43,10 +43,8 @@ dev-dependencies = [
   "pytest-asyncio",
   # "faker>=37.3.0",
   # "httpx>=0.28.1",
-
   # Code quality
   "ruff>=0.11.13",
-
   # Development dependencies
   "twine>=6.1.0",
   "build>=1.2.2.post1",

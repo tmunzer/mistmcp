@@ -45,8 +45,8 @@
 "orgs user macs": "orgs_nac"
 
 # webhooks
-"orgs webhooks": "webhooks"
-"sites webhooks": "webhooks"
+"orgs webhooks": "webhooks_deliveries"
+"sites webhooks": "webhooks_deliveries"
 
 # marvis
 "sites synthetic tests": marvis

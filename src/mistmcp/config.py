@@ -11,7 +11,6 @@
 """
 
 import importlib.resources
-import json
 from enum import Enum
 from typing import List, Optional
 
@@ -19,9 +18,8 @@ from typing import List, Optional
 class ToolLoadingMode(Enum):
     """Defines how tools should be loaded in the MCP server"""
 
-    MANAGED = "managed"  # Use tool manager for dynamic loading (default)
-    ALL = "all"  # Load all available tools at startup
-    CUSTOM = "custom"  # Load specific categories provided as parameter
+    MANAGED = "managed"  # Use tool manager for dynamic loading
+    ALL = "all"  # Load all available tools at startup (default)
 
 
 class ServerConfig:
@@ -30,7 +28,7 @@ class ServerConfig:
     def __init__(
         self,
         transport_mode: str = "stdio",
-        tool_loading_mode: ToolLoadingMode = ToolLoadingMode.MANAGED,
+        tool_loading_mode: ToolLoadingMode = ToolLoadingMode.ALL,
         tool_categories: Optional[List[str]] = None,
         debug: bool = False,
     ) -> None:
@@ -45,14 +43,75 @@ class ServerConfig:
         self._load_tools_config()
 
     def _load_tools_config(self) -> None:
-        """Load the tools.json configuration file"""
+        """Load tools configuration by scanning the tools directory"""
         try:
-            with importlib.resources.path("mistmcp", "tools.json") as json_path:
-                with json_path.open(encoding="utf-8") as json_file:
-                    self.available_tools = json.load(json_file)
-        except (FileNotFoundError, json.JSONDecodeError) as e:
+            import os
+
+            # Get the tools directory path
+            with importlib.resources.path("mistmcp", "tools") as tools_path:
+                self.available_tools = {}
+
+                # Scan all subdirectories in the tools directory
+                for item in os.listdir(tools_path):
+                    item_path = tools_path / item
+                    if item_path.is_dir() and not item.startswith("__"):
+                        # Get all .py files in the category directory
+                        tools_in_category = []
+                        try:
+                            for tool_file in os.listdir(item_path):
+                                if tool_file.endswith(
+                                    ".py"
+                                ) and not tool_file.startswith("__"):
+                                    # Extract actual function name from the tool file
+                                    try:
+                                        tool_file_path = os.path.join(
+                                            item_path, tool_file
+                                        )
+                                        with open(
+                                            tool_file_path, "r", encoding="utf-8"
+                                        ) as f:
+                                            content = f.read()
+                                            # Look for async def function_name pattern
+                                            import re
+
+                                            match = re.search(
+                                                r"^async def ([a-zA-Z_][a-zA-Z0-9_]*)\s*\(",
+                                                content,
+                                                re.MULTILINE,
+                                            )
+                                            if match:
+                                                function_name = match.group(1)
+                                                tools_in_category.append(function_name)
+                                            else:
+                                                # Fallback to filename-based approach
+                                                tool_name = tool_file[
+                                                    :-3
+                                                ]  # Remove .py extension
+                                                tools_in_category.append(tool_name)
+                                    except Exception:
+                                        # Fallback to filename-based approach
+                                        tool_name = tool_file[
+                                            :-3
+                                        ]  # Remove .py extension
+                                        tools_in_category.append(tool_name)
+                        except OSError:
+                            continue
+
+                        if tools_in_category:
+                            self.available_tools[item] = {
+                                "description": f"Tools for {item.replace('_', ' ')} functionality",
+                                "tools": tools_in_category,
+                            }
+
             if self.debug:
-                print(f"Warning: Could not load tools configuration: {e}")
+                print(
+                    f"Discovered {len(self.available_tools)} tool categories from filesystem"
+                )
+
+        except (ImportError, OSError, AttributeError) as e:
+            if self.debug:
+                print(f"Warning: Could not scan tools directory: {e}")
+            # Fallback to empty tools
             self.available_tools = {}
 
     def get_tools_to_load(self) -> List[str]:
@@ -60,31 +119,15 @@ class ServerConfig:
         Returns list of tool categories to load based on the configuration mode
         """
         if self.tool_loading_mode == ToolLoadingMode.MANAGED:
-            return []  # Tools will be loaded dynamically via manageMcpTools
+            # In managed mode, only load essential tools initially
+            # Tools will be dynamically loaded on demand via manageMcpTools
+            return []
 
         elif self.tool_loading_mode == ToolLoadingMode.ALL:
+            # In all mode, load all available tools at startup
             return list(self.available_tools.keys())
 
-        elif self.tool_loading_mode == ToolLoadingMode.CUSTOM:
-            # Validate that requested categories exist
-            valid_categories = []
-            for category in self.tool_categories:
-                if category in self.available_tools:
-                    valid_categories.append(category)
-                else:
-                    print(f"Warning: Unknown tool category '{category}' - skipping")
-            return valid_categories
-
         return []
-
-    def should_load_tool_manager(self) -> bool:
-        """
-        Returns True if the tool manager should be loaded
-        """
-        return self.tool_loading_mode in [
-            ToolLoadingMode.MANAGED,
-            ToolLoadingMode.CUSTOM,
-        ]
 
     def get_description_suffix(self) -> str:
         """
@@ -92,14 +135,10 @@ class ServerConfig:
         """
 
         if self.tool_loading_mode == ToolLoadingMode.MANAGED:
-            return "\n\nMODE: MANAGED - Tools loaded dynamically. Use `manageMcpTools` to enable tools as needed."
+            return "\n\nMODE: MANAGED - Essential tools loaded at startup, others available on demand."
 
         elif self.tool_loading_mode == ToolLoadingMode.ALL:
             return "\n\nMODE: ALL - All available tools loaded at startup."
-
-        elif self.tool_loading_mode == ToolLoadingMode.CUSTOM:
-            categories = ", ".join(self.tool_categories)
-            return f"\n\nMODE: CUSTOM - Pre-loaded tool categories: {categories}. Use `manageMcpTools` to modify."
 
         return ""
 

@@ -47,7 +47,7 @@ class Protocol(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteSyntheticTest",
     description="""Search Site Synthetic Testing""",
     tags={"marvis"},

@@ -37,7 +37,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteRogueEvents",
     description="""Search Rogue Events""",
     tags={"Sites Rogues"},

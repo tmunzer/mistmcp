@@ -34,30 +34,11 @@ def all_config():
 
 
 @pytest.fixture
-def custom_config():
-    """Create a custom mode server configuration for testing"""
+def managed_config():
+    """Create a managed mode server configuration for testing"""
     return ServerConfig(
-        tool_loading_mode=ToolLoadingMode.CUSTOM,
-        tool_categories=["orgs", "sites"],
+        tool_loading_mode=ToolLoadingMode.MANAGED,
         debug=False,
-    )
-
-
-@pytest.fixture
-def mock_session():
-    """Create a mock client session for testing"""
-    from datetime import datetime
-
-    from mistmcp.session_manager import ClientSession
-
-    return ClientSession(
-        session_id="test_session",
-        tools_mode="managed",
-        client_info={"test": "info"},
-        enabled_tools={"getSelf", "manageMcpTools"},
-        enabled_categories=set(),
-        created_at=datetime.now(),
-        last_activity=datetime.now(),
     )
 
 

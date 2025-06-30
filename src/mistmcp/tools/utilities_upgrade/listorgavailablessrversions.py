@@ -35,7 +35,7 @@ class Channel(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgAvailableSsrVersions",
     description="""Get available version for SSR""",
     tags={"Utilities Upgrade"},

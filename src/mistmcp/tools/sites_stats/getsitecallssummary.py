@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteCallsSummary",
     description="""Summarized, aggregated stats for the site calls""",
     tags={"sites_stats"},

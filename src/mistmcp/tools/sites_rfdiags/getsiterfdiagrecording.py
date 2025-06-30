@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteRfdiagRecording",
     description="""Get RF Diag Recording Details""",
     tags={"Sites Rfdiags"},

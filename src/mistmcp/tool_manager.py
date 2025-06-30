@@ -10,17 +10,15 @@
 --------------------------------------------------------------------------------
 """
 
-import asyncio
 import json
 from typing import Annotated
 
 from fastmcp.server.dependencies import get_context
 from pydantic import Field
 
-from mistmcp.session_manager import get_current_session, session_manager
-from mistmcp.tool_helper import TOOLS, McpToolsCategory
-
-# Don't import the MCP instance at import time to avoid circular dependencies
+from mistmcp.config import config
+from mistmcp.server_factory import get_current_mcp
+from mistmcp.tool_helper import TOOLS
 
 
 def snake_case(s: str) -> str:
@@ -28,137 +26,112 @@ def snake_case(s: str) -> str:
     return s.lower().replace(" ", "_").replace("-", "_")
 
 
-# Define the tool function without decorator - will be registered dynamically
+def get_available_categories() -> list[str]:
+    """Get list of available tool categories"""
+    return list(config.available_tools.keys())
+
+
 async def manageMcpTools(
     enable_mcp_tools_categories: Annotated[
-        list[McpToolsCategory] | str,
+        list[str] | str | None,
         Field(description="Enable tools within the MCP based on the tool category"),
-    ] = [],
-    #     configuration_required: Annotated[
-    #         Optional[bool],
-    #         Field(
-    #             description="""
-    # This is to request the 'write' API endpoints, used to create or configure resources in the Mist Cloud.
-    # Do not use it except if it explicitly requested by the user, and ask the user confirmation before using any 'write' tool!
-    # """,
-    #             default=False,
-    #         ),
-    #   ] = False,
+    ] = None,
 ) -> str:
     """Select the list of tools provided by the MCP server"""
 
-    # Get the current session
     ctx = get_context()
-    session = get_current_session("managed")  # Use managed as default mode
 
-    # Load tools configuration
-    tools_available = TOOLS
+    # Get available categories
+    available_categories = get_available_categories()
 
-    # Calculate new tool sets
-    new_enabled_tools = session.enabled_tools.copy()
-    new_enabled_categories = session.enabled_categories.copy()
+    # Parse input categories
+    categories_to_enable: list = []
 
-    changes_made = []
-
-    if isinstance(enable_mcp_tools_categories, str):
-        tools_converted = False
-        tools = enable_mcp_tools_categories
-        try:
-            enable_mcp_tools_categories = json.loads(tools)
-            tools_converted = True
-        except json.JSONDecodeError:
-            pass
-        if not tools_converted:
-            if "," in tools:
-                tmp = []
-                for t in tools.split(","):
-                    try:
-                        tmp.append(McpToolsCategory(snake_case(t.strip())))
-                    except ValueError:
-                        await ctx.warning(f"Unknown category: {t.strip()}")
-                enable_mcp_tools_categories = tmp
-            else:
-                # Single category as string
-                try:
-                    enable_mcp_tools_categories = [McpToolsCategory(snake_case(tools))]
-                except ValueError:
-                    await ctx.warning(f"Unknown category: {tools}")
-                    enable_mcp_tools_categories = []
-
-    # Process categories to enable
-    for category in enable_mcp_tools_categories:
-        if isinstance(category, McpToolsCategory):
-            # Already an enum, just use it
-            pass
-        elif isinstance(category, str):
-            # Convert string to enum
-            try:
-                category = McpToolsCategory(snake_case(category))
-            except ValueError:
-                await ctx.warning(f"Unknown category: {category}")
-                continue
+    if enable_mcp_tools_categories is None:
+        categories_to_enable = []
+    elif isinstance(enable_mcp_tools_categories, str):
+        if "," in enable_mcp_tools_categories:
+            categories_to_enable = [
+                cat.strip() for cat in enable_mcp_tools_categories.split(",")
+            ]
         else:
-            await ctx.warning(f"Invalid category type: {type(category)}")
-            continue
-        if not tools_available.get(category.value):
-            await ctx.warning(f"Unknown category: {category.value}")
-            continue
-
-        if category.value not in new_enabled_categories:
-            new_enabled_categories.add(category.value)
-
-            # Add all tools from this category
-            for tool in tools_available.get(category.value, {}).get("tools", []):
-                new_enabled_tools.add(tool)
-
-            changes_made.append(f"✅ Enabled category: {category.value}")
-
-    # Always keep essential tools enabled
-    if session.tools_mode == "all":
-        essential_tools = {"getSelf"}
+            categories_to_enable = [enable_mcp_tools_categories.strip()]
     else:
-        essential_tools = {"getSelf", "manageMcpTools"}
-    new_enabled_tools.update(essential_tools)
+        categories_to_enable = enable_mcp_tools_categories
 
-    # Update the session
-    session_manager.update_session_tools(
-        enabled_tools=new_enabled_tools,
-        enabled_categories=new_enabled_categories,
-    )
+    # Validate categories
+    valid_categories = []
+    invalid_categories = []
 
-    # Notify server that tool list has changed
+    for category in categories_to_enable:
+        category = snake_case(category)
+        if category in available_categories:
+            valid_categories.append(category)
+        else:
+            invalid_categories.append(category)
+
+    # Load the tool loader and enable the requested categories
     try:
-        await ctx.session.send_tool_list_changed()
-    except Exception as e:
-        await ctx.warning(f"Failed to send tool list changed notification: {e}")
+        from mistmcp.tool_loader import ToolLoader
 
-    await asyncio.sleep(0.5)
+        mcp_instance = get_current_mcp()
+        if not mcp_instance:
+            return "❌ Error: MCP instance not available"
 
-    # Create completion message
-    message = f"""
-🔧 MCP TOOLS CONFIGURATION COMPLETE 🔧
+        tool_loader = ToolLoader(config)  # Enable tools from the valid categories
+        if valid_categories:
+            tool_loader.enable_categories(valid_categories, mcp_instance)
 
-Tools enabled: {", ".join(new_enabled_tools)}
+            if config.debug:
+                print(f"DEBUG: Enabled tools from categories: {valid_categories}")
+                print(f"DEBUG: Total enabled tools: {len(tool_loader.enabled_tools)}")
 
-"""
-    # Categories processed: {", ".join([cat.value  for cat in enable_mcp_tools_categories])}
-    await ctx.info(message)
+            # FastMCP automatically sends notifications when tools are enabled
 
-    # Return message requiring user confirmation before continuing
-    return f"""⚠️ STOP: USER CONFIRMATION REQUIRED ⚠️
+        # Prepare response message
+        message_parts = ["🔧 MCP TOOLS CONFIGURATION COMPLETE 🔧\n"]
+
+        if valid_categories:
+            message_parts.append(
+                f"✅ Enabled categories: {', '.join(valid_categories)}"
+            )
+
+            # Count tools in enabled categories
+            total_tools = sum(
+                len(config.available_tools.get(cat, {}).get("tools", []))
+                for cat in valid_categories
+            )
+            message_parts.append(f"📊 Total tools enabled: {total_tools}")
+
+        if invalid_categories:
+            message_parts.append(
+                f"❌ Invalid categories: {', '.join(invalid_categories)}"
+            )
+            message_parts.append(
+                f"📋 Available categories: {', '.join(available_categories)}"
+            )
+
+        message = "\n".join(message_parts)
+
+        await ctx.info(message)
+
+        return f"""✅ MCP TOOLS CONFIGURATION COMPLETE
 
 {message}
 
-This tool has completed its configuration. The agent MUST stop here and ask the user for explicit confirmation before proceeding with any other actions.
+The requested tools have been loaded and are now available for use.
 
-AGENT INSTRUCTION: Do not continue with any other tools or actions. Present this message to the user and wait for their explicit confirmation to proceed."""
+AGENT INSTRUCTION: Do not continue with any other tools or actions. Present this message to the user and wait for their explicit confirmation to proceed: **New tools have been loaded and are now available for use. Do you want to continue (yes/no)?**"""
+
+    except Exception as e:
+        error_msg = f"❌ Error loading tools: {str(e)}"
+        await ctx.warning(error_msg)
+        return error_msg
 
 
 def register_manage_mcp_tools_tool(mcp_instance=None):
     """Register the manageMcpTools tool with the MCP server"""
     if mcp_instance is None:
-        from mistmcp.server_factory import get_current_mcp
-
         mcp_instance = get_current_mcp()
 
     if mcp_instance:
@@ -166,7 +139,7 @@ def register_manage_mcp_tools_tool(mcp_instance=None):
         tool = mcp_instance.tool(
             enabled=True,  # Enable by default
             name="manageMcpTools",
-            description="Used to reconfigure the MCP server and define a different list of tools based on the use case (monitor, troubleshooting, ...). IMPORTANT: This tool requires user confirmation after execution before proceeding with other actions.",
+            description=f"Used to reconfigure the MCP server and define a different list of tools based on the use case. List of categories and tools are {json.dumps(TOOLS)}",
             tags={"MCP Configuration"},
             annotations={
                 "title": "manageMcpTools",

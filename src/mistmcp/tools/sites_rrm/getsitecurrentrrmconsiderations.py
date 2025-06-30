@@ -35,7 +35,7 @@ class Band(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteCurrentRrmConsiderations",
     description="""Get Current RRM Considerations for an AP on a Specific Band""",
     tags={"Sites RRM"},

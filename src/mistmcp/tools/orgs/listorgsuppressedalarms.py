@@ -34,7 +34,7 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgSuppressedAlarms",
     description="""Get List of Org Alarms Currently Suppressed""",
     tags={"orgs"},

@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgLicensesBySite",
     description="""Get Licenses Usage by SitesThis shows license usage (i.e. needed) based on the features enabled for the site.""",
     tags={"orgs"},

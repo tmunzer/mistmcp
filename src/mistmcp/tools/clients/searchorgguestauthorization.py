@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgGuestAuthorization",
     description="""Search Authorized Guest""",
     tags={"clients"},

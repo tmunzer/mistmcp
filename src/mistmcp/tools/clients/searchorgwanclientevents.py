@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgWanClientEvents",
     description="""Search Org WAN Client Events""",
     tags={"clients"},

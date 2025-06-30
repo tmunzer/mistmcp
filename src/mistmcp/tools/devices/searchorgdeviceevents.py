@@ -36,7 +36,7 @@ class Device_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgDeviceEvents",
     description="""Search Org Devices Events""",
     tags={"devices"},
@@ -63,6 +63,12 @@ async def searchOrgDeviceEvents(
     last_by: Annotated[
         Optional[str],
         Field(description="""Return last/recent event for passed in field"""),
+    ] = None,
+    includes: Annotated[
+        Optional[str],
+        Field(
+            description="""Keyword to include events from additional indices (e.g. ext_tunnel for prisma events)"""
+        ),
     ] = None,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
@@ -116,6 +122,7 @@ async def searchOrgDeviceEvents(
         timestamp=timestamp,
         type=type,
         last_by=last_by,
+        includes=includes,
         limit=limit,
         start=start,
         end=end,

@@ -42,7 +42,7 @@ class Status(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgDevicesStats",
     description="""Get List of Org Devices statsThis API renders some high-level device stats, pagination is assumed and returned in response header (as the response is an array)""",
     tags={"orgs_stats"},

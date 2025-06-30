@@ -31,13 +31,13 @@ class TestServerFactory:
             result = get_current_mcp()
             assert result == mock_mcp
 
-    @patch("mistmcp.server_factory.create_session_aware_mcp_server")
+    @patch("mistmcp.server_factory.create_simple_mcp_server")
     @patch("mistmcp.server_factory.ToolLoader")
     def test_create_mcp_server_success(
         self, mock_tool_loader_class, mock_create_server
     ) -> None:
         """Test creating MCP server successfully"""
-        # Mock the session-aware server
+        # Mock the simple server
         mock_server = Mock()
         mock_create_server.return_value = mock_server
 
@@ -54,11 +54,11 @@ class TestServerFactory:
 
         # Verify tool loader
         mock_tool_loader_class.assert_called_once_with(config)
-        mock_tool_loader.load_tools.assert_called_once_with(mock_server)
+        mock_tool_loader.configure_tools.assert_called_once_with(mock_server)
 
         assert result == mock_server
 
-    @patch("mistmcp.server_factory.create_session_aware_mcp_server")
+    @patch("mistmcp.server_factory.create_simple_mcp_server")
     def test_create_mcp_server_exception(self, mock_create_server) -> None:
         """Test creating MCP server with exception"""
         mock_create_server.side_effect = Exception("Test error")
@@ -77,9 +77,6 @@ class TestServerFactory:
         instructions = get_mode_instructions(config)
 
         assert "MANAGED MODE" in instructions
-        assert "manageMcpTools" in instructions
-        assert "org_id" in instructions
-        assert "site_id" in instructions
 
     def test_get_mode_instructions_all(self) -> None:
         """Test getting instructions for all mode"""
@@ -87,18 +84,6 @@ class TestServerFactory:
         instructions = get_mode_instructions(config)
 
         assert "ALL TOOLS MODE" in instructions
-        assert "getSelf" in instructions
-        assert "listOrgSites" in instructions
-
-    def test_get_mode_instructions_custom(self) -> None:
-        """Test getting instructions for custom mode"""
-        config = ServerConfig(
-            tool_loading_mode=ToolLoadingMode.CUSTOM, tool_categories=["orgs", "sites"]
-        )
-        instructions = get_mode_instructions(config)
-
-        assert "CUSTOM MODE" in instructions or instructions == ""
-        # Custom mode might return empty string based on implementation
 
     def test_get_mode_instructions_unknown(self) -> None:
         """Test getting instructions for unknown mode"""

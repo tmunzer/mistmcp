@@ -42,7 +42,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteDiscoveredSwitchesMetrics",
     description="""Search Discovered Switch Metrics""",
     tags={"sites_stats"},

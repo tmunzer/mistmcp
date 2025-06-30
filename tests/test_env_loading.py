@@ -185,13 +185,11 @@ class TestLoadEnvVar:
                 mcp_host,
                 mcp_port,
                 debug,
-            ) = load_env_var(
-                "http", ToolLoadingMode.CUSTOM, ["orgs", "sites"], None, None, False
-            )
+            ) = load_env_var("http", ToolLoadingMode.MANAGED, [], None, None, False)
 
             assert transport_mode == "http"
-            assert tool_loading_mode == ToolLoadingMode.CUSTOM
-            assert tool_categories == ["orgs", "sites"]
+            assert tool_loading_mode == ToolLoadingMode.MANAGED
+            assert tool_categories == []
             assert debug is False
             assert mcp_host == "0.0.0.0"
             assert mcp_port == 8000
@@ -204,15 +202,13 @@ class TestLoadEnvVar:
             "MISTMCP_TOOL_LOADING_MODE": "invalid_mode",
         }
 
-        original_mode = config.tool_loading_mode
-
         with patch.dict(os.environ, test_env, clear=False):
             _, tool_loading_mode, _, _, _, _ = load_env_var(
                 "stdio", None, None, None, None, False
             )
 
-            # Should keep original mode when invalid value provided
-            assert tool_loading_mode == original_mode
+            # Should fallback to ALL when invalid value provided (same as default)
+            assert tool_loading_mode == ToolLoadingMode.ALL
 
     def test_load_env_var_debug_variations(self) -> None:
         """Test different debug flag variations"""

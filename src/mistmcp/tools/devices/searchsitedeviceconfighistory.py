@@ -35,7 +35,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteDeviceConfigHistory",
     description="""Search for entries in device config history""",
     tags={"devices"},

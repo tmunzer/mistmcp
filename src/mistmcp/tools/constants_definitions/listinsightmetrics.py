@@ -24,7 +24,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listInsightMetrics",
     description="""List Insight Metrics""",
     tags={"Constants Definitions"},

@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgUserMacs",
     description="""Search Org User MACs""",
     tags={"orgs_nac"},

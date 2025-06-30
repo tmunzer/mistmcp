@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgMistEdgeEvents",
     description="""Search Org Mist Edge Events""",
     tags={"devices"},

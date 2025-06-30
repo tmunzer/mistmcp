@@ -24,7 +24,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listFingerprintTypes",
     description="""Get List of supported fingerprint attribute values* family* model* mfg* os_typeThis information can be used in the [Mist NAC Rules]($h/Orgs%20NAC%20Rules/_overview) `matching` attribute.""",
     tags={"Constants Definitions"},
