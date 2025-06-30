@@ -31,6 +31,13 @@ from pathlib import Path
 from typing import Dict, List
 
 import yaml
+from python_tmpl import (
+    INIT_TEMPLATE,
+    REQ_OPTIMIZED_TEMPLATE,
+    REQ_TEMPLATE,
+    TOOL_TEMPLATE,
+    TOOLS_HELPER,
+)
 
 # Configuration Constants
 FILE_PATH = os.path.realpath(__file__)
@@ -43,14 +50,6 @@ OPENAPI_PATH = (
 
 
 OUTPUT_DIR = Path(os.path.join(DIR_PATH, "../src/mistmcp/tools"))
-
-from python_tmpl import (
-    INIT_TEMPLATE,
-    REQ_OPTIMIZED_TEMPLATE,
-    REQ_TEMPLATE,
-    TOOL_TEMPLATE,
-    TOOLS_HELPER,
-)
 
 OUTPUT_DIR = Path(
     os.path.join(DIR_PATH, "../src/mistmcp/tools")
@@ -452,12 +451,12 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
                 processed_operation_ids.append(
                     details["list"].get("operationId", "").lower()
                 )
-            request += """
+            request += f"""
         case _:
-            raise ToolError({
+            raise ToolError({{
                 "status_code": 400,
-                "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}"
-            })
+                "message": f"Invalid object_type: {{object_type.value}}. Valid values are: {{[e.value for e in {match_name.capitalize()}]}}",
+            }})
             """
 
             for param in func_data.get("parameters", []):
