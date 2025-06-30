@@ -8,6 +8,7 @@
         "apirequest",
         "apiresponse",
         "keepit",
+        "managemcp",
         "modelcontextprotocol",
         "notif",
         "streamable",
