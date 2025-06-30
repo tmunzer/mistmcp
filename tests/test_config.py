@@ -30,7 +30,7 @@ class TestServerConfig:
     def test_default_configuration(self) -> None:
         """Test default configuration values"""
         config = ServerConfig()
-        assert config.tool_loading_mode == ToolLoadingMode.MANAGED
+        assert config.tool_loading_mode == ToolLoadingMode.ALL
         assert config.tool_categories == []
         assert config.debug is False
         assert hasattr(config, "available_tools")

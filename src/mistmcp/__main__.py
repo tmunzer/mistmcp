@@ -38,16 +38,16 @@ OPTIONS:
     -h, --help              Show help message
 
 TOOL LOADING MODES:
-    managed    - Essential tools loaded at startup (default)
-    all        - All tools loaded at startup
+    managed    - Essential tools loaded at startup
+    all        - All tools loaded at startup (default)
 
 TRANSPORT MODES:
     stdio      - Standard input/output (for Claude Desktop, VS Code)
     http       - HTTP server (for remote access)
 
 EXAMPLES:
-    uv run mistmcp                                    # Default: stdio + managed mode
-    uv run mistmcp --mode all --debug                 # All tools with debug
+    uv run mistmcp                                    # Default: stdio + all mode
+    uv run mistmcp --mode managed --debug            # Managed mode with debug
     uv run mistmcp --transport http --host 0.0.0.0    # HTTP on all interfaces
     uv run mistmcp --env-file ~/.mist.env             # Custom env file
     """
@@ -157,7 +157,7 @@ def load_env_var(
 
     if tool_loading_mode is None:
         msitmcp_tool_loading_mode = os.getenv(
-            "MISTMCP_TOOL_LOADING_MODE", "managed"
+            "MISTMCP_TOOL_LOADING_MODE", "all"
         ).lower()
         try:
             tool_loading_mode = ToolLoadingMode(msitmcp_tool_loading_mode.lower())
@@ -207,7 +207,7 @@ def main() -> None:
         "-m",
         "--mode",
         choices=["managed", "all"],
-        help="Tool loading mode (default: managed)",
+        help="Tool loading mode (default: all)",
     )
     parser.add_argument(
         "-d", "--debug", action="store_true", help="Enable debug output"

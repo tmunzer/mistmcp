@@ -18,8 +18,8 @@ from typing import List, Optional
 class ToolLoadingMode(Enum):
     """Defines how tools should be loaded in the MCP server"""
 
-    MANAGED = "managed"  # Use tool manager for dynamic loading (default)
-    ALL = "all"  # Load all available tools at startup
+    MANAGED = "managed"  # Use tool manager for dynamic loading
+    ALL = "all"  # Load all available tools at startup (default)
 
 
 class ServerConfig:
@@ -28,7 +28,7 @@ class ServerConfig:
     def __init__(
         self,
         transport_mode: str = "stdio",
-        tool_loading_mode: ToolLoadingMode = ToolLoadingMode.MANAGED,
+        tool_loading_mode: ToolLoadingMode = ToolLoadingMode.ALL,
         tool_categories: Optional[List[str]] = None,
         debug: bool = False,
     ) -> None:

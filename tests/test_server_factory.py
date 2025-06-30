@@ -54,7 +54,7 @@ class TestServerFactory:
 
         # Verify tool loader
         mock_tool_loader_class.assert_called_once_with(config)
-        mock_tool_loader.load_tools.assert_called_once_with(mock_server)
+        mock_tool_loader.configure_tools.assert_called_once_with(mock_server)
 
         assert result == mock_server
 

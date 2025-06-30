@@ -15,7 +15,9 @@ class TestPrintHelp:
         """Test help message is printed correctly"""
         print_help()
         captured = capsys.readouterr()
-        assert "Mist MCP Server - Modular Network Management Assistant" in captured.out
+        assert (
+            "Mist MCP Server - AI-Powered Network Management Assistant" in captured.out
+        )
         assert "TOOL LOADING MODES:" in captured.out
         assert "managed" in captured.out
         assert "all" in captured.out
@@ -155,7 +157,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.MANAGED, [], "127.0.0.1", 8000, False
+            "stdio", ToolLoadingMode.ALL, [], "127.0.0.1", 8000, False
         )
 
     @patch("mistmcp.__main__.start")
@@ -212,5 +214,5 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "http", ToolLoadingMode.MANAGED, [], "0.0.0.0", 9000, False
+            "http", ToolLoadingMode.ALL, [], "0.0.0.0", 9000, False
         )
