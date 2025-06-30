@@ -123,10 +123,10 @@ Configure via environment variables or `.env` files:
 
 | Mode | Description | Memory Usage | Use Case |
 |------|-------------|--------------|----------|
-| **managed** (default) | All tools loaded at startup | Medium | Most users |
-| **all** | All tools loaded at startup | Medium | Power users, automation |
+| **managed** (default) | Essential tools loaded at startup, others available on demand | Low | Most users |
+| **all** | All tools loaded at startup | High | Power users, automation |
 
-> **Note:** Both modes now load all available tools at startup for simplified operation.
+> **Note:** In managed mode, only essential tools like `getSelf` are loaded initially. In all mode, all 110+ tools are loaded at startup.
 
 ### Transport Modes
 

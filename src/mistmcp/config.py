@@ -11,7 +11,6 @@
 """
 
 import importlib.resources
-import json
 from enum import Enum
 from typing import List, Optional
 
@@ -44,14 +43,55 @@ class ServerConfig:
         self._load_tools_config()
 
     def _load_tools_config(self) -> None:
-        """Load the tools.json configuration file"""
+        """Load tools configuration by scanning the tools directory"""
         try:
-            with importlib.resources.path("mistmcp", "tools.json") as json_path:
-                with json_path.open(encoding="utf-8") as json_file:
-                    self.available_tools = json.load(json_file)
-        except (FileNotFoundError, json.JSONDecodeError) as e:
+            import os
+
+            # Get the tools directory path
+            with importlib.resources.path("mistmcp", "tools") as tools_path:
+                self.available_tools = {}
+
+                # Scan all subdirectories in the tools directory
+                for item in os.listdir(tools_path):
+                    item_path = tools_path / item
+                    if item_path.is_dir() and not item.startswith("__"):
+                        # Get all .py files in the category directory
+                        tools_in_category = []
+                        try:
+                            for tool_file in os.listdir(item_path):
+                                if tool_file.endswith(
+                                    ".py"
+                                ) and not tool_file.startswith("__"):
+                                    # Convert filename to tool name (remove .py and convert to camelCase)
+                                    tool_name = tool_file[:-3]  # Remove .py extension
+                                    # Convert snake_case to camelCase for tool name
+                                    tool_name_parts = tool_name.split("_")
+                                    if len(tool_name_parts) > 1:
+                                        camel_case_name = tool_name_parts[0] + "".join(
+                                            word.capitalize()
+                                            for word in tool_name_parts[1:]
+                                        )
+                                    else:
+                                        camel_case_name = tool_name
+                                    tools_in_category.append(camel_case_name)
+                        except OSError:
+                            continue
+
+                        if tools_in_category:
+                            self.available_tools[item] = {
+                                "description": f"Tools for {item.replace('_', ' ')} functionality",
+                                "tools": tools_in_category,
+                            }
+
             if self.debug:
-                print(f"Warning: Could not load tools configuration: {e}")
+                print(
+                    f"Discovered {len(self.available_tools)} tool categories from filesystem"
+                )
+
+        except (ImportError, OSError, AttributeError) as e:
+            if self.debug:
+                print(f"Warning: Could not scan tools directory: {e}")
+            # Fallback to empty tools
             self.available_tools = {}
 
     def get_tools_to_load(self) -> List[str]:
@@ -59,9 +99,12 @@ class ServerConfig:
         Returns list of tool categories to load based on the configuration mode
         """
         if self.tool_loading_mode == ToolLoadingMode.MANAGED:
-            return list(self.available_tools.keys())  # Load all tools (simplified)
+            # In managed mode, only load essential tools initially
+            # Tools will be dynamically loaded on demand via manageMcpTools
+            return []
 
         elif self.tool_loading_mode == ToolLoadingMode.ALL:
+            # In all mode, load all available tools at startup
             return list(self.available_tools.keys())
 
         return []
@@ -72,7 +115,7 @@ class ServerConfig:
         """
 
         if self.tool_loading_mode == ToolLoadingMode.MANAGED:
-            return "\n\nMODE: MANAGED - Essential tools loaded at startup."
+            return "\n\nMODE: MANAGED - Essential tools loaded at startup, others available on demand."
 
         elif self.tool_loading_mode == ToolLoadingMode.ALL:
             return "\n\nMODE: ALL - All available tools loaded at startup."

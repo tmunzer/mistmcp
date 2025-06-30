@@ -96,13 +96,14 @@ def get_mode_instructions(config: ServerConfig) -> str:
 
     if config.tool_loading_mode == ToolLoadingMode.MANAGED:
         return """
-MANAGED MODE: Essential tools loaded at startup.
+MANAGED MODE: Only essential tools loaded at startup.
 
-This mode provides a basic set of essential tools for network management. All tools are immediately available.
+This mode provides only basic essential tools (getSelf, manageMcpTools). Use the manageMcpTools to load additional tool categories as needed.
 
 IMPORTANT:
 * If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
-* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
+* Use `manageMcpTools` to load additional tool categories when needed
+* If the tool requires the `site_id`, you will need to load the 'orgs_sites' category first using manageMcpTools
 """
 
     if config.tool_loading_mode == ToolLoadingMode.ALL:

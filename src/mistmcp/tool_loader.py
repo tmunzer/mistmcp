@@ -59,15 +59,12 @@ class ToolLoader:
                 mistmcp.server_factory.mcp_instance.set(mcp_instance)
 
                 try:
-                    # Remove from sys.modules if already loaded to force reimport
+                    # Load getSelf tool
                     module_path = "mistmcp.tools.self_account.getself"
                     if module_path in sys.modules:
                         del sys.modules[module_path]
 
                     module = importlib.import_module(module_path)
-
-                    # Restore original instance
-                    mistmcp.server_factory.mcp_instance.set(original_instance)
 
                     # Look for the tool function
                     if hasattr(module, "getSelf"):
@@ -76,26 +73,41 @@ class ToolLoader:
                         self.loaded_tools.append("getSelf")
                         if self.config.debug:
                             print("Loaded essential tool: getSelf")
-                        return
                     else:
                         if self.config.debug:
-                            print(
-                                "Warning: No getSelf function or add_tool function found"
+                            print("Warning: No getSelf function found")
+
+                    # In managed mode, also load manageMcpTools
+                    if self.config.tool_loading_mode.value == "managed":
+                        try:
+                            from mistmcp.tool_manager import (
+                                register_manage_mcp_tools_tool,
                             )
-                        return
+
+                            tool = register_manage_mcp_tools_tool(mcp_instance)
+                            if tool:
+                                self.loaded_tools.append("manageMcpTools")
+                                if self.config.debug:
+                                    print("Loaded essential tool: manageMcpTools")
+                        except Exception as e:
+                            if self.config.debug:
+                                print(f"Warning: Could not load manageMcpTools: {e}")
+
+                    # Restore original instance
+                    mistmcp.server_factory.mcp_instance.set(original_instance)
 
                 except Exception as e:
                     # Restore original instance in case of error
                     mistmcp.server_factory.mcp_instance.set(original_instance)
                     if self.config.debug:
-                        print(f"Warning: Could not load essential tool getSelf: {e}")
+                        print(f"Warning: Could not load essential tools: {e}")
                         import traceback
 
                         traceback.print_exc()
 
             else:
                 if self.config.debug:
-                    print("Warning: MCP instance not available for getSelf")
+                    print("Warning: MCP instance not available for essential tools")
 
         except (ImportError, AttributeError) as e:
             if self.config.debug:
@@ -216,17 +228,23 @@ class ToolLoader:
         self.load_essential_tools(mcp_instance)
 
         # Load category tools based on mode
-        categories_to_load = self.config.get_tools_to_load()
-
-        if categories_to_load:
+        if self.config.tool_loading_mode.value == "all":
+            categories_to_load = self.config.get_tools_to_load()
+            if categories_to_load:
+                if self.config.debug:
+                    print(
+                        f"Loading tools from {len(categories_to_load)} categories: {categories_to_load[:3]}..."
+                    )
+                self.load_category_tools(categories_to_load, mcp_instance)
+            else:
+                if self.config.debug:
+                    print("No additional categories to load for this mode")
+        else:
+            # In managed mode, don't load any additional categories at startup
             if self.config.debug:
                 print(
-                    f"Loading tools from {len(categories_to_load)} categories: {categories_to_load[:3]}..."
+                    "Managed mode: Only essential tools loaded. Use manageMcpTools to load more."
                 )
-            self.load_category_tools(categories_to_load, mcp_instance)
-        else:
-            if self.config.debug:
-                print("No additional categories to load for this mode")
 
         if self.config.debug:
             print(f"Total tools loaded: {len(self.loaded_tools)}")

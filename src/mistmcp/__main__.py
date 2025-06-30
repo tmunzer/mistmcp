@@ -38,8 +38,8 @@ OPTIONS:
     -h, --help              Show help message
 
 TOOL LOADING MODES:
-    managed    - All tools loaded at startup (default)
-    all        - All tools loaded at startup (same as managed)
+    managed    - Essential tools loaded at startup (default)
+    all        - All tools loaded at startup
 
 TRANSPORT MODES:
     stdio      - Standard input/output (for Claude Desktop, VS Code)
@@ -162,7 +162,7 @@ def load_env_var(
         try:
             tool_loading_mode = ToolLoadingMode(msitmcp_tool_loading_mode.lower())
         except ValueError:
-            tool_loading_mode = ToolLoadingMode.MANAGED
+            tool_loading_mode = ToolLoadingMode.ALL
 
     if tool_categories is None:
         msitmcp_tool_categories = os.getenv("MISTMCP_TOOL_CATEGORIES", "")
