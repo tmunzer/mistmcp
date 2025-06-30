@@ -29,7 +29,7 @@ can be retrieved with the tools provided by the Mist MCP Server.
 
 When you need to validate the configuration applied to a specific device or site, you need to:
 - identify if a template is applied to the site (getSiteInfo). If any, retrieve the template configuration
-- identify if there is any site level configuration (getSiteSettings). 
+- identify if there is any site level configuration (getSiteSettings).
 - identify if there is any device level configuration (getDeviceInfo).
 - merge all the retrieved configuration (device is overriding site, site is overriding org) and validate the configuration.
 
@@ -117,7 +117,7 @@ CONFIGURATION OBJECT DEFINITIONS AND USAGE:
     data from the Org to be pushed to a provided url. Can be configured at the Org level or Site level.
 - wlans: An Org Wlan allows for the creation and management of wireless
     network settings, such as SSIDs (service set identifiers), authentication settings, VLAN configurations, etc...
-    It can be configured at the org level and applied to WLAN Template (the WLAN template can be assigned to the while 
+    It can be configured at the org level and applied to WLAN Template (the WLAN template can be assigned to the while
     org, groups of site or a sites) ot at a site level (directly applied to the site).
 - wxrules: Org WxRules are a set of rules, restrictions, and settings that can be applied to WLANs within a
     specific WLAN Template (Org level configuration) or a site (Site level configuration).

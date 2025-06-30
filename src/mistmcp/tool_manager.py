@@ -10,6 +10,7 @@
 --------------------------------------------------------------------------------
 """
 
+import json
 from typing import Annotated
 
 from fastmcp.server.dependencies import get_context
@@ -17,6 +18,7 @@ from pydantic import Field
 
 from mistmcp.config import config
 from mistmcp.server_factory import get_current_mcp
+from mistmcp.tool_helper import TOOLS
 
 
 def snake_case(s: str) -> str:
@@ -43,7 +45,7 @@ async def manageMcpTools(
     available_categories = get_available_categories()
 
     # Parse input categories
-    categories_to_enable = []
+    categories_to_enable: list = []
 
     if enable_mcp_tools_categories is None:
         categories_to_enable = []
@@ -119,7 +121,7 @@ async def manageMcpTools(
 
 The requested tools have been loaded and are now available for use.
 
-You can now use the newly enabled tools in your requests."""
+AGENT INSTRUCTION: Do not continue with any other tools or actions. Present this message to the user and wait for their explicit confirmation to proceed: **New tools have been loaded and are now available for use. Do you want to continue (yes/no)?**"""
 
     except Exception as e:
         error_msg = f"❌ Error loading tools: {str(e)}"
@@ -137,7 +139,7 @@ def register_manage_mcp_tools_tool(mcp_instance=None):
         tool = mcp_instance.tool(
             enabled=True,  # Enable by default
             name="manageMcpTools",
-            description="Used to reconfigure the MCP server and define a different list of tools based on the use case (monitor, troubleshooting, ...). IMPORTANT: This tool requires user confirmation after execution before proceeding with other actions.",
+            description=f"Used to reconfigure the MCP server and define a different list of tools based on the use case. List of categories and tools are {json.dumps(TOOLS)}",
             tags={"MCP Configuration"},
             annotations={
                 "title": "manageMcpTools",
