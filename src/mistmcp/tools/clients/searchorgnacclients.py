@@ -22,9 +22,18 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
+from enum import Enum
 
 
 mcp = mcp_instance.get()
+
+
+class Status(Enum):
+    PERMITTED = "permitted"
+    SESSION_STARTED = "session_started"
+    SESSION_ENDED = "session_ended"
+    DENIED = "denied"
+    NONE = None
 
 
 @mcp.tool(
@@ -82,11 +91,11 @@ async def searchOrgNacClients(
         Field(description="""Filters NAC clients that are managed by MDM providers"""),
     ] = None,
     status: Annotated[
-        Optional[str],
+        Status,
         Field(
-            description="""Connection status of client i.e 'permitted', 'denied, 'session_ended'"""
+            description="""Connection status of client i.e 'permitted', 'denied, 'session_stared', 'session_ended'"""
         ),
-    ] = None,
+    ] = Status.NONE,
     type: Annotated[
         Optional[str],
         Field(description="""Client type i.e. 'wireless', 'wired' etc."""),
@@ -96,6 +105,29 @@ async def searchOrgNacClients(
         Field(
             description="""MDM compliance of client i.e 'compliant', 'not compliant'"""
         ),
+    ] = None,
+    family: Annotated[
+        Optional[str],
+        Field(
+            description="""Client family, e.g. 'Phone/Tablet/Wearable', 'Access Point'"""
+        ),
+    ] = None,
+    model: Annotated[
+        Optional[str], Field(description="""Client model, e.g. 'iPhone 12', 'MX100'""")
+    ] = None,
+    os: Annotated[
+        Optional[str],
+        Field(
+            description="""Client OS, e.g. 'iOS 18.1', 'Android', 'Windows', 'Linux'"""
+        ),
+    ] = None,
+    hostname: Annotated[
+        Optional[str],
+        Field(description="""Client hostname, e.g. 'my-laptop', 'my-phone'"""),
+    ] = None,
+    mfg: Annotated[
+        Optional[str],
+        Field(description="""Client manufacturer, e.g. 'apple', 'cisco', 'juniper'"""),
     ] = None,
     mdm_provider: Annotated[
         Optional[str],
@@ -175,9 +207,14 @@ async def searchOrgNacClients(
         ap=ap,
         mac=mac,
         mdm_managed=mdm_managed,
-        status=status,
+        status=status.value,
         type=type,
         mdm_compliance=mdm_compliance,
+        family=family,
+        model=model,
+        os=os,
+        hostname=hostname,
+        mfg=mfg,
         mdm_provider=mdm_provider,
         sort=sort,
         usermac_label=usermac_label,

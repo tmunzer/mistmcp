@@ -185,13 +185,11 @@ class TestLoadEnvVar:
                 mcp_host,
                 mcp_port,
                 debug,
-            ) = load_env_var(
-                "http", ToolLoadingMode.CUSTOM, ["orgs", "sites"], None, None, False
-            )
+            ) = load_env_var("http", ToolLoadingMode.MANAGED, [], None, None, False)
 
             assert transport_mode == "http"
-            assert tool_loading_mode == ToolLoadingMode.CUSTOM
-            assert tool_categories == ["orgs", "sites"]
+            assert tool_loading_mode == ToolLoadingMode.MANAGED
+            assert tool_categories == []
             assert debug is False
             assert mcp_host == "0.0.0.0"
             assert mcp_port == 8000

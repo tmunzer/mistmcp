@@ -89,8 +89,12 @@ from .marvis import getsitedevicesynthetictest as getsitedevicesynthetictest
 from .marvis import searchsitesynthetictest as searchsitesynthetictest
 from .orgs_nac import searchorgusermacs as searchorgusermacs
 from .orgs_nac import searchorgclientfingerprints as searchorgclientfingerprints
-from .webhooks import searchorgwebhooksdeliveries as searchorgwebhooksdeliveries
-from .webhooks import searchsitewebhooksdeliveries as searchsitewebhooksdeliveries
+from .webhooks_deliveries import (
+    searchorgwebhooksdeliveries as searchorgwebhooksdeliveries,
+)
+from .webhooks_deliveries import (
+    searchsitewebhooksdeliveries as searchsitewebhooksdeliveries,
+)
 from .orgs_wxtags import getorgapplicationlist as getorgapplicationlist
 from .orgs_wxtags import (
     getorgcurrentmatchingclientsofawxtag as getorgcurrentmatchingclientsofawxtag,

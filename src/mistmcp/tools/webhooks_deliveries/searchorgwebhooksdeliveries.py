@@ -47,7 +47,7 @@ class Topic(Enum):
     enabled=True,
     name="searchOrgWebhooksDeliveries",
     description="""Search Org Webhooks deliveriesTopics Supported:- alarms- audits- device-updowns- occupancy-alerts- ping""",
-    tags={"webhooks"},
+    tags={"webhooks_deliveries"},
     annotations={
         "title": "searchOrgWebhooksDeliveries",
         "readOnlyHint": True,

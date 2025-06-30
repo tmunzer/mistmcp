@@ -8,9 +8,11 @@
         "apirequest",
         "apiresponse",
         "keepit",
+        "modelcontextprotocol",
         "notif",
         "streamable",
-        "werein"
+        "werein",
+        "wlantemplates"
     ],
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {

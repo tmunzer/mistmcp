@@ -24,7 +24,7 @@ class McpToolsCategory(Enum):
     ORGS_STATS = "orgs_stats"
     MARVIS = "marvis"
     ORGS_NAC = "orgs_nac"
-    WEBHOOKS = "webhooks"
+    WEBHOOKS_DELIVERIES = "webhooks_deliveries"
     ORGS_WXTAGS = "orgs_wxtags"
     SELF_ACCOUNT = "self_account"
     SITES = "sites"
@@ -218,8 +218,8 @@ TOOLS = {
             "listOrgAvailableSsrVersions",
         ],
     },
-    "webhooks": {
-        "description": "A Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url.\n\nIt enables the collection of information about various topics such as device events, alarms, and audits updates at the org level.\n\nThe Webhook can be set up and customized using the Mist API, allowing users to receive and analyze specific data from a particular site.",
+    "webhooks_deliveries": {
+        "description": "A Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url.\n\nIt enables the collection of information about various topics such as device events, alarms, and audits updates at the org level.\n\nThe webhook deliveries can be used to identify the messages sent by Mist, and the response (if any) from the remote server. NOTE: all the webhook topics are not supported, see the information from listWebhookTopics for more details",
         "tools": ["searchOrgWebhooksDeliveries", "searchSiteWebhooksDeliveries"],
     },
 }

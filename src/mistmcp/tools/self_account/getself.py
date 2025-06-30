@@ -11,15 +11,12 @@
 """
 
 import json
-
 import mistapi
-from fastmcp.exceptions import ClientError, NotFoundError, ToolError
 from fastmcp.server.dependencies import get_context, get_http_request
+from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
-
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
-
 # from mistmcp.server_factory import mcp
 
 

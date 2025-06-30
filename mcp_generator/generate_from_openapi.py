@@ -32,15 +32,26 @@ from typing import Dict, List
 
 import yaml
 
+# Configuration Constants
 FILE_PATH = os.path.realpath(__file__)
 DIR_PATH = os.path.dirname(FILE_PATH)
-
-# Configuration Constants
 OPENAPI_PATH = (
     os.path.join(
         DIR_PATH, "../mist_openapi/mist.openapi.yaml"
     )  # Path to the OpenAPI specification file
 )
+
+
+OUTPUT_DIR = Path(os.path.join(DIR_PATH, "../src/mistmcp/tools"))
+
+from python_tmpl import (
+    INIT_TEMPLATE,
+    REQ_OPTIMIZED_TEMPLATE,
+    REQ_TEMPLATE,
+    TOOL_TEMPLATE,
+    TOOLS_HELPER,
+)
+
 OUTPUT_DIR = Path(
     os.path.join(DIR_PATH, "../src/mistmcp/tools")
 )  # Directory where generated tool files will be placed
@@ -89,153 +100,6 @@ TRANSLATION = {
     "array": "list",  # OpenAPI array type maps to Python list
     "boolean": "bool",  # OpenAPI boolean type maps to Python bool
 }
-
-# Template for the main __init__.py file
-INIT_TEMPLATE = """\"\"\"
---------------------------------------------------------------------------------
--------------------------------- Mist MCP SERVER -------------------------------
-
-    Written by: Thomas Munzer (tmunzer@juniper.net)
-    Github    : https://github.com/tmunzer/mistmcp
-
-    This package is licensed under the MIT License.
-
---------------------------------------------------------------------------------
-\"\"\"
-
-{tools_import}
-"""
-
-REQ_TEMPLATE = """
-    response = {request}
-"""
-
-REQ_OPTIMIZED_TEMPLATE = """
-    if {parameter}:
-        response = {custom_request}
-    else:
-        response = {request}
-"""
-
-# Template for individual tool files
-TOOL_TEMPLATE = """"\"\"\"
---------------------------------------------------------------------------------
--------------------------------- Mist MCP SERVER -------------------------------
-
-    Written by: Thomas Munzer (tmunzer@juniper.net)
-    Github    : https://github.com/tmunzer/mistmcp
-
-    This package is licensed under the MIT License.
-
---------------------------------------------------------------------------------
-\"\"\"
-import json
-import mistapi
-from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError, ClientError, NotFoundError
-from starlette.requests import Request
-from mistmcp.config import config
-from mistmcp.server_factory import mcp_instance
-#from mistmcp.server_factory import mcp
-
-{imports}
-
-mcp = mcp_instance.get()
-
-{models}
-{enums}
-
-
-@mcp.tool(
-    enabled=True,
-    name = "{operationId}",
-    description = \"\"\"{description}\"\"\",
-    tags = {{"{tag}"}},
-    annotations = {{
-        "title": "{operationId}",
-        "readOnlyHint": {readOnlyHint},
-        "destructiveHint": {destructiveHint},
-        "openWorldHint": True,
-    }},
-)
-async def {operationId}(
-    {parameters}) -> dict:
-    \"\"\"{description}\"\"\"
-
-    ctx = get_context()
-    if config.transport_mode == "http":
-        try:
-            request: Request = get_http_request()
-            cloud = request.query_params.get("cloud", None)
-            apitoken = request.headers.get("X-Authorization", None)
-        except NotFoundError as exc:
-            raise ClientError(
-                "HTTP request context not found. Are you using HTTP transport?"
-            ) from exc
-        if not cloud or not apitoken:
-            raise ClientError(
-                "Missing required parameters: 'cloud' and 'X-Authorization' header"
-            )
-    else:
-        apitoken = config.mist_apitoken
-        cloud = config.mist_host
-
-    apisession = mistapi.APISession(
-        host=cloud,
-        apitoken=apitoken,
-    )
-
-    {request}
-
-    if response.status_code != 200:
-        api_error = {{
-            "status_code": response.status_code,
-            "message": ""
-        }}
-        if response.data:
-            await ctx.error(f"Got HTTP{{response.status_code}} with details {{response.data}}")
-            api_error["message"] =json.dumps(response.data)
-        elif response.status_code == 400:
-            await ctx.error(f"Got HTTP{{response.status_code}}")
-            api_error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{{response.status_code}}")
-            api_error["message"] =json.dumps("Unauthorized")
-        elif response.status_code == 403:
-            await ctx.error(f"Got HTTP{{response.status_code}}")
-            api_error["message"] =json.dumps("Unauthorized")
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{{response.status_code}}")
-            api_error["message"] =json.dumps("Permission Denied")
-        elif response.status_code == 404:
-            await ctx.error(f"Got HTTP{{response.status_code}}")
-            api_error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
-        elif response.status_code == 429:
-            await ctx.error(f"Got HTTP{{response.status_code}}")
-            api_error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
-        raise ToolError(api_error)
-
-    return response.data
-"""
-
-TOOLS_HELPER = """"\"\"\"
---------------------------------------------------------------------------------
--------------------------------- Mist MCP SERVER -------------------------------
-
-    Written by: Thomas Munzer (tmunzer@juniper.net)
-    Github    : https://github.com/tmunzer/mistmcp
-
-    This package is licensed under the MIT License.
-
---------------------------------------------------------------------------------
-\"\"\"
-from enum import Enum
-
-class McpToolsCategory(Enum):
-{enums}
-
-TOOLS = {tools}
-"""
 
 
 def snake_case(s: str) -> str:

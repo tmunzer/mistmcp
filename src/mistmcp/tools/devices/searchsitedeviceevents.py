@@ -55,6 +55,12 @@ async def searchSiteDeviceEvents(
         Optional[str],
         Field(description="""Return last/recent event for passed in field"""),
     ] = None,
+    includes: Annotated[
+        Optional[str],
+        Field(
+            description="""Keyword to include events from additional indices (e.g. ext_tunnel for prisma events)"""
+        ),
+    ] = None,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
@@ -106,6 +112,7 @@ async def searchSiteDeviceEvents(
         timestamp=timestamp,
         type=type,
         last_by=last_by,
+        includes=includes,
         limit=limit,
         start=start,
         end=end,

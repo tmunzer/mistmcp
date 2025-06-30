@@ -102,38 +102,6 @@ class ToolLoader:
                 print(f"Warning: Could not load essential tool getSelf: {e}")
             # Try to continue without it
 
-    def load_tool_manager(self, mcp_instance=None) -> None:
-        """Load the tool manager if needed"""
-        if self.config.should_load_tool_manager():
-            try:
-                if mcp_instance is None:
-                    from mistmcp.server_factory import get_current_mcp
-
-                    mcp_instance = get_current_mcp()
-
-                from mistmcp.tool_manager import register_manage_mcp_tools_tool
-
-                if mcp_instance:
-                    tool = register_manage_mcp_tools_tool(mcp_instance)
-                    if tool:
-                        # Tool is already enabled when registered
-                        self.loaded_tools.append("manageMcpTools")
-
-                        if self.config.debug:
-                            print("Loaded tool manager: manageMcpTools")
-                    else:
-                        if self.config.debug:
-                            print("Warning: Failed to register manageMcpTools")
-                else:
-                    if self.config.debug:
-                        print("Warning: MCP instance not available for tool manager")
-
-            except (ImportError, AttributeError) as e:
-                if self.config.debug:
-                    print(f"Warning: Could not load tool manager: {e}")
-        elif self.config.debug:
-            print("Tool manager not needed for this mode")
-
     def load_category_tools(self, categories: List[str], mcp_instance=None) -> None:
         """Load tools from specific categories"""
         if mcp_instance is None:
@@ -160,6 +128,7 @@ class ToolLoader:
                 print(f"Loading {len(category_tools)} tools from category '{category}'")
 
             for tool_name in category_tools:
+                original_instance = None  # Initialize to handle AttributeError case
                 try:
                     # Temporarily patch the server_factory module to provide MCP instance during import
                     import sys
@@ -178,7 +147,10 @@ class ToolLoader:
                         setattr(mock_mistapi, "apisession", None)
                         sys.modules["mistmcp.__mistapi"] = mock_mistapi
 
-                    original_instance = mistmcp.server_factory.mcp_instance.get()
+                    try:
+                        original_instance = mistmcp.server_factory.mcp_instance.get()
+                    except AttributeError:
+                        original_instance = None
                     mistmcp.server_factory.mcp_instance.set(mcp_instance)
 
                     # Dynamically import the tool module
@@ -194,7 +166,8 @@ class ToolLoader:
                     module = importlib.import_module(module_path)
 
                     # Restore original instance
-                    mistmcp.server_factory.mcp_instance.set(original_instance)
+                    if original_instance is not None:
+                        mistmcp.server_factory.mcp_instance.set(original_instance)
 
                     # Skip if already loaded
                     if tool_name in self.loaded_tools:
@@ -218,7 +191,8 @@ class ToolLoader:
                     # Restore original instance in case of error
                     import mistmcp.server_factory
 
-                    mistmcp.server_factory.mcp_instance.set(original_instance)
+                    if original_instance is not None:
+                        mistmcp.server_factory.mcp_instance.set(original_instance)
                     continue
                 except Exception as e:
                     if self.config.debug:
@@ -228,7 +202,8 @@ class ToolLoader:
                     # Restore original instance in case of error
                     import mistmcp.server_factory
 
-                    mistmcp.server_factory.mcp_instance.set(original_instance)
+                    if original_instance is not None:
+                        mistmcp.server_factory.mcp_instance.set(original_instance)
                     continue
 
     def load_tools(self, mcp_instance=None) -> None:
@@ -239,9 +214,6 @@ class ToolLoader:
 
         # Always load essential tools
         self.load_essential_tools(mcp_instance)
-
-        # Load tool manager if needed
-        self.load_tool_manager(mcp_instance)
 
         # Load category tools based on mode
         categories_to_load = self.config.get_tools_to_load()

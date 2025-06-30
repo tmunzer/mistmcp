@@ -50,29 +50,6 @@ class TestToolLoader:
         # Should not raise exception
         loader.load_essential_tools(None)
 
-    def test_load_tool_manager_success(self) -> None:
-        """Test loading tool manager successfully"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.MANAGED)
-        loader = ToolLoader(config)
-
-        # Test with None mcp instance - should not crash
-        loader.load_tool_manager(None)
-
-        # Test with mock mcp instance
-        mock_mcp = Mock()
-        loader.load_tool_manager(mock_mcp)
-
-        # Should complete without error
-
-    def test_load_tool_manager_not_needed(self) -> None:
-        """Test not loading tool manager when not needed"""
-        config = ServerConfig(tool_loading_mode=ToolLoadingMode.ALL, debug=True)
-        loader = ToolLoader(config)
-
-        # Should not load for ALL mode
-        loader.load_tool_manager()
-        # No exception should be raised
-
     def test_load_category_tools_success(self) -> None:
         """Test loading category tools successfully"""
         # Create config with mock available tools
@@ -112,27 +89,25 @@ class TestToolLoader:
         loader.load_category_tools(["orgs"])
 
     @patch("mistmcp.tool_loader.ToolLoader.load_essential_tools")
-    @patch("mistmcp.tool_loader.ToolLoader.load_tool_manager")
     @patch("mistmcp.tool_loader.ToolLoader.load_category_tools")
     def test_load_tools_managed_mode(
-        self, mock_load_category, mock_load_manager, mock_load_essential
+        self, mock_load_category, mock_load_essential
     ) -> None:
         """Test loading tools in managed mode"""
         config = ServerConfig(tool_loading_mode=ToolLoadingMode.MANAGED)
+        # Add available tools so there are categories to load
+        config.available_tools = {"orgs": {}, "sites": {}}
         loader = ToolLoader(config)
 
         loader.load_tools()
 
         mock_load_essential.assert_called_once()
-        mock_load_manager.assert_called_once()
-        mock_load_category.assert_not_called()
+        # In simplified mode, managed mode loads all available tools via category loading
+        mock_load_category.assert_called_once()
 
     @patch("mistmcp.tool_loader.ToolLoader.load_essential_tools")
-    @patch("mistmcp.tool_loader.ToolLoader.load_tool_manager")
     @patch("mistmcp.tool_loader.ToolLoader.load_category_tools")
-    def test_load_tools_all_mode(
-        self, mock_load_category, mock_load_manager, mock_load_essential
-    ) -> None:
+    def test_load_tools_all_mode(self, mock_load_category, mock_load_essential) -> None:
         """Test loading tools in all mode"""
         config = ServerConfig(tool_loading_mode=ToolLoadingMode.ALL)
         config.available_tools = {"orgs": {}, "sites": {}}
@@ -141,27 +116,7 @@ class TestToolLoader:
         loader.load_tools()
 
         mock_load_essential.assert_called_once()
-        mock_load_manager.assert_called_once()
-        mock_load_category.assert_called_once()
-
-    @patch("mistmcp.tool_loader.ToolLoader.load_essential_tools")
-    @patch("mistmcp.tool_loader.ToolLoader.load_tool_manager")
-    @patch("mistmcp.tool_loader.ToolLoader.load_category_tools")
-    def test_load_tools_custom_mode(
-        self, mock_load_category, mock_load_manager, mock_load_essential
-    ) -> None:
-        """Test loading tools in custom mode"""
-        config = ServerConfig(
-            tool_loading_mode=ToolLoadingMode.CUSTOM, tool_categories=["orgs", "sites"]
-        )
-        # Add available tools so the categories are valid
-        config.available_tools = {"orgs": {}, "sites": {}}
-        loader = ToolLoader(config)
-
-        loader.load_tools()
-
-        mock_load_essential.assert_called_once()
-        mock_load_manager.assert_called_once()
+        # In simplified mode, ALL mode loads all available tools via category loading
         mock_load_category.assert_called_once()
 
     def test_get_loaded_tools_summary(self) -> None:

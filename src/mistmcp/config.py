@@ -21,7 +21,6 @@ class ToolLoadingMode(Enum):
 
     MANAGED = "managed"  # Use tool manager for dynamic loading (default)
     ALL = "all"  # Load all available tools at startup
-    CUSTOM = "custom"  # Load specific categories provided as parameter
 
 
 class ServerConfig:
@@ -60,31 +59,12 @@ class ServerConfig:
         Returns list of tool categories to load based on the configuration mode
         """
         if self.tool_loading_mode == ToolLoadingMode.MANAGED:
-            return []  # Tools will be loaded dynamically via manageMcpTools
+            return list(self.available_tools.keys())  # Load all tools (simplified)
 
         elif self.tool_loading_mode == ToolLoadingMode.ALL:
             return list(self.available_tools.keys())
 
-        elif self.tool_loading_mode == ToolLoadingMode.CUSTOM:
-            # Validate that requested categories exist
-            valid_categories = []
-            for category in self.tool_categories:
-                if category in self.available_tools:
-                    valid_categories.append(category)
-                else:
-                    print(f"Warning: Unknown tool category '{category}' - skipping")
-            return valid_categories
-
         return []
-
-    def should_load_tool_manager(self) -> bool:
-        """
-        Returns True if the tool manager should be loaded
-        """
-        return self.tool_loading_mode in [
-            ToolLoadingMode.MANAGED,
-            ToolLoadingMode.CUSTOM,
-        ]
 
     def get_description_suffix(self) -> str:
         """
@@ -92,14 +72,10 @@ class ServerConfig:
         """
 
         if self.tool_loading_mode == ToolLoadingMode.MANAGED:
-            return "\n\nMODE: MANAGED - Tools loaded dynamically. Use `manageMcpTools` to enable tools as needed."
+            return "\n\nMODE: MANAGED - Essential tools loaded at startup."
 
         elif self.tool_loading_mode == ToolLoadingMode.ALL:
             return "\n\nMODE: ALL - All available tools loaded at startup."
-
-        elif self.tool_loading_mode == ToolLoadingMode.CUSTOM:
-            categories = ", ".join(self.tool_categories)
-            return f"\n\nMODE: CUSTOM - Pre-loaded tool categories: {categories}. Use `manageMcpTools` to modify."
 
         return ""
 

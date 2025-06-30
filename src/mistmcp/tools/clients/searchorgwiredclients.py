@@ -22,9 +22,16 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
+from enum import Enum
 
 
 mcp = mcp_instance.get()
+
+
+class Source(Enum):
+    LLDP = "lldp"
+    MAC = "mac"
+    NONE = None
 
 
 @mcp.tool(
@@ -47,6 +54,10 @@ async def searchOrgWiredClients(
     auth_method: Annotated[
         Optional[str], Field(description="""Authentication method""")
     ] = None,
+    source: Annotated[
+        Source,
+        Field(description="""source from where the client was learned (lldp, mac)"""),
+    ] = Source.NONE,
     site_id: Annotated[Optional[str], Field(description="""Site ID""")] = None,
     device_mac: Annotated[
         Optional[str],
@@ -131,6 +142,7 @@ async def searchOrgWiredClients(
         org_id=str(org_id),
         auth_state=auth_state,
         auth_method=auth_method,
+        source=source.value,
         site_id=site_id,
         device_mac=device_mac,
         mac=mac,

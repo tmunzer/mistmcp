@@ -19,7 +19,6 @@ class TestPrintHelp:
         assert "TOOL LOADING MODES:" in captured.out
         assert "managed" in captured.out
         assert "all" in captured.out
-        assert "custom" in captured.out
 
 
 class TestStart:
@@ -67,44 +66,6 @@ class TestStart:
         mock_server.run.assert_called_once_with(
             transport="streamable-http", host="0.0.0.0", port=8000
         )
-
-    @patch("mistmcp.__main__.create_mcp_server")
-    def test_start_custom_with_categories(self, mock_create_server) -> None:
-        """Test starting with custom mode and categories"""
-        mock_server = Mock()
-        mock_create_server.return_value = mock_server
-
-        categories = ["orgs", "sites"]
-        start(
-            "stdio",
-            ToolLoadingMode.CUSTOM,
-            categories,
-            mcp_host="127.0.0.1",
-            mcp_port=8000,
-            debug=False,
-        )
-
-        mock_create_server.assert_called_once()
-        config_arg = mock_create_server.call_args[0][0]
-
-        assert config_arg.tool_loading_mode == ToolLoadingMode.CUSTOM
-        assert config_arg.tool_categories == categories
-
-    def test_start_custom_no_categories_exits(self, capsys) -> None:
-        """Test that custom mode without categories exits with error"""
-        with pytest.raises(SystemExit) as exc_info:
-            start(
-                "stdio",
-                ToolLoadingMode.CUSTOM,
-                [],
-                mcp_host="127.0.0.1",
-                mcp_port=8000,
-                debug=False,
-            )
-
-        assert exc_info.value.code == 1
-        captured = capsys.readouterr()
-        assert "Custom mode requires at least one category" in captured.err
 
     @patch("mistmcp.__main__.create_mcp_server")
     def test_start_keyboard_interrupt(self, mock_create_server, capsys) -> None:
@@ -169,11 +130,10 @@ class TestStart:
         mock_server = Mock()
         mock_create_server.return_value = mock_server
 
-        categories = ["orgs", "sites"]
         start(
             "http",
-            ToolLoadingMode.CUSTOM,
-            categories,
+            ToolLoadingMode.MANAGED,
+            [],
             mcp_host="127.0.0.1",
             mcp_port=8000,
             debug=True,
@@ -182,8 +142,7 @@ class TestStart:
         captured = capsys.readouterr()
         assert "Starting Mist MCP Server with configuration" in captured.out
         assert "TRANSPORT: http" in captured.out
-        assert "TOOL LOADING MODE: custom" in captured.out
-        assert "CATEGORIES: orgs, sites" in captured.out
+        assert "TOOL LOADING MODE: managed" in captured.out
 
 
 class TestMain:
@@ -197,33 +156,6 @@ class TestMain:
 
         mock_start.assert_called_once_with(
             "stdio", ToolLoadingMode.MANAGED, [], "127.0.0.1", 8000, False
-        )
-
-    @patch("mistmcp.__main__.start")
-    def test_main_custom_args(self, mock_start) -> None:
-        """Test main with custom arguments"""
-        with patch(
-            "sys.argv",
-            [
-                "mistmcp",
-                "--transport",
-                "http",
-                "--mode",
-                "custom",
-                "--categories",
-                "orgs,sites,devices",
-                "--debug",
-            ],
-        ):
-            main()
-
-        mock_start.assert_called_once_with(
-            "http",
-            ToolLoadingMode.CUSTOM,
-            ["orgs", "sites", "devices"],
-            "127.0.0.1",
-            8000,
-            True,
         )
 
     @patch("mistmcp.__main__.start")
@@ -245,40 +177,6 @@ class TestMain:
         assert exc_info.value.code == 2
         captured = capsys.readouterr()
         assert "invalid choice: 'invalid'" in captured.err
-
-    @patch("mistmcp.__main__.start")
-    def test_main_categories_with_spaces(self, mock_start) -> None:
-        """Test main with categories containing spaces"""
-        with patch(
-            "sys.argv",
-            [
-                "mistmcp",
-                "--mode",
-                "custom",
-                "--categories",
-                " orgs , sites ,  devices  ",
-            ],
-        ):
-            main()
-
-        mock_start.assert_called_once_with(
-            "stdio",
-            ToolLoadingMode.CUSTOM,
-            ["orgs", "sites", "devices"],
-            "127.0.0.1",
-            8000,
-            False,
-        )
-
-    @patch("mistmcp.__main__.start")
-    def test_main_empty_categories(self, mock_start) -> None:
-        """Test main with empty categories string"""
-        with patch("sys.argv", ["mistmcp", "--mode", "custom", "--categories", ",,,"]):
-            main()
-
-        mock_start.assert_called_once_with(
-            "stdio", ToolLoadingMode.CUSTOM, [], "127.0.0.1", 8000, False
-        )
 
     def test_main_help_exits(self) -> None:
         """Test that --help exits appropriately"""
