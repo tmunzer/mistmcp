@@ -35,7 +35,7 @@ class Source(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgWiredClients",
     description="""Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)""",
     tags={"clients"},

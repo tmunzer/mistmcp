@@ -55,7 +55,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name = "{operationId}",
     description = \"\"\"{description}\"\"\",
     tags = {{"{tag}"}},

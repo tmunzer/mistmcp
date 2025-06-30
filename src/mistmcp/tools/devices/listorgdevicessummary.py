@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgDevicesSummary",
     description="""Get Org Devices Summary""",
     tags={"devices"},

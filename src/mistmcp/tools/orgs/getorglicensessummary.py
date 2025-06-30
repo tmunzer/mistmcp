@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgLicensesSummary",
     description="""Get the list of licenses""",
     tags={"orgs"},

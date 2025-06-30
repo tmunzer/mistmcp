@@ -36,7 +36,7 @@ class Band(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgWirelessClientSessions",
     description="""Search Org Wireless Clients Sessions""",
     tags={"clients"},

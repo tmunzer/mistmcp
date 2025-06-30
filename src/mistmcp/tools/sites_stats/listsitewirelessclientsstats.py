@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteWirelessClientsStats",
     description="""Get List of Site All Clients Stats Details""",
     tags={"sites_stats"},

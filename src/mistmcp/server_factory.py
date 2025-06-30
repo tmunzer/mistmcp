@@ -67,16 +67,16 @@ def create_mcp_server(config: ServerConfig):
         # Create the simple server
         mcp = create_simple_mcp_server(config)
 
-        # Store the instance globally BEFORE loading tools
+        # Store the instance globally BEFORE configuring tools
         mcp_instance.set(mcp)
 
-        # Load tools based on configuration
+        # Configure tools based on configuration
         tool_loader = ToolLoader(config)
-        tool_loader.load_tools(mcp)
+        tool_loader.configure_tools(mcp)
 
         if config.debug:
             print("MCP Server created successfully")
-            print(tool_loader.get_loaded_tools_summary())
+            print(tool_loader.get_enabled_tools_summary())
 
         return mcp
 

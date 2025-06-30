@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgBgpStats",
     description="""Search Org BGP Stats""",
     tags={"orgs_stats"},

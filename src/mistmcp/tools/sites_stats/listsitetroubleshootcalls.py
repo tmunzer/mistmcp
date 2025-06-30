@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteTroubleshootCalls",
     description="""Summary of calls troubleshoot by site""",
     tags={"sites_stats"},

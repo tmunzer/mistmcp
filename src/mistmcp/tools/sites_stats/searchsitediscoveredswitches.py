@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteDiscoveredSwitches",
     description="""Search Discovered Switches""",
     tags={"sites_stats"},

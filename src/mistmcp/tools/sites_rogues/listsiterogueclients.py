@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteRogueClients",
     description="""Get List of Site Rogue Clients""",
     tags={"Sites Rogues"},

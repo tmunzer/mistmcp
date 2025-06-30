@@ -24,7 +24,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSelfApiUsage",
     description="""Get the status of the API usage for the current user or API Token""",
     tags={"Self Account"},

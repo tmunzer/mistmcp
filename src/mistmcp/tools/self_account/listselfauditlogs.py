@@ -27,7 +27,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSelfAuditLogs",
     description="""Get List of change logs across all Orgs for current adminAudit logs records all administrative activities done by current admin across all orgs""",
     tags={"self_account"},

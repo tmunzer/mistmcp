@@ -24,7 +24,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSelf",
     description="""Get ‘whoami’ and privileges (which org and which sites I have access to)""",
     tags={"Self Account"},

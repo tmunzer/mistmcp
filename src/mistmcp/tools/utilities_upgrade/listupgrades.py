@@ -37,7 +37,7 @@ class Device_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listUpgrades",
     description="""List all available upgrades for the organization.""",
     tags={"utilities_upgrade"},

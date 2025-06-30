@@ -62,18 +62,38 @@ class ServerConfig:
                                 if tool_file.endswith(
                                     ".py"
                                 ) and not tool_file.startswith("__"):
-                                    # Convert filename to tool name (remove .py and convert to camelCase)
-                                    tool_name = tool_file[:-3]  # Remove .py extension
-                                    # Convert snake_case to camelCase for tool name
-                                    tool_name_parts = tool_name.split("_")
-                                    if len(tool_name_parts) > 1:
-                                        camel_case_name = tool_name_parts[0] + "".join(
-                                            word.capitalize()
-                                            for word in tool_name_parts[1:]
+                                    # Extract actual function name from the tool file
+                                    try:
+                                        tool_file_path = os.path.join(
+                                            item_path, tool_file
                                         )
-                                    else:
-                                        camel_case_name = tool_name
-                                    tools_in_category.append(camel_case_name)
+                                        with open(
+                                            tool_file_path, "r", encoding="utf-8"
+                                        ) as f:
+                                            content = f.read()
+                                            # Look for async def function_name pattern
+                                            import re
+
+                                            match = re.search(
+                                                r"^async def ([a-zA-Z_][a-zA-Z0-9_]*)\s*\(",
+                                                content,
+                                                re.MULTILINE,
+                                            )
+                                            if match:
+                                                function_name = match.group(1)
+                                                tools_in_category.append(function_name)
+                                            else:
+                                                # Fallback to filename-based approach
+                                                tool_name = tool_file[
+                                                    :-3
+                                                ]  # Remove .py extension
+                                                tools_in_category.append(tool_name)
+                                    except Exception:
+                                        # Fallback to filename-based approach
+                                        tool_name = tool_file[
+                                            :-3
+                                        ]  # Remove .py extension
+                                        tools_in_category.append(tool_name)
                         except OSError:
                             continue
 

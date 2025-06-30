@@ -24,7 +24,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSelfLoginFailures",
     description="""Get a list of failed login attempts across all Orgs for the current admin""",
     tags={"Self Account"},

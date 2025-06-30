@@ -44,7 +44,7 @@ class Topic(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteWebhooksDeliveries",
     description="""Search Site Webhooks deliveriesTopics Supported:- alarms- audits- device-updowns- occupancy-alerts- ping""",
     tags={"webhooks_deliveries"},

@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgApsMacs",
     description="""For some scenarios like E911 or security systems, the BSSIDs are required to identify which AP the client is connecting to. Then the location of the AP can be used as the approximate location of the client.Each radio MAC can have 16 BSSIDs (enumerate the last octet from 0-F)""",
     tags={"devices"},

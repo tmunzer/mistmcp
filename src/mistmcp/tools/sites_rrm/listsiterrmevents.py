@@ -36,7 +36,7 @@ class Band(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteRrmEvents",
     description="""List Site RRM Events""",
     tags={"Sites RRM"},

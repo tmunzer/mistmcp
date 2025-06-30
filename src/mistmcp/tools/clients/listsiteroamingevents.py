@@ -35,7 +35,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteRoamingEvents",
     description="""List Roaming Events data""",
     tags={"clients"},

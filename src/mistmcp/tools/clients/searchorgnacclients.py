@@ -37,7 +37,7 @@ class Status(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgNacClients",
     description="""Search Org NAC Clients""",
     tags={"clients"},

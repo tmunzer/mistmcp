@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgSettings",
     description="""Get Org Settings""",
     tags={"orgs"},

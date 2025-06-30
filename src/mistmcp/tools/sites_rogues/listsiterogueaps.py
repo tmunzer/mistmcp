@@ -37,7 +37,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteRogueAPs",
     description="""Get List of Site Rogue/Neighbor APs""",
     tags={"Sites Rogues"},

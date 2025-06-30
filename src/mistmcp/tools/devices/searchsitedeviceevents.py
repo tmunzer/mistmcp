@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteDeviceEvents",
     description="""Search Devices Events""",
     tags={"devices"},

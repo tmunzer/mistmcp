@@ -61,7 +61,7 @@ class Object_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgConfigurationObjects",
     description="""Retrieve configuration objects from a specified organization or site.""",
     tags={"configuration"},

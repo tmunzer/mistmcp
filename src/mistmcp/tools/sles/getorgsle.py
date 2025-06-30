@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getOrgSle",
     description="""Get Org SLEs (all/worst sites, Mx Edges, ...)""",
     tags={"sles"},

@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteServicePathEvents",
     description="""Search Service Path Events""",
     tags={"Sites Services"},

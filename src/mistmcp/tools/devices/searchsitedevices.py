@@ -56,7 +56,7 @@ class Desc_sort(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteDevices",
     description="""Search Device""",
     tags={"devices"},

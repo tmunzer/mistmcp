@@ -37,7 +37,7 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteSleMetricClassifiers",
     description="""List classifiers for a specific metric""",
     tags={"sles"},

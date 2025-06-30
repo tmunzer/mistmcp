@@ -17,105 +17,146 @@ from mistmcp.config import ServerConfig
 
 
 class ToolLoader:
-    """Handles loading of tools based on server configuration"""
+    """Handles loading and enabling/disabling of tools based on server configuration"""
 
     def __init__(self, config: ServerConfig) -> None:
         self.config = config
-        self.loaded_tools: list[str] = []
+        self.enabled_tools: list[str] = []
 
     def snake_case(self, s: str) -> str:
         """Convert a string to snake_case format."""
         return s.lower().replace(" ", "_").replace("-", "_")
 
-    def load_essential_tools(self, mcp_instance=None) -> None:
-        """Load essential tools that are always needed"""
+    def enable_tool_by_name(self, tool_name: str, category: str, mcp_instance) -> bool:
+        """Enable a specific tool by importing its module and calling enable()"""
         try:
-            # Always load getSelf tool - but use dynamic import to avoid authentication at import time
-            if mcp_instance is None:
-                from mistmcp.server_factory import get_current_mcp
+            # Import the tool module
+            snake_case_name = self.snake_case(tool_name)
+            module_path = f"mistmcp.tools.{category}.{snake_case_name}"
 
-                mcp_instance = get_current_mcp()
+            # Remove from sys.modules to force reimport
+            import sys
 
-            if mcp_instance:
-                # Temporarily patch the server_factory module to provide MCP instance during import
-                import sys
-                import types
+            if module_path in sys.modules:
+                del sys.modules[module_path]
 
-                import mistmcp.server_factory
+            # Temporarily set MCP instance for import
+            import mistmcp.server_factory
 
-                # Create mock modules for old import patterns
-                if "mistmcp.__server" not in sys.modules:
-                    mock_server = types.ModuleType("mistmcp.__server")
-                    setattr(mock_server, "mcp", mcp_instance)
-                    sys.modules["mistmcp.__server"] = mock_server
-
-                if "mistmcp.__mistapi" not in sys.modules:
-                    mock_mistapi = types.ModuleType("mistmcp.__mistapi")
-                    # Set a placeholder for apisession
-                    setattr(mock_mistapi, "apisession", None)
-                    sys.modules["mistmcp.__mistapi"] = mock_mistapi
-
+            original_instance = None
+            try:
                 original_instance = mistmcp.server_factory.mcp_instance.get()
-                mistmcp.server_factory.mcp_instance.set(mcp_instance)
+            except AttributeError:
+                original_instance = None
+            mistmcp.server_factory.mcp_instance.set(mcp_instance)
 
-                try:
-                    # Load getSelf tool
-                    module_path = "mistmcp.tools.self_account.getself"
-                    if module_path in sys.modules:
-                        del sys.modules[module_path]
+            try:
+                module = importlib.import_module(module_path)
 
-                    module = importlib.import_module(module_path)
+                # Find the function (try different case variations)
+                tool_function = None
+                if hasattr(module, tool_name):
+                    tool_function = getattr(module, tool_name)
+                else:
+                    # Try case-insensitive search
+                    for attr_name in dir(module):
+                        if (
+                            attr_name.lower() == tool_name.lower()
+                            and callable(getattr(module, attr_name))
+                            and not attr_name.startswith("_")
+                        ):
+                            tool_function = getattr(module, attr_name)
+                            break
 
-                    # Look for the tool function
-                    if hasattr(module, "getSelf"):
-                        tool = getattr(module, "getSelf")
-                        tool.enable()
-                        self.loaded_tools.append("getSelf")
-                        if self.config.debug:
-                            print("Loaded essential tool: getSelf")
-                    else:
-                        if self.config.debug:
-                            print("Warning: No getSelf function found")
-
-                    # In managed mode, also load manageMcpTools
-                    if self.config.tool_loading_mode.value == "managed":
-                        try:
-                            from mistmcp.tool_manager import (
-                                register_manage_mcp_tools_tool,
-                            )
-
-                            tool = register_manage_mcp_tools_tool(mcp_instance)
-                            if tool:
-                                self.loaded_tools.append("manageMcpTools")
-                                if self.config.debug:
-                                    print("Loaded essential tool: manageMcpTools")
-                        except Exception as e:
-                            if self.config.debug:
-                                print(f"Warning: Could not load manageMcpTools: {e}")
-
-                    # Restore original instance
-                    mistmcp.server_factory.mcp_instance.set(original_instance)
-
-                except Exception as e:
-                    # Restore original instance in case of error
-                    mistmcp.server_factory.mcp_instance.set(original_instance)
+                if tool_function:
+                    tool_function.enable()
+                    self.enabled_tools.append(tool_name)
                     if self.config.debug:
-                        print(f"Warning: Could not load essential tools: {e}")
-                        import traceback
+                        print(f"Enabled tool: {tool_name}")
+                    return True
+                else:
+                    if self.config.debug:
+                        print(
+                            f"Warning: Function {tool_name} not found in {module_path}"
+                        )
+                    return False
 
-                        traceback.print_exc()
+            finally:
+                # Restore original instance
+                if original_instance is not None:
+                    mistmcp.server_factory.mcp_instance.set(original_instance)
 
+        except Exception as e:
+            if self.config.debug:
+                print(f"Warning: Could not enable tool {tool_name}: {e}")
+            return False
+
+    def enable_getself_tool(self, mcp_instance) -> bool:
+        """Enable the getSelf tool"""
+        try:
+            import sys
+
+            import mistmcp.server_factory
+
+            # Set MCP instance for import
+            original_instance = None
+            try:
+                original_instance = mistmcp.server_factory.mcp_instance.get()
+            except AttributeError:
+                original_instance = None
+            mistmcp.server_factory.mcp_instance.set(mcp_instance)
+
+            try:
+                module_path = "mistmcp.tools.self_account.getself"
+                if module_path in sys.modules:
+                    del sys.modules[module_path]
+
+                module = importlib.import_module(module_path)
+
+                if hasattr(module, "getSelf"):
+                    tool = getattr(module, "getSelf")
+                    tool.enable()
+                    self.enabled_tools.append("getSelf")
+                    if self.config.debug:
+                        print("Enabled essential tool: getSelf")
+                    return True
+                else:
+                    if self.config.debug:
+                        print("Warning: getSelf function not found")
+                    return False
+
+            finally:
+                if original_instance is not None:
+                    mistmcp.server_factory.mcp_instance.set(original_instance)
+
+        except Exception as e:
+            if self.config.debug:
+                print(f"Warning: Could not enable getSelf: {e}")
+            return False
+
+    def enable_managemcp_tool(self, mcp_instance) -> bool:
+        """Enable the manageMcpTools tool"""
+        try:
+            from mistmcp.tool_manager import register_manage_mcp_tools_tool
+
+            tool = register_manage_mcp_tools_tool(mcp_instance)
+            if tool:
+                self.enabled_tools.append("manageMcpTools")
+                if self.config.debug:
+                    print("Enabled essential tool: manageMcpTools")
+                return True
             else:
                 if self.config.debug:
-                    print("Warning: MCP instance not available for essential tools")
+                    print("Warning: Could not register manageMcpTools")
+                return False
 
-        except (ImportError, AttributeError) as e:
+        except Exception as e:
             if self.config.debug:
-                print(f"Warning: Could not load essential tool getSelf: {e}")
-            # Try to continue without it
+                print(f"Warning: Could not enable manageMcpTools: {e}")
+            return False
 
-    def load_category_tools(self, categories: List[str], mcp_instance=None) -> None:
-        """Load tools from specific categories"""
+    def configure_tools(self, mcp_instance=None) -> None:
+        """Configure tools based on the server mode"""
         if mcp_instance is None:
             from mistmcp.server_factory import get_current_mcp
 
@@ -123,133 +164,80 @@ class ToolLoader:
 
         if not mcp_instance:
             if self.config.debug:
-                print("Warning: MCP instance not available for category tools")
+                print("Warning: MCP instance not available")
             return
 
+        if self.config.debug:
+            print(f"Configuring tools for mode: {self.config.tool_loading_mode.value}")
+
+        # Always enable getSelf tool
+        self.enable_getself_tool(mcp_instance)
+
+        if self.config.tool_loading_mode.value == "managed":
+            # Managed mode: only getSelf and manageMcpTools
+            self.enable_managemcp_tool(mcp_instance)
+            if self.config.debug:
+                print("Managed mode: Only essential tools enabled")
+
+        elif self.config.tool_loading_mode.value == "all":
+            # All mode: enable all tools except manageMcpTools
+            if self.config.debug:
+                print("All mode: Enabling all tools...")
+
+            for category, category_info in self.config.available_tools.items():
+                tools = category_info.get("tools", [])
+                if self.config.debug:
+                    print(f"Enabling {len(tools)} tools from category '{category}'")
+
+                for tool_name in tools:
+                    # Skip manageMcpTools in all mode
+                    if tool_name == "manageMcpTools":
+                        continue
+                    # Skip getSelf since it's already enabled
+                    if tool_name == "getSelf":
+                        continue
+
+                    self.enable_tool_by_name(tool_name, category, mcp_instance)
+
+        if self.config.debug:
+            print(f"Total tools enabled: {len(self.enabled_tools)}")
+            print(f"Enabled tools: {', '.join(self.enabled_tools)}")
+
+    def enable_categories(self, categories: List[str], mcp_instance=None) -> int:
+        """Enable tools from specific categories (used by manageMcpTools)"""
+        if mcp_instance is None:
+            from mistmcp.server_factory import get_current_mcp
+
+            mcp_instance = get_current_mcp()
+
+        if not mcp_instance:
+            if self.config.debug:
+                print("Warning: MCP instance not available for enabling categories")
+            return 0
+
+        enabled_count = 0
         for category in categories:
             if category not in self.config.available_tools:
                 if self.config.debug:
-                    print(
-                        f"Warning: Category '{category}' not found in available tools"
-                    )
+                    print(f"Warning: Category '{category}' not found")
                 continue
 
-            category_tools = self.config.available_tools[category].get("tools", [])
-
+            tools = self.config.available_tools[category].get("tools", [])
             if self.config.debug:
-                print(f"Loading {len(category_tools)} tools from category '{category}'")
+                print(f"Enabling {len(tools)} tools from category '{category}'")
 
-            for tool_name in category_tools:
-                original_instance = None  # Initialize to handle AttributeError case
-                try:
-                    # Temporarily patch the server_factory module to provide MCP instance during import
-                    import sys
-                    import types
-
-                    import mistmcp.server_factory
-
-                    # Create mock modules for old import patterns
-                    if "mistmcp.__server" not in sys.modules:
-                        mock_server = types.ModuleType("mistmcp.__server")
-                        setattr(mock_server, "mcp", mcp_instance)
-                        sys.modules["mistmcp.__server"] = mock_server
-
-                    if "mistmcp.__mistapi" not in sys.modules:
-                        mock_mistapi = types.ModuleType("mistmcp.__mistapi")
-                        setattr(mock_mistapi, "apisession", None)
-                        sys.modules["mistmcp.__mistapi"] = mock_mistapi
-
-                    try:
-                        original_instance = mistmcp.server_factory.mcp_instance.get()
-                    except AttributeError:
-                        original_instance = None
-                    mistmcp.server_factory.mcp_instance.set(mcp_instance)
-
-                    # Dynamically import the tool module
-                    module_path = (
-                        f"mistmcp.tools.{category}.{self.snake_case(tool_name)}"
-                    )
-
-                    # Remove from sys.modules if already loaded to force reimport
-
-                    if module_path in sys.modules:
-                        del sys.modules[module_path]
-
-                    module = importlib.import_module(module_path)
-
-                    # Restore original instance
-                    if original_instance is not None:
-                        mistmcp.server_factory.mcp_instance.set(original_instance)
-
-                    # Skip if already loaded
-                    if tool_name in self.loaded_tools:
-                        if self.config.debug:
-                            print(f"Tool {tool_name} already loaded, skipping")
-                        continue
-
-                    tool = getattr(module, tool_name)
-                    # Register the tool directly with the MCP instance
-                    # The decorator returns a Tool object, so we can call enable() on it
-                    tool.enable()
-                    self.loaded_tools.append(tool_name)
-                    if self.config.debug:
-                        print(f"Loaded tool: {tool_name} from category {category}")
-
-                except (ImportError, AttributeError) as e:
-                    if self.config.debug:
-                        print(
-                            f"Warning: Could not load tool {tool_name} from {category}: {e}"
-                        )
-                    # Restore original instance in case of error
-                    import mistmcp.server_factory
-
-                    if original_instance is not None:
-                        mistmcp.server_factory.mcp_instance.set(original_instance)
-                    continue
-                except Exception as e:
-                    if self.config.debug:
-                        print(
-                            f"Warning: Failed to register tool {tool_name} from {category}: {e}"
-                        )
-                    # Restore original instance in case of error
-                    import mistmcp.server_factory
-
-                    if original_instance is not None:
-                        mistmcp.server_factory.mcp_instance.set(original_instance)
+            for tool_name in tools:
+                # Skip if already enabled
+                if tool_name in self.enabled_tools:
                     continue
 
-    def load_tools(self, mcp_instance=None) -> None:
-        """Load tools based on the server configuration"""
-        if self.config.debug:
-            print(f"Loading tools in mode: {self.config.tool_loading_mode.value}")
-            print(f"Available tool categories: {len(self.config.available_tools)}")
+                if self.enable_tool_by_name(tool_name, category, mcp_instance):
+                    enabled_count += 1
 
-        # Always load essential tools
-        self.load_essential_tools(mcp_instance)
+        return enabled_count
 
-        # Load category tools based on mode
-        if self.config.tool_loading_mode.value == "all":
-            categories_to_load = self.config.get_tools_to_load()
-            if categories_to_load:
-                if self.config.debug:
-                    print(
-                        f"Loading tools from {len(categories_to_load)} categories: {categories_to_load[:3]}..."
-                    )
-                self.load_category_tools(categories_to_load, mcp_instance)
-            else:
-                if self.config.debug:
-                    print("No additional categories to load for this mode")
-        else:
-            # In managed mode, don't load any additional categories at startup
-            if self.config.debug:
-                print(
-                    "Managed mode: Only essential tools loaded. Use manageMcpTools to load more."
-                )
-
-        if self.config.debug:
-            print(f"Total tools loaded: {len(self.loaded_tools)}")
-            print(f"Loaded tools: {', '.join(self.loaded_tools)}")
-
-    def get_loaded_tools_summary(self) -> str:
-        """Return a summary of loaded tools"""
-        return f"Loaded {len(self.loaded_tools)} tools: {', '.join(self.loaded_tools)}"
+    def get_enabled_tools_summary(self) -> str:
+        """Return a summary of enabled tools"""
+        return (
+            f"Enabled {len(self.enabled_tools)} tools: {', '.join(self.enabled_tools)}"
+        )

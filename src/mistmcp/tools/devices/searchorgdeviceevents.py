@@ -36,7 +36,7 @@ class Device_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgDeviceEvents",
     description="""Search Org Devices Events""",
     tags={"devices"},

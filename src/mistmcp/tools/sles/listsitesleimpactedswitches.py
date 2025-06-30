@@ -33,7 +33,7 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listSiteSleImpactedSwitches",
     description="""For Wired SLEs. List the impacted switches optionally filtered by classifier and failure type""",
     tags={"sles"},

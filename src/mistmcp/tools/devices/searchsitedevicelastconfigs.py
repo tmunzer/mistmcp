@@ -35,7 +35,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteDeviceLastConfigs",
     description="""Search Device Last Configs""",
     tags={"devices"},

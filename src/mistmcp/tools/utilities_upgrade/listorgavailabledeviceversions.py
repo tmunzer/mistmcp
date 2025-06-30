@@ -35,7 +35,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listOrgAvailableDeviceVersions",
     description="""Get List of Available Device Versions""",
     tags={"Utilities Upgrade"},

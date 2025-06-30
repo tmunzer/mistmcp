@@ -24,7 +24,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="listWebhookTopics",
     description="""Get List of the available Webhook Topics.""",
     tags={"Constants Definitions"},

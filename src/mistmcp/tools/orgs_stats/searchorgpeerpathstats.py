@@ -35,7 +35,7 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgPeerPathStats",
     description="""Search Org Peer Path Stats""",
     tags={"orgs_stats"},

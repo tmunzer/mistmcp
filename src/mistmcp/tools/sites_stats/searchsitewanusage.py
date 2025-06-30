@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchSiteWanUsage",
     description="""Search Site WAN Usages""",
     tags={"sites_stats"},

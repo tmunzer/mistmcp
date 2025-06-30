@@ -76,18 +76,15 @@ async def manageMcpTools(
         if not mcp_instance:
             return "❌ Error: MCP instance not available"
 
-        tool_loader = ToolLoader(config)
-
-        # Load tools from the valid categories
+        tool_loader = ToolLoader(config)  # Enable tools from the valid categories
         if valid_categories:
-            tool_loader.load_category_tools(valid_categories, mcp_instance)
+            tool_loader.enable_categories(valid_categories, mcp_instance)
 
             if config.debug:
                 print(f"DEBUG: Enabled tools from categories: {valid_categories}")
-                print(f"DEBUG: Total loaded tools: {len(tool_loader.loaded_tools)}")
+                print(f"DEBUG: Total enabled tools: {len(tool_loader.enabled_tools)}")
 
-            # In the simplified architecture, tools are registered directly
-            # No need for session-based notifications
+            # FastMCP automatically sends notifications when tools are enabled
 
         # Prepare response message
         message_parts = ["🔧 MCP TOOLS CONFIGURATION COMPLETE 🔧\n"]

@@ -6,12 +6,14 @@
     "configurations": [
         {
             "name": "Debug mistmcp",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "mistmcp",
             "args": [
                 "-t",
-                "stdio"
+                "stdio",
+                "-m",
+                "managed"
             ],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
@@ -22,7 +24,7 @@
         },
         {
             "name": "Python: Debug test file",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "pytest",
             "args": [

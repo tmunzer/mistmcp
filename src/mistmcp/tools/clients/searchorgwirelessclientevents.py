@@ -46,7 +46,7 @@ class Band(Enum):
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="searchOrgWirelessClientEvents",
     description="""Get Org Clients Events""",
     tags={"clients"},

@@ -28,7 +28,7 @@ mcp = mcp_instance.get()
 
 
 @mcp.tool(
-    enabled=True,
+    enabled=False,
     name="getSiteSetting",
     description="""Get the Site Settings""",
     tags={"sites"},
