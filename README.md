@@ -2,6 +2,10 @@
 
 A Model Context Protocol (MCP) server that provides AI-powered access to Juniper Mist networking APIs. This project enables Large Language Models (LLMs) like Claude to interact with Mist cloud-managed network infrastructure through a comprehensive set of tools.
 
+## ⚠️ Important Notice
+
+**Claude Desktop Compatibility**: There is a [known issue](https://github.com/anthropics/claude-code/issues/2230) where Claude Desktop may display a blank screen when MCP tools return large data payloads. This can occur with Mist API calls that return extensive device lists, client information, or statistics. If you experience a blank screen, refresh Claude Desktop to restore the interface. Consider using more specific filters or smaller data requests to minimize this issue.
+
 
 ## 📑 Table of Contents
 
@@ -212,8 +216,18 @@ If your laptop has SSL interception enabled (e.g. corporate network), you may ne
 {
     "mcpServers": {
         "mist-http": {
-            ...
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-remote",
+                "http://127.0.0.1:8000/mcp/?cloud=api.mist.com",
+                "--header",
+                "X-Authorization:${MIST_APITOKEN}",
+                "--transport",
+                "http-only"
+            ],
             "env": {
+                "MIST_APITOKEN": "your-api-token"
                 "NODE_EXTRA_CA_CERTS": "{your CA certificate file path}.pem"
             }
         }

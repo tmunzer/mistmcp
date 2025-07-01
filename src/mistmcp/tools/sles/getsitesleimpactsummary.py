@@ -92,7 +92,7 @@ async def getSiteSleImpactSummary(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-    fields: Fields = Fields.NONE,
+    fields: Optional[Fields] = Fields.NONE,
     classifier: Optional[str] = None,
 ) -> dict:
     """Get impact summary counts optionally filtered by classifier and failure type * Wireless SLE Fields: `wlan`, `device_type`, `device_os` ,`band`, `ap`, `server`, `mxedge`* Wired SLE Fields: `switch`, `client`, `vlan`, `interface`, `chassis`* WAN SLE Fields: `gateway`, `client`, `interface`, `chassis`, `peer_path`, `gateway_zones`"""
@@ -115,6 +115,15 @@ async def getSiteSleImpactSummary(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -123,22 +132,20 @@ async def getSiteSleImpactSummary(
     response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
         apisession,
         site_id=str(site_id),
-        scope=scope.value,
+        scope=scope,
         scope_id=scope_id,
         metric=metric,
         start=start,
         end=end,
         duration=duration,
-        fields=fields.value,
+        fields=fields.value if fields else None,
         classifier=classifier,
     )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

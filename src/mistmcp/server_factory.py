@@ -57,7 +57,7 @@ def get_current_mcp():
         return None
 
 
-def create_mcp_server(config: ServerConfig):
+def create_mcp_server(config: ServerConfig) -> FastMCP:
     """
     Create and configure a simple MCP server based on the provided configuration.
     """
@@ -75,8 +75,8 @@ def create_mcp_server(config: ServerConfig):
         tool_loader.configure_tools(mcp)
 
         if config.debug:
-            print("MCP Server created successfully")
-            print(tool_loader.get_enabled_tools_summary())
+            print("MCP Server created successfully", file=sys.stderr)
+            print(tool_loader.get_enabled_tools_summary(), file=sys.stderr)
 
         return mcp
 
@@ -114,8 +114,7 @@ All tool categories have been pre-loaded, so you can use any Mist API functional
 
 IMPORTANT:
 * If the tool requires the `org_id`, you should be able to get it with the `getSelf` tool
-* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool
-* All tools are available - no need to use `manageMcpTools` unless you want to reduce the tool set
+* If the tool requires the `site_id`, you should be able to get it with the `listOrgSites` tool. This will also provide the templates assigned to the site.
 """
 
     return ""

@@ -149,7 +149,7 @@ async def searchOrgDevices(
         ),
     ] = None,
     mxtunnel_status: Annotated[
-        Mxtunnel_status,
+        Optional[Mxtunnel_status],
         Field(description="""If `type`==`ap`, MxTunnel status, up / down"""),
     ] = Mxtunnel_status.NONE,
     node: Annotated[
@@ -171,7 +171,8 @@ async def searchOrgDevices(
     ] = None,
     version: Annotated[Optional[str], Field(description="""Version""")] = None,
     type: Annotated[
-        Type, Field(description="""Type of device. enum: `ap`, `gateway`, `switch`""")
+        Optional[Type],
+        Field(description="""Type of device. enum: `ap`, `gateway`, `switch`"""),
     ] = Type.AP,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
@@ -210,6 +211,15 @@ async def searchOrgDevices(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -246,7 +256,7 @@ async def searchOrgDevices(
         model=model,
         mxedge_id=mxedge_id,
         mxedge_ids=mxedge_ids,
-        mxtunnel_status=mxtunnel_status.value,
+        mxtunnel_status=mxtunnel_status.value if mxtunnel_status else None,
         node=node,
         node0_mac=node0_mac,
         node1_mac=node1_mac,
@@ -254,7 +264,7 @@ async def searchOrgDevices(
         site_id=site_id,
         t128agent_version=t128agent_version,
         version=version,
-        type=type.value,
+        type=type.value if type else Type.AP.value,
         limit=limit,
         start=start,
         end=end,
@@ -264,9 +274,7 @@ async def searchOrgDevices(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

@@ -52,7 +52,8 @@ async def searchOrgClientFingerprints(
         Optional[str], Field(description="""Device Category  of the client device""")
     ] = None,
     client_type: Annotated[
-        Client_type, Field(description="""Whether client is wired or wireless""")
+        Optional[Client_type],
+        Field(description="""Whether client is wired or wireless"""),
     ] = Client_type.NONE,
     model: Annotated[
         Optional[str], Field(description="""Model name of the client device""")
@@ -120,6 +121,15 @@ async def searchOrgClientFingerprints(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -129,7 +139,7 @@ async def searchOrgClientFingerprints(
         apisession,
         site_id=str(site_id),
         family=family,
-        client_type=client_type.value,
+        client_type=client_type.value if client_type else None,
         model=model,
         mfg=mfg,
         os=os,
@@ -146,9 +156,7 @@ async def searchOrgClientFingerprints(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

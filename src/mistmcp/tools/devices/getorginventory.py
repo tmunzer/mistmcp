@@ -51,7 +51,7 @@ async def getOrgInventory(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     serial: Annotated[Optional[str], Field(description="""Device serial""")] = None,
     model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    type: Type = Type.NONE,
+    type: Optional[Type] = Type.NONE,
     mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
     site_id: Annotated[
         Optional[UUID],
@@ -93,6 +93,15 @@ async def getOrgInventory(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -103,7 +112,7 @@ async def getOrgInventory(
         org_id=str(org_id),
         serial=serial,
         model=model,
-        type=type.value,
+        type=type.value if type else None,
         mac=mac,
         site_id=str(site_id) if site_id else None,
         vc_mac=vc_mac,
@@ -117,9 +126,7 @@ async def getOrgInventory(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

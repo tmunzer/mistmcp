@@ -61,9 +61,11 @@ async def searchOrgWebhooksDeliveries(
     error: Optional[str] = None,
     status_code: Optional[int] = None,
     status: Annotated[
-        Status, Field(description="""Webhook delivery status""")
+        Optional[Status], Field(description="""Webhook delivery status""")
     ] = Status.NONE,
-    topic: Annotated[Topic, Field(description="""Webhook topic""")] = Topic.NONE,
+    topic: Annotated[
+        Optional[Topic], Field(description="""Webhook topic""")
+    ] = Topic.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -101,6 +103,15 @@ async def searchOrgWebhooksDeliveries(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -112,8 +123,8 @@ async def searchOrgWebhooksDeliveries(
         webhook_id=str(webhook_id),
         error=error,
         status_code=status_code,
-        status=status.value,
-        topic=topic.value,
+        status=status.value if status else None,
+        topic=topic.value if topic else None,
         start=start,
         end=end,
         duration=duration,
@@ -123,9 +134,7 @@ async def searchOrgWebhooksDeliveries(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

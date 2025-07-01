@@ -91,7 +91,7 @@ async def searchOrgNacClients(
         Field(description="""Filters NAC clients that are managed by MDM providers"""),
     ] = None,
     status: Annotated[
-        Status,
+        Optional[Status],
         Field(
             description="""Connection status of client i.e 'permitted', 'denied, 'session_stared', 'session_ended'"""
         ),
@@ -186,6 +186,15 @@ async def searchOrgNacClients(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -207,7 +216,7 @@ async def searchOrgNacClients(
         ap=ap,
         mac=mac,
         mdm_managed=mdm_managed,
-        status=status.value,
+        status=status.value if status else None,
         type=type,
         mdm_compliance=mdm_compliance,
         family=family,
@@ -229,9 +238,7 @@ async def searchOrgNacClients(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

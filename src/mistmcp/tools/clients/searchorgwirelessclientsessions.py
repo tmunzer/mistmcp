@@ -50,7 +50,7 @@ class Band(Enum):
 async def searchOrgWirelessClientSessions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     ap: Annotated[Optional[str], Field(description="""AP MAC""")] = None,
-    band: Annotated[Band, Field(description="""802.11 Band""")] = Band.NONE,
+    band: Annotated[Optional[Band], Field(description="""802.11 Band""")] = Band.NONE,
     client_family: Annotated[
         Optional[str], Field(description="""E.g. 'Mac', 'iPhone', 'Apple watch'""")
     ] = None,
@@ -105,6 +105,15 @@ async def searchOrgWirelessClientSessions(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -114,7 +123,7 @@ async def searchOrgWirelessClientSessions(
         apisession,
         org_id=str(org_id),
         ap=ap,
-        band=band.value,
+        band=band.value if band else None,
         client_family=client_family,
         client_manufacture=client_manufacture,
         client_model=client_model,
@@ -133,9 +142,7 @@ async def searchOrgWirelessClientSessions(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

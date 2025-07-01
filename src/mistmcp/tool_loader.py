@@ -11,6 +11,7 @@
 """
 
 import importlib
+import sys
 from typing import List
 
 from mistmcp.config import ServerConfig
@@ -35,8 +36,6 @@ class ToolLoader:
             module_path = f"mistmcp.tools.{category}.{snake_case_name}"
 
             # Remove from sys.modules to force reimport
-            import sys
-
             if module_path in sys.modules:
                 del sys.modules[module_path]
 
@@ -72,12 +71,13 @@ class ToolLoader:
                     tool_function.enable()
                     self.enabled_tools.append(tool_name)
                     if self.config.debug:
-                        print(f"Enabled tool: {tool_name}")
+                        print(f"Enabled tool: {tool_name}", file=sys.stderr)
                     return True
                 else:
                     if self.config.debug:
                         print(
-                            f"Warning: Function {tool_name} not found in {module_path}"
+                            f"Warning: Function {tool_name} not found in {module_path}",
+                            file=sys.stderr,
                         )
                     return False
 
@@ -88,14 +88,14 @@ class ToolLoader:
 
         except Exception as e:
             if self.config.debug:
-                print(f"Warning: Could not enable tool {tool_name}: {e}")
+                print(
+                    f"Warning: Could not enable tool {tool_name}: {e}", file=sys.stderr
+                )
             return False
 
     def enable_getself_tool(self, mcp_instance) -> bool:
         """Enable the getSelf tool"""
         try:
-            import sys
-
             import mistmcp.server_factory
 
             # Set MCP instance for import
@@ -118,11 +118,11 @@ class ToolLoader:
                     tool.enable()
                     self.enabled_tools.append("getSelf")
                     if self.config.debug:
-                        print("Enabled essential tool: getSelf")
+                        print("Enabled essential tool: getSelf", file=sys.stderr)
                     return True
                 else:
                     if self.config.debug:
-                        print("Warning: getSelf function not found")
+                        print("Warning: getSelf function not found", file=sys.stderr)
                     return False
 
             finally:
@@ -131,7 +131,7 @@ class ToolLoader:
 
         except Exception as e:
             if self.config.debug:
-                print(f"Warning: Could not enable getSelf: {e}")
+                print(f"Warning: Could not enable getSelf: {e}", file=sys.stderr)
             return False
 
     def enable_managemcp_tool(self, mcp_instance) -> bool:
@@ -143,16 +143,16 @@ class ToolLoader:
             if tool:
                 self.enabled_tools.append("manageMcpTools")
                 if self.config.debug:
-                    print("Enabled essential tool: manageMcpTools")
+                    print("Enabled essential tool: manageMcpTools", file=sys.stderr)
                 return True
             else:
                 if self.config.debug:
-                    print("Warning: Could not register manageMcpTools")
+                    print("Warning: Could not register manageMcpTools", file=sys.stderr)
                 return False
 
         except Exception as e:
             if self.config.debug:
-                print(f"Warning: Could not enable manageMcpTools: {e}")
+                print(f"Warning: Could not enable manageMcpTools: {e}", file=sys.stderr)
             return False
 
     def configure_tools(self, mcp_instance=None) -> None:
@@ -164,11 +164,14 @@ class ToolLoader:
 
         if not mcp_instance:
             if self.config.debug:
-                print("Warning: MCP instance not available")
+                print("Warning: MCP instance not available", file=sys.stderr)
             return
 
         if self.config.debug:
-            print(f"Configuring tools for mode: {self.config.tool_loading_mode.value}")
+            print(
+                f"Configuring tools for mode: {self.config.tool_loading_mode.value}",
+                file=sys.stderr,
+            )
 
         # Always enable getSelf tool
         self.enable_getself_tool(mcp_instance)
@@ -177,17 +180,20 @@ class ToolLoader:
             # Managed mode: only getSelf and manageMcpTools
             self.enable_managemcp_tool(mcp_instance)
             if self.config.debug:
-                print("Managed mode: Only essential tools enabled")
+                print("Managed mode: Only essential tools enabled", file=sys.stderr)
 
         elif self.config.tool_loading_mode.value == "all":
             # All mode: enable all tools except manageMcpTools
             if self.config.debug:
-                print("All mode: Enabling all tools...")
+                print("All mode: Enabling all tools...", file=sys.stderr)
 
             for category, category_info in self.config.available_tools.items():
                 tools = category_info.get("tools", [])
                 if self.config.debug:
-                    print(f"Enabling {len(tools)} tools from category '{category}'")
+                    print(
+                        f"Enabling {len(tools)} tools from category '{category}'",
+                        file=sys.stderr,
+                    )
 
                 for tool_name in tools:
                     # Skip manageMcpTools in all mode
@@ -200,8 +206,8 @@ class ToolLoader:
                     self.enable_tool_by_name(tool_name, category, mcp_instance)
 
         if self.config.debug:
-            print(f"Total tools enabled: {len(self.enabled_tools)}")
-            print(f"Enabled tools: {', '.join(self.enabled_tools)}")
+            print(f"Total tools enabled: {len(self.enabled_tools)}", file=sys.stderr)
+            print(f"Enabled tools: {', '.join(self.enabled_tools)}", file=sys.stderr)
 
     def enable_categories(self, categories: List[str], mcp_instance=None) -> int:
         """Enable tools from specific categories (used by manageMcpTools)"""
@@ -212,19 +218,25 @@ class ToolLoader:
 
         if not mcp_instance:
             if self.config.debug:
-                print("Warning: MCP instance not available for enabling categories")
+                print(
+                    "Warning: MCP instance not available for enabling categories",
+                    file=sys.stderr,
+                )
             return 0
 
         enabled_count = 0
         for category in categories:
             if category not in self.config.available_tools:
                 if self.config.debug:
-                    print(f"Warning: Category '{category}' not found")
+                    print(f"Warning: Category '{category}' not found", file=sys.stderr)
                 continue
 
             tools = self.config.available_tools[category].get("tools", [])
             if self.config.debug:
-                print(f"Enabling {len(tools)} tools from category '{category}'")
+                print(
+                    f"Enabling {len(tools)} tools from category '{category}'",
+                    file=sys.stderr,
+                )
 
             for tool_name in tools:
                 # Skip if already enabled

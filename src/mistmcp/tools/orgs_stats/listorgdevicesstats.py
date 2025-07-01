@@ -55,8 +55,8 @@ class Status(Enum):
 )
 async def listOrgDevicesStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Type = Type.AP,
-    status: Status = Status.ALL,
+    type: Optional[Type] = Type.AP,
+    status: Optional[Status] = Status.ALL,
     site_id: Annotated[
         Optional[str], Field(description="""ID of the Mist Site""")
     ] = None,
@@ -114,6 +114,15 @@ async def listOrgDevicesStats(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -122,8 +131,8 @@ async def listOrgDevicesStats(
     response = mistapi.api.v1.orgs.stats.listOrgDevicesStats(
         apisession,
         org_id=str(org_id),
-        type=type.value,
-        status=status.value,
+        type=type.value if type else Type.AP.value,
+        status=status.value if status else Status.ALL.value,
         site_id=site_id,
         mac=mac,
         evpntopo_id=evpntopo_id,
@@ -139,9 +148,7 @@ async def listOrgDevicesStats(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

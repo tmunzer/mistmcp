@@ -11,6 +11,7 @@
 """
 
 import json
+import sys
 from typing import Annotated
 
 from fastmcp.server.dependencies import get_context
@@ -83,8 +84,14 @@ async def manageMcpTools(
             tool_loader.enable_categories(valid_categories, mcp_instance)
 
             if config.debug:
-                print(f"DEBUG: Enabled tools from categories: {valid_categories}")
-                print(f"DEBUG: Total enabled tools: {len(tool_loader.enabled_tools)}")
+                print(
+                    f"DEBUG: Enabled tools from categories: {valid_categories}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"DEBUG: Total enabled tools: {len(tool_loader.enabled_tools)}",
+                    file=sys.stderr,
+                )
 
             # FastMCP automatically sends notifications when tools are enabled
 

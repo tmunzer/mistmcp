@@ -55,7 +55,7 @@ async def listOrgAuditLogs(
         Optional[str], Field(description="""Admin name or email""")
     ] = None,
     message: Annotated[Optional[str], Field(description="""Message""")] = None,
-    sort: Annotated[Sort, Field(description="""Sort order""")] = Sort.NONE,
+    sort: Annotated[Optional[Sort], Field(description="""Sort order""")] = Sort.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -94,6 +94,15 @@ async def listOrgAuditLogs(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -105,7 +114,7 @@ async def listOrgAuditLogs(
         site_id=str(site_id) if site_id else None,
         admin_name=admin_name,
         message=message,
-        sort=sort.value,
+        sort=sort.value if sort else None,
         start=start,
         end=end,
         duration=duration,
@@ -116,9 +125,7 @@ async def listOrgAuditLogs(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

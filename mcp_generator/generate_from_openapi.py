@@ -257,11 +257,10 @@ def _process_params(
                 tmp_type = tmp_param["name"].capitalize()
                 if tmp_param["default"]:
                     tmp_default = f" = {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}"
+                    tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}.value,\n"
                 elif force_default:
                     tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
-                tmp_mistapi_parameters = (
-                    f"            {tmp_param['name']}={tmp_param['name']}.value,\n"
-                )
+                    tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else None,\n"
 
         if not tmp_default:
             if tmp_param["required"]:
@@ -279,6 +278,9 @@ def _process_params(
                 tmp_type = f"Optional[{tmp_type}]"
                 # tmp_optional = " | None"
                 tmp_default = " = None"
+        elif not tmp_param["required"]:
+            _add_import(imports, "typing", "Optional")
+            tmp_type = f"Optional[{tmp_type}]"
 
         if annotations:
             _add_import(imports, "typing", "Annotated")

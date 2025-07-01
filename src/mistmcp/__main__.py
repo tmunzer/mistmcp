@@ -80,32 +80,41 @@ def start(
     config.debug = debug
 
     if config.debug:
-        print(" Starting Mist MCP Server with configuration ".center(80, "="))
-        print(f"  TRANSPORT: {transport_mode}")
-        print(f"  TOOL LOADING MODE: {tool_loading_mode.value}")
+        print(
+            " Starting Mist MCP Server with configuration ".center(80, "="),
+            file=sys.stderr,
+        )
+        print(f"  TRANSPORT: {transport_mode}", file=sys.stderr)
+        print(f"  TOOL LOADING MODE: {tool_loading_mode.value}", file=sys.stderr)
         if tool_categories:
-            print(f"  CATEGORIES: {', '.join(tool_categories)}")
+            print(f"  CATEGORIES: {', '.join(tool_categories)}", file=sys.stderr)
 
-        print(f"  MIST_HOST: {config.mist_host}")
-        print(f"  MISTMCP_TRANSPORT_MODE: {config.transport_mode}")
-        print(f"  MISTMCP_TOOL_LOADING_MODE: {config.tool_loading_mode.value}")
-        print(f"  MISTMCP_TOOL_CATEGORIES: {', '.join(config.tool_categories)}")
-        print(f"  MISTMCP_HOST: {mcp_host}")
-        print(f"  MISTMCP_PORT: {mcp_port}")
-        print(f"  MISTMCP_DEBUG: {config.debug}")
-        print("".center(80, "="))
+        print(f"  MIST_HOST: {config.mist_host}", file=sys.stderr)
+        print(f"  MISTMCP_TRANSPORT_MODE: {config.transport_mode}", file=sys.stderr)
+        print(
+            f"  MISTMCP_TOOL_LOADING_MODE: {config.tool_loading_mode.value}",
+            file=sys.stderr,
+        )
+        print(
+            f"  MISTMCP_TOOL_CATEGORIES: {', '.join(config.tool_categories)}",
+            file=sys.stderr,
+        )
+        print(f"  MISTMCP_HOST: {mcp_host}", file=sys.stderr)
+        print(f"  MISTMCP_PORT: {mcp_port}", file=sys.stderr)
+        print(f"  MISTMCP_DEBUG: {config.debug}", file=sys.stderr)
+        print("".center(80, "="), file=sys.stderr)
 
     try:
         # Create and start the MCP server
-        mcp_server = create_mcp_server(config)
 
+        mcp_server = create_mcp_server(config)
         if transport_mode == "http":
             mcp_server.run(transport="streamable-http", host=mcp_host, port=mcp_port)
         else:
             mcp_server.run()
 
     except KeyboardInterrupt:
-        print("Mist MCP Server stopped by user")
+        print("Mist MCP Server stopped by user", file=sys.stderr)
 
     except Exception as e:
         print(f"Mist MCP Error: {e}", file=sys.stderr)

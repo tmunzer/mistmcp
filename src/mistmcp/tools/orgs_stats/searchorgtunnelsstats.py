@@ -80,7 +80,7 @@ async def searchOrgTunnelsStats(
         Optional[str], Field(description="""If `type`==`wan`""")
     ] = None,
     up: Annotated[Optional[str], Field(description="""If `type`==`wan`""")] = None,
-    type: Type = Type.WXTUNNEL,
+    type: Optional[Type] = Type.WXTUNNEL,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
@@ -118,6 +118,15 @@ async def searchOrgTunnelsStats(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -141,7 +150,7 @@ async def searchOrgTunnelsStats(
         encrypt_algo=encrypt_algo,
         ike_version=ike_version,
         up=up,
-        type=type.value,
+        type=type.value if type else Type.WXTUNNEL.value,
         limit=limit,
         start=start,
         end=end,
@@ -151,9 +160,7 @@ async def searchOrgTunnelsStats(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

@@ -146,16 +146,18 @@ async def searchOrgSwOrGwPorts(
         Optional[bool], Field(description="""Indicates if interface is up""")
     ] = None,
     stp_state: Annotated[
-        Stp_state, Field(description="""If `up`==`true`""")
+        Optional[Stp_state], Field(description="""If `up`==`true`""")
     ] = Stp_state.NONE,
     stp_role: Annotated[
-        Stp_role, Field(description="""If `up`==`true`""")
+        Optional[Stp_role], Field(description="""If `up`==`true`""")
     ] = Stp_role.NONE,
     auth_state: Annotated[
-        Auth_state, Field(description="""If `up`==`true` && has Authenticator role""")
+        Optional[Auth_state],
+        Field(description="""If `up`==`true` && has Authenticator role"""),
     ] = Auth_state.NONE,
     type: Annotated[
-        Type, Field(description="""Type of device. enum: `switch`, `gateway`, `all`""")
+        Optional[Type],
+        Field(description="""Type of device. enum: `switch`, `gateway`, `all`"""),
     ] = Type.ALL,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
@@ -194,6 +196,15 @@ async def searchOrgSwOrGwPorts(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -228,10 +239,10 @@ async def searchOrgSwOrGwPorts(
         mac_limit=mac_limit,
         mac_count=mac_count,
         up=up,
-        stp_state=stp_state.value,
-        stp_role=stp_role.value,
-        auth_state=auth_state.value,
-        type=type.value,
+        stp_state=stp_state.value if stp_state else None,
+        stp_role=stp_role.value if stp_role else None,
+        auth_state=auth_state.value if auth_state else None,
+        type=type.value if type else Type.ALL.value,
         limit=limit,
         start=start,
         end=end,
@@ -241,9 +252,7 @@ async def searchOrgSwOrGwPorts(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

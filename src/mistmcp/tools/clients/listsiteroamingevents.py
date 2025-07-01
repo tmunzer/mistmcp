@@ -48,7 +48,7 @@ class Type(Enum):
 )
 async def listSiteRoamingEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Annotated[Type, Field(description="""Event type""")] = Type.NONE,
+    type: Annotated[Optional[Type], Field(description="""Event type""")] = Type.NONE,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
@@ -86,6 +86,15 @@ async def listSiteRoamingEvents(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -94,7 +103,7 @@ async def listSiteRoamingEvents(
     response = mistapi.api.v1.sites.events.listSiteRoamingEvents(
         apisession,
         site_id=str(site_id),
-        type=type.value,
+        type=type.value if type else None,
         limit=limit,
         start=start,
         end=end,
@@ -104,9 +113,7 @@ async def listSiteRoamingEvents(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")

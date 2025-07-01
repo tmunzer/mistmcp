@@ -86,7 +86,7 @@ class TestStart:
         )
 
         captured = capsys.readouterr()
-        assert "stopped by user" in captured.out
+        assert "stopped by user" in captured.err
 
     @patch("mistmcp.__main__.create_mcp_server")
     def test_start_exception_without_debug(self, mock_create_server, capsys) -> None:
@@ -142,9 +142,9 @@ class TestStart:
         )
 
         captured = capsys.readouterr()
-        assert "Starting Mist MCP Server with configuration" in captured.out
-        assert "TRANSPORT: http" in captured.out
-        assert "TOOL LOADING MODE: managed" in captured.out
+        assert "Starting Mist MCP Server with configuration" in captured.err
+        assert "TRANSPORT: http" in captured.err
+        assert "TOOL LOADING MODE: managed" in captured.err
 
 
 class TestMain:

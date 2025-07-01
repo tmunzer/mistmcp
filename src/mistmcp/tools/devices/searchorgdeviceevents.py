@@ -51,7 +51,7 @@ async def searchOrgDeviceEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mac: Annotated[Optional[str], Field(description="""Device mac""")] = None,
     model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    device_type: Device_type = Device_type.AP,
+    device_type: Optional[Device_type] = Device_type.AP,
     text: Annotated[Optional[str], Field(description="""Event message""")] = None,
     timestamp: Annotated[Optional[str], Field(description="""Event time""")] = None,
     type: Annotated[
@@ -107,6 +107,15 @@ async def searchOrgDeviceEvents(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+    if not apitoken:
+        raise ClientError(
+            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+        )
+    if not cloud:
+        raise ClientError(
+            "Missing required parameter: 'cloud' query parameter or mist_host in config"
+        )
+
     apisession = mistapi.APISession(
         host=cloud,
         apitoken=apitoken,
@@ -117,7 +126,7 @@ async def searchOrgDeviceEvents(
         org_id=str(org_id),
         mac=mac,
         model=model,
-        device_type=device_type.value,
+        device_type=device_type.value if device_type else Device_type.AP.value,
         text=text,
         timestamp=timestamp,
         type=type,
@@ -132,9 +141,7 @@ async def searchOrgDeviceEvents(
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            await ctx.error(
-                f"Got HTTP{response.status_code} with details {response.data}"
-            )
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
             api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
