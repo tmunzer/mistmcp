@@ -97,8 +97,8 @@ def start(
 
     try:
         # Create and start the MCP server
-        mcp_server = create_mcp_server(config)
 
+        mcp_server = create_mcp_server(config)
         if transport_mode == "http":
             mcp_server.run(transport="streamable-http", host=mcp_host, port=mcp_port)
         else:
