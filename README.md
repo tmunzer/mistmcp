@@ -85,26 +85,6 @@ EXAMPLES:
     uv run mistmcp --env-file ~/.mist.env             # Custom env file
 ```
 
-### HTTP Mode Query Parameters
-
-When using HTTP transport, configure the server via URL query parameters:
-
-**Required:**
-- `cloud` - Mist API host (e.g., `api.mist.com`)
-
-**Optional:**
-- `mode` - Tool loading mode: `managed` (default) or `all`
-- `debug` - Enable debug output: `true` or `false`
-
-**Example URLs:**
-```bash
-# Default managed mode
-http://localhost:8000/mcp/?cloud=api.mist.com
-
-# All tools with debug enabled
-http://localhost:8000/mcp/?cloud=api.mist.com&mode=all&debug=true
-```
-
 ### Environment Variables
 
 Configure via environment variables or `.env` files:
@@ -113,9 +93,9 @@ Configure via environment variables or `.env` files:
 |-----------|------------|-----------|---------------|-------------|
 | `MIST_APITOKEN` | **Required** | Not used | - | Your Mist API token for authentication |
 | `MIST_HOST` | **Required** | Not used | - | Mist API host (e.g., `api.mist.com`, `api.eu.mist.com`) |
-| `MIST_ENV_FILE` | Optional | Optional | - | Path to .env file containing Mist credentials |
-| `MISTMCP_TRANSPORT_MODE` | Optional | **Required** | `stdio` | Transport mode: `stdio` or `http` |
-| `MISTMCP_TOOL_LOADING_MODE` | Optional | Optional | `managed` | Tool loading strategy: `managed` or `all` |
+| `MIST_ENV_FILE` | Optional | Not used | - | Path to .env file containing Mist credentials |
+| `MISTMCP_TOOL_LOADING_MODE` | Optional | Not used | `all` | Tool loading strategy: `managed` or `all` |
+| `MISTMCP_TRANSPORT_MODE` | Optional | **Required**  | `stdio` | Transport mode: `stdio` or `http` |
 | `MISTMCP_HOST` | Not used | Optional | `127.0.0.1` | HTTP server bind address |
 | `MISTMCP_PORT` | Not used | Optional | `8000` | HTTP server port |
 | `MISTMCP_DEBUG` | Optional | Optional | `false` | Enable debug logging: `true` or `false` |
@@ -235,6 +215,22 @@ If your laptop has SSL interception enabled (e.g. corporate network), you may ne
 }
 ```
 
+#### HTTP Mode Query Parameters
+
+When using HTTP transport, configure the server via URL query parameters:
+
+**Required:**
+- `cloud` - Mist API host (e.g., `api.mist.com`)
+
+
+**Example URLs:**
+```bash
+# Default managed mode
+http://localhost:8000/mcp/?cloud=api.mist.com
+
+# All tools with debug enabled
+http://localhost:8000/mcp/?cloud=api.mist.com&mode=all&debug=true
+```
 
 ## 🔧 Tool Categories
 
