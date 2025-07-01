@@ -75,8 +75,8 @@ def create_mcp_server(config: ServerConfig) -> FastMCP:
         tool_loader.configure_tools(mcp)
 
         if config.debug:
-            print("MCP Server created successfully")
-            print(tool_loader.get_enabled_tools_summary())
+            print("MCP Server created successfully", file=sys.stderr)
+            print(tool_loader.get_enabled_tools_summary(), file=sys.stderr)
 
         return mcp
 

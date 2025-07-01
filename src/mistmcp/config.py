@@ -11,6 +11,7 @@
 """
 
 import importlib.resources
+import sys
 from enum import Enum
 from typing import List, Optional
 
@@ -105,12 +106,13 @@ class ServerConfig:
 
             if self.debug:
                 print(
-                    f"Discovered {len(self.available_tools)} tool categories from filesystem"
+                    f"Discovered {len(self.available_tools)} tool categories from filesystem",
+                    file=sys.stderr,
                 )
 
         except (ImportError, OSError, AttributeError) as e:
             if self.debug:
-                print(f"Warning: Could not scan tools directory: {e}")
+                print(f"Warning: Could not scan tools directory: {e}", file=sys.stderr)
             # Fallback to empty tools
             self.available_tools = {}
 
