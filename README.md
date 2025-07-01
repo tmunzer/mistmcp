@@ -9,26 +9,26 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
 
 ## 📑 Table of Contents
 
+- [⚠️ Important Notice](#️-important-notice)
 - [🚀 Features](#-features)
 - [🛠️ Installation & Setup](#️-installation--setup)
     - [Prerequisites](#prerequisites)
     - [1. Install Dependencies](#1-install-dependencies)
 - [🚀 Usage](#-usage)
     - [Command Line Options](#command-line-options)
-    - [HTTP Mode Query Parameters](#http-mode-query-parameters)
     - [Environment Variables](#environment-variables)
     - [Tool Loading Modes](#tool-loading-modes)
     - [Transport Modes](#transport-modes)
 - [🔧 Configuration](#-configuration)
     - [STDIO Mode (Recommended)](#stdio-mode-recommended)
     - [HTTP Mode (Remote Access)](#http-mode-remote-access)
+    - [HTTP Mode Query Parameters](#http-mode-query-parameters)
 - [🔧 Tool Categories](#-tool-categories)
 - [⚠️ Current Limitations](#️-current-limitations)
 - [🤝 Contributing](#-contributing)
     - [Development Setup](#development-setup)
 - [📄 License](#-license)
 - [👤 Author](#-author)
-
 
 ## 🚀 Features
 
