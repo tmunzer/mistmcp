@@ -55,7 +55,7 @@ async def listOrgAuditLogs(
         Optional[str], Field(description="""Admin name or email""")
     ] = None,
     message: Annotated[Optional[str], Field(description="""Message""")] = None,
-    sort: Annotated[Sort, Field(description="""Sort order""")] = Sort.NONE,
+    sort: Annotated[Optional[Sort], Field(description="""Sort order""")] = Sort.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -114,7 +114,7 @@ async def listOrgAuditLogs(
         site_id=str(site_id) if site_id else None,
         admin_name=admin_name,
         message=message,
-        sort=sort.value,
+        sort=sort.value if sort else None,
         start=start,
         end=end,
         duration=duration,

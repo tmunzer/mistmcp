@@ -103,7 +103,7 @@ async def listSiteSleImpactedGateways(
     response = mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(
         apisession,
         site_id=str(site_id),
-        scope=scope.value,
+        scope=scope,
         scope_id=str(scope_id),
         metric=metric,
         start=start,

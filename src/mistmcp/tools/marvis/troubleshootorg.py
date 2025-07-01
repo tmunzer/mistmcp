@@ -69,7 +69,7 @@ async def troubleshootOrg(
         ),
     ] = None,
     type: Annotated[
-        Type,
+        Optional[Type],
         Field(
             description="""When troubleshooting site, type of network to troubleshoot"""
         ),
@@ -116,7 +116,7 @@ async def troubleshootOrg(
         site_id=str(site_id) if site_id else None,
         start=start,
         end=end,
-        type=type.value,
+        type=type.value if type else None,
     )
 
     if response.status_code != 200:

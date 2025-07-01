@@ -96,7 +96,7 @@ async def getSiteSleThreshold(
     response = mistapi.api.v1.sites.sle.getSiteSleThreshold(
         apisession,
         site_id=str(site_id),
-        scope=scope.value,
+        scope=scope,
         scope_id=scope_id,
         metric=metric,
     )

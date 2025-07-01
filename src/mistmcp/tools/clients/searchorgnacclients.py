@@ -91,7 +91,7 @@ async def searchOrgNacClients(
         Field(description="""Filters NAC clients that are managed by MDM providers"""),
     ] = None,
     status: Annotated[
-        Status,
+        Optional[Status],
         Field(
             description="""Connection status of client i.e 'permitted', 'denied, 'session_stared', 'session_ended'"""
         ),
@@ -216,7 +216,7 @@ async def searchOrgNacClients(
         ap=ap,
         mac=mac,
         mdm_managed=mdm_managed,
-        status=status.value,
+        status=status.value if status else None,
         type=type,
         mdm_compliance=mdm_compliance,
         family=family,

@@ -51,7 +51,7 @@ async def getOrgInventory(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     serial: Annotated[Optional[str], Field(description="""Device serial""")] = None,
     model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    type: Type = Type.NONE,
+    type: Optional[Type] = Type.NONE,
     mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
     site_id: Annotated[
         Optional[UUID],
@@ -112,7 +112,7 @@ async def getOrgInventory(
         org_id=str(org_id),
         serial=serial,
         model=model,
-        type=type.value,
+        type=type.value if type else None,
         mac=mac,
         site_id=str(site_id) if site_id else None,
         vc_mac=vc_mac,

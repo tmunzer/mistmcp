@@ -146,16 +146,18 @@ async def searchOrgSwOrGwPorts(
         Optional[bool], Field(description="""Indicates if interface is up""")
     ] = None,
     stp_state: Annotated[
-        Stp_state, Field(description="""If `up`==`true`""")
+        Optional[Stp_state], Field(description="""If `up`==`true`""")
     ] = Stp_state.NONE,
     stp_role: Annotated[
-        Stp_role, Field(description="""If `up`==`true`""")
+        Optional[Stp_role], Field(description="""If `up`==`true`""")
     ] = Stp_role.NONE,
     auth_state: Annotated[
-        Auth_state, Field(description="""If `up`==`true` && has Authenticator role""")
+        Optional[Auth_state],
+        Field(description="""If `up`==`true` && has Authenticator role"""),
     ] = Auth_state.NONE,
     type: Annotated[
-        Type, Field(description="""Type of device. enum: `switch`, `gateway`, `all`""")
+        Optional[Type],
+        Field(description="""Type of device. enum: `switch`, `gateway`, `all`"""),
     ] = Type.ALL,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
@@ -237,10 +239,10 @@ async def searchOrgSwOrGwPorts(
         mac_limit=mac_limit,
         mac_count=mac_count,
         up=up,
-        stp_state=stp_state.value,
-        stp_role=stp_role.value,
-        auth_state=auth_state.value,
-        type=type.value,
+        stp_state=stp_state.value if stp_state else None,
+        stp_role=stp_role.value if stp_role else None,
+        auth_state=auth_state.value if auth_state else None,
+        type=type.value if type else Type.ALL.value,
         limit=limit,
         start=start,
         end=end,

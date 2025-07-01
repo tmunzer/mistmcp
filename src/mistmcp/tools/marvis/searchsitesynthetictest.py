@@ -72,9 +72,11 @@ async def searchSiteSyntheticTest(
     reason: Annotated[
         Optional[str], Field(description="""Test failure reason""")
     ] = None,
-    type: Annotated[Type, Field(description="""Synthetic test type""")] = Type.NONE,
+    type: Annotated[
+        Optional[Type], Field(description="""Synthetic test type""")
+    ] = Type.NONE,
     protocol: Annotated[
-        Protocol, Field(description="""Connectivity protocol""")
+        Optional[Protocol], Field(description="""Connectivity protocol""")
     ] = Protocol.NONE,
     tenant: Annotated[
         Optional[str],
@@ -123,8 +125,8 @@ async def searchSiteSyntheticTest(
         vlan_id=vlan_id,
         by=by,
         reason=reason,
-        type=type.value,
-        protocol=protocol.value,
+        type=type.value if type else None,
+        protocol=protocol.value if protocol else None,
         tenant=tenant,
     )
 

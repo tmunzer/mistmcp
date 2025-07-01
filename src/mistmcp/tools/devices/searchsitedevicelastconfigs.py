@@ -48,7 +48,7 @@ class Type(Enum):
 )
 async def searchSiteDeviceLastConfigs(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Type = Type.AP,
+    type: Optional[Type] = Type.AP,
     mac: Optional[str] = None,
     version: Optional[str] = None,
     name: Optional[str] = None,
@@ -106,7 +106,7 @@ async def searchSiteDeviceLastConfigs(
     response = mistapi.api.v1.sites.devices.searchSiteDeviceLastConfigs(
         apisession,
         site_id=str(site_id),
-        type=type.value,
+        type=type.value if type else Type.AP.value,
         mac=mac,
         version=version,
         name=name,

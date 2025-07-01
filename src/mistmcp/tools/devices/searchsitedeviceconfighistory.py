@@ -48,7 +48,7 @@ class Type(Enum):
 )
 async def searchSiteDeviceConfigHistory(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Type = Type.AP,
+    type: Optional[Type] = Type.AP,
     mac: Annotated[Optional[str], Field(description="""Device MAC Address""")] = None,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
@@ -104,7 +104,7 @@ async def searchSiteDeviceConfigHistory(
     response = mistapi.api.v1.sites.devices.searchSiteDeviceConfigHistory(
         apisession,
         site_id=str(site_id),
-        type=type.value,
+        type=type.value if type else Type.AP.value,
         mac=mac,
         limit=limit,
         start=start,

@@ -49,7 +49,7 @@ class Channel(Enum):
 async def listOrgAvailableSsrVersions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     channel: Annotated[
-        Channel, Field(description="""SSR version channel""")
+        Optional[Channel], Field(description="""SSR version channel""")
     ] = Channel.STABLE,
     mac: Annotated[
         Optional[str],
@@ -95,7 +95,7 @@ async def listOrgAvailableSsrVersions(
     response = mistapi.api.v1.orgs.ssr.listOrgAvailableSsrVersions(
         apisession,
         org_id=str(org_id),
-        channel=channel.value,
+        channel=channel.value if channel else Channel.STABLE.value,
         mac=mac,
     )
 

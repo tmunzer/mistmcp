@@ -89,7 +89,7 @@ async def listSiteCurrentRrmNeighbors(
     response = mistapi.api.v1.sites.rrm.listSiteCurrentRrmNeighbors(
         apisession,
         site_id=str(site_id),
-        band=band.value,
+        band=band,
         limit=limit,
         page=page,
     )

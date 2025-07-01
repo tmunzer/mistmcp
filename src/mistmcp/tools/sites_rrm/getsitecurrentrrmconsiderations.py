@@ -89,7 +89,7 @@ async def getSiteCurrentRrmConsiderations(
         apisession,
         site_id=str(site_id),
         device_id=str(device_id),
-        band=band.value,
+        band=band,
     )
 
     if response.status_code != 200:

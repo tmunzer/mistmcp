@@ -49,7 +49,7 @@ class Sle(Enum):
 )
 async def getOrgSitesSle(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    sle: Sle = Sle.NONE,
+    sle: Optional[Sle] = Sle.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -111,7 +111,7 @@ async def getOrgSitesSle(
     response = mistapi.api.v1.orgs.insights.getOrgSitesSle(
         apisession,
         org_id=str(org_id),
-        sle=sle.value,
+        sle=sle.value if sle else None,
         start=start,
         end=end,
         duration=duration,

@@ -52,7 +52,7 @@ async def searchOrgPeerPathStats(
     site_id: Annotated[
         Optional[str], Field(description="""ID of the Mist Site""")
     ] = None,
-    type: Type = Type.NONE,
+    type: Optional[Type] = Type.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -103,7 +103,7 @@ async def searchOrgPeerPathStats(
         org_id=str(org_id),
         mac=mac,
         site_id=site_id,
-        type=type.value,
+        type=type.value if type else None,
         start=start,
         duration=duration,
         limit=limit,

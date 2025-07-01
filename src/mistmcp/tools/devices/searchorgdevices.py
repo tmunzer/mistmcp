@@ -149,7 +149,7 @@ async def searchOrgDevices(
         ),
     ] = None,
     mxtunnel_status: Annotated[
-        Mxtunnel_status,
+        Optional[Mxtunnel_status],
         Field(description="""If `type`==`ap`, MxTunnel status, up / down"""),
     ] = Mxtunnel_status.NONE,
     node: Annotated[
@@ -171,7 +171,8 @@ async def searchOrgDevices(
     ] = None,
     version: Annotated[Optional[str], Field(description="""Version""")] = None,
     type: Annotated[
-        Type, Field(description="""Type of device. enum: `ap`, `gateway`, `switch`""")
+        Optional[Type],
+        Field(description="""Type of device. enum: `ap`, `gateway`, `switch`"""),
     ] = Type.AP,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
@@ -255,7 +256,7 @@ async def searchOrgDevices(
         model=model,
         mxedge_id=mxedge_id,
         mxedge_ids=mxedge_ids,
-        mxtunnel_status=mxtunnel_status.value,
+        mxtunnel_status=mxtunnel_status.value if mxtunnel_status else None,
         node=node,
         node0_mac=node0_mac,
         node1_mac=node1_mac,
@@ -263,7 +264,7 @@ async def searchOrgDevices(
         site_id=site_id,
         t128agent_version=t128agent_version,
         version=version,
-        type=type.value,
+        type=type.value if type else Type.AP.value,
         limit=limit,
         start=start,
         end=end,

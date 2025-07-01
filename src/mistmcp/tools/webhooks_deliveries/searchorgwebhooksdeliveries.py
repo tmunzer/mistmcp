@@ -61,9 +61,11 @@ async def searchOrgWebhooksDeliveries(
     error: Optional[str] = None,
     status_code: Optional[int] = None,
     status: Annotated[
-        Status, Field(description="""Webhook delivery status""")
+        Optional[Status], Field(description="""Webhook delivery status""")
     ] = Status.NONE,
-    topic: Annotated[Topic, Field(description="""Webhook topic""")] = Topic.NONE,
+    topic: Annotated[
+        Optional[Topic], Field(description="""Webhook topic""")
+    ] = Topic.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -121,8 +123,8 @@ async def searchOrgWebhooksDeliveries(
         webhook_id=str(webhook_id),
         error=error,
         status_code=status_code,
-        status=status.value,
-        topic=topic.value,
+        status=status.value if status else None,
+        topic=topic.value if topic else None,
         start=start,
         end=end,
         duration=duration,

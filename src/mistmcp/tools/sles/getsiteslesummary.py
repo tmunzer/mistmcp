@@ -111,7 +111,7 @@ async def getSiteSleSummary(
     response = mistapi.api.v1.sites.sle.getSiteSleSummary(
         apisession,
         site_id=str(site_id),
-        scope=scope.value,
+        scope=scope,
         scope_id=scope_id,
         metric=metric,
         start=start,

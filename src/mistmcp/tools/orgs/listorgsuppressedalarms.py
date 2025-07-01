@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
 
@@ -48,7 +48,7 @@ class Scope(Enum):
 async def listOrgSuppressedAlarms(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     scope: Annotated[
-        Scope, Field(description="""Returns both scopes if not specified""")
+        Optional[Scope], Field(description="""Returns both scopes if not specified""")
     ] = Scope.SITE,
 ) -> dict:
     """Get List of Org Alarms Currently Suppressed"""
@@ -88,7 +88,7 @@ async def listOrgSuppressedAlarms(
     response = mistapi.api.v1.orgs.alarmtemplates.listOrgSuppressedAlarms(
         apisession,
         org_id=str(org_id),
-        scope=scope.value,
+        scope=scope.value if scope else Scope.SITE.value,
     )
 
     if response.status_code != 200:

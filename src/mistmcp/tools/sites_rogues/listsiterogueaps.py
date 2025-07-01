@@ -50,7 +50,7 @@ class Type(Enum):
 )
 async def listSiteRogueAPs(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Type = Type.NONE,
+    type: Optional[Type] = Type.NONE,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
@@ -122,7 +122,7 @@ async def listSiteRogueAPs(
         response = mistapi.api.v1.sites.insights.listSiteRogueAPs(
             apisession,
             site_id=str(site_id),
-            type=type.value,
+            type=type.value if type else None,
             limit=limit,
             start=start,
             end=end,

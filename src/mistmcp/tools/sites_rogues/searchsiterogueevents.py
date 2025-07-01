@@ -50,7 +50,7 @@ class Type(Enum):
 )
 async def searchSiteRogueEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Type = Type.NONE,
+    type: Optional[Type] = Type.NONE,
     ssid: Annotated[
         Optional[str], Field(description="""SSID of the network detected as threat""")
     ] = None,
@@ -127,7 +127,7 @@ async def searchSiteRogueEvents(
     response = mistapi.api.v1.sites.rogues.searchSiteRogueEvents(
         apisession,
         site_id=str(site_id),
-        type=type.value,
+        type=type.value if type else None,
         ssid=ssid,
         bssid=bssid,
         ap_mac=ap_mac,

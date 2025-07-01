@@ -48,7 +48,7 @@ class Type(Enum):
 )
 async def listOrgAvailableDeviceVersions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Type = Type.AP,
+    type: Optional[Type] = Type.AP,
     model: Annotated[
         Optional[str],
         Field(
@@ -93,7 +93,7 @@ async def listOrgAvailableDeviceVersions(
     response = mistapi.api.v1.orgs.devices.listOrgAvailableDeviceVersions(
         apisession,
         org_id=str(org_id),
-        type=type.value,
+        type=type.value if type else Type.AP.value,
         model=model,
     )
 

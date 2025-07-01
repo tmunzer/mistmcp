@@ -52,7 +52,8 @@ async def searchOrgClientFingerprints(
         Optional[str], Field(description="""Device Category  of the client device""")
     ] = None,
     client_type: Annotated[
-        Client_type, Field(description="""Whether client is wired or wireless""")
+        Optional[Client_type],
+        Field(description="""Whether client is wired or wireless"""),
     ] = Client_type.NONE,
     model: Annotated[
         Optional[str], Field(description="""Model name of the client device""")
@@ -138,7 +139,7 @@ async def searchOrgClientFingerprints(
         apisession,
         site_id=str(site_id),
         family=family,
-        client_type=client_type.value,
+        client_type=client_type.value if client_type else None,
         model=model,
         mfg=mfg,
         os=os,

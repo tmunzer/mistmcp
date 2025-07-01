@@ -49,7 +49,7 @@ class Band(Enum):
 )
 async def listSiteRrmEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    band: Annotated[Band, Field(description="""802.11 Band""")] = Band.NONE,
+    band: Annotated[Optional[Band], Field(description="""802.11 Band""")] = Band.NONE,
     start: Annotated[
         Optional[int],
         Field(
@@ -105,7 +105,7 @@ async def listSiteRrmEvents(
     response = mistapi.api.v1.sites.rrm.listSiteRrmEvents(
         apisession,
         site_id=str(site_id),
-        band=band.value,
+        band=band.value if band else None,
         start=start,
         end=end,
         duration=duration,

@@ -55,8 +55,10 @@ class Type(Enum):
 )
 async def searchSiteDiscoveredSwitchesMetrics(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    scope: Annotated[Scope, Field(description="""Metric scope""")] = Scope.SITE,
-    type: Annotated[Type, Field(description="""Metric type""")] = Type.NONE,
+    scope: Annotated[
+        Optional[Scope], Field(description="""Metric scope""")
+    ] = Scope.SITE,
+    type: Annotated[Optional[Type], Field(description="""Metric type""")] = Type.NONE,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
@@ -111,8 +113,8 @@ async def searchSiteDiscoveredSwitchesMetrics(
     response = mistapi.api.v1.sites.stats.searchSiteDiscoveredSwitchesMetrics(
         apisession,
         site_id=str(site_id),
-        scope=scope.value,
-        type=type.value,
+        scope=scope.value if scope else Scope.SITE.value,
+        type=type.value if type else None,
         limit=limit,
         start=start,
         end=end,

@@ -92,7 +92,7 @@ async def getSiteSleImpactSummary(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-    fields: Fields = Fields.NONE,
+    fields: Optional[Fields] = Fields.NONE,
     classifier: Optional[str] = None,
 ) -> dict:
     """Get impact summary counts optionally filtered by classifier and failure type * Wireless SLE Fields: `wlan`, `device_type`, `device_os` ,`band`, `ap`, `server`, `mxedge`* Wired SLE Fields: `switch`, `client`, `vlan`, `interface`, `chassis`* WAN SLE Fields: `gateway`, `client`, `interface`, `chassis`, `peer_path`, `gateway_zones`"""
@@ -132,13 +132,13 @@ async def getSiteSleImpactSummary(
     response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
         apisession,
         site_id=str(site_id),
-        scope=scope.value,
+        scope=scope,
         scope_id=scope_id,
         metric=metric,
         start=start,
         end=end,
         duration=duration,
-        fields=fields.value,
+        fields=fields.value if fields else None,
         classifier=classifier,
     )
 

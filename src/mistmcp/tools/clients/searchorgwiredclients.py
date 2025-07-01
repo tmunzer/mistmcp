@@ -55,7 +55,7 @@ async def searchOrgWiredClients(
         Optional[str], Field(description="""Authentication method""")
     ] = None,
     source: Annotated[
-        Source,
+        Optional[Source],
         Field(description="""source from where the client was learned (lldp, mac)"""),
     ] = Source.NONE,
     site_id: Annotated[Optional[str], Field(description="""Site ID""")] = None,
@@ -151,7 +151,7 @@ async def searchOrgWiredClients(
         org_id=str(org_id),
         auth_state=auth_state,
         auth_method=auth_method,
-        source=source.value,
+        source=source.value if source else None,
         site_id=site_id,
         device_mac=device_mac,
         mac=mac,

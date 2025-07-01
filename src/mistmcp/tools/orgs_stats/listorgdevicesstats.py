@@ -55,8 +55,8 @@ class Status(Enum):
 )
 async def listOrgDevicesStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Type = Type.AP,
-    status: Status = Status.ALL,
+    type: Optional[Type] = Type.AP,
+    status: Optional[Status] = Status.ALL,
     site_id: Annotated[
         Optional[str], Field(description="""ID of the Mist Site""")
     ] = None,
@@ -131,8 +131,8 @@ async def listOrgDevicesStats(
     response = mistapi.api.v1.orgs.stats.listOrgDevicesStats(
         apisession,
         org_id=str(org_id),
-        type=type.value,
-        status=status.value,
+        type=type.value if type else Type.AP.value,
+        status=status.value if status else Status.ALL.value,
         site_id=site_id,
         mac=mac,
         evpntopo_id=evpntopo_id,

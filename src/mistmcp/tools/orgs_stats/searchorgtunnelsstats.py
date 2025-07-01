@@ -80,7 +80,7 @@ async def searchOrgTunnelsStats(
         Optional[str], Field(description="""If `type`==`wan`""")
     ] = None,
     up: Annotated[Optional[str], Field(description="""If `type`==`wan`""")] = None,
-    type: Type = Type.WXTUNNEL,
+    type: Optional[Type] = Type.WXTUNNEL,
     limit: Annotated[int, Field(default=100)] = 100,
     start: Annotated[
         Optional[int],
@@ -150,7 +150,7 @@ async def searchOrgTunnelsStats(
         encrypt_algo=encrypt_algo,
         ike_version=ike_version,
         up=up,
-        type=type.value,
+        type=type.value if type else Type.WXTUNNEL.value,
         limit=limit,
         start=start,
         end=end,

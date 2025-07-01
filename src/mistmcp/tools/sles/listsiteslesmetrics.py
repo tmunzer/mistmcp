@@ -95,7 +95,7 @@ async def listSiteSlesMetrics(
     response = mistapi.api.v1.sites.sle.listSiteSlesMetrics(
         apisession,
         site_id=str(site_id),
-        scope=scope.value,
+        scope=scope,
         scope_id=scope_id,
     )
 

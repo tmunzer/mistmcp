@@ -105,7 +105,7 @@ async def listSiteSleImpactedApplications(
     response = mistapi.api.v1.sites.sle.listSiteSleImpactedApplications(
         apisession,
         site_id=str(site_id),
-        scope=scope.value,
+        scope=scope,
         scope_id=str(scope_id),
         metric=metric,
         start=start,

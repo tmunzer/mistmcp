@@ -50,7 +50,7 @@ class Band(Enum):
 async def searchOrgWirelessClientSessions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     ap: Annotated[Optional[str], Field(description="""AP MAC""")] = None,
-    band: Annotated[Band, Field(description="""802.11 Band""")] = Band.NONE,
+    band: Annotated[Optional[Band], Field(description="""802.11 Band""")] = Band.NONE,
     client_family: Annotated[
         Optional[str], Field(description="""E.g. 'Mac', 'iPhone', 'Apple watch'""")
     ] = None,
@@ -123,7 +123,7 @@ async def searchOrgWirelessClientSessions(
         apisession,
         org_id=str(org_id),
         ap=ap,
-        band=band.value,
+        band=band.value if band else None,
         client_family=client_family,
         client_manufacture=client_manufacture,
         client_model=client_model,

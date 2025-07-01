@@ -72,7 +72,7 @@ async def searchSiteDevices(
     hostname: Annotated[
         Optional[str], Field(description="""Partial / full hostname""")
     ] = None,
-    type: Type = Type.AP,
+    type: Optional[Type] = Type.AP,
     model: Annotated[Optional[str], Field(description="""Device model""")] = None,
     mac: Annotated[Optional[str], Field(description="""Device MAC""")] = None,
     version: Annotated[Optional[str], Field(description="""Version""")] = None,
@@ -81,7 +81,7 @@ async def searchSiteDevices(
     ] = None,
     ip_address: Optional[str] = None,
     mxtunnel_status: Annotated[
-        Mxtunnel_status, Field(description="""MxTunnel status, up / down""")
+        Optional[Mxtunnel_status], Field(description="""MxTunnel status, up / down""")
     ] = Mxtunnel_status.NONE,
     mxedge_id: Annotated[
         Optional[UUID],
@@ -120,9 +120,11 @@ async def searchSiteDevices(
     eth0_port_speed: Annotated[
         Optional[int], Field(description="""Port speed of eth0""")
     ] = None,
-    sort: Annotated[Sort, Field(description="""Sort options""")] = Sort.TIMESTAMP,
+    sort: Annotated[
+        Optional[Sort], Field(description="""Sort options""")
+    ] = Sort.TIMESTAMP,
     desc_sort: Annotated[
-        Desc_sort, Field(description="""Sort options in reverse order""")
+        Optional[Desc_sort], Field(description="""Sort options in reverse order""")
     ] = Desc_sort.NONE,
     stats: Annotated[
         Optional[bool], Field(description="""Whether to return device stats""")
@@ -182,13 +184,13 @@ async def searchSiteDevices(
         apisession,
         site_id=str(site_id),
         hostname=hostname,
-        type=type.value,
+        type=type.value if type else Type.AP.value,
         model=model,
         mac=mac,
         version=version,
         power_constrained=power_constrained,
         ip_address=ip_address,
-        mxtunnel_status=mxtunnel_status.value,
+        mxtunnel_status=mxtunnel_status.value if mxtunnel_status else None,
         mxedge_id=str(mxedge_id) if mxedge_id else None,
         lldp_system_name=lldp_system_name,
         lldp_system_desc=lldp_system_desc,
@@ -201,8 +203,8 @@ async def searchSiteDevices(
         band_5_bandwidth=band_5_bandwidth,
         band_6_bandwidth=band_6_bandwidth,
         eth0_port_speed=eth0_port_speed,
-        sort=sort.value,
-        desc_sort=desc_sort.value,
+        sort=sort.value if sort else Sort.TIMESTAMP.value,
+        desc_sort=desc_sort.value if desc_sort else None,
         stats=stats,
         limit=limit,
         start=start,

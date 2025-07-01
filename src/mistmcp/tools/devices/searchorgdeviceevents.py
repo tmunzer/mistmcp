@@ -51,7 +51,7 @@ async def searchOrgDeviceEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mac: Annotated[Optional[str], Field(description="""Device mac""")] = None,
     model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    device_type: Device_type = Device_type.AP,
+    device_type: Optional[Device_type] = Device_type.AP,
     text: Annotated[Optional[str], Field(description="""Event message""")] = None,
     timestamp: Annotated[Optional[str], Field(description="""Event time""")] = None,
     type: Annotated[
@@ -126,7 +126,7 @@ async def searchOrgDeviceEvents(
         org_id=str(org_id),
         mac=mac,
         model=model,
-        device_type=device_type.value,
+        device_type=device_type.value if device_type else Device_type.AP.value,
         text=text,
         timestamp=timestamp,
         type=type,
