@@ -1,4 +1,4 @@
-""" "
+"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -30,7 +30,7 @@ mcp = mcp_instance.get()
 @mcp.tool(
     enabled=False,
     name="getSiteInfo",
-    description="""Get Site InfoProvides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site.""",
+    description="""Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site.""",
     tags={"Sites"},
     annotations={
         "title": "getSiteInfo",
@@ -42,7 +42,7 @@ mcp = mcp_instance.get()
 async def getSiteInfo(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
 ) -> dict:
-    """Get Site InfoProvides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site."""
+    """Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site."""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -103,7 +103,7 @@ async def getSiteInfo(
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
             api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
+                "Not found. The API endpoint doesn't exist or resource doesn't exist"
             )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")

@@ -495,9 +495,9 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             tag_dir = OUTPUT_DIR / snake_case(tag)
             tag_dir.mkdir(parents=True, exist_ok=True)
             init_file = tag_dir / "__init__.py"
-            init_file.write_text("")
+            init_file.write_text("", encoding="utf-8")
             tool_file = tag_dir / f"{snake_case(func_name)}.py"
-            tool_file.write_text(tool_code)
+            tool_file.write_text(tool_code, encoding="utf-8")
             tag_to_tools.setdefault(tag, []).append(str(tool_file))
 
             ## tool_tools_import
@@ -636,7 +636,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             tag_dir = OUTPUT_DIR / snake_case(tag)
             tag_dir.mkdir(parents=True, exist_ok=True)
             init_file = tag_dir / "__init__.py"
-            init_file.write_text("")
+            init_file.write_text("", encoding="utf-8")
             tool_file = tag_dir / f"{snake_case(operation_id)}.py"
             tool_file.write_text(tool_code)
             tag_to_tools.setdefault(tag, []).append(str(tool_file))

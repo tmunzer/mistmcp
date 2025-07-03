@@ -237,10 +237,8 @@ def main() -> None:
         help="Port to run the server on (default: 8080)",
     )
 
-    try:
-        args = parser.parse_args()
-    except SystemExit:
-        sys.exit(2)
+    # don't need try except here, argparse handles it directly
+    args = parser.parse_args()
 
     transport_mode: str | None = args.transport
     tool_loading_mode: ToolLoadingMode | None = None

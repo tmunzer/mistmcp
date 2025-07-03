@@ -6,27 +6,26 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
 
 **Claude Desktop Compatibility**: There is a [known issue](https://github.com/anthropics/claude-code/issues/2230) where Claude Desktop may display a blank screen when MCP tools return large data payloads. This can occur with Mist API calls that return extensive device lists, client information, or statistics. If you experience a blank screen, refresh Claude Desktop to restore the interface. Consider using more specific filters or smaller data requests to minimize this issue.
 
-
 ## 📑 Table of Contents
 
 - [⚠️ Important Notice](#️-important-notice)
 - [🚀 Features](#-features)
 - [🛠️ Installation & Setup](#️-installation--setup)
-    - [Prerequisites](#prerequisites)
-    - [1. Install Dependencies](#1-install-dependencies)
+  - [Prerequisites](#prerequisites)
+  - [1. Install Dependencies](#1-install-dependencies)
 - [🚀 Usage](#-usage)
-    - [Command Line Options](#command-line-options)
-    - [Environment Variables](#environment-variables)
-    - [Tool Loading Modes](#tool-loading-modes)
-    - [Transport Modes](#transport-modes)
+  - [Command Line Options](#command-line-options)
+  - [Environment Variables](#environment-variables)
+  - [Tool Loading Modes](#tool-loading-modes)
+  - [Transport Modes](#transport-modes)
 - [🔧 Configuration](#-configuration)
-    - [STDIO Mode (Recommended)](#stdio-mode-recommended)
-    - [HTTP Mode (Remote Access)](#http-mode-remote-access)
-    - [HTTP Mode Query Parameters](#http-mode-query-parameters)
+  - [STDIO Mode (Recommended)](#stdio-mode-recommended)
+  - [HTTP Mode (Remote Access)](#http-mode-remote-access)
+  - [HTTP Mode Query Parameters](#http-mode-query-parameters)
 - [🔧 Tool Categories](#-tool-categories)
 - [⚠️ Current Limitations](#️-current-limitations)
 - [🤝 Contributing](#-contributing)
-    - [Development Setup](#development-setup)
+  - [Development Setup](#development-setup)
 - [📄 License](#-license)
 - [👤 Author](#-author)
 
@@ -39,7 +38,6 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
 - **🤖 AI-Optimized**: Designed specifically for LLM interaction patterns
 - **⚡ Simplified Architecture**: Single-user, stateless server design
 
-
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
@@ -51,10 +49,16 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
 ### 1. Install Dependencies
 
 ```bash
-uv sync
+make init # Installs project dependencies and extracts the git submodule for mist_openapi
 ```
 
 ## 🚀 Usage
+
+Before running the server ensure that the mist_openapi submodule is available and that the generated code is up to date. You can do this by running:
+
+```bash
+make generate
+```
 
 ### Command Line Options
 
@@ -102,7 +106,6 @@ Configure via environment variables or `.env` files:
 
 > **💡 Note:** `MIST_APITOKEN` and `MIST_HOST` can be provided either directly or via a `.env` file specified in `MIST_ENV_FILE`.
 
-
 ### Tool Loading Modes
 
 | Mode | Description | Memory Usage | Use Case |
@@ -122,15 +125,16 @@ Configure via environment variables or `.env` files:
 | **Security** | Process isolation | Network security required |
 | **Use Case** | Claude Desktop, VS Code | Remote clients, web services |
 
-
-
 ## 🔧 Configuration
 
 ### STDIO Mode (Recommended)
 
 Best for local usage with Claude Desktop or VS Code.
 
+> ~/Library/Application Support/Claude Desktop/claude_desktop_config.json - on 'Claude for Mac Version 0.11.6'
+
 **Claude Desktop (`~/.claude_desktop/claude_desktop_config.json`) or VS Code MCP Extension (`.vscode/settings.json`):**
+
 ```json
 {
     "mcpServers": {
@@ -152,6 +156,7 @@ Best for local usage with Claude Desktop or VS Code.
     }
 }
 ```
+
 ⚠️ **WARNING** ⚠️
 
 If you're application is not able to run `uv` commands, you can use the full path to the `uv` executable in the `command` field, e.g. `/Users/username/.local/bin/uv`.
@@ -161,11 +166,13 @@ If you're application is not able to run `uv` commands, you can use the full pat
 Since most of the LLM Applications are not supporting the streamable-http transport mode natively, you can use the `mcp-remote` package to create a remote HTTP server that can be used by these applications.
 
 **Start HTTP Server:**
+
 ```bash
 uv run mistmcp --transport http --host 0.0.0.0 --mode managed
 ```
 
 **Claude Desktop HTTP Configuration:**
+
 ```json
 {
     "mcpServers": {
@@ -220,10 +227,11 @@ If your laptop has SSL interception enabled (e.g. corporate network), you may ne
 When using HTTP transport, configure the server via URL query parameters:
 
 **Required:**
+
 - `cloud` - Mist API host (e.g., `api.mist.com`)
 
-
 **Example URLs:**
+
 ```bash
 # Default managed mode
 http://localhost:8000/mcp/?cloud=api.mist.com
@@ -237,6 +245,7 @@ http://localhost:8000/mcp/?cloud=api.mist.com&mode=all&debug=true
 The server organizes tools into logical categories. Use `manageMcpTools` to enable categories as needed:
 
 ### Essential Tools (Always Available)
+
 - **`getSelf`** - User and organization information
 - **`manageMcpTools`** - Enable/disable tool categories dynamically (only in managed mode)
 
@@ -275,6 +284,7 @@ Each client session maintains independent tool configurations for complete isola
 ## 🤝 Contributing
 
 Contributions welcome! Priority areas:
+
 - **Performance optimization**
 - **API rate limiting and caching** implementation
 - **Test coverage** improvements
@@ -292,7 +302,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 👤 Author
 
-**Thomas Munzer** (tmunzer@juniper.net)
+**Thomas Munzer** (<tmunzer@juniper.net>)
+
 - GitHub: [@tmunzer](https://github.com/tmunzer)
 
 ---

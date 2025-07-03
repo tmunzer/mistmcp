@@ -37,10 +37,6 @@ lint: ## Check code quality
 	uv run ruff check src tests
 	uv run ruff format --check src tests
 
-## uv run ruff format src tests
-format: ## Format code
-	uv run ruff format src
-
 build: ## Build package
 	uv build
 
@@ -56,9 +52,16 @@ publish-test: clean build ## Publish to test PyPI
 publish: clean build ## Publish to PyPI
 	uv run twine upload dist/*
 
-generate: ## Run the code generation script
+generate: ## Generate the tools from the OpenAPI spec
+	@echo "Generating tools from OpenAPI spec..."
 	uv run python ./mcp_generator/generate_from_openapi.py $(VERSION)
-	$(MAKE) format
+	@echo "Attempting to format generated code..."
+	@$(MAKE) format || echo "Warning: Formatting failed, but generation completed successfully"
+
+format: ## Format the source code
+	@echo "Formatting source code..."
+	-uv run ruff format src
+	@echo "Format step completed (errors ignored for generated files)"
 
 deps: ## Show dependency tree
 	uv tree

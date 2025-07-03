@@ -10,7 +10,6 @@
 --------------------------------------------------------------------------------
 """
 
-import importlib.resources
 import sys
 from enum import Enum
 from typing import List, Optional
@@ -44,8 +43,36 @@ class ServerConfig:
         self._load_tools_config()
 
     def _load_tools_config(self) -> None:
-        """Load tools configuration by scanning the tools directory"""
+        """Load tools configuration from tool_helper.py instead of scanning filesystem"""
         try:
+            # Import the TOOLS dictionary from tool_helper.py
+            from mistmcp.tool_helper import TOOLS
+
+            # Use the pre-built TOOLS configuration
+            self.available_tools = TOOLS
+
+            if self.debug:
+                print(
+                    f"Loaded {len(self.available_tools)} tool categories from tool_helper.py",
+                    file=sys.stderr,
+                )
+                for category, info in self.available_tools.items():
+                    tool_count = len(info.get("tools", []))
+                    print(f"  {category}: {tool_count} tools", file=sys.stderr)
+
+        except ImportError as e:
+            if self.debug:
+                print(
+                    f"Warning: Could not import TOOLS from tool_helper: {e}",
+                    file=sys.stderr,
+                )
+            # Fallback to filesystem scanning (for development)
+            self._load_tools_config_filesystem()
+
+    def _load_tools_config_filesystem(self) -> None:
+        """Fallback method to load tools by scanning the filesystem (development mode)"""
+        try:
+            import importlib.resources
             import os
 
             # Get the tools directory path

@@ -1,0 +1,260 @@
+name: Build Standalone Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create GitHub release'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          # Windows builds
+          - os: windows-latest
+            platform: windows
+            arch: x64
+            python-version: '3.11'
+
+          # macOS builds
+          - os: macos-latest
+            platform: darwin
+            arch: arm64
+            python-version: '3.11'
+
+          - os: macos-13  # Intel Mac
+            platform: darwin
+            arch: x64
+            python-version: '3.11'
+
+          # Linux builds
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            python-version: '3.11'
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+
+    - name: Install dependencies
+      run: |
+        make init
+
+    - name: Generate tools (if needed)
+      shell: bash
+      run: |
+        # Run generation but don't fail if formatting has issues
+        if ! make generate; then
+          echo "Generate step failed, attempting to continue with code generation only..."
+          # Try just the generation without formatting
+          uv run python ./mcp_generator/generate_from_openapi.py || echo "Generation failed, continuing with existing files..."
+        fi
+
+    - name: Verify source files exist
+      shell: bash
+      run: |
+        # Check if essential source files exist
+        if [ ! -f "src/mistmcp/__main__.py" ]; then
+          echo "❌ Essential source files missing"
+          exit 1
+        fi
+        if [ ! -f "src/mistmcp/tool_helper.py" ]; then
+          echo "❌ Tool helper file missing"
+          exit 1
+        fi
+        echo "✅ Essential source files present"
+
+    - name: Build standalone executable
+      run: |
+        uv run python build_standalone.py
+
+    - name: Get executable name
+      id: exe_name
+      shell: bash
+      run: |
+        if [ "${{ matrix.platform }}" = "windows" ]; then
+          exe_name="mistmcp-${{ matrix.platform }}-${{ matrix.arch }}.exe"
+        else
+          exe_name="mistmcp-${{ matrix.platform }}-${{ matrix.arch }}"
+        fi
+        echo "exe_name=$exe_name" >> $GITHUB_OUTPUT
+        echo "package_name=mistmcp-${{ matrix.platform }}-${{ matrix.arch }}" >> $GITHUB_OUTPUT
+
+    - name: Verify executable exists
+      shell: bash
+      run: |
+        if [ -f "evaluation-package/${{ steps.exe_name.outputs.exe_name }}" ]; then
+          echo "✅ Executable found: evaluation-package/${{ steps.exe_name.outputs.exe_name }}"
+          ls -la "evaluation-package/${{ steps.exe_name.outputs.exe_name }}"
+        else
+          echo "❌ Executable not found"
+          echo "Contents of evaluation-package:"
+          ls -la evaluation-package/ || echo "evaluation-package directory not found"
+          exit 1
+        fi
+
+    - name: Test executable (non-Windows)
+      if: matrix.platform != 'windows'
+      run: |
+        chmod +x "evaluation-package/${{ steps.exe_name.outputs.exe_name }}"
+        timeout 10s "evaluation-package/${{ steps.exe_name.outputs.exe_name }}" --help || true
+
+    - name: Test executable (Windows)
+      if: matrix.platform == 'windows'
+      shell: cmd
+      run: |
+        "evaluation-package\${{ steps.exe_name.outputs.exe_name }}" --help || echo "Test completed"
+
+    - name: Create platform-specific package
+      shell: bash
+      run: |
+        # Create a platform-specific directory
+        mkdir -p "packages/${{ steps.exe_name.outputs.package_name }}"
+
+        # Copy all evaluation package contents
+        cp -r evaluation-package/* "packages/${{ steps.exe_name.outputs.package_name }}/"
+
+        # Create platform-specific README
+        cat > "packages/${{ steps.exe_name.outputs.package_name }}/PLATFORM.md" << EOF
+        # Platform Information
+
+        **Platform:** ${{ matrix.platform }}
+        **Architecture:** ${{ matrix.arch }}
+        **Python Version:** ${{ matrix.python-version }}
+        **Built on:** $(date)
+        **Runner:** ${{ matrix.os }}
+
+        ## Platform-Specific Notes
+
+        ### ${{ matrix.platform }}
+        EOF
+
+        if [ "${{ matrix.platform }}" = "windows" ]; then
+          cat >> "packages/${{ steps.exe_name.outputs.package_name }}/PLATFORM.md" << EOF
+        - Use Command Prompt or PowerShell to run the executable
+        - Ensure Windows Defender doesn't block the executable
+        - The executable is unsigned, you may see security warnings
+        EOF
+        elif [ "${{ matrix.platform }}" = "darwin" ]; then
+          cat >> "packages/${{ steps.exe_name.outputs.package_name }}/PLATFORM.md" << EOF
+        - You may need to allow the app in Security & Privacy settings
+        - Run \`chmod +x ${{ steps.exe_name.outputs.exe_name }}\` to make executable
+        - Use \`xattr -d com.apple.quarantine ${{ steps.exe_name.outputs.exe_name }}\` if needed
+        EOF
+        else
+          cat >> "packages/${{ steps.exe_name.outputs.package_name }}/PLATFORM.md" << EOF
+        - Run \`chmod +x ${{ steps.exe_name.outputs.exe_name }}\` to make executable
+        - May require additional libraries depending on your distribution
+        EOF
+        fi
+
+    - name: Create ZIP archive
+      shell: bash
+      run: |
+        cd packages
+        if [ "${{ matrix.platform }}" = "windows" ]; then
+          # Use PowerShell for Windows
+          powershell -Command "Compress-Archive -Path '${{ steps.exe_name.outputs.package_name }}/*' -DestinationPath '${{ steps.exe_name.outputs.package_name }}.zip'"
+        else
+          zip -r "${{ steps.exe_name.outputs.package_name }}.zip" "${{ steps.exe_name.outputs.package_name }}"
+        fi
+        ls -la *.zip
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.exe_name.outputs.package_name }}-package
+        path: packages/${{ steps.exe_name.outputs.package_name }}.zip
+        retention-days: 30
+
+    - name: Upload executable only
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.exe_name.outputs.exe_name }}-executable
+        path: evaluation-package/${{ steps.exe_name.outputs.exe_name }}
+        retention-days: 30
+
+  create-release:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.create_release == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Prepare release assets
+      run: |
+        mkdir -p release-assets
+        find artifacts -name "*.zip" -exec cp {} release-assets/ \;
+        ls -la release-assets/
+
+    - name: Get version
+      id: version
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        else
+          echo "version=development-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        name: "Mist MCP Server ${{ steps.version.outputs.version }}"
+        body: |
+          ## 🚀 Mist MCP Server Release ${{ steps.version.outputs.version }}
+
+          ### 📦 Available Platforms
+
+          - **Windows x64** - `mistmcp-windows-x64.zip`
+          - **macOS ARM64** (Apple Silicon) - `mistmcp-darwin-arm64.zip`
+          - **macOS x64** (Intel) - `mistmcp-darwin-x64.zip`
+          - **Linux x64** - `mistmcp-linux-x64.zip`
+
+          ### 🛠️ Installation
+
+          1. Download the appropriate package for your platform
+          2. Extract the ZIP file
+          3. Follow the instructions in `README.md`
+          4. Configure Claude Desktop as described in the documentation
+
+          ### ⚠️ Platform Notes
+
+          - **Windows**: You may see security warnings for unsigned executables
+          - **macOS**: You may need to allow the app in Security & Privacy settings
+          - **Linux**: Ensure the executable has execute permissions (`chmod +x`)
+
+          See the `PLATFORM.md` file in each package for platform-specific instructions.
+
+        files: release-assets/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

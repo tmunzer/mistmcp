@@ -1,5 +1,5 @@
 # Template for the main __init__.py file
-INIT_TEMPLATE = """\"\"\"
+INIT_TEMPLATE = '''"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,10 +9,10 @@ INIT_TEMPLATE = """\"\"\"
     This package is licensed under the MIT License.
 
 --------------------------------------------------------------------------------
-\"\"\"
+"""
 
 {tools_import}
-"""
+'''
 
 REQ_TEMPLATE = """
     response = {request}
@@ -26,7 +26,7 @@ REQ_OPTIMIZED_TEMPLATE = """
 """
 
 # Template for individual tool files
-TOOL_TEMPLATE = """"\"\"\"
+TOOL_TEMPLATE = '''"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -36,7 +36,7 @@ TOOL_TEMPLATE = """"\"\"\"
     This package is licensed under the MIT License.
 
 --------------------------------------------------------------------------------
-\"\"\"
+"""
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
@@ -57,7 +57,7 @@ mcp = mcp_instance.get()
 @mcp.tool(
     enabled=False,
     name = "{operationId}",
-    description = \"\"\"{description}\"\"\",
+    description = """{description}""",
     tags = {{"{tag}"}},
     annotations = {{
         "title": "{operationId}",
@@ -68,7 +68,7 @@ mcp = mcp_instance.get()
 )
 async def {operationId}(
     {parameters}) -> dict:
-    \"\"\"{description}\"\"\"
+    """{description}"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -127,16 +127,16 @@ async def {operationId}(
             api_error["message"] =json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{{response.status_code}}")
-            api_error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+            api_error["message"] =json.dumps("Not found. The API endpoint doesn't exist or resource doesn't exist")
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{{response.status_code}}")
             api_error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
         raise ToolError(api_error)
 
     return response.data
-"""
+'''
 
-TOOLS_HELPER = """"\"\"\"
+TOOLS_HELPER = '''"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -146,11 +146,11 @@ TOOLS_HELPER = """"\"\"\"
     This package is licensed under the MIT License.
 
 --------------------------------------------------------------------------------
-\"\"\"
+"""
 from enum import Enum
 
 class McpToolsCategory(Enum):
 {enums}
 
 TOOLS = {tools}
-"""
+'''
