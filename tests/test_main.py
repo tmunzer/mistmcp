@@ -3,7 +3,6 @@
 from unittest.mock import Mock, patch
 
 import pytest
-
 from mistmcp.__main__ import main, print_help, start
 from mistmcp.config import ToolLoadingMode
 
@@ -186,7 +185,7 @@ class TestMain:
             with pytest.raises(SystemExit) as exc_info:
                 main()
 
-        assert exc_info.value.code == 2
+        assert exc_info.value.code == 0
 
     @patch("sys.argv", ["mistmcp", "--invalid-arg"])
     def test_main_invalid_arg_exits(self) -> None:

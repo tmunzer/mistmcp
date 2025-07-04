@@ -1,4 +1,4 @@
-""" "
+"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -121,7 +121,7 @@ async def listSiteSlesMetrics(
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
             api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
+                "Not found. The API endpoint doesn't exist or resource doesn't exist"
             )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
