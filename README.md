@@ -52,14 +52,6 @@ A Model Context Protocol (MCP) server that provides AI-powered access to Juniper
 make init # Installs project dependencies and extracts the git submodule for mist_openapi
 ```
 
-## 🚀 Usage
-
-Before running the server ensure that the mist_openapi submodule is available and that the generated code is up to date. You can do this by running:
-
-```bash
-make generate
-```
-
 ### Command Line Options
 
 ```bash
