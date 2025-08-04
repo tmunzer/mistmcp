@@ -138,7 +138,7 @@ Best for local usage with Claude Desktop or VS Code.
                 "run",
                 "mistmcp",
                 "--mode",
-                "managed"
+                "all"
             ],
             "env": {
                 "MIST_APITOKEN": "your-api-token",
