@@ -41,7 +41,7 @@ mcp = mcp_instance.get()
 )
 async def getSiteWxRulesUsage(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict:
+) -> dict | list:
     """Get Wxlan Rule usage"""
 
     ctx = get_context()

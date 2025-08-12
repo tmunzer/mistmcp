@@ -261,6 +261,10 @@ def _process_params(
                 elif force_default:
                     tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else None,\n"
+                else:
+                    tmp_mistapi_parameters = (
+                        f"            {tmp_param['name']}={tmp_param['name']}.value,\n"
+                    )
 
         if not tmp_default:
             if tmp_param["required"]:

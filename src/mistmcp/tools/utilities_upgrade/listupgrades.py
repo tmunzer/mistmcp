@@ -64,7 +64,7 @@ async def listUpgrades(
             description="""ID of the specific upgrade to retrieve. Optional, if not provided all upgrades will be listed."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """List all available upgrades for the organization."""
 
     ctx = get_context()

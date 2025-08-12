@@ -94,7 +94,7 @@ async def getSiteSleImpactSummary(
     ] = "1d",
     fields: Optional[Fields] = Fields.NONE,
     classifier: Optional[str] = None,
-) -> dict:
+) -> dict | list:
     """Get impact summary counts optionally filtered by classifier and failure type * Wireless SLE Fields: `wlan`, `device_type`, `device_os` ,`band`, `ap`, `server`, `mxedge`* Wired SLE Fields: `switch`, `client`, `vlan`, `interface`, `chassis`* WAN SLE Fields: `gateway`, `client`, `interface`, `chassis`, `peer_path`, `gateway_zones`"""
 
     ctx = get_context()
@@ -132,7 +132,7 @@ async def getSiteSleImpactSummary(
     response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
         apisession,
         site_id=str(site_id),
-        scope=scope,
+        scope=scope.value,
         scope_id=scope_id,
         metric=metric,
         start=start,

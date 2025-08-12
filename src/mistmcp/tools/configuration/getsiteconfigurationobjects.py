@@ -66,7 +66,7 @@ async def getSiteConfigurationObjects(
             description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Retrieve configuration objects from a specified site. The "_derived" tools are used to retrieve derived configuration objects that are generated from the org level objects with jinja2 variables resolved with the site variables."""
 
     ctx = get_context()

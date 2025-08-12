@@ -64,7 +64,7 @@ async def listSiteWirelessClientsStats(
             description="""MAC address of the client to filter stats by. Optional, if not provided all clients will be listed."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get List of Site All Clients Stats Details"""
 
     ctx = get_context()

@@ -68,7 +68,7 @@ async def searchSiteGuestAuthorization(
             description="""MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Search Authorized Guest"""
 
     ctx = get_context()

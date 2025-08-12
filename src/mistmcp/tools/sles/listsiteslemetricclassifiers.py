@@ -58,7 +58,7 @@ async def listSiteSleMetricClassifiers(
         ),
     ],
     metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
-) -> dict:
+) -> dict | list:
     """List classifiers for a specific metric"""
 
     ctx = get_context()
@@ -96,7 +96,7 @@ async def listSiteSleMetricClassifiers(
     response = mistapi.api.v1.sites.sle.listSiteSleMetricClassifiers(
         apisession,
         site_id=str(site_id),
-        scope=scope,
+        scope=scope.value,
         scope_id=scope_id,
         metric=metric,
     )

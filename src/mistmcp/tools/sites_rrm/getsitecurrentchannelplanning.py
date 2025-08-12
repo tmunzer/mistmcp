@@ -41,7 +41,7 @@ mcp = mcp_instance.get()
 )
 async def getSiteCurrentChannelPlanning(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict:
+) -> dict | list:
     """Get Current Channel Planning"""
 
     ctx = get_context()

@@ -73,7 +73,7 @@ async def getSiteSleSummary(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-) -> dict:
+) -> dict | list:
     """Get the summary for the SLE metric"""
 
     ctx = get_context()
@@ -111,7 +111,7 @@ async def getSiteSleSummary(
     response = mistapi.api.v1.sites.sle.getSiteSleSummary(
         apisession,
         site_id=str(site_id),
-        scope=scope,
+        scope=scope.value,
         scope_id=scope_id,
         metric=metric,
         start=start,

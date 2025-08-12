@@ -57,7 +57,7 @@ async def searchOrgBgpStats(
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
-) -> dict:
+) -> dict | list:
     """Search Org BGP Stats"""
 
     ctx = get_context()

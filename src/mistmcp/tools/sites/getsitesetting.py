@@ -41,7 +41,7 @@ mcp = mcp_instance.get()
 )
 async def getSiteSetting(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict:
+) -> dict | list:
     """Get the Site Settings"""
 
     ctx = get_context()

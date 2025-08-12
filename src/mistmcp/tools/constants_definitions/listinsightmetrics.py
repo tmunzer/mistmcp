@@ -35,7 +35,7 @@ mcp = mcp_instance.get()
         "openWorldHint": True,
     },
 )
-async def listInsightMetrics() -> dict:
+async def listInsightMetrics() -> dict | list:
     """List Insight Metrics"""
 
     ctx = get_context()

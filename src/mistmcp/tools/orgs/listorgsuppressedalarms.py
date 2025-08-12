@@ -50,7 +50,7 @@ async def listOrgSuppressedAlarms(
     scope: Annotated[
         Optional[Scope], Field(description="""Returns both scopes if not specified""")
     ] = Scope.SITE,
-) -> dict:
+) -> dict | list:
     """Get List of Org Alarms Currently Suppressed"""
 
     ctx = get_context()

@@ -35,7 +35,7 @@ mcp = mcp_instance.get()
         "openWorldHint": True,
     },
 )
-async def listWebhookTopics() -> dict:
+async def listWebhookTopics() -> dict | list:
     """Get List of the available Webhook Topics."""
 
     ctx = get_context()

@@ -63,7 +63,7 @@ async def listSiteRogueClients(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get List of Site Rogue Clients"""
 
     ctx = get_context()

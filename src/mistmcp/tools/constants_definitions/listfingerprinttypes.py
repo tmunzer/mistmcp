@@ -35,7 +35,7 @@ mcp = mcp_instance.get()
         "openWorldHint": True,
     },
 )
-async def listFingerprintTypes() -> dict:
+async def listFingerprintTypes() -> dict | list:
     """Get List of supported fingerprint attribute values* family* model* mfg* os_typeThis information can be used in the [Mist NAC Rules]($h/Orgs%20NAC%20Rules/_overview) `matching` attribute."""
 
     ctx = get_context()

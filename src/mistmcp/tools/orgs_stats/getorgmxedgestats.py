@@ -43,7 +43,7 @@ async def getOrgMxEdgeStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mxedge_id: Annotated[UUID, Field(description="""ID of the Mist Mxedge""")],
     for_site: Optional[bool] = None,
-) -> dict:
+) -> dict | list:
     """Get Org MxEdge Details Stats"""
 
     ctx = get_context()

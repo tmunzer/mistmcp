@@ -111,7 +111,7 @@ async def searchOrgWiredClients(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-) -> dict:
+) -> dict | list:
     """Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)"""
 
     ctx = get_context()

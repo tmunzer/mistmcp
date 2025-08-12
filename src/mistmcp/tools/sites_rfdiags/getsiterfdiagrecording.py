@@ -42,7 +42,7 @@ mcp = mcp_instance.get()
 async def getSiteRfdiagRecording(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     rfdiag_id: Annotated[UUID, Field(description="""ID of the Mist Rfdiag""")],
-) -> dict:
+) -> dict | list:
     """Get RF Diag Recording Details"""
 
     ctx = get_context()

@@ -67,7 +67,7 @@ mcp = mcp_instance.get()
     }},
 )
 async def {operationId}(
-    {parameters}) -> dict:
+    {parameters}) -> dict|list:
     \"\"\"{description}\"\"\"
 
     ctx = get_context()

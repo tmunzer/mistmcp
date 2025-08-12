@@ -71,7 +71,7 @@ async def getSiteInsightMetricsForDevice(
     ] = None,
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+) -> dict | list:
     """Get AP Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)"""
 
     ctx = get_context()

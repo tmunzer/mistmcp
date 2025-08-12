@@ -74,7 +74,7 @@ async def getOrgSle(
             description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get Org SLEs (all/worst sites, Mx Edges, ...)"""
 
     ctx = get_context()

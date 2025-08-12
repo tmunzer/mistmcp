@@ -139,7 +139,7 @@ async def searchOrgNacClientEvents(
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
-) -> dict:
+) -> dict | list:
     """Search NAC Client Events"""
 
     ctx = get_context()

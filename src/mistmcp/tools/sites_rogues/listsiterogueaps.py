@@ -79,7 +79,7 @@ async def listSiteRogueAPs(
             description="""BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get List of Site Rogue/Neighbor APs"""
 
     ctx = get_context()

@@ -51,7 +51,7 @@ async def listSiteCurrentRrmNeighbors(
     band: Annotated[Band, Field(description="""802.11 Band""")],
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+) -> dict | list:
     """List Current RRM observed neighbors"""
 
     ctx = get_context()
@@ -89,7 +89,7 @@ async def listSiteCurrentRrmNeighbors(
     response = mistapi.api.v1.sites.rrm.listSiteCurrentRrmNeighbors(
         apisession,
         site_id=str(site_id),
-        band=band,
+        band=band.value,
         limit=limit,
         page=page,
     )

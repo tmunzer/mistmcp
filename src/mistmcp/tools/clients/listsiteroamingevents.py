@@ -65,7 +65,7 @@ async def listSiteRoamingEvents(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-) -> dict:
+) -> dict | list:
     """List Roaming Events data"""
 
     ctx = get_context()

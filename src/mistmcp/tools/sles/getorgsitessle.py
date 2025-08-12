@@ -73,7 +73,7 @@ async def getOrgSitesSle(
     ] = None,
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+) -> dict | list:
     """Get Org Sites SLE"""
 
     ctx = get_context()

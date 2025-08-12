@@ -35,7 +35,7 @@ mcp = mcp_instance.get()
         "openWorldHint": True,
     },
 )
-async def listLicenseTypes() -> dict:
+async def listLicenseTypes() -> dict | list:
     """Get License Types"""
 
     ctx = get_context()

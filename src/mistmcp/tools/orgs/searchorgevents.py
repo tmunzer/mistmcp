@@ -58,7 +58,7 @@ async def searchOrgEvents(
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
-) -> dict:
+) -> dict | list:
     """Search Org eventsSupported Event Types:- CRADLEPOINT_SYNC_FAILED- ORG_CA_CERT_ADDED- ORG_CA_CERT_REGENERATED"""
 
     ctx = get_context()

@@ -68,7 +68,7 @@ async def searchOrgWanClients(
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+) -> dict | list:
     """Search Org WAN Clients"""
 
     ctx = get_context()

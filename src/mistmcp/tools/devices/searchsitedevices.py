@@ -145,7 +145,7 @@ async def searchSiteDevices(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-) -> dict:
+) -> dict | list:
     """Search Device"""
 
     ctx = get_context()

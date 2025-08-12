@@ -41,7 +41,7 @@ mcp = mcp_instance.get()
 )
 async def getOrgLicensesBySite(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-) -> dict:
+) -> dict | list:
     """Get Licenses Usage by SitesThis shows license usage (i.e. needed) based on the features enabled for the site."""
 
     ctx = get_context()

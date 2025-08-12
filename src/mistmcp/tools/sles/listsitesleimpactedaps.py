@@ -65,7 +65,7 @@ async def listSiteSleImpactedAps(
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
     classifier: Optional[str] = None,
-) -> dict:
+) -> dict | list:
     """For Wireless SLEs. List the impacted APs optionally filtered by classifier and failure type"""
 
     ctx = get_context()
@@ -103,7 +103,7 @@ async def listSiteSleImpactedAps(
     response = mistapi.api.v1.sites.sle.listSiteSleImpactedAps(
         apisession,
         site_id=str(site_id),
-        scope=scope,
+        scope=scope.value,
         scope_id=str(scope_id),
         metric=metric,
         start=start,

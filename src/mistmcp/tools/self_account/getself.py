@@ -35,7 +35,7 @@ mcp = mcp_instance.get()
         "openWorldHint": True,
     },
 )
-async def getSelf() -> dict:
+async def getSelf() -> dict | list:
     """Get ‘whoami’ and privileges (which org and which sites I have access to)"""
 
     ctx = get_context()

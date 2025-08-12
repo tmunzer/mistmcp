@@ -55,7 +55,7 @@ async def listOrgAvailableDeviceVersions(
             description="""Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)"""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get List of Available Device Versions"""
 
     ctx = get_context()

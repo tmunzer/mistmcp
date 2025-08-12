@@ -82,7 +82,7 @@ async def searchSiteSyntheticTest(
         Optional[str],
         Field(description="""Tenant network in which lan_connectivity test was run"""),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Search Site Synthetic Testing"""
 
     ctx = get_context()

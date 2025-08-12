@@ -60,7 +60,7 @@ async def getSiteCallsSummary(
             description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Summarized, aggregated stats for the site calls"""
 
     ctx = get_context()

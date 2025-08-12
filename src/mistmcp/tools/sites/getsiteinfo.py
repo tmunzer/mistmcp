@@ -41,7 +41,7 @@ mcp = mcp_instance.get()
 )
 async def getSiteInfo(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict:
+) -> dict | list:
     """Get Site InfoProvides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site."""
 
     ctx = get_context()

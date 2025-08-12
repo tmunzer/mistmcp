@@ -64,7 +64,7 @@ async def listSiteMxEdgesStats(
             description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get List of Site MxEdges Stats"""
 
     ctx = get_context()

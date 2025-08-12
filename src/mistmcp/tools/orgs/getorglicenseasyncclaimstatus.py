@@ -44,7 +44,7 @@ async def GetOrgLicenseAsyncClaimStatus(
     detail: Annotated[
         Optional[bool], Field(description="""Request license details""")
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get Processing Status for Async Claim"""
 
     ctx = get_context()

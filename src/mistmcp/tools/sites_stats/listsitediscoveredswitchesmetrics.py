@@ -49,7 +49,7 @@ async def listSiteDiscoveredSwitchesMetrics(
         Optional[str],
         Field(description="""System name for switch level metrics, optional"""),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Discovered switches related metrics, lists related switch system names & details if not compliant"""
 
     ctx = get_context()

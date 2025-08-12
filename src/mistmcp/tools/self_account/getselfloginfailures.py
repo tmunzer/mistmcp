@@ -35,7 +35,7 @@ mcp = mcp_instance.get()
         "openWorldHint": True,
     },
 )
-async def getSelfLoginFailures() -> dict:
+async def getSelfLoginFailures() -> dict | list:
     """Get a list of failed login attempts across all Orgs for the current admin"""
 
     ctx = get_context()

@@ -88,7 +88,7 @@ async def getOrgConfigurationObjects(
             description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Retrieve configuration objects from a specified organization or site."""
 
     ctx = get_context()

@@ -74,7 +74,7 @@ async def searchSiteMistEdgeEvents(
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
-) -> dict:
+) -> dict | list:
     """Search Site Mist Edge Events"""
 
     ctx = get_context()

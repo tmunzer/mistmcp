@@ -66,7 +66,7 @@ async def searchSiteDeviceConfigHistory(
     duration: Annotated[
         str, Field(description="""Duration like 7d, 2w""", default="1d")
     ] = "1d",
-) -> dict:
+) -> dict | list:
     """Search for entries in device config history"""
 
     ctx = get_context()

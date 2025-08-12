@@ -56,7 +56,7 @@ async def listSelfAuditLogs(
     ] = "1d",
     limit: Annotated[int, Field(default=100)] = 100,
     page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+) -> dict | list:
     """Get List of change logs across all Orgs for current adminAudit logs records all administrative activities done by current admin across all orgs"""
 
     ctx = get_context()

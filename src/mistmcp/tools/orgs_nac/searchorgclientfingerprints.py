@@ -100,7 +100,7 @@ async def searchOrgClientFingerprints(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Search Client Fingerprints"""
 
     ctx = get_context()

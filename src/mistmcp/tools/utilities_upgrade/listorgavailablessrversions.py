@@ -57,7 +57,7 @@ async def listOrgAvailableSsrVersions(
             description="""Optional. MAC address, or comma separated MAC address list."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get available version for SSR"""
 
     ctx = get_context()
