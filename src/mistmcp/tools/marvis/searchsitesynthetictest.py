@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
@@ -16,7 +17,7 @@ from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
-#from mistmcp.server_factory import mcp
+# from mistmcp.server_factory import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -25,7 +26,6 @@ from enum import Enum
 
 
 mcp = mcp_instance.get()
-
 
 
 class Type(Enum):
@@ -39,19 +39,19 @@ class Type(Enum):
     SPEEDTEST = "speedtest"
     NONE = None
 
+
 class Protocol(Enum):
     PING = "ping"
     TRACEROUTE = "traceroute"
     NONE = None
 
 
-
 @mcp.tool(
     enabled=False,
-    name = "searchSiteSyntheticTest",
-    description = """Search Site Synthetic Testing""",
-    tags = {"marvis"},
-    annotations = {
+    name="searchSiteSyntheticTest",
+    description="""Search Site Synthetic Testing""",
+    tags={"marvis"},
+    annotations={
         "title": "searchSiteSyntheticTest",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -59,22 +59,44 @@ class Protocol(Enum):
     },
 )
 async def searchSiteSyntheticTest(
-    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     mac: Annotated[Optional[str], Field(description="""Device MAC Address""")],
-    port_id: Annotated[Optional[str], Field(description="""Port_id used to run the test (for SSR only)""")],
+    port_id: Annotated[
+        Optional[str],
+        Field(description="""Port_id used to run the test (for SSR only)"""),
+    ],
     vlan_id: Annotated[Optional[str], Field(description="""VLAN ID""")],
     by: Annotated[Optional[str], Field(description="""Entity who triggers the test""")],
     reason: Annotated[Optional[str], Field(description="""Test failure reason""")],
-    type: Annotated[Optional[Type], Field(description="""Synthetic test type""")] = Type.NONE,
-    protocol: Annotated[Optional[Protocol], Field(description="""Connectivity protocol""")] = Protocol.NONE,
-    tenant: Annotated[Optional[str], Field(description="""Tenant network in which lan_connectivity test was run""")],
+    type: Annotated[Optional[Type], Field(description="""Synthetic test type""")],
+    protocol: Annotated[
+        Optional[Protocol], Field(description="""Connectivity protocol""")
+    ],
+    tenant: Annotated[
+        Optional[str],
+        Field(description="""Tenant network in which lan_connectivity test was run"""),
+    ],
     limit: Optional[int],
-    start: Annotated[Optional[str], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")],
-    end: Annotated[Optional[str], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")],
+    start: Annotated[
+        Optional[str],
+        Field(
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
+        ),
+    ],
+    end: Annotated[
+        Optional[str],
+        Field(
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
+        ),
+    ],
     duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    search_after: Annotated[Optional[str], Field(description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed.""")],
-) -> dict|list:
+    search_after: Annotated[
+        Optional[str],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ],
+) -> dict | list:
     """Search Site Synthetic Testing"""
 
     ctx = get_context()
@@ -95,7 +117,6 @@ async def searchSiteSyntheticTest(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
-
     if not apitoken:
         raise ClientError(
             "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
@@ -110,52 +131,53 @@ async def searchSiteSyntheticTest(
         apitoken=apitoken,
     )
 
-    
     response = mistapi.api.v1.sites.synthetic_test.searchSiteSyntheticTest(
-            apisession,
-            site_id=str(site_id),
-            mac=mac if mac else None,
-            port_id=port_id if port_id else None,
-            vlan_id=vlan_id if vlan_id else None,
-            by=by if by else None,
-            reason=reason if reason else None,
-            type=type.value if type else None,
-            protocol=protocol.value if protocol else None,
-            tenant=tenant if tenant else None,
-            limit=limit if limit else None,
-            start=start if start else None,
-            end=end if end else None,
-            duration=duration if duration else None,
-            search_after=search_after if search_after else None,
+        apisession,
+        site_id=str(site_id),
+        mac=mac if mac else None,
+        port_id=port_id if port_id else None,
+        vlan_id=vlan_id if vlan_id else None,
+        by=by if by else None,
+        reason=reason if reason else None,
+        type=type.value if type else None,
+        protocol=protocol.value if protocol else None,
+        tenant=tenant if tenant else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        search_after=search_after if search_after else None,
     )
 
-
     if response.status_code != 200:
-        api_error = {
-            "status_code": response.status_code,
-            "message": ""
-        }
+        api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            #await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            api_error["message"] =json.dumps(response.data)
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
+            api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
+            api_error["message"] = json.dumps(
+                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
+            )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Permission Denied")
+            api_error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+            api_error["message"] = json.dumps(
+                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
+            )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
+            api_error["message"] = json.dumps(
+                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
+            )
         raise ToolError(api_error)
 
     return response.data

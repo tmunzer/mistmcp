@@ -73,7 +73,7 @@ async def troubleshootOrg(
         Field(
             description="""When troubleshooting site, type of network to troubleshoot"""
         ),
-    ] = Type.NONE,
+    ],
 ) -> dict | list:
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license"""
 

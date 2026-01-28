@@ -1,4 +1,4 @@
-""""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
@@ -16,7 +17,7 @@ from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
-#from mistmcp.server_factory import mcp
+# from mistmcp.server_factory import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -27,7 +28,6 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-
 class Type(Enum):
     HONEYPOT = "honeypot"
     LAN = "lan"
@@ -36,13 +36,12 @@ class Type(Enum):
     NONE = None
 
 
-
 @mcp.tool(
     enabled=False,
-    name = "listSiteRogueAPs",
-    description = """Get List of Site Rogue/Neighbor APs""",
-    tags = {"Sites Rogues"},
-    annotations = {
+    name="listSiteRogueAPs",
+    description="""Get List of Site Rogue/Neighbor APs""",
+    tags={"Sites Rogues"},
+    annotations={
         "title": "listSiteRogueAPs",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -50,16 +49,35 @@ class Type(Enum):
     },
 )
 async def listSiteRogueAPs(
-    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Optional[Type] = Type.NONE,
+    type: Optional[Type],
     limit: Optional[int],
-    start: Annotated[Optional[str], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")],
-    end: Annotated[Optional[str], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")],
+    start: Annotated[
+        Optional[str],
+        Field(
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
+        ),
+    ],
+    end: Annotated[
+        Optional[str],
+        Field(
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
+        ),
+    ],
     duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    interval: Annotated[Optional[str], Field(description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.""")],
-    rogue_bssid: Annotated[Optional[str], Field(description="""BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed.""")],
-) -> dict|list:
+    interval: Annotated[
+        Optional[str],
+        Field(
+            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
+        ),
+    ],
+    rogue_bssid: Annotated[
+        Optional[str],
+        Field(
+            description="""BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed."""
+        ),
+    ],
+) -> dict | list:
     """Get List of Site Rogue/Neighbor APs"""
 
     ctx = get_context()
@@ -80,7 +98,6 @@ async def listSiteRogueAPs(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
-
     if not apitoken:
         raise ClientError(
             "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
@@ -95,9 +112,10 @@ async def listSiteRogueAPs(
         apitoken=apitoken,
     )
 
-    
     if rogue_bssid:
-        response = mistapi.api.v1.sites.rogues.getSiteRogueAP(apisession, site_id=str(site_id), rogue_bssid=rogue_bssid)
+        response = mistapi.api.v1.sites.rogues.getSiteRogueAP(
+            apisession, site_id=str(site_id), rogue_bssid=rogue_bssid
+        )
     else:
         response = mistapi.api.v1.sites.insights.listSiteRogueAPs(
             apisession,
@@ -108,35 +126,37 @@ async def listSiteRogueAPs(
             end=end if end else None,
             duration=duration if duration else None,
             interval=interval if interval else None,
-    )
-
+        )
 
     if response.status_code != 200:
-        api_error = {
-            "status_code": response.status_code,
-            "message": ""
-        }
+        api_error = {"status_code": response.status_code, "message": ""}
         if response.data:
-            #await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            api_error["message"] =json.dumps(response.data)
+            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
+            api_error["message"] = json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
+            api_error["message"] = json.dumps(
+                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
+            )
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Unauthorized")
+            api_error["message"] = json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Permission Denied")
+            api_error["message"] = json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
+            api_error["message"] = json.dumps(
+                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
+            )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
+            api_error["message"] = json.dumps(
+                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
+            )
         raise ToolError(api_error)
 
     return response.data

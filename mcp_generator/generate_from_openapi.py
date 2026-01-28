@@ -260,10 +260,10 @@ def _process_params(
                 enums += tmp_enum
                 tmp_type = tmp_param["name"].capitalize()
                 if tmp_param["default"]:
-                    tmp_default = f" = {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}"
+                    # tmp_default = f" = {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}.value,\n"
                 elif force_default:
-                    tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
+                    # tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else None,\n"
                 else:
                     tmp_mistapi_parameters = (
