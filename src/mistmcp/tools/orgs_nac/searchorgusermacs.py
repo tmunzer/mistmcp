@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 from uuid import UUID
 
 
@@ -43,7 +43,8 @@ async def searchOrgUserMacs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mac: Annotated[Optional[str], Field(description="""Partial/full MAC address""")],
     labels: Annotated[
-        Optional[list], Field(description="""Optional, array of strings of labels""")
+        Optional[List[str]],
+        Field(description="""Optional, array of strings of labels"""),
     ],
     limit: Optional[int],
     page: Annotated[Optional[int], Field(ge=1)],

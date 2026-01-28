@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 from uuid import UUID
 from enum import Enum
 
@@ -168,7 +168,7 @@ async def searchOrgNacClients(
         Field(description="""Client type i.e. 'wireless', 'wired' etc."""),
     ],
     usermac_label: Annotated[
-        Optional[list], Field(description="""Labels derived from usermac entry""")
+        Optional[List[str]], Field(description="""Labels derived from usermac entry""")
     ],
     username: Annotated[
         Optional[str], Field(description="""Username presented by the client""")

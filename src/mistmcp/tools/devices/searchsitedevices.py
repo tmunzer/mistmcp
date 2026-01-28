@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 from uuid import UUID
 from enum import Enum
 
@@ -98,7 +98,7 @@ async def searchSiteDevices(
         ),
     ],
     mxedge_ids: Annotated[
-        Optional[list],
+        Optional[List[str]],
         Field(
             description="""For APs only, list of Mist Edge id, if AP is connecting to a Mist Edge"""
         ),

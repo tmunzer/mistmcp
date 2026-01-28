@@ -269,6 +269,25 @@ def _process_params(
                     tmp_mistapi_parameters = (
                         f"            {tmp_param['name']}={tmp_param['name']}.value,\n"
                     )
+        elif tmp_param["type"] == "array":
+            if (
+                tmp_param.get("items", {}).get("$ref")
+                or tmp_param.get("items", {}).get("type") == "string"
+            ):
+                _add_import(imports, "typing", "List")
+                item_type = "str"
+                if tmp_param.get("items", {}).get("$ref"):
+                    ref_name = tmp_param["items"]["$ref"].split("/")[-1:][0]
+                    ref = openapi_schemas.get(ref_name, {})
+                    if ref.get("type") and TRANSLATION.get(ref.get("type")):
+                        item_type = TRANSLATION.get(ref.get("type"))
+                tmp_type = f"List[{item_type}]"
+            else:
+                _add_import(imports, "typing", "List")
+                item_type = TRANSLATION.get(
+                    tmp_param.get("items", {}).get("type", "string"), "str"
+                )
+                tmp_type = f"List[{item_type}]"
 
         if not tmp_default:
             if tmp_param["required"]:

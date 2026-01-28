@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 from uuid import UUID
 
 
@@ -85,7 +85,7 @@ async def searchOrgNacClientEvents(
         Field(description="""Username presented to the Identity Provider"""),
     ],
     resp_attrs: Annotated[
-        Optional[list],
+        Optional[List[str]],
         Field(description="""Radius attributes returned by NAC to NAS derive"""),
     ],
     ssid: Annotated[Optional[str], Field(description="""SSID""")],
