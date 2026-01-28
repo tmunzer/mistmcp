@@ -102,7 +102,7 @@ async def searchOrgDevices(
     hostname: Annotated[
         Optional[str], Field(description="""Partial / full hostname""")
     ] = None,
-    ip_address: Optional[str] = None,
+    ip: Optional[str] = None,
     last_config_status: Annotated[
         Optional[str],
         Field(
@@ -174,22 +174,34 @@ async def searchOrgDevices(
         Optional[Type],
         Field(description="""Type of device. enum: `ap`, `gateway`, `switch`"""),
     ] = Type.AP,
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
 ) -> dict | list:
     """Search Org Devices"""
 
@@ -243,7 +255,7 @@ async def searchOrgDevices(
         evpntopo_id=evpntopo_id,
         ext_ip=ext_ip,
         hostname=hostname,
-        ip_address=ip_address,
+        ip=ip,
         last_config_status=last_config_status,
         last_hostname=last_hostname,
         lldp_mgmt_addr=lldp_mgmt_addr,
@@ -269,6 +281,8 @@ async def searchOrgDevices(
         start=start,
         end=end,
         duration=duration,
+        sort=sort,
+        search_after=search_after,
     )
 
     if response.status_code != 200:

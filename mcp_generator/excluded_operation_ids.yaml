@@ -59,3 +59,5 @@
 - listSiteSiteTemplatesDerived
 - listOrgSecPolicies
 - getOrgSecPolicy
+- getOrgUiSetting
+- listOrgUiSettings

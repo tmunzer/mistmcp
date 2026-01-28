@@ -28,10 +28,11 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-class Type(Enum):
+class Device_type(Enum):
     AP = "ap"
     GATEWAY = "gateway"
     SWITCH = "switch"
+    MXEDGE = "mxedge"
 
 
 @mcp.tool(
@@ -48,26 +49,44 @@ class Type(Enum):
 )
 async def searchSiteDeviceLastConfigs(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Optional[Type] = Type.AP,
+    cert_expiry_duration: Annotated[
+        Optional[str],
+        Field(
+            description="""Duration for expiring cert queries (format: 2d/3h/172800 seconds)"""
+        ),
+    ] = None,
+    device_type: Optional[Device_type] = Device_type.AP,
     mac: Optional[str] = None,
     version: Optional[str] = None,
     name: Optional[str] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
 ) -> dict | list:
     """Search Device Last Configs"""
 
@@ -106,7 +125,8 @@ async def searchSiteDeviceLastConfigs(
     response = mistapi.api.v1.sites.devices.searchSiteDeviceLastConfigs(
         apisession,
         site_id=str(site_id),
-        type=type.value if type else Type.AP.value,
+        cert_expiry_duration=cert_expiry_duration,
+        device_type=device_type.value if device_type else Device_type.AP.value,
         mac=mac,
         version=version,
         name=name,
@@ -114,6 +134,8 @@ async def searchSiteDeviceLastConfigs(
         start=start,
         end=end,
         duration=duration,
+        sort=sort,
+        search_after=search_after,
     )
 
     if response.status_code != 200:

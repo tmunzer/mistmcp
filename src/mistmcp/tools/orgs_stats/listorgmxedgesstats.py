@@ -29,7 +29,7 @@ mcp = mcp_instance.get()
 
 
 class For_site(Enum):
-    ALL = "all"
+    ANY = "any"
     TRUE = "true"
     FALSE = "false"
     NONE = None
@@ -53,22 +53,22 @@ async def listOrgMxEdgesStats(
         Optional[For_site], Field(description="""Filter for site level mist edges""")
     ] = For_site.NONE,
     start: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int] = None,
+    page: Annotated[Optional[int], Field(ge=1)] = None,
     mxedge_id: Annotated[
         Optional[str],
         Field(

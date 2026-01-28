@@ -22,44 +22,59 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
+from enum import Enum
 
 
 mcp = mcp_instance.get()
 
 
+class Scope(Enum):
+    AP = "ap"
+    CLIENT = "client"
+    GATEWAY = "gateway"
+    SITE = "site"
+    SWITCH = "switch"
+
+
 @mcp.tool(
     enabled=False,
-    name="getSiteSiteRfdiagRecording",
-    description="""List RF Glass Recording""",
-    tags={"Sites Rfdiags"},
+    name="getSiteSleSummaryTrend",
+    description="""Get the summary for the SLE metric trend""",
+    tags={"sles"},
     annotations={
-        "title": "getSiteSiteRfdiagRecording",
+        "title": "getSiteSleSummaryTrend",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def getSiteSiteRfdiagRecording(
+async def getSiteSleSummaryTrend(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    start: Annotated[
-        Optional[int],
+    scope: Scope,
+    scope_id: Annotated[
+        str,
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`"""
+        ),
+    ],
+    metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
+    start: Annotated[
+        Optional[str],
+        Field(
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
 ) -> dict | list:
-    """List RF Glass Recording"""
+    """Get the summary for the SLE metric trend"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -93,14 +108,15 @@ async def getSiteSiteRfdiagRecording(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.rfdiags.getSiteSiteRfdiagRecording(
+    response = mistapi.api.v1.sites.sle.getSiteSleSummaryTrend(
         apisession,
         site_id=str(site_id),
+        scope=scope.value,
+        scope_id=scope_id,
+        metric=metric,
         start=start,
         end=end,
         duration=duration,
-        limit=limit,
-        page=page,
     )
 
     if response.status_code != 200:

@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 
@@ -41,8 +41,8 @@ mcp = mcp_instance.get()
 )
 async def listOrgApsMacs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
+    limit: Optional[int] = None,
+    page: Annotated[Optional[int], Field(ge=1)] = None,
 ) -> dict | list:
     """For some scenarios like E911 or security systems, the BSSIDs are required to identify which AP the client is connecting to. Then the location of the AP can be used as the approximate location of the client.Each radio MAC can have 16 BSSIDs (enumerate the last octet from 0-F)"""
 

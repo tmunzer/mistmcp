@@ -37,8 +37,8 @@ class Status(Enum):
 class Topic(Enum):
     ALARMS = "alarms"
     AUDITS = "audits"
-    DEVICE_UPDOWNS = "device-updowns"
-    OCCUPANCY_ALERTS = "occupancy-alerts"
+    DEVICE_UPDOWNS = "device_updowns"
+    OCCUPANCY_ALERTS = "occupancy_alerts"
     PING = "ping"
     NONE = None
 
@@ -66,22 +66,34 @@ async def searchSiteWebhooksDeliveries(
     topic: Annotated[
         Optional[Topic], Field(description="""Webhook topic""")
     ] = Topic.NONE,
+    limit: Optional[int] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
 ) -> dict | list:
     """Search Site Webhooks deliveriesTopics Supported:- alarms- audits- device-updowns- occupancy-alerts- ping"""
 
@@ -125,10 +137,12 @@ async def searchSiteWebhooksDeliveries(
         status_code=status_code,
         status=status.value if status else None,
         topic=topic.value if topic else None,
+        limit=limit,
         start=start,
         end=end,
         duration=duration,
-        limit=limit,
+        sort=sort,
+        search_after=search_after,
     )
 
     if response.status_code != 200:

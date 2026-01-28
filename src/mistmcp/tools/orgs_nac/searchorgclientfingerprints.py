@@ -31,6 +31,7 @@ mcp = mcp_instance.get()
 class Client_type(Enum):
     WIRELESS = "wireless"
     WIRED = "wired"
+    VTY = "vty"
     NONE = None
 
 
@@ -72,32 +73,38 @@ async def searchOrgClientFingerprints(
     mac: Annotated[
         Optional[str], Field(description="""MAC address of the client device""")
     ] = None,
-    sort: Annotated[
+    limit: Optional[int] = None,
+    start: Annotated[
         Optional[str],
         Field(
-            description="""sort options, '-' prefix represents DESC order, default is wcid in ASC order"""
-        ),
-    ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
-    start: Annotated[
-        Optional[int],
-        Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     interval: Annotated[
         Optional[str],
         Field(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
+        ),
+    ] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order."""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
     ] = None,
 ) -> dict | list:
@@ -145,12 +152,13 @@ async def searchOrgClientFingerprints(
         os=os,
         os_type=os_type,
         mac=mac,
-        sort=sort,
         limit=limit,
         start=start,
         end=end,
         duration=duration,
         interval=interval,
+        sort=sort,
+        search_after=search_after,
     )
 
     if response.status_code != 200:

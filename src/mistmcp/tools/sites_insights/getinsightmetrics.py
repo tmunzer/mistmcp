@@ -28,28 +28,50 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-class Sle(Enum):
-    WAN = "wan"
-    WIFI = "wifi"
-    WIRED = "wired"
-    NONE = None
+class Object_type(Enum):
+    SITE = "site"
+    CLIENT = "client"
+    AP = "ap"
+    GATEWAY = "gateway"
+    MXEDGE = "mxedge"
+    SWITCH = "switch"
 
 
 @mcp.tool(
     enabled=False,
-    name="getOrgSitesSle",
-    description="""Get Org Sites SLE""",
-    tags={"sles"},
+    name="getInsightMetrics",
+    description="""Get insight metrics for a given object""",
+    tags={"sites_insights"},
     annotations={
-        "title": "getOrgSitesSle",
+        "title": "getInsightMetrics",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def getOrgSitesSle(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    sle: Optional[Sle] = Sle.NONE,
+async def getInsightMetrics(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    object_type: Annotated[
+        Object_type, Field(description="""Type of object to retrieve metrics for.""")
+    ],
+    metric: Annotated[
+        str,
+        Field(
+            description="""Name of the metric to retrieve. Use the tool `listSiteInsightMetrics` to see available metrics."""
+        ),
+    ],
+    mac: Annotated[
+        Optional[str],
+        Field(
+            description="""MAC address of the client or device to retrieve metrics for. Required if object_type is 'client', 'ap', 'mxedge' or 'switch'."""
+        ),
+    ] = None,
+    device_id: Annotated[
+        Optional[UUID],
+        Field(
+            description="""ID of the gateway device to retrieve metrics for. Required if object_type is 'gateway'."""
+        ),
+    ] = None,
     start: Annotated[
         Optional[str],
         Field(
@@ -71,10 +93,12 @@ async def getOrgSitesSle(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
-    limit: Optional[int] = None,
-    page: Annotated[Optional[int], Field(ge=1)] = None,
+    page: Annotated[Optional[int], Field(description="""Page number""")] = None,
+    limit: Annotated[
+        Optional[int], Field(description="""Number of records per page""")
+    ] = None,
 ) -> dict | list:
-    """Get Org Sites SLE"""
+    """Get insight metrics for a given object"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -108,17 +132,92 @@ async def getOrgSitesSle(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.insights.getOrgSitesSle(
-        apisession,
-        org_id=str(org_id),
-        sle=sle.value if sle else None,
-        start=start,
-        end=end,
-        duration=duration,
-        interval=interval,
-        limit=limit,
-        page=page,
-    )
+    match object_type.value:
+        case "site":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetrics(
+                apisession,
+                site_id=str(site_id),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "client":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForClient(
+                apisession,
+                site_id=str(site_id),
+                client_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "ap":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForDevice(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "gateway":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForGateway(
+                apisession,
+                site_id=str(site_id),
+                device_id=str(device_id),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "mxedge":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForMxEdge(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "switch":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForSwitch(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+
+        case _:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}",
+                }
+            )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

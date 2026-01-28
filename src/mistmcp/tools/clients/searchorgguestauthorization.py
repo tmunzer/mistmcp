@@ -46,22 +46,28 @@ async def searchOrgGuestAuthorization(
         Optional[str], Field(description="""Authentication Method""")
     ] = None,
     ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
     guest_mac: Annotated[
         Optional[str],
         Field(
@@ -118,6 +124,7 @@ async def searchOrgGuestAuthorization(
             start=start,
             end=end,
             duration=duration,
+            sort=sort,
         )
 
     if response.status_code != 200:

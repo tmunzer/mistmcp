@@ -19,60 +19,24 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
-from pydantic import Field
-from typing import Annotated, Optional
-from uuid import UUID
-
 
 mcp = mcp_instance.get()
 
 
 @mcp.tool(
     enabled=False,
-    name="getSiteInsightMetricsForDevice",
-    description="""Get AP Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)""",
-    tags={"Sites Insights"},
+    name="listDeviceModels",
+    description="""Get list of AP device models for the Mist Site""",
+    tags={"Constants Models"},
     annotations={
-        "title": "getSiteInsightMetricsForDevice",
+        "title": "listDeviceModels",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def getSiteInsightMetricsForDevice(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    metric: Annotated[
-        str,
-        Field(
-            description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics"""
-        ),
-    ],
-    device_mac: str,
-    start: Annotated[
-        Optional[int],
-        Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
-        ),
-    ] = None,
-    end: Annotated[
-        Optional[int],
-        Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
-        ),
-    ] = None,
-    duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    interval: Annotated[
-        Optional[str],
-        Field(
-            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
-        ),
-    ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict | list:
-    """Get AP Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)"""
+async def listDeviceModels() -> dict | list:
+    """Get list of AP device models for the Mist Site"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -106,17 +70,8 @@ async def getSiteInsightMetricsForDevice(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForDevice(
+    response = mistapi.api.v1.const.device_models.listDeviceModels(
         apisession,
-        site_id=str(site_id),
-        metric=metric,
-        device_mac=device_mac,
-        start=start,
-        end=end,
-        duration=duration,
-        interval=interval,
-        limit=limit,
-        page=page,
     )
 
     if response.status_code != 200:

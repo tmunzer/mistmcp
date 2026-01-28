@@ -47,8 +47,14 @@ async def searchOrgUserMacs(
     labels: Annotated[
         Optional[list], Field(description="""Optional, array of strings of labels""")
     ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
+    limit: Optional[int] = None,
+    page: Annotated[Optional[int], Field(ge=1)] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
 ) -> dict | list:
     """Search Org User MACs"""
 
@@ -91,6 +97,7 @@ async def searchOrgUserMacs(
         labels=labels,
         limit=limit,
         page=page,
+        sort=sort,
     )
 
     if response.status_code != 200:

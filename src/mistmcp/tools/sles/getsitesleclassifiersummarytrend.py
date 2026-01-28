@@ -28,74 +28,37 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-class Key_mgmt(Enum):
-    WPA2_PSK = "WPA2_PSK"
-    WPA2_PSK_CCMP = "WPA2_PSK_CCMP"
-    WPA2_PSK_FT = "WPA2_PSK_FT"
-    WPA2_PSK_SHA256 = "WPA2_PSK_SHA256"
-    WPA3_EAP_SHA256 = "WPA3_EAP_SHA256"
-    WPA3_EAP_SHA256_CCMP = "WPA3_EAP_SHA256_CCMP"
-    WPA3_EAP_FT_GCMP256 = "WPA3_EAP_FT_GCMP256"
-    WPA3_SAE_FT = "WPA3_SAE_FT"
-    WPA3_SAE_PSK = "WPA3_SAE_PSK"
-    NONE = None
-
-
-class Proto(Enum):
-    A = "a"
-    AC = "ac"
-    AX = "ax"
-    B = "b"
-    BE = "be"
-    G = "g"
-    N = "n"
-    NONE = None
-
-
-class Band(Enum):
-    B24 = "24"
-    B5 = "5"
-    B6 = "6"
-    NONE = None
+class Scope(Enum):
+    AP = "ap"
+    CLIENT = "client"
+    GATEWAY = "gateway"
+    SITE = "site"
+    SWITCH = "switch"
 
 
 @mcp.tool(
     enabled=False,
-    name="searchOrgWirelessClientEvents",
-    description="""Get Org Clients Events""",
-    tags={"clients"},
+    name="getSiteSleClassifierSummaryTrend",
+    description="""Get SLE classifier Summary Trend""",
+    tags={"sles"},
     annotations={
-        "title": "searchOrgWirelessClientEvents",
+        "title": "getSiteSleClassifierSummaryTrend",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def searchOrgWirelessClientEvents(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Annotated[
-        Optional[str],
+async def getSiteSleClassifierSummaryTrend(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    scope: Scope,
+    scope_id: Annotated[
+        str,
         Field(
-            description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
+            description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`"""
         ),
-    ] = None,
-    reason_code: Annotated[
-        Optional[int], Field(description="""For assoc/disassoc events""")
-    ] = None,
-    ssid: Annotated[Optional[str], Field(description="""SSID Name""")] = None,
-    ap: Annotated[Optional[str], Field(description="""AP MAC""")] = None,
-    key_mgmt: Annotated[
-        Optional[Key_mgmt],
-        Field(
-            description="""Key Management Protocol, e.g. WPA2-PSK, WPA3-SAE, WPA2-Enterprise"""
-        ),
-    ] = Key_mgmt.NONE,
-    proto: Annotated[
-        Optional[Proto], Field(description="""a / b / g / n / ac / ax""")
-    ] = Proto.NONE,
-    band: Annotated[Optional[Band], Field(description="""802.11 Band""")] = Band.NONE,
-    wlan_id: Annotated[Optional[UUID], Field(description="""WLAN_id""")] = None,
-    nacrule_id: Annotated[Optional[UUID], Field(description="""Nacrule_id""")] = None,
+    ],
+    metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
+    classifier: str,
     start: Annotated[
         Optional[str],
         Field(
@@ -111,21 +74,8 @@ async def searchOrgWirelessClientEvents(
     duration: Annotated[
         Optional[str], Field(description="""Duration like 7d, 2w""")
     ] = None,
-    sort: Annotated[
-        Optional[str],
-        Field(
-            description="""On which field the list should be sorted, -prefix represents DESC order"""
-        ),
-    ] = None,
-    limit: Optional[int] = None,
-    search_after: Annotated[
-        Optional[str],
-        Field(
-            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
-        ),
-    ] = None,
 ) -> dict | list:
-    """Get Org Clients Events"""
+    """Get SLE classifier Summary Trend"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -159,24 +109,16 @@ async def searchOrgWirelessClientEvents(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.orgs.clients.searchOrgWirelessClientEvents(
+    response = mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(
         apisession,
-        org_id=str(org_id),
-        type=type,
-        reason_code=reason_code,
-        ssid=ssid,
-        ap=ap,
-        key_mgmt=key_mgmt.value if key_mgmt else None,
-        proto=proto.value if proto else None,
-        band=band.value if band else None,
-        wlan_id=str(wlan_id) if wlan_id else None,
-        nacrule_id=str(nacrule_id) if nacrule_id else None,
+        site_id=str(site_id),
+        scope=scope.value,
+        scope_id=scope_id,
+        metric=metric,
+        classifier=classifier,
         start=start,
         end=end,
         duration=duration,
-        sort=sort,
-        limit=limit,
-        search_after=search_after,
     )
 
     if response.status_code != 200:

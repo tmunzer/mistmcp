@@ -51,22 +51,22 @@ class Type(Enum):
 async def listSiteRogueAPs(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     type: Optional[Type] = Type.NONE,
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     interval: Annotated[
         Optional[str],
         Field(

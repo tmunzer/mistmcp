@@ -19,6 +19,12 @@ from .utilities_upgrade import (
 )
 from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
+from .sites_insights import getinsightmetrics as getinsightmetrics
+from .constants_models import listdevicemodels as listdevicemodels
+from .constants_models import listmxedgemodels as listmxedgemodels
+from .constants_models import (
+    listsupportedotherdevicemodels as listsupportedotherdevicemodels,
+)
 from .constants_definitions import listfingerprinttypes as listfingerprinttypes
 from .constants_definitions import listinsightmetrics as listinsightmetrics
 from .constants_definitions import listlicensetypes as listlicensetypes
@@ -58,6 +64,7 @@ from .devices import searchsitemistedgeevents as searchsitemistedgeevents
 from .sles import getorgsitessle as getorgsitessle
 from .sles import getorgsle as getorgsle
 from .sles import getsitesleclassifierdetails as getsitesleclassifierdetails
+from .sles import getsitesleclassifiersummarytrend as getsitesleclassifiersummarytrend
 from .sles import listsiteslemetricclassifiers as listsiteslemetricclassifiers
 from .sles import getsiteslehistogram as getsiteslehistogram
 from .sles import getsitesleimpactsummary as getsitesleimpactsummary
@@ -72,6 +79,7 @@ from .sles import (
     listsitesleimpactedwirelessclients as listsitesleimpactedwirelessclients,
 )
 from .sles import getsiteslesummary as getsiteslesummary
+from .sles import getsiteslesummarytrend as getsiteslesummarytrend
 from .sles import getsiteslethreshold as getsiteslethreshold
 from .sles import listsiteslesmetrics as listsiteslesmetrics
 from .orgs_stats import getorgstats as getorgstats
@@ -79,6 +87,7 @@ from .orgs_stats import searchorgbgpstats as searchorgbgpstats
 from .orgs_stats import listorgdevicesstats as listorgdevicesstats
 from .orgs_stats import listorgmxedgesstats as listorgmxedgesstats
 from .orgs_stats import getorgmxedgestats as getorgmxedgestats
+from .orgs_stats import searchorgospfstats as searchorgospfstats
 from .orgs_stats import getorgotherdevicestats as getorgotherdevicestats
 from .orgs_stats import searchorgsworgwports as searchorgsworgwports
 from .orgs_stats import listorgsitestats as listorgsitestats
@@ -106,18 +115,9 @@ from .self_account import getselfapiusage as getselfapiusage
 from .sites import getsiteinfo as getsiteinfo
 from .sites import getsitesetting as getsitesetting
 from .sites import getsitesettingderived as getsitesettingderived
-from .sites_insights import (
-    getsiteinsightmetricsforclient as getsiteinsightmetricsforclient,
-)
-from .sites_insights import (
-    getsiteinsightmetricsfordevice as getsiteinsightmetricsfordevice,
-)
-from .sites_insights import getsiteinsightmetrics as getsiteinsightmetrics
 from .sites_rogues import listsiterogueaps as listsiterogueaps
 from .sites_rogues import listsiterogueclients as listsiterogueclients
 from .sites_rogues import searchsiterogueevents as searchsiterogueevents
-from .sites_rfdiags import getsitesiterfdiagrecording as getsitesiterfdiagrecording
-from .sites_rfdiags import getsiterfdiagrecording as getsiterfdiagrecording
 from .sites_rrm import getsitecurrentchannelplanning as getsitecurrentchannelplanning
 from .sites_rrm import (
     getsitecurrentrrmconsiderations as getsitecurrentrrmconsiderations,
@@ -139,6 +139,7 @@ from .sites_stats import (
 )
 from .sites_stats import searchsitediscoveredswitches as searchsitediscoveredswitches
 from .sites_stats import listsitemxedgesstats as listsitemxedgesstats
+from .sites_stats import searchsiteospfstats as searchsiteospfstats
 from .sites_stats import getsitewxrulesusage as getsitewxrulesusage
 from .sites_stats import searchsitewanusage as searchsitewanusage
 from .sites_stats import getsiteapplicationlist as getsiteapplicationlist

@@ -28,6 +28,23 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
+class Edr_provider(Enum):
+    CROWDSTRIKE = "crowdstrike"
+    SENTINELONE = "sentinelone"
+    NONE = None
+
+
+class Edr_status(Enum):
+    SENTINELONE_HEALTHY = "sentinelone_healthy"
+    SENTINELONE_INFECTED = "sentinelone_infected"
+    CROWDSTRIKE_LOW = "crowdstrike_low"
+    CROWDSTRIKE_MEDIUM = "crowdstrike_medium"
+    CROWDSTRIKE_HIGH = "crowdstrike_high"
+    CROWDSTRIKE_CRITICAL = "crowdstrike_critical"
+    CROWDSTRIKE_INFORMATIONAL = "crowdstrike_informational"
+    NONE = None
+
+
 class Status(Enum):
     PERMITTED = "permitted"
     SESSION_STARTED = "session_started"
@@ -50,11 +67,8 @@ class Status(Enum):
 )
 async def searchOrgNacClients(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    nacrule_id: Annotated[
-        Optional[str], Field(description="""NAC Policy Rule ID, if matched""")
-    ] = None,
-    nacrule_matched: Annotated[
-        Optional[bool], Field(description="""NAC Policy Rule Matched""")
+    ap: Annotated[
+        Optional[str], Field(description="""AP MAC connected to by client""")
     ] = None,
     auth_type: Annotated[
         Optional[str],
@@ -62,72 +76,38 @@ async def searchOrgNacClients(
             description="""Authentication type, e.g. 'eap-tls', 'eap-peap', 'eap-ttls', 'eap-teap', 'mab', 'psk', 'device-auth'"""
         ),
     ] = None,
-    vlan: Annotated[
-        Optional[str], Field(description="""Vlan name or ID assigned to the client""")
-    ] = None,
-    nas_vendor: Annotated[
-        Optional[str], Field(description="""Vendor of NAS device""")
-    ] = None,
-    idp_id: Annotated[
-        Optional[str], Field(description="""SSO ID, if present and used""")
-    ] = None,
-    ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
-    username: Annotated[
-        Optional[str], Field(description="""Username presented by the client""")
-    ] = None,
-    timestamp: Annotated[
-        Optional[float], Field(description="""Start time, in epoch""")
-    ] = None,
-    site_id: Annotated[
-        Optional[str],
-        Field(description="""Site id if assigned, null if not assigned"""),
-    ] = None,
-    ap: Annotated[
-        Optional[str], Field(description="""AP MAC connected to by client""")
-    ] = None,
-    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
-    mdm_managed: Annotated[
+    edr_managed: Annotated[
         Optional[bool],
-        Field(description="""Filters NAC clients that are managed by MDM providers"""),
-    ] = None,
-    status: Annotated[
-        Optional[Status],
         Field(
-            description="""Connection status of client i.e 'permitted', 'denied, 'session_stared', 'session_ended'"""
-        ),
-    ] = Status.NONE,
-    type: Annotated[
-        Optional[str],
-        Field(description="""Client type i.e. 'wireless', 'wired' etc."""),
-    ] = None,
-    mdm_compliance: Annotated[
-        Optional[str],
-        Field(
-            description="""MDM compliance of client i.e 'compliant', 'not compliant'"""
+            description="""Filters NAC clients that are integrated with EDR providers"""
         ),
     ] = None,
+    edr_provider: Annotated[
+        Optional[Edr_provider],
+        Field(description="""EDR provider of client's organization"""),
+    ] = Edr_provider.NONE,
+    edr_status: Annotated[
+        Optional[Edr_status], Field(description="""EDR Status of the NAC client""")
+    ] = Edr_status.NONE,
     family: Annotated[
         Optional[str],
         Field(
             description="""Client family, e.g. 'Phone/Tablet/Wearable', 'Access Point'"""
         ),
     ] = None,
-    model: Annotated[
-        Optional[str], Field(description="""Client model, e.g. 'iPhone 12', 'MX100'""")
-    ] = None,
-    os: Annotated[
-        Optional[str],
-        Field(
-            description="""Client OS, e.g. 'iOS 18.1', 'Android', 'Windows', 'Linux'"""
-        ),
-    ] = None,
     hostname: Annotated[
         Optional[str],
         Field(description="""Client hostname, e.g. 'my-laptop', 'my-phone'"""),
     ] = None,
-    mfg: Annotated[
+    idp_id: Annotated[
+        Optional[str], Field(description="""SSO ID, if present and used""")
+    ] = None,
+    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
+    mdm_compliance: Annotated[
         Optional[str],
-        Field(description="""Client manufacturer, e.g. 'apple', 'cisco', 'juniper'"""),
+        Field(
+            description="""MDM compliance of client i.e 'compliant', 'not compliant'"""
+        ),
     ] = None,
     mdm_provider: Annotated[
         Optional[str],
@@ -135,36 +115,103 @@ async def searchOrgNacClients(
             description="""MDM provider of client’s organization eg 'intune', 'jamf'"""
         ),
     ] = None,
-    sort: Annotated[
-        Optional[str],
-        Field(
-            description="""Sort options, ‘-‘ prefix represents DESC order, default is wcid in ASC order"""
-        ),
+    mdm_managed: Annotated[
+        Optional[bool],
+        Field(description="""Filters NAC clients that are managed by MDM providers"""),
     ] = None,
-    usermac_label: Annotated[
-        Optional[list], Field(description="""Labels derived from usermac entry""")
+    mfg: Annotated[
+        Optional[str],
+        Field(description="""Client manufacturer, e.g. 'apple', 'cisco', 'juniper'"""),
+    ] = None,
+    model: Annotated[
+        Optional[str], Field(description="""Client model, e.g. 'iPhone 12', 'MX100'""")
+    ] = None,
+    nacrule_name: Annotated[
+        Optional[str], Field(description="""NAC Policy Rule Name matched""")
+    ] = None,
+    nacrule_id: Annotated[
+        Optional[str], Field(description="""NAC Policy Rule ID, if matched""")
+    ] = None,
+    nacrule_matched: Annotated[
+        Optional[bool], Field(description="""NAC Policy Rule Matched""")
+    ] = None,
+    nas_vendor: Annotated[
+        Optional[str], Field(description="""Vendor of NAS device""")
+    ] = None,
+    nas_ip: Annotated[
+        Optional[str], Field(description="""IP address of NAS device""")
     ] = None,
     ingress_vlan: Annotated[
         Optional[str],
         Field(description="""Vendor specific Vlan ID in radius requests"""),
     ] = None,
-    start: Annotated[
-        Optional[int],
+    os: Annotated[
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Client OS, e.g. 'iOS 18.1', 'Android', 'Windows', 'Linux'"""
+        ),
+    ] = None,
+    ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
+    status: Annotated[
+        Optional[Status],
+        Field(
+            description="""Connection status of client i.e 'permitted', 'denied, 'session_stared', 'session_ended'"""
+        ),
+    ] = Status.NONE,
+    text: Annotated[
+        Optional[str],
+        Field(
+            description="""partial / full MAC address, last_username, device_mac, nas_ip or last_ap"""
+        ),
+    ] = None,
+    timestamp: Annotated[
+        Optional[float], Field(description="""Start time, in epoch""")
+    ] = None,
+    type: Annotated[
+        Optional[str],
+        Field(description="""Client type i.e. 'wireless', 'wired' etc."""),
+    ] = None,
+    usermac_label: Annotated[
+        Optional[list], Field(description="""Labels derived from usermac entry""")
+    ] = None,
+    username: Annotated[
+        Optional[str], Field(description="""Username presented by the client""")
+    ] = None,
+    vlan: Annotated[
+        Optional[str], Field(description="""Vlan name or ID assigned to the client""")
+    ] = None,
+    site_id: Annotated[
+        Optional[str],
+        Field(description="""Site id if assigned, null if not assigned"""),
+    ] = None,
+    limit: Optional[int] = None,
+    start: Annotated[
+        Optional[str],
+        Field(
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order."""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
 ) -> dict | list:
     """Search Org NAC Clients"""
 
@@ -203,36 +250,42 @@ async def searchOrgNacClients(
     response = mistapi.api.v1.orgs.nac_clients.searchOrgNacClients(
         apisession,
         org_id=str(org_id),
+        ap=ap,
+        auth_type=auth_type,
+        edr_managed=edr_managed,
+        edr_provider=edr_provider.value if edr_provider else None,
+        edr_status=edr_status.value if edr_status else None,
+        family=family,
+        hostname=hostname,
+        idp_id=idp_id,
+        mac=mac,
+        mdm_compliance=mdm_compliance,
+        mdm_provider=mdm_provider,
+        mdm_managed=mdm_managed,
+        mfg=mfg,
+        model=model,
+        nacrule_name=nacrule_name,
         nacrule_id=nacrule_id,
         nacrule_matched=nacrule_matched,
-        auth_type=auth_type,
-        vlan=vlan,
         nas_vendor=nas_vendor,
-        idp_id=idp_id,
-        ssid=ssid,
-        username=username,
-        timestamp=timestamp,
-        site_id=site_id,
-        ap=ap,
-        mac=mac,
-        mdm_managed=mdm_managed,
-        status=status.value if status else None,
-        type=type,
-        mdm_compliance=mdm_compliance,
-        family=family,
-        model=model,
-        os=os,
-        hostname=hostname,
-        mfg=mfg,
-        mdm_provider=mdm_provider,
-        sort=sort,
-        usermac_label=usermac_label,
+        nas_ip=nas_ip,
         ingress_vlan=ingress_vlan,
+        os=os,
+        ssid=ssid,
+        status=status.value if status else None,
+        text=text,
+        timestamp=timestamp,
+        type=type,
+        usermac_label=usermac_label,
+        username=username,
+        vlan=vlan,
+        site_id=site_id,
+        limit=limit,
         start=start,
         end=end,
         duration=duration,
-        limit=limit,
-        page=page,
+        sort=sort,
+        search_after=search_after,
     )
 
     if response.status_code != 200:

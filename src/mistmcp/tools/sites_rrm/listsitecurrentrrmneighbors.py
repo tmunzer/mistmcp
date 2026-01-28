@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
 
@@ -49,8 +49,8 @@ class Band(Enum):
 async def listSiteCurrentRrmNeighbors(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     band: Annotated[Band, Field(description="""802.11 Band""")],
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
+    limit: Optional[int] = None,
+    page: Annotated[Optional[int], Field(ge=1)] = None,
 ) -> dict | list:
     """List Current RRM observed neighbors"""
 

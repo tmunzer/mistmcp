@@ -16,6 +16,7 @@
 "sites stats - calls": "sites_stats"
 "sites stats - clients wireless": "sites_stats"
 "sites stats - mxedges": "sites_stats"
+"sites stats - ospf": "sites_stats"
 "sites stats - wxrules": "sites_stats"
 "sites stats - discovered switches": "sites_stats"
 "sites wxtags": "sites_stats"
@@ -28,6 +29,7 @@
 "orgs stats - ports": "orgs_stats"
 "orgs stats - sites": "orgs_stats"
 "orgs stats - tunnels": "orgs_stats"
+"orgs stats - ospf": "orgs_stats"
 "orgs stats - vpn peers": "orgs_stats"
 # orgs_clients
 "orgs clients - nac": "clients"

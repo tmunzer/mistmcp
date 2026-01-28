@@ -19,31 +19,24 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
-from pydantic import Field
-from typing import Annotated
-from uuid import UUID
-
 
 mcp = mcp_instance.get()
 
 
 @mcp.tool(
     enabled=False,
-    name="getSiteRfdiagRecording",
-    description="""Get RF Diag Recording Details""",
-    tags={"Sites Rfdiags"},
+    name="listSupportedOtherDeviceModels",
+    description="""Supported OtherDevice Models""",
+    tags={"Constants Models"},
     annotations={
-        "title": "getSiteRfdiagRecording",
+        "title": "listSupportedOtherDeviceModels",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def getSiteRfdiagRecording(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    rfdiag_id: Annotated[UUID, Field(description="""ID of the Mist Rfdiag""")],
-) -> dict | list:
-    """Get RF Diag Recording Details"""
+async def listSupportedOtherDeviceModels() -> dict | list:
+    """Supported OtherDevice Models"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -77,10 +70,8 @@ async def getSiteRfdiagRecording(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.rfdiags.getSiteRfdiagRecording(
+    response = mistapi.api.v1.const.otherdevice_models.listSupportedOtherDeviceModels(
         apisession,
-        site_id=str(site_id),
-        rfdiag_id=str(rfdiag_id),
     )
 
     if response.status_code != 200:

@@ -36,7 +36,7 @@ class Type(Enum):
 @mcp.tool(
     enabled=False,
     name="searchOrgTunnelsStats",
-    description="""Search Org Tunnels Stats""",
+    description="""By default the endpoint returns only `wxtunnel` type stats, to get `wan` type statsyou need to specify `type=wan` in the query parameters.Tunnel types:- `wxtunnel` (default) - A WxLan Tunnel (WxTunnel) are used to create a secure connection between Juniper Mist Access Points and third-party VPN concentrators using protocols such as L2TPv3 or dmvpn.- `wan` - A WAN Tunnel is a secure connection between two Gateways, typically used for site-to-site or mesh connectivity. It can be configured with various protocols and encryption methods.If `type` is not specified or `type`==`wxtunnel`, the following parameters are supported:- `mxcluster_id` - the MX cluster ID- `site_id` - the site ID- `wxtunnel_id` - the WX tunnel ID- `ap` - the AP MAC addressIf `type`==`wan`, the following parameters are supported:- `mac` - the MAC address of the WAN device- `node` - the node ID- `peer_ip` - the peer IP address- `peer_host` - the peer host name- `ip` - the IP address of the WAN device- `tunnel_name` - the name of the tunnel- `protocol` - the protocol used for the tunnel- `auth_algo` - the authentication algorithm used for the tunnel- `encrypt_algo` - the encryption algorithm used for the tunnel- `ike_version` - the IKE version used for the tunnel- `up` - the status of the tunnel (up or down)""",
     tags={"orgs_stats"},
     annotations={
         "title": "searchOrgTunnelsStats",
@@ -81,24 +81,36 @@ async def searchOrgTunnelsStats(
     ] = None,
     up: Annotated[Optional[str], Field(description="""If `type`==`wan`""")] = None,
     type: Optional[Type] = Type.WXTUNNEL,
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
 ) -> dict | list:
-    """Search Org Tunnels Stats"""
+    """By default the endpoint returns only `wxtunnel` type stats, to get `wan` type statsyou need to specify `type=wan` in the query parameters.Tunnel types:- `wxtunnel` (default) - A WxLan Tunnel (WxTunnel) are used to create a secure connection between Juniper Mist Access Points and third-party VPN concentrators using protocols such as L2TPv3 or dmvpn.- `wan` - A WAN Tunnel is a secure connection between two Gateways, typically used for site-to-site or mesh connectivity. It can be configured with various protocols and encryption methods.If `type` is not specified or `type`==`wxtunnel`, the following parameters are supported:- `mxcluster_id` - the MX cluster ID- `site_id` - the site ID- `wxtunnel_id` - the WX tunnel ID- `ap` - the AP MAC addressIf `type`==`wan`, the following parameters are supported:- `mac` - the MAC address of the WAN device- `node` - the node ID- `peer_ip` - the peer IP address- `peer_host` - the peer host name- `ip` - the IP address of the WAN device- `tunnel_name` - the name of the tunnel- `protocol` - the protocol used for the tunnel- `auth_algo` - the authentication algorithm used for the tunnel- `encrypt_algo` - the encryption algorithm used for the tunnel- `ike_version` - the IKE version used for the tunnel- `up` - the status of the tunnel (up or down)"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -155,6 +167,8 @@ async def searchOrgTunnelsStats(
         start=start,
         end=end,
         duration=duration,
+        sort=sort,
+        search_after=search_after,
     )
 
     if response.status_code != 200:

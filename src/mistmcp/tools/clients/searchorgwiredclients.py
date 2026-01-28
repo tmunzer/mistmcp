@@ -73,7 +73,7 @@ async def searchOrgWiredClients(
         Field(description="""Port id where the client has connected to"""),
     ] = None,
     vlan: Annotated[Optional[int], Field(description="""VLAN""")] = None,
-    ip_address: Optional[str] = None,
+    ip: Optional[str] = None,
     manufacture: Annotated[
         Optional[str], Field(description="""Client manufacturer""")
     ] = None,
@@ -95,22 +95,34 @@ async def searchOrgWiredClients(
     dhcp_request_params: Annotated[
         Optional[str], Field(description="""DHCP Request Parameters""")
     ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
 ) -> dict | list:
     """Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)"""
 
@@ -157,7 +169,7 @@ async def searchOrgWiredClients(
         mac=mac,
         port_id=port_id,
         vlan=vlan,
-        ip_address=ip_address,
+        ip=ip,
         manufacture=manufacture,
         text=text,
         nacrule_id=nacrule_id,
@@ -170,6 +182,8 @@ async def searchOrgWiredClients(
         start=start,
         end=end,
         duration=duration,
+        sort=sort,
+        search_after=search_after,
     )
 
     if response.status_code != 200:
