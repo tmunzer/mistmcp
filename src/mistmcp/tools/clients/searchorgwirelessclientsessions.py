@@ -49,47 +49,59 @@ class Band(Enum):
 )
 async def searchOrgWirelessClientSessions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    ap: Annotated[Optional[str], Field(description="""AP MAC""")],
-    band: Annotated[Optional[Band], Field(description="""802.11 Band""")],
+    ap: Annotated[Optional[str | None], Field(description="""AP MAC""")] = None,
+    band: Annotated[
+        Optional[Band | None], Field(description="""802.11 Band""")
+    ] = Band.NONE,
     client_family: Annotated[
-        Optional[str], Field(description="""E.g. 'Mac', 'iPhone', 'Apple watch'""")
-    ],
-    client_manufacture: Annotated[Optional[str], Field(description="""E.g. 'Apple'""")],
-    client_model: Annotated[Optional[str], Field(description="""E.g. '8+', 'XS'""")],
-    client_username: Annotated[Optional[str], Field(description="""Username""")],
+        Optional[str | None],
+        Field(description="""E.g. 'Mac', 'iPhone', 'Apple watch'"""),
+    ] = None,
+    client_manufacture: Annotated[
+        Optional[str | None], Field(description="""E.g. 'Apple'""")
+    ] = None,
+    client_model: Annotated[
+        Optional[str | None], Field(description="""E.g. '8+', 'XS'""")
+    ] = None,
+    client_username: Annotated[
+        Optional[str | None], Field(description="""Username""")
+    ] = None,
     client_os: Annotated[
-        Optional[str], Field(description="""E.g. 'Mojave', 'Windows 10', 'Linux'""")
-    ],
-    ssid: Annotated[Optional[str], Field(description="""SSID""")],
-    wlan_id: Annotated[Optional[UUID], Field(description="""WLAN_id""")],
-    psk_id: Annotated[Optional[str], Field(description="""PSK ID""")],
-    psk_name: Annotated[Optional[str], Field(description="""PSK Name""")],
-    limit: Optional[int],
+        Optional[str | None],
+        Field(description="""E.g. 'Mojave', 'Windows 10', 'Linux'"""),
+    ] = None,
+    ssid: Annotated[Optional[str | None], Field(description="""SSID""")] = None,
+    wlan_id: Annotated[Optional[UUID | None], Field(description="""WLAN_id""")] = None,
+    psk_id: Annotated[Optional[str | None], Field(description="""PSK ID""")] = None,
+    psk_name: Annotated[Optional[str | None], Field(description="""PSK Name""")] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Org Wireless Clients Sessions"""
 

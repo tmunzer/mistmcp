@@ -42,13 +42,13 @@ mcp = mcp_instance.get()
 async def listSiteDiscoveredSwitchesMetrics(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     threshold: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Configurable # ap per switch threshold, default 12"""),
-    ],
+    ] = None,
     system_name: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""System name for switch level metrics, optional"""),
-    ],
+    ] = None,
 ) -> dict | list:
     """Discovered switches related metrics, lists related switch system names & details if not compliant"""
 

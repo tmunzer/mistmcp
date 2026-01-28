@@ -41,25 +41,27 @@ mcp = mcp_instance.get()
 )
 async def getSiteCallsSummary(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    ap_mac: Annotated[Optional[str], Field(description="""AP MAC, optional""")],
+    ap_mac: Annotated[
+        Optional[str | None], Field(description="""AP MAC, optional""")
+    ] = None,
     app: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""APp name (`zoom` or `teams`). default is both. Optional"""
         ),
-    ],
+    ] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Summarized, aggregated stats for the site calls"""
 

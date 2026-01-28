@@ -82,129 +82,158 @@ class Type(Enum):
 async def searchOrgSwOrGwPorts(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     full_duplex: Annotated[
-        Optional[bool], Field(description="""Indicates full or half duplex""")
-    ],
-    mac: Annotated[Optional[str], Field(description="""Device identifier""")],
+        Optional[bool | None], Field(description="""Indicates full or half duplex""")
+    ] = None,
+    mac: Annotated[
+        Optional[str | None], Field(description="""Device identifier""")
+    ] = None,
     neighbor_mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Chassis identifier of the chassis type listed"""),
-    ],
+    ] = None,
     neighbor_port_desc: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Description supplied by the system on the interface E.g. 'GigabitEthernet2/0/39'"""
         ),
-    ],
+    ] = None,
     neighbor_system_name: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Name supplied by the system on the interface E.g. neighbor system name E.g. 'Kumar-Acc-SW.mist.local'"""
         ),
-    ],
+    ] = None,
     poe_disabled: Annotated[
-        Optional[bool], Field(description="""Is the POE configured not be disabled.""")
-    ],
+        Optional[bool | None],
+        Field(description="""Is the POE configured not be disabled."""),
+    ] = None,
     poe_priority: Annotated[
-        Optional[Poe_priority], Field(description="""PoE priority.""")
-    ],
+        Optional[Poe_priority | None], Field(description="""PoE priority.""")
+    ] = Poe_priority.NONE,
     poe_mode: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""POE mode depending on class E.g. '802.3at'"""),
-    ],
+    ] = None,
     poe_on: Annotated[
-        Optional[bool], Field(description="""Is the device attached to POE""")
-    ],
-    port_id: Annotated[Optional[str], Field(description="""Interface name""")],
-    port_mac: Annotated[Optional[str], Field(description="""Interface mac address""")],
+        Optional[bool | None], Field(description="""Is the device attached to POE""")
+    ] = None,
+    port_id: Annotated[
+        Optional[str | None], Field(description="""Interface name""")
+    ] = None,
+    port_mac: Annotated[
+        Optional[str | None], Field(description="""Interface mac address""")
+    ] = None,
     power_draw: Annotated[
-        Optional[float],
+        Optional[float | None],
         Field(
             description="""Amount of power being used by the interface at the time the command is executed. Unit in watts."""
         ),
-    ],
-    tx_pkts: Annotated[Optional[int], Field(description="""Output packets""")],
-    rx_pkts: Annotated[Optional[int], Field(description="""Input packets""")],
-    rx_bytes: Annotated[Optional[int], Field(description="""Input bytes""")],
-    tx_bps: Annotated[Optional[int], Field(description="""Output rate""")],
-    rx_bps: Annotated[Optional[int], Field(description="""Input rate""")],
-    tx_errors: Annotated[Optional[int], Field(description="""Output errors""")],
-    rx_errors: Annotated[Optional[int], Field(description="""Input errors""")],
+    ] = None,
+    tx_pkts: Annotated[
+        Optional[int | None], Field(description="""Output packets""")
+    ] = None,
+    rx_pkts: Annotated[
+        Optional[int | None], Field(description="""Input packets""")
+    ] = None,
+    rx_bytes: Annotated[
+        Optional[int | None], Field(description="""Input bytes""")
+    ] = None,
+    tx_bps: Annotated[
+        Optional[int | None], Field(description="""Output rate""")
+    ] = None,
+    rx_bps: Annotated[Optional[int | None], Field(description="""Input rate""")] = None,
+    tx_errors: Annotated[
+        Optional[int | None], Field(description="""Output errors""")
+    ] = None,
+    rx_errors: Annotated[
+        Optional[int | None], Field(description="""Input errors""")
+    ] = None,
     tx_mcast_pkts: Annotated[
-        Optional[int], Field(description="""Multicast output packets""")
-    ],
+        Optional[int | None], Field(description="""Multicast output packets""")
+    ] = None,
     tx_bcast_pkts: Annotated[
-        Optional[int], Field(description="""Broadcast output packets""")
-    ],
+        Optional[int | None], Field(description="""Broadcast output packets""")
+    ] = None,
     rx_mcast_pkts: Annotated[
-        Optional[int], Field(description="""Multicast input packets""")
-    ],
+        Optional[int | None], Field(description="""Multicast input packets""")
+    ] = None,
     rx_bcast_pkts: Annotated[
-        Optional[int], Field(description="""Broadcast input packets""")
-    ],
-    speed: Annotated[Optional[int], Field(description="""Port speed""")],
+        Optional[int | None], Field(description="""Broadcast input packets""")
+    ] = None,
+    speed: Annotated[Optional[int | None], Field(description="""Port speed""")] = None,
     mac_limit: Annotated[
-        Optional[int],
+        Optional[int | None],
         Field(description="""Limit on number of dynamically learned macs"""),
-    ],
+    ] = None,
     mac_count: Annotated[
-        Optional[int],
+        Optional[int | None],
         Field(description="""Number of mac addresses in the forwarding table"""),
-    ],
+    ] = None,
     up: Annotated[
-        Optional[bool], Field(description="""Indicates if interface is up""")
-    ],
-    stp_state: Annotated[Optional[Stp_state], Field(description="""If `up`==`true`""")],
-    stp_role: Annotated[Optional[Stp_role], Field(description="""If `up`==`true`""")],
+        Optional[bool | None], Field(description="""Indicates if interface is up""")
+    ] = None,
+    stp_state: Annotated[
+        Optional[Stp_state | None], Field(description="""If `up`==`true`""")
+    ] = Stp_state.NONE,
+    stp_role: Annotated[
+        Optional[Stp_role | None], Field(description="""If `up`==`true`""")
+    ] = Stp_role.NONE,
     auth_state: Annotated[
-        Optional[Auth_state],
+        Optional[Auth_state | None],
         Field(description="""If `up`==`true` && has Authenticator role"""),
-    ],
+    ] = Auth_state.NONE,
     optics_bias_current: Annotated[
-        Optional[float], Field(description="""Bias current of the optics in mA""")
-    ],
+        Optional[float | None],
+        Field(description="""Bias current of the optics in mA"""),
+    ] = None,
     optics_tx_power: Annotated[
-        Optional[float], Field(description="""Transmit power of the optics in dBm""")
-    ],
+        Optional[float | None],
+        Field(description="""Transmit power of the optics in dBm"""),
+    ] = None,
     optics_rx_power: Annotated[
-        Optional[float], Field(description="""Receive power of the optics in dBm""")
-    ],
+        Optional[float | None],
+        Field(description="""Receive power of the optics in dBm"""),
+    ] = None,
     optics_module_temperature: Annotated[
-        Optional[float],
+        Optional[float | None],
         Field(description="""Temperature of the optics module in Celsius"""),
-    ],
+    ] = None,
     optics_module_voltage: Annotated[
-        Optional[float], Field(description="""Voltage of the optics module in mV""")
-    ],
+        Optional[float | None],
+        Field(description="""Voltage of the optics module in mV"""),
+    ] = None,
     type: Annotated[
-        Optional[Type],
+        Optional[Type | None],
         Field(description="""Type of device. enum: `switch`, `gateway`, `all`"""),
-    ],
-    limit: Optional[int],
+    ] = Type.ALL,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Switch / Gateway Ports"""
 

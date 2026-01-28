@@ -41,37 +41,39 @@ mcp = mcp_instance.get()
 )
 async def searchOrgGuestAuthorization(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    wlan_id: Annotated[Optional[str], Field(description="""WLAN ID""")],
+    wlan_id: Annotated[Optional[str | None], Field(description="""WLAN ID""")] = None,
     auth_method: Annotated[
-        Optional[str], Field(description="""Authentication Method""")
-    ],
-    ssid: Annotated[Optional[str], Field(description="""SSID""")],
-    limit: Optional[int],
+        Optional[str | None], Field(description="""Authentication Method""")
+    ] = None,
+    ssid: Annotated[Optional[str | None], Field(description="""SSID""")] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     guest_mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Authorized Guest"""
 

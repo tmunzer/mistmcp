@@ -41,35 +41,37 @@ mcp = mcp_instance.get()
 )
 async def searchOrgOspfStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[str], Field(description="""ID of the Mist Site""")],
-    mac: Optional[str],
-    vrf_name: Optional[str],
-    peer_ip: Optional[str],
+    site_id: Annotated[
+        Optional[str | None], Field(description="""ID of the Mist Site""")
+    ] = None,
+    mac: Optional[str | None] = None,
+    vrf_name: Optional[str | None] = None,
+    peer_ip: Optional[str | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    limit: Optional[int],
+    ] = None,
+    limit: Optional[int | None] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search OSPF Neighbor Stats"""
 

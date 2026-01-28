@@ -41,38 +41,40 @@ mcp = mcp_instance.get()
 )
 async def searchSiteDiscoveredSwitches(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    adopted: Optional[bool],
-    system_name: Optional[str],
-    hostname: Optional[str],
-    vendor: Optional[str],
-    model: Optional[str],
-    version: Optional[str],
-    limit: Optional[int],
+    adopted: Optional[bool | None] = None,
+    system_name: Optional[str | None] = None,
+    hostname: Optional[str | None] = None,
+    vendor: Optional[str | None] = None,
+    model: Optional[str | None] = None,
+    version: Optional[str | None] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Discovered Switches"""
 

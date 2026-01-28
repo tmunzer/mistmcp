@@ -41,41 +41,45 @@ mcp = mcp_instance.get()
 )
 async def searchSiteGuestAuthorization(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    wlan_id: Annotated[Optional[str], Field(description="""ID of the Mist Wlan""")],
-    auth_method: Optional[str],
-    ssid: Optional[str],
-    limit: Optional[int],
+    wlan_id: Annotated[
+        Optional[str | None], Field(description="""ID of the Mist Wlan""")
+    ] = None,
+    auth_method: Optional[str | None] = None,
+    ssid: Optional[str | None] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
     guest_mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Authorized Guest"""
 

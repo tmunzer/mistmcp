@@ -48,13 +48,13 @@ class Type(Enum):
 )
 async def listOrgAvailableDeviceVersions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Optional[Type],
+    type: Optional[Type | None] = Type.AP,
     model: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)"""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Get List of Available Device Versions"""
 

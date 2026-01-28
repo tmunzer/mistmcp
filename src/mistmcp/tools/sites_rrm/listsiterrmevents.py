@@ -49,22 +49,26 @@ class Band(Enum):
 )
 async def listSiteRrmEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    band: Annotated[Optional[Band], Field(description="""802.11 Band""")],
+    band: Annotated[
+        Optional[Band | None], Field(description="""802.11 Band""")
+    ] = Band.NONE,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    limit: Optional[int],
-    page: Annotated[Optional[int], Field(ge=1)],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
 ) -> dict | list:
     """List Site RRM Events"""
 

@@ -41,80 +41,86 @@ mcp = mcp_instance.get()
 )
 async def searchOrgWirelessClients(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
-    mac: Annotated[Optional[str], Field(description="""Partial / full MAC address""")],
-    ip: Optional[str],
+    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
+    mac: Annotated[
+        Optional[str | None], Field(description="""Partial / full MAC address""")
+    ] = None,
+    ip: Optional[str | None] = None,
     hostname: Annotated[
-        Optional[str], Field(description="""Partial / full hostname""")
-    ],
+        Optional[str | None], Field(description="""Partial / full hostname""")
+    ] = None,
     band: Annotated[
-        Optional[str], Field(description="""Radio band. enum: `24`, `5`, `6`""")
-    ],
+        Optional[str | None], Field(description="""Radio band. enum: `24`, `5`, `6`""")
+    ] = None,
     device: Annotated[
-        Optional[str], Field(description="""Device type, e.g. Mac, Nvidia, iPhone""")
-    ],
+        Optional[str | None],
+        Field(description="""Device type, e.g. Mac, Nvidia, iPhone"""),
+    ] = None,
     os: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Only available for clients running the Marvis Client app, os, e.g. Sierra, Yosemite, Windows 10"""
         ),
-    ],
+    ] = None,
     model: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Only available for clients running the Marvis Client app, model, e.g. 'MBP 15 late 2013', 6, 6s, '8+ GSM'"""
         ),
-    ],
+    ] = None,
     ap: Annotated[
-        Optional[str], Field(description="""AP mac where the client has connected to""")
-    ],
-    psk_id: Annotated[Optional[str], Field(description="""PSK ID""")],
+        Optional[str | None],
+        Field(description="""AP mac where the client has connected to"""),
+    ] = None,
+    psk_id: Annotated[Optional[str | None], Field(description="""PSK ID""")] = None,
     psk_name: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Only available for clients using PPSK authentication, the Name of the PSK"""
         ),
-    ],
+    ] = None,
     username: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Only available for clients using 802.1X authentication, partial / full username"""
         ),
-    ],
-    vlan: Annotated[Optional[str], Field(description="""VLAN""")],
-    ssid: Annotated[Optional[str], Field(description="""SSID""")],
+    ] = None,
+    vlan: Annotated[Optional[str | None], Field(description="""VLAN""")] = None,
+    ssid: Annotated[Optional[str | None], Field(description="""SSID""")] = None,
     text: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Partial / full MAC address, hostname, username, psk_name or ip"""
         ),
-    ],
-    limit: Optional[int],
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Org Wireless Clients"""
 

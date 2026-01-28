@@ -48,51 +48,79 @@ class Type(Enum):
 async def searchOrgTunnelsStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mxcluster_id: Annotated[
-        Optional[str], Field(description="""If `type`==`wxtunnel`""")
-    ],
-    site_id: Annotated[Optional[str], Field(description="""ID of the Mist Site""")],
+        Optional[str | None], Field(description="""If `type`==`wxtunnel`""")
+    ] = None,
+    site_id: Annotated[
+        Optional[str | None], Field(description="""ID of the Mist Site""")
+    ] = None,
     wxtunnel_id: Annotated[
-        Optional[str], Field(description="""If `type`==`wxtunnel`""")
-    ],
-    ap: Annotated[Optional[str], Field(description="""If `type`==`wxtunnel`""")],
-    mac: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    node: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    peer_ip: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    peer_host: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    ip: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    tunnel_name: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    protocol: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    auth_algo: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    encrypt_algo: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    ike_version: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    up: Annotated[Optional[str], Field(description="""If `type`==`wan`""")],
-    type: Optional[Type],
-    limit: Optional[int],
+        Optional[str | None], Field(description="""If `type`==`wxtunnel`""")
+    ] = None,
+    ap: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wxtunnel`""")
+    ] = None,
+    mac: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    node: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    peer_ip: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    peer_host: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    ip: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    tunnel_name: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    protocol: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    auth_algo: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    encrypt_algo: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    ike_version: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    up: Annotated[
+        Optional[str | None], Field(description="""If `type`==`wan`""")
+    ] = None,
+    type: Optional[Type | None] = Type.WXTUNNEL,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """By default the endpoint returns only `wxtunnel` type stats, to get `wan` type statsyou need to specify `type=wan` in the query parameters.Tunnel types:- `wxtunnel` (default) - A WxLan Tunnel (WxTunnel) are used to create a secure connection between Juniper Mist Access Points and third-party VPN concentrators using protocols such as L2TPv3 or dmvpn.- `wan` - A WAN Tunnel is a secure connection between two Gateways, typically used for site-to-site or mesh connectivity. It can be configured with various protocols and encryption methods.If `type` is not specified or `type`==`wxtunnel`, the following parameters are supported:- `mxcluster_id` - the MX cluster ID- `site_id` - the site ID- `wxtunnel_id` - the WX tunnel ID- `ap` - the AP MAC addressIf `type`==`wan`, the following parameters are supported:- `mac` - the MAC address of the WAN device- `node` - the node ID- `peer_ip` - the peer IP address- `peer_host` - the peer host name- `ip` - the IP address of the WAN device- `tunnel_name` - the name of the tunnel- `protocol` - the protocol used for the tunnel- `auth_algo` - the authentication algorithm used for the tunnel- `encrypt_algo` - the encryption algorithm used for the tunnel- `ike_version` - the IKE version used for the tunnel- `up` - the status of the tunnel (up or down)"""
 

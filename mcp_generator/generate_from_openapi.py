@@ -260,10 +260,10 @@ def _process_params(
                 enums += tmp_enum
                 tmp_type = tmp_param["name"].capitalize()
                 if tmp_param["default"]:
-                    # tmp_default = f" = {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}"
+                    tmp_default = f" = {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}.value,\n"
                 elif force_default:
-                    # tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
+                    tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else None,\n"
                 else:
                     tmp_mistapi_parameters = (
@@ -302,12 +302,12 @@ def _process_params(
             #         annotations.append(f"default={tmp_param['default']}")
             else:
                 _add_import(imports, "typing", "Optional")
-                tmp_type = f"Optional[{tmp_type}]"
+                tmp_type = f"Optional[{tmp_type} | None]"
                 # tmp_optional = " | None"
-                tmp_default = ""
+                tmp_default = " = None"
         elif not tmp_param["required"]:
             _add_import(imports, "typing", "Optional")
-            tmp_type = f"Optional[{tmp_type}]"
+            tmp_type = f"Optional[{tmp_type} | None]"
 
         if annotations:
             _add_import(imports, "typing", "Annotated")

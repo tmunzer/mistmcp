@@ -76,131 +76,147 @@ class Desc_sort(Enum):
 async def searchSiteDevices(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     hostname: Annotated[
-        Optional[str], Field(description="""Partial / full hostname""")
-    ],
-    type: Optional[Type],
-    model: Annotated[Optional[str], Field(description="""Device model""")],
-    mac: Annotated[Optional[str], Field(description="""Device MAC""")],
-    ext_ip: Annotated[Optional[str], Field(description="""Device external ip""")],
-    version: Annotated[Optional[str], Field(description="""Version""")],
+        Optional[str | None], Field(description="""Partial / full hostname""")
+    ] = None,
+    type: Optional[Type | None] = Type.AP,
+    model: Annotated[
+        Optional[str | None], Field(description="""Device model""")
+    ] = None,
+    mac: Annotated[Optional[str | None], Field(description="""Device MAC""")] = None,
+    ext_ip: Annotated[
+        Optional[str | None], Field(description="""Device external ip""")
+    ] = None,
+    version: Annotated[Optional[str | None], Field(description="""Version""")] = None,
     power_constrained: Annotated[
-        Optional[bool], Field(description="""power_constrained""")
-    ],
-    ip: Optional[str],
+        Optional[bool | None], Field(description="""power_constrained""")
+    ] = None,
+    ip: Optional[str | None] = None,
     mxtunnel_status: Annotated[
-        Optional[Mxtunnel_status],
+        Optional[Mxtunnel_status | None],
         Field(description="""For APs only, MxTunnel status, up / down."""),
-    ],
+    ] = Mxtunnel_status.NONE,
     mxedge_id: Annotated[
-        Optional[UUID],
+        Optional[UUID | None],
         Field(
             description="""For APs only, Mist Edge id, if AP is connecting to a Mist Edge"""
         ),
-    ],
+    ] = None,
     mxedge_ids: Annotated[
-        Optional[List[str]],
+        Optional[List[str] | None],
         Field(
             description="""For APs only, list of Mist Edge id, if AP is connecting to a Mist Edge"""
         ),
-    ],
+    ] = None,
     last_hostname: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""For Switches and Gateways only, last hostname"""),
-    ],
+    ] = None,
     last_config_status: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""For Switches and Gateways only, last configuration status of the switch/gateway"""
         ),
-    ],
+    ] = None,
     radius_stats: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""For Switches and Gateways only, Key-value pairs where the key is the RADIUS server address and the value contains authentication statistics:   *  <server_address> (string): IP address of the RADIUS server as the key   * `auth_accepts` (long): Number of accepted authentication requests   * `auth_rejects` (long): Number of rejected authentication requests   * `auth_timeouts` (long): Number of authentication timeouts   * `auth_server_status` (string): Status of the server. Possible values: `up`, `down`, `unreachable`"""
         ),
-    ],
+    ] = None,
     cpu: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""For Switches and Gateways only, max cpu usage"""),
-    ],
+    ] = None,
     node0_mac: Annotated[
-        Optional[str], Field(description="""For Gateways only, node0 MAC Address""")
-    ],
-    clustered: Annotated[Optional[bool], Field(description="""For Gateways only""")],
+        Optional[str | None],
+        Field(description="""For Gateways only, node0 MAC Address"""),
+    ] = None,
+    clustered: Annotated[
+        Optional[bool | None], Field(description="""For Gateways only""")
+    ] = None,
     t128agent_version: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""For Gateways (SSR) only, version of 128T agent"""),
-    ],
+    ] = None,
     node1_mac: Annotated[
-        Optional[str], Field(description="""For Gateways only, node1 MAC Address""")
-    ],
+        Optional[str | None],
+        Field(description="""For Gateways only, node1 MAC Address"""),
+    ] = None,
     node: Annotated[
-        Optional[Node],
+        Optional[Node | None],
         Field(description="""For Gateways only. enum: `node0`, `node1`"""),
-    ],
+    ] = Node.NONE,
     evpntopo_id: Annotated[
-        Optional[str], Field(description="""For Switches only, EVPN topology id""")
-    ],
+        Optional[str | None],
+        Field(description="""For Switches only, EVPN topology id"""),
+    ] = None,
     lldp_system_name: Annotated[
-        Optional[str], Field(description="""For APs only, LLDP system name""")
-    ],
+        Optional[str | None], Field(description="""For APs only, LLDP system name""")
+    ] = None,
     lldp_system_desc: Annotated[
-        Optional[str], Field(description="""For APs only, LLDP system description""")
-    ],
+        Optional[str | None],
+        Field(description="""For APs only, LLDP system description"""),
+    ] = None,
     lldp_port_id: Annotated[
-        Optional[str], Field(description="""For APs only, LLDP port id""")
-    ],
+        Optional[str | None], Field(description="""For APs only, LLDP port id""")
+    ] = None,
     lldp_mgmt_addr: Annotated[
-        Optional[str], Field(description="""For APs only, LLDP management ip address""")
-    ],
+        Optional[str | None],
+        Field(description="""For APs only, LLDP management ip address"""),
+    ] = None,
     band_24_channel: Annotated[
-        Optional[int], Field(description="""Channel of band_24""")
-    ],
+        Optional[int | None], Field(description="""Channel of band_24""")
+    ] = None,
     band_5_channel: Annotated[
-        Optional[int], Field(description="""Channel of band_5""")
-    ],
+        Optional[int | None], Field(description="""Channel of band_5""")
+    ] = None,
     band_6_channel: Annotated[
-        Optional[int], Field(description="""Channel of band_6""")
-    ],
+        Optional[int | None], Field(description="""Channel of band_6""")
+    ] = None,
     band_24_bandwidth: Annotated[
-        Optional[int], Field(description="""Bandwidth of band_24""")
-    ],
+        Optional[int | None], Field(description="""Bandwidth of band_24""")
+    ] = None,
     band_5_bandwidth: Annotated[
-        Optional[int], Field(description="""Bandwidth of band_5""")
-    ],
+        Optional[int | None], Field(description="""Bandwidth of band_5""")
+    ] = None,
     band_6_bandwidth: Annotated[
-        Optional[int], Field(description="""Bandwidth of band_6""")
-    ],
+        Optional[int | None], Field(description="""Bandwidth of band_6""")
+    ] = None,
     eth0_port_speed: Annotated[
-        Optional[int], Field(description="""Port speed of eth0""")
-    ],
+        Optional[int | None], Field(description="""Port speed of eth0""")
+    ] = None,
     stats: Annotated[
-        Optional[bool], Field(description="""Whether to return device stats""")
-    ],
-    limit: Optional[int],
+        Optional[bool | None], Field(description="""Whether to return device stats""")
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    sort: Annotated[Optional[Sort], Field(description="""Sort options""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[Sort | None], Field(description="""Sort options""")
+    ] = Sort.TIMESTAMP,
     desc_sort: Annotated[
-        Optional[Desc_sort], Field(description="""Sort options in reverse order""")
-    ],
+        Optional[Desc_sort | None],
+        Field(description="""Sort options in reverse order"""),
+    ] = Desc_sort.NONE,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Device"""
 

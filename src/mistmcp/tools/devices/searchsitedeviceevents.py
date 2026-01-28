@@ -41,52 +41,60 @@ mcp = mcp_instance.get()
 )
 async def searchSiteDeviceEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mac: Annotated[Optional[str], Field(description="""Device mac""")],
-    model: Annotated[Optional[str], Field(description="""Device model""")],
-    text: Annotated[Optional[str], Field(description="""Event message""")],
-    timestamp: Annotated[Optional[str], Field(description="""Event time""")],
+    mac: Annotated[Optional[str | None], Field(description="""Device mac""")] = None,
+    model: Annotated[
+        Optional[str | None], Field(description="""Device model""")
+    ] = None,
+    text: Annotated[
+        Optional[str | None], Field(description="""Event message""")
+    ] = None,
+    timestamp: Annotated[
+        Optional[str | None], Field(description="""Event time""")
+    ] = None,
     type: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
         ),
-    ],
+    ] = None,
     last_by: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Return last/recent event for passed in field"""),
-    ],
+    ] = None,
     includes: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Keyword to include events from additional indices (e.g. ext_tunnel for prisma events)"""
         ),
-    ],
-    limit: Optional[int],
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Devices Events"""
 

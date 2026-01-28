@@ -41,33 +41,35 @@ mcp = mcp_instance.get()
 )
 async def searchOrgEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Annotated[Optional[str], Field(description="""Event type""")],
-    limit: Optional[int],
+    type: Annotated[Optional[str | None], Field(description="""Event type""")] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Org eventsSupported Event Types:- CRADLEPOINT_SYNC_FAILED- ORG_CA_CERT_ADDED- ORG_CA_CERT_REGENERATED"""
 

@@ -42,26 +42,28 @@ mcp = mcp_instance.get()
 async def listSiteMxEdgesStats(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    limit: Optional[int],
-    page: Annotated[Optional[int], Field(ge=1)],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
     mxedge_id: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Get List of Site MxEdges Stats"""
 

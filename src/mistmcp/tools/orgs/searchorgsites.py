@@ -42,76 +42,86 @@ mcp = mcp_instance.get()
 async def searchOrgSites(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     analytic_enabled: Annotated[
-        Optional[bool], Field(description="""If Advanced Analytic feature is enabled""")
-    ],
+        Optional[bool | None],
+        Field(description="""If Advanced Analytic feature is enabled"""),
+    ] = None,
     app_waking: Annotated[
-        Optional[bool], Field(description="""If App Waking feature is enabled""")
-    ],
+        Optional[bool | None], Field(description="""If App Waking feature is enabled""")
+    ] = None,
     asset_enabled: Annotated[
-        Optional[bool], Field(description="""If Asset Tracking is enabled""")
-    ],
+        Optional[bool | None], Field(description="""If Asset Tracking is enabled""")
+    ] = None,
     auto_upgrade_enabled: Annotated[
-        Optional[bool], Field(description="""If Auto Upgrade feature is enabled""")
-    ],
+        Optional[bool | None],
+        Field(description="""If Auto Upgrade feature is enabled"""),
+    ] = None,
     auto_upgrade_version: Annotated[
-        Optional[str], Field(description="""If Auto Upgrade feature is enabled""")
-    ],
-    country_code: Annotated[Optional[str], Field(description="""Site country code""")],
+        Optional[str | None],
+        Field(description="""If Auto Upgrade feature is enabled"""),
+    ] = None,
+    country_code: Annotated[
+        Optional[str | None], Field(description="""Site country code""")
+    ] = None,
     honeypot_enabled: Annotated[
-        Optional[bool], Field(description="""If Honeypot detection is enabled""")
-    ],
-    id: Annotated[Optional[str], Field(description="""Site id""")],
+        Optional[bool | None], Field(description="""If Honeypot detection is enabled""")
+    ] = None,
+    id: Annotated[Optional[str | None], Field(description="""Site id""")] = None,
     locate_unconnected: Annotated[
-        Optional[bool], Field(description="""If unconnected client are located""")
-    ],
+        Optional[bool | None],
+        Field(description="""If unconnected client are located"""),
+    ] = None,
     mesh_enabled: Annotated[
-        Optional[bool], Field(description="""If Mesh feature is enabled""")
-    ],
+        Optional[bool | None], Field(description="""If Mesh feature is enabled""")
+    ] = None,
     name: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Site name. Adds '*' at the end for partial match"""),
-    ],
+    ] = None,
     rogue_enabled: Annotated[
-        Optional[bool], Field(description="""If Rogue detection is enabled""")
-    ],
+        Optional[bool | None], Field(description="""If Rogue detection is enabled""")
+    ] = None,
     remote_syslog_enabled: Annotated[
-        Optional[bool], Field(description="""If Remote Syslog is enabled""")
-    ],
+        Optional[bool | None], Field(description="""If Remote Syslog is enabled""")
+    ] = None,
     rtsa_enabled: Annotated[
-        Optional[bool], Field(description="""If managed mobility feature is enabled""")
-    ],
+        Optional[bool | None],
+        Field(description="""If managed mobility feature is enabled"""),
+    ] = None,
     vna_enabled: Annotated[
-        Optional[bool], Field(description="""If Virtual Network Assistant is enabled""")
-    ],
+        Optional[bool | None],
+        Field(description="""If Virtual Network Assistant is enabled"""),
+    ] = None,
     wifi_enabled: Annotated[
-        Optional[bool], Field(description="""If Wi-Fi feature is enabled""")
-    ],
-    limit: Optional[int],
+        Optional[bool | None], Field(description="""If Wi-Fi feature is enabled""")
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Sites"""
 

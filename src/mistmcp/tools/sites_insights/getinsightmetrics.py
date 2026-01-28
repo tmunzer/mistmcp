@@ -61,40 +61,42 @@ async def getInsightMetrics(
         ),
     ],
     mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""MAC address of the client or device to retrieve metrics for. Required if object_type is 'client', 'ap', 'mxedge' or 'switch'."""
         ),
-    ],
+    ] = None,
     device_id: Annotated[
-        Optional[UUID],
+        Optional[UUID | None],
         Field(
             description="""ID of the gateway device to retrieve metrics for. Required if object_type is 'gateway'."""
         ),
-    ],
+    ] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     interval: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
-    ],
-    page: Annotated[Optional[int], Field(description="""Page number""")],
+    ] = None,
+    page: Annotated[Optional[int | None], Field(description="""Page number""")] = None,
     limit: Annotated[
-        Optional[int], Field(description="""Number of records per page""")
-    ],
+        Optional[int | None], Field(description="""Number of records per page""")
+    ] = None,
 ) -> dict | list:
     """Get insight metrics for a given object"""
 

@@ -41,7 +41,9 @@ mcp = mcp_instance.get()
 )
 async def GetOrgLicenseAsyncClaimStatus(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    detail: Annotated[Optional[bool], Field(description="""Request license details""")],
+    detail: Annotated[
+        Optional[bool | None], Field(description="""Request license details""")
+    ] = None,
 ) -> dict | list:
     """Get Processing Status for Async Claim"""
 

@@ -50,61 +50,65 @@ class Client_type(Enum):
 async def searchOrgClientFingerprints(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     family: Annotated[
-        Optional[str], Field(description="""Device Category  of the client device""")
-    ],
+        Optional[str | None],
+        Field(description="""Device Category  of the client device"""),
+    ] = None,
     client_type: Annotated[
-        Optional[Client_type],
+        Optional[Client_type | None],
         Field(description="""Whether client is wired or wireless"""),
-    ],
+    ] = Client_type.NONE,
     model: Annotated[
-        Optional[str], Field(description="""Model name of the client device""")
-    ],
+        Optional[str | None], Field(description="""Model name of the client device""")
+    ] = None,
     mfg: Annotated[
-        Optional[str], Field(description="""Manufacturer name of the client device""")
-    ],
+        Optional[str | None],
+        Field(description="""Manufacturer name of the client device"""),
+    ] = None,
     os: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Operating System name and version of the client device"""),
-    ],
+    ] = None,
     os_type: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Operating system name of the client device"""),
-    ],
+    ] = None,
     mac: Annotated[
-        Optional[str], Field(description="""MAC address of the client device""")
-    ],
-    limit: Optional[int],
+        Optional[str | None], Field(description="""MAC address of the client device""")
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     interval: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
-    ],
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order."""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Client Fingerprints"""
 

@@ -48,35 +48,39 @@ class Type(Enum):
 )
 async def searchOrgPeerPathStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    mac: Optional[str],
-    site_id: Annotated[Optional[str], Field(description="""ID of the Mist Site""")],
-    type: Optional[Type],
-    limit: Optional[int],
+    mac: Optional[str | None] = None,
+    site_id: Annotated[
+        Optional[str | None], Field(description="""ID of the Mist Site""")
+    ] = None,
+    type: Optional[Type | None] = Type.NONE,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Org Peer Path Stats"""
 

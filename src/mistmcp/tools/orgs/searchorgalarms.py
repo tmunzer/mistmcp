@@ -41,40 +41,42 @@ mcp = mcp_instance.get()
 )
 async def searchOrgAlarms(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
-    type: Annotated[Optional[str], Field(description="""Alarm type""")],
+    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
+    type: Annotated[Optional[str | None], Field(description="""Alarm type""")] = None,
     status: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Alarm status. Accepts multiple values separated by comma. enum: `open`, `resolved`"""
         ),
-    ],
+    ] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    limit: Optional[int],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Org Alarms"""
 

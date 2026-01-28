@@ -50,33 +50,35 @@ class Type(Enum):
 )
 async def listSiteRogueAPs(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Optional[Type],
-    limit: Optional[int],
+    type: Optional[Type | None] = Type.NONE,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     interval: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
-    ],
+    ] = None,
     rogue_bssid: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Get List of Site Rogue/Neighbor APs"""
 

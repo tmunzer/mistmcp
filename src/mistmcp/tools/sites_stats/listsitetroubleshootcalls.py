@@ -41,25 +41,33 @@ mcp = mcp_instance.get()
 )
 async def listSiteTroubleshootCalls(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    ap: Annotated[Optional[str], Field(description="""AP MAC""")],
-    meeting_id: Annotated[Optional[str], Field(description="""meeting_id""")],
-    mac: Annotated[Optional[str], Field(description="""Device identifier""")],
-    app: Annotated[Optional[str], Field(description="""Third party app name""")],
+    ap: Annotated[Optional[str | None], Field(description="""AP MAC""")] = None,
+    meeting_id: Annotated[
+        Optional[str | None], Field(description="""meeting_id""")
+    ] = None,
+    mac: Annotated[
+        Optional[str | None], Field(description="""Device identifier""")
+    ] = None,
+    app: Annotated[
+        Optional[str | None], Field(description="""Third party app name""")
+    ] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    limit: Optional[int],
-    page: Annotated[Optional[int], Field(ge=1)],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
 ) -> dict | list:
     """Summary of calls troubleshoot by site"""
 

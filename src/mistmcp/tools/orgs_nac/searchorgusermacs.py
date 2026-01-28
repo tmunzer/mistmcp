@@ -41,19 +41,21 @@ mcp = mcp_instance.get()
 )
 async def searchOrgUserMacs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    mac: Annotated[Optional[str], Field(description="""Partial/full MAC address""")],
+    mac: Annotated[
+        Optional[str | None], Field(description="""Partial/full MAC address""")
+    ] = None,
     labels: Annotated[
-        Optional[List[str]],
+        Optional[List[str] | None],
         Field(description="""Optional, array of strings of labels"""),
-    ],
-    limit: Optional[int],
-    page: Annotated[Optional[int], Field(ge=1)],
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Org User MACs"""
 

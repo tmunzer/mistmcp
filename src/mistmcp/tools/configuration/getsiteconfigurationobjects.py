@@ -61,11 +61,11 @@ async def getSiteConfigurationObjects(
         Object_type, Field(description="""Type of configuration object to retrieve.""")
     ],
     object_id: Annotated[
-        Optional[UUID],
+        Optional[UUID | None],
         Field(
             description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Retrieve configuration objects from a specified site. The "_derived" tools are used to retrieve derived configuration objects that are generated from the org level objects with jinja2 variables resolved with the site variables."""
 

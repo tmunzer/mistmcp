@@ -41,38 +41,48 @@ mcp = mcp_instance.get()
 )
 async def searchSiteWanUsage(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mac: Annotated[Optional[str], Field(description="""MAC address""")],
-    peer_mac: Annotated[Optional[str], Field(description="""Peer MAC address""")],
-    port_id: Annotated[Optional[str], Field(description="""Port ID for the device""")],
+    mac: Annotated[Optional[str | None], Field(description="""MAC address""")] = None,
+    peer_mac: Annotated[
+        Optional[str | None], Field(description="""Peer MAC address""")
+    ] = None,
+    port_id: Annotated[
+        Optional[str | None], Field(description="""Port ID for the device""")
+    ] = None,
     peer_port_id: Annotated[
-        Optional[str], Field(description="""Peer Port ID for the device""")
-    ],
-    policy: Annotated[Optional[str], Field(description="""Policy for the wan path""")],
+        Optional[str | None], Field(description="""Peer Port ID for the device""")
+    ] = None,
+    policy: Annotated[
+        Optional[str | None], Field(description="""Policy for the wan path""")
+    ] = None,
     tenant: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Tenant network in which the packet is sent"""),
-    ],
-    path_type: Annotated[Optional[str], Field(description="""path_type of the port""")],
-    limit: Optional[int],
+    ] = None,
+    path_type: Annotated[
+        Optional[str | None], Field(description="""path_type of the port""")
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Site WAN Usages"""
 

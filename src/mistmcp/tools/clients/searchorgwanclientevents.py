@@ -42,44 +42,50 @@ mcp = mcp_instance.get()
 async def searchOrgWanClientEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     type: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
         ),
-    ],
-    mac: Annotated[Optional[str], Field(description="""Partial / full MAC address""")],
+    ] = None,
+    mac: Annotated[
+        Optional[str | None], Field(description="""Partial / full MAC address""")
+    ] = None,
     hostname: Annotated[
-        Optional[str], Field(description="""Partial / full hostname""")
-    ],
-    ip: Annotated[Optional[str], Field(description="""Client IP""")],
-    mfg: Annotated[Optional[str], Field(description="""Manufacture""")],
-    nacrule_id: Annotated[Optional[str], Field(description="""nacrule_id""")],
-    limit: Optional[int],
+        Optional[str | None], Field(description="""Partial / full hostname""")
+    ] = None,
+    ip: Annotated[Optional[str | None], Field(description="""Client IP""")] = None,
+    mfg: Annotated[Optional[str | None], Field(description="""Manufacture""")] = None,
+    nacrule_id: Annotated[
+        Optional[str | None], Field(description="""nacrule_id""")
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Org WAN Client Events"""
 

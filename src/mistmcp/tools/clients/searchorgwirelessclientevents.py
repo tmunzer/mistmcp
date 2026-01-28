@@ -74,52 +74,60 @@ class Band(Enum):
 async def searchOrgWirelessClientEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     type: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
         ),
-    ],
+    ] = None,
     reason_code: Annotated[
-        Optional[int], Field(description="""For assoc/disassoc events""")
-    ],
-    ssid: Annotated[Optional[str], Field(description="""SSID Name""")],
-    ap: Annotated[Optional[str], Field(description="""AP MAC""")],
+        Optional[int | None], Field(description="""For assoc/disassoc events""")
+    ] = None,
+    ssid: Annotated[Optional[str | None], Field(description="""SSID Name""")] = None,
+    ap: Annotated[Optional[str | None], Field(description="""AP MAC""")] = None,
     key_mgmt: Annotated[
-        Optional[Key_mgmt],
+        Optional[Key_mgmt | None],
         Field(
             description="""Key Management Protocol, e.g. WPA2-PSK, WPA3-SAE, WPA2-Enterprise"""
         ),
-    ],
-    proto: Annotated[Optional[Proto], Field(description="""a / b / g / n / ac / ax""")],
-    band: Annotated[Optional[Band], Field(description="""802.11 Band""")],
-    wlan_id: Annotated[Optional[UUID], Field(description="""WLAN_id""")],
-    nacrule_id: Annotated[Optional[UUID], Field(description="""Nacrule_id""")],
+    ] = Key_mgmt.NONE,
+    proto: Annotated[
+        Optional[Proto | None], Field(description="""a / b / g / n / ac / ax""")
+    ] = Proto.NONE,
+    band: Annotated[
+        Optional[Band | None], Field(description="""802.11 Band""")
+    ] = Band.NONE,
+    wlan_id: Annotated[Optional[UUID | None], Field(description="""WLAN_id""")] = None,
+    nacrule_id: Annotated[
+        Optional[UUID | None], Field(description="""Nacrule_id""")
+    ] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
-    limit: Optional[int],
+    ] = None,
+    limit: Optional[int | None] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Get Org Clients Events"""
 

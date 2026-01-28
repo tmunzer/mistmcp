@@ -60,42 +60,52 @@ class Protocol(Enum):
 )
 async def searchSiteSyntheticTest(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mac: Annotated[Optional[str], Field(description="""Device MAC Address""")],
+    mac: Annotated[
+        Optional[str | None], Field(description="""Device MAC Address""")
+    ] = None,
     port_id: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Port_id used to run the test (for SSR only)"""),
-    ],
-    vlan_id: Annotated[Optional[str], Field(description="""VLAN ID""")],
-    by: Annotated[Optional[str], Field(description="""Entity who triggers the test""")],
-    reason: Annotated[Optional[str], Field(description="""Test failure reason""")],
-    type: Annotated[Optional[Type], Field(description="""Synthetic test type""")],
+    ] = None,
+    vlan_id: Annotated[Optional[str | None], Field(description="""VLAN ID""")] = None,
+    by: Annotated[
+        Optional[str | None], Field(description="""Entity who triggers the test""")
+    ] = None,
+    reason: Annotated[
+        Optional[str | None], Field(description="""Test failure reason""")
+    ] = None,
+    type: Annotated[
+        Optional[Type | None], Field(description="""Synthetic test type""")
+    ] = Type.NONE,
     protocol: Annotated[
-        Optional[Protocol], Field(description="""Connectivity protocol""")
-    ],
+        Optional[Protocol | None], Field(description="""Connectivity protocol""")
+    ] = Protocol.NONE,
     tenant: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Tenant network in which lan_connectivity test was run"""),
-    ],
-    limit: Optional[int],
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Site Synthetic Testing"""
 

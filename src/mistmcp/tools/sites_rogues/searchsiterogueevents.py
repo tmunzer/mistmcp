@@ -50,55 +50,59 @@ class Type(Enum):
 )
 async def searchSiteRogueEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Optional[Type],
+    type: Optional[Type | None] = Type.NONE,
     ssid: Annotated[
-        Optional[str], Field(description="""SSID of the network detected as threat""")
-    ],
+        Optional[str | None],
+        Field(description="""SSID of the network detected as threat"""),
+    ] = None,
     bssid: Annotated[
-        Optional[str], Field(description="""BSSID of the network detected as threat""")
-    ],
+        Optional[str | None],
+        Field(description="""BSSID of the network detected as threat"""),
+    ] = None,
     ap_mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""MAC of the device that had strongest signal strength for ssid/bssid pair"""
         ),
-    ],
+    ] = None,
     channel: Annotated[
-        Optional[int],
+        Optional[int | None],
         Field(description="""Channel over which ap_mac heard ssid/bssid pair"""),
-    ],
+    ] = None,
     seen_on_lan: Annotated[
-        Optional[bool],
+        Optional[bool | None],
         Field(
             description="""Whether the reporting AP see a wireless client (on LAN) connecting to it"""
         ),
-    ],
-    limit: Optional[int],
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Rogue Events"""
 

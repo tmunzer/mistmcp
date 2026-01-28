@@ -50,19 +50,21 @@ async def listSiteSleImpactedSwitches(
     scope_id: Annotated[UUID, Field(description="""ID of the Mist Scope""")],
     metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    classifier: Optional[str],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    classifier: Optional[str | None] = None,
 ) -> dict | list:
     """For Wired SLEs. List the impacted switches optionally filtered by classifier and failure type"""
 

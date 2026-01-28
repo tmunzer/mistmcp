@@ -41,49 +41,53 @@ mcp = mcp_instance.get()
 )
 async def searchSiteMistEdgeEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mxedge_id: Annotated[Optional[str], Field(description="""Mist edge id""")],
+    mxedge_id: Annotated[
+        Optional[str | None], Field(description="""Mist edge id""")
+    ] = None,
     mxcluster_id: Annotated[
-        Optional[str], Field(description="""Mist edge cluster id""")
-    ],
+        Optional[str | None], Field(description="""Mist edge cluster id""")
+    ] = None,
     type: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
         ),
-    ],
+    ] = None,
     service: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Service running on mist edge(mxagent, tunterm etc)"""),
-    ],
+    ] = None,
     component: Annotated[
-        Optional[str], Field(description="""Component like PS1, PS2""")
-    ],
-    limit: Optional[int],
+        Optional[str | None], Field(description="""Component like PS1, PS2""")
+    ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Site Mist Edge Events"""
 

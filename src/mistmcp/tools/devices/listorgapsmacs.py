@@ -41,8 +41,8 @@ mcp = mcp_instance.get()
 )
 async def listOrgApsMacs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    limit: Optional[int],
-    page: Annotated[Optional[int], Field(ge=1)],
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
 ) -> dict | list:
     """For some scenarios like E911 or security systems, the BSSIDs are required to identify which AP the client is connecting to. Then the location of the AP can be used as the approximate location of the client.Each radio MAC can have 16 BSSIDs (enumerate the last octet from 0-F)"""
 

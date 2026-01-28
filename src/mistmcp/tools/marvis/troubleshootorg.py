@@ -50,30 +50,31 @@ class Type(Enum):
 async def troubleshootOrg(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""**required** when troubleshooting device or a client"""),
-    ],
+    ] = None,
     site_id: Annotated[
-        Optional[UUID], Field(description="""**required** when troubleshooting site""")
-    ],
+        Optional[UUID | None],
+        Field(description="""**required** when troubleshooting site"""),
+    ] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
+    ] = None,
     type: Annotated[
-        Optional[Type],
+        Optional[Type | None],
         Field(
             description="""When troubleshooting site, type of network to troubleshoot"""
         ),
-    ],
+    ] = Type.NONE,
 ) -> dict | list:
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license"""
 

@@ -43,23 +43,29 @@ async def troubleshootSiteCall(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     client_mac: str,
     meeting_id: Annotated[str, Field(description="""meeting_id""")],
-    mac: Annotated[Optional[str], Field(description="""Device identifier""")],
-    app: Annotated[Optional[str], Field(description="""Third party app name""")],
+    mac: Annotated[
+        Optional[str | None], Field(description="""Device identifier""")
+    ] = None,
+    app: Annotated[
+        Optional[str | None], Field(description="""Third party app name""")
+    ] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
-    limit: Optional[int],
-    page: Annotated[Optional[int], Field(ge=1)],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
 ) -> dict | list:
     """Troubleshoot a call"""
 

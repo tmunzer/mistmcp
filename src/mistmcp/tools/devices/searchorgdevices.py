@@ -55,149 +55,171 @@ class Type(Enum):
 async def searchOrgDevices(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     band_24_bandwidth: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Bandwidth of band_24""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, Bandwidth of band_24"""),
+    ] = None,
     band_24_channel: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Channel of band_24""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, Channel of band_24"""),
+    ] = None,
     band_24_power: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Power of band_24""")
-    ],
+        Optional[int | None], Field(description="""If `type`==`ap`, Power of band_24""")
+    ] = None,
     band_5_bandwidth: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Bandwidth of band_5""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, Bandwidth of band_5"""),
+    ] = None,
     band_5_channel: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Channel of band_5""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, Channel of band_5"""),
+    ] = None,
     band_5_power: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Power of band_5""")
-    ],
+        Optional[int | None], Field(description="""If `type`==`ap`, Power of band_5""")
+    ] = None,
     band_6_bandwidth: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Bandwidth of band_6""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, Bandwidth of band_6"""),
+    ] = None,
     band_6_channel: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Channel of band_6""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, Channel of band_6"""),
+    ] = None,
     band_6_power: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Power of band_6""")
-    ],
+        Optional[int | None], Field(description="""If `type`==`ap`, Power of band_6""")
+    ] = None,
     cpu: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""If `type`==`switch` or `type`==`gateway`, max cpu usage"""
         ),
-    ],
+    ] = None,
     clustered: Annotated[
-        Optional[str], Field(description="""If `type`==`gateway`, true / false""")
-    ],
+        Optional[str | None],
+        Field(description="""If `type`==`gateway`, true / false"""),
+    ] = None,
     eth0_port_speed: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, Port speed of eth0""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, Port speed of eth0"""),
+    ] = None,
     evpntopo_id: Annotated[
-        Optional[str], Field(description="""If `type`==`switch`, EVPN topology id""")
-    ],
-    ext_ip: Annotated[Optional[str], Field(description="""External IP Address""")],
+        Optional[str | None],
+        Field(description="""If `type`==`switch`, EVPN topology id"""),
+    ] = None,
+    ext_ip: Annotated[
+        Optional[str | None], Field(description="""External IP Address""")
+    ] = None,
     hostname: Annotated[
-        Optional[str], Field(description="""Partial / full hostname""")
-    ],
-    ip: Optional[str],
+        Optional[str | None], Field(description="""Partial / full hostname""")
+    ] = None,
+    ip: Optional[str | None] = None,
     last_config_status: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""If `type`==`switch` or `type`==`gateway`, last configuration status"""
         ),
-    ],
+    ] = None,
     last_hostname: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""If `type`==`switch` or `type`==`gateway`, last hostname"""
         ),
-    ],
+    ] = None,
     lldp_mgmt_addr: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""If `type`==`ap`, LLDP management ip address"""),
-    ],
+    ] = None,
     lldp_port_id: Annotated[
-        Optional[str], Field(description="""If `type`==`ap`, LLDP port id""")
-    ],
+        Optional[str | None], Field(description="""If `type`==`ap`, LLDP port id""")
+    ] = None,
     lldp_power_allocated: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, LLDP Allocated Power""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, LLDP Allocated Power"""),
+    ] = None,
     lldp_power_draw: Annotated[
-        Optional[int], Field(description="""If `type`==`ap`, LLDP Negotiated Power""")
-    ],
+        Optional[int | None],
+        Field(description="""If `type`==`ap`, LLDP Negotiated Power"""),
+    ] = None,
     lldp_system_desc: Annotated[
-        Optional[str], Field(description="""If `type`==`ap`, LLDP system description""")
-    ],
+        Optional[str | None],
+        Field(description="""If `type`==`ap`, LLDP system description"""),
+    ] = None,
     lldp_system_name: Annotated[
-        Optional[str], Field(description="""If `type`==`ap`, LLDP system name""")
-    ],
-    mac: Annotated[Optional[str], Field(description="""Device mac""")],
-    model: Annotated[Optional[str], Field(description="""Device model""")],
+        Optional[str | None], Field(description="""If `type`==`ap`, LLDP system name""")
+    ] = None,
+    mac: Annotated[Optional[str | None], Field(description="""Device mac""")] = None,
+    model: Annotated[
+        Optional[str | None], Field(description="""Device model""")
+    ] = None,
     mxedge_id: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""If `type`==`ap`, Mist Edge id, if AP is connecting to a Mist Edge"""
         ),
-    ],
+    ] = None,
     mxedge_ids: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""If `type`==`ap`, Comma separated list of Mist Edge ids, if AP is connecting to a Mist Edge"""
         ),
-    ],
+    ] = None,
     mxtunnel_status: Annotated[
-        Optional[Mxtunnel_status],
+        Optional[Mxtunnel_status | None],
         Field(description="""If `type`==`ap`, MxTunnel status, up / down"""),
-    ],
+    ] = Mxtunnel_status.NONE,
     node: Annotated[
-        Optional[str], Field(description="""If `type`==`gateway`, `node0` / `node1`""")
-    ],
+        Optional[str | None],
+        Field(description="""If `type`==`gateway`, `node0` / `node1`"""),
+    ] = None,
     node0_mac: Annotated[
-        Optional[str], Field(description="""If `type`==`gateway`, mac for node0""")
-    ],
+        Optional[str | None],
+        Field(description="""If `type`==`gateway`, mac for node0"""),
+    ] = None,
     node1_mac: Annotated[
-        Optional[str], Field(description="""If `type`==`gateway`, mac for node1""")
-    ],
+        Optional[str | None],
+        Field(description="""If `type`==`gateway`, mac for node1"""),
+    ] = None,
     power_constrained: Annotated[
-        Optional[bool], Field(description="""If `type`==`ap`, Power_constrained""")
-    ],
-    site_id: Annotated[Optional[str], Field(description="""Site id""")],
+        Optional[bool | None],
+        Field(description="""If `type`==`ap`, Power_constrained"""),
+    ] = None,
+    site_id: Annotated[Optional[str | None], Field(description="""Site id""")] = None,
     t128agent_version: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""If `type`==`gateway`,version of 128T agent"""),
-    ],
-    version: Annotated[Optional[str], Field(description="""Version""")],
+    ] = None,
+    version: Annotated[Optional[str | None], Field(description="""Version""")] = None,
     type: Annotated[
-        Optional[Type],
+        Optional[Type | None],
         Field(description="""Type of device. enum: `ap`, `gateway`, `switch`"""),
-    ],
-    limit: Optional[int],
+    ] = Type.AP,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ],
+    ] = None,
     end: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ],
-    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     sort: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ],
+    ] = None,
     search_after: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Search Org Devices"""
 

@@ -48,13 +48,15 @@ class Channel(Enum):
 )
 async def listOrgAvailableSsrVersions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    channel: Annotated[Optional[Channel], Field(description="""SSR version channel""")],
+    channel: Annotated[
+        Optional[Channel | None], Field(description="""SSR version channel""")
+    ] = Channel.STABLE,
     mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Optional. MAC address, or comma separated MAC address list."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Get available version for SSR"""
 

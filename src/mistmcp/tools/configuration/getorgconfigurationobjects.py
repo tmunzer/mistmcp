@@ -83,11 +83,11 @@ async def getOrgConfigurationObjects(
         Object_type, Field(description="""Type of configuration object to retrieve.""")
     ],
     object_id: Annotated[
-        Optional[UUID],
+        Optional[UUID | None],
         Field(
             description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
         ),
-    ],
+    ] = None,
 ) -> dict | list:
     """Retrieve configuration objects from a specified organization or site."""
 
