@@ -41,45 +41,41 @@ mcp = mcp_instance.get()
 )
 async def searchSiteGuestAuthorization(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    wlan_id: Annotated[
-        Optional[str], Field(description="""ID of the Mist Wlan""")
-    ] = None,
-    auth_method: Optional[str] = None,
-    ssid: Optional[str] = None,
-    limit: Optional[int] = None,
+    wlan_id: Annotated[Optional[str], Field(description="""ID of the Mist Wlan""")],
+    auth_method: Optional[str],
+    ssid: Optional[str],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     search_after: Annotated[
         Optional[str],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ] = None,
+    ],
     guest_mac: Annotated[
         Optional[str],
         Field(
             description="""MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Authorized Guest"""
 
@@ -123,15 +119,15 @@ async def searchSiteGuestAuthorization(
         response = mistapi.api.v1.sites.guests.searchSiteGuestAuthorization(
             apisession,
             site_id=str(site_id),
-            wlan_id=wlan_id,
-            auth_method=auth_method,
-            ssid=ssid,
-            limit=limit,
-            start=start,
-            end=end,
-            duration=duration,
-            sort=sort,
-            search_after=search_after,
+            wlan_id=wlan_id if wlan_id else None,
+            auth_method=auth_method if auth_method else None,
+            ssid=ssid if ssid else None,
+            limit=limit if limit else None,
+            start=start if start else None,
+            end=end if end else None,
+            duration=duration if duration else None,
+            sort=sort if sort else None,
+            search_after=search_after if search_after else None,
         )
 
     if response.status_code != 200:

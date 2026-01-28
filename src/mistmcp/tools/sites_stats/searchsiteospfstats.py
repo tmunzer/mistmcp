@@ -41,34 +41,34 @@ mcp = mcp_instance.get()
 )
 async def searchSiteOspfStats(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mac: Optional[str] = None,
-    vrf_name: Optional[str] = None,
-    peer_ip: Optional[str] = None,
+    mac: Optional[str],
+    vrf_name: Optional[str],
+    peer_ip: Optional[str],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    limit: Optional[int] = None,
+    ],
+    limit: Optional[int],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     search_after: Annotated[
         Optional[str],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search OSPF Neighbor Stats"""
 
@@ -107,14 +107,14 @@ async def searchSiteOspfStats(
     response = mistapi.api.v1.sites.stats.searchSiteOspfStats(
         apisession,
         site_id=str(site_id),
-        mac=mac,
-        vrf_name=vrf_name,
-        peer_ip=peer_ip,
-        start=start,
-        end=end,
-        limit=limit,
-        sort=sort,
-        search_after=search_after,
+        mac=mac if mac else None,
+        vrf_name=vrf_name if vrf_name else None,
+        peer_ip=peer_ip if peer_ip else None,
+        start=start if start else None,
+        end=end if end else None,
+        limit=limit if limit else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

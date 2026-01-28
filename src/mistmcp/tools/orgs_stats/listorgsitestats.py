@@ -46,18 +46,16 @@ async def listOrgSiteStats(
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    limit: Optional[int] = None,
-    page: Annotated[Optional[int], Field(ge=1)] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    limit: Optional[int],
+    page: Annotated[Optional[int], Field(ge=1)],
 ) -> dict | list:
     """Get List of Org Site Stats"""
 
@@ -96,11 +94,11 @@ async def listOrgSiteStats(
     response = mistapi.api.v1.orgs.stats.listOrgSiteStats(
         apisession,
         org_id=str(org_id),
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

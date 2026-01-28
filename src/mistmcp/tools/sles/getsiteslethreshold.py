@@ -97,8 +97,8 @@ async def getSiteSleThreshold(
         apisession,
         site_id=str(site_id),
         scope=scope.value,
-        scope_id=scope_id,
-        metric=metric,
+        scope_id=scope_id if scope_id else None,
+        metric=metric if metric else None,
     )
 
     if response.status_code != 200:

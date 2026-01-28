@@ -41,84 +41,80 @@ mcp = mcp_instance.get()
 )
 async def searchOrgWirelessClients(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")] = None,
-    mac: Annotated[
-        Optional[str], Field(description="""Partial / full MAC address""")
-    ] = None,
-    ip: Optional[str] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    mac: Annotated[Optional[str], Field(description="""Partial / full MAC address""")],
+    ip: Optional[str],
     hostname: Annotated[
         Optional[str], Field(description="""Partial / full hostname""")
-    ] = None,
+    ],
     band: Annotated[
         Optional[str], Field(description="""Radio band. enum: `24`, `5`, `6`""")
-    ] = None,
+    ],
     device: Annotated[
         Optional[str], Field(description="""Device type, e.g. Mac, Nvidia, iPhone""")
-    ] = None,
+    ],
     os: Annotated[
         Optional[str],
         Field(
             description="""Only available for clients running the Marvis Client app, os, e.g. Sierra, Yosemite, Windows 10"""
         ),
-    ] = None,
+    ],
     model: Annotated[
         Optional[str],
         Field(
             description="""Only available for clients running the Marvis Client app, model, e.g. 'MBP 15 late 2013', 6, 6s, '8+ GSM'"""
         ),
-    ] = None,
+    ],
     ap: Annotated[
         Optional[str], Field(description="""AP mac where the client has connected to""")
-    ] = None,
-    psk_id: Annotated[Optional[str], Field(description="""PSK ID""")] = None,
+    ],
+    psk_id: Annotated[Optional[str], Field(description="""PSK ID""")],
     psk_name: Annotated[
         Optional[str],
         Field(
             description="""Only available for clients using PPSK authentication, the Name of the PSK"""
         ),
-    ] = None,
+    ],
     username: Annotated[
         Optional[str],
         Field(
             description="""Only available for clients using 802.1X authentication, partial / full username"""
         ),
-    ] = None,
-    vlan: Annotated[Optional[str], Field(description="""VLAN""")] = None,
-    ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
+    ],
+    vlan: Annotated[Optional[str], Field(description="""VLAN""")],
+    ssid: Annotated[Optional[str], Field(description="""SSID""")],
     text: Annotated[
         Optional[str],
         Field(
             description="""Partial / full MAC address, hostname, username, psk_name or ip"""
         ),
-    ] = None,
-    limit: Optional[int] = None,
+    ],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     search_after: Annotated[
         Optional[str],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Org Wireless Clients"""
 
@@ -158,26 +154,26 @@ async def searchOrgWirelessClients(
         apisession,
         org_id=str(org_id),
         site_id=str(site_id) if site_id else None,
-        mac=mac,
-        ip=ip,
-        hostname=hostname,
-        band=band,
-        device=device,
-        os=os,
-        model=model,
-        ap=ap,
-        psk_id=psk_id,
-        psk_name=psk_name,
-        username=username,
-        vlan=vlan,
-        ssid=ssid,
-        text=text,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-        sort=sort,
-        search_after=search_after,
+        mac=mac if mac else None,
+        ip=ip if ip else None,
+        hostname=hostname if hostname else None,
+        band=band if band else None,
+        device=device if device else None,
+        os=os if os else None,
+        model=model if model else None,
+        ap=ap if ap else None,
+        psk_id=psk_id if psk_id else None,
+        psk_name=psk_name if psk_name else None,
+        username=username if username else None,
+        vlan=vlan if vlan else None,
+        ssid=ssid if ssid else None,
+        text=text if text else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

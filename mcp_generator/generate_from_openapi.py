@@ -285,7 +285,7 @@ def _process_params(
                 _add_import(imports, "typing", "Optional")
                 tmp_type = f"Optional[{tmp_type}]"
                 # tmp_optional = " | None"
-                tmp_default = " = None"
+                tmp_default = ""
         elif not tmp_param["required"]:
             _add_import(imports, "typing", "Optional")
             tmp_type = f"Optional[{tmp_type}]"
@@ -296,9 +296,7 @@ def _process_params(
             tmp_type = f"Annotated[{tmp_type}, Field({','.join(annotations)})]"
 
         if not tmp_mistapi_parameters:
-            tmp_mistapi_parameters = (
-                f"            {tmp_param['name']}={tmp_param['name']},\n"
-            )
+            tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']} if {tmp_param['name']} else None,\n"
 
         parameters += (
             f"    {tmp_param['name']}: {tmp_type}{tmp_optional}{tmp_default},\n"

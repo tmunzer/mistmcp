@@ -96,7 +96,7 @@ async def listSiteSlesMetrics(
         apisession,
         site_id=str(site_id),
         scope=scope.value,
-        scope_id=scope_id,
+        scope_id=scope_id if scope_id else None,
     )
 
     if response.status_code != 200:

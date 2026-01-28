@@ -1,4 +1,4 @@
-""" "
+""""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
@@ -17,7 +16,7 @@ from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
-# from mistmcp.server_factory import mcp
+#from mistmcp.server_factory import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -28,6 +27,7 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
+
 class Sort(Enum):
     _TIMESTAMP = "_timestamp"
     ADMIN_ID = "admin_id"
@@ -36,12 +36,13 @@ class Sort(Enum):
     NONE = None
 
 
+
 @mcp.tool(
     enabled=False,
-    name="listOrgAuditLogs",
-    description="""Get List of change logs for the current Org""",
-    tags={"orgs"},
-    annotations={
+    name = "listOrgAuditLogs",
+    description = """Get List of change logs for the current Org""",
+    tags = {"orgs"},
+    annotations = {
         "title": "listOrgAuditLogs",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -49,31 +50,18 @@ class Sort(Enum):
     },
 )
 async def listOrgAuditLogs(
+    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
-    admin_name: Annotated[
-        Optional[str], Field(description="""Admin name or email""")
-    ] = None,
-    message: Annotated[Optional[str], Field(description="""Message""")] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site id""")],
+    admin_name: Annotated[Optional[str], Field(description="""Admin name or email""")],
+    message: Annotated[Optional[str], Field(description="""Message""")],
     sort: Annotated[Optional[Sort], Field(description="""Sort order""")] = Sort.NONE,
-    start: Annotated[
-        Optional[str],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
-    ] = None,
-    end: Annotated[
-        Optional[str],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    limit: Optional[int] = None,
-    page: Annotated[Optional[int], Field(ge=1)] = None,
-) -> dict | list:
+    start: Annotated[Optional[str], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")],
+    end: Annotated[Optional[str], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    limit: Optional[int],
+    page: Annotated[Optional[int], Field(ge=1)],
+) -> dict|list:
     """Get List of change logs for the current Org"""
 
     ctx = get_context()
@@ -94,6 +82,7 @@ async def listOrgAuditLogs(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+
     if not apitoken:
         raise ClientError(
             "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
@@ -108,49 +97,48 @@ async def listOrgAuditLogs(
         apitoken=apitoken,
     )
 
+    
     response = mistapi.api.v1.orgs.logs.listOrgAuditLogs(
-        apisession,
-        org_id=str(org_id),
-        site_id=str(site_id) if site_id else None,
-        admin_name=admin_name,
-        message=message,
-        sort=sort.value if sort else None,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
+            apisession,
+            org_id=str(org_id),
+            site_id=str(site_id) if site_id else None,
+            admin_name=admin_name if admin_name else None,
+            message=message if message else None,
+            sort=sort.value if sort else None,
+            start=start if start else None,
+            end=end if end else None,
+            duration=duration if duration else None,
+            limit=limit if limit else None,
+            page=page if page else None,
     )
 
+
     if response.status_code != 200:
-        api_error = {"status_code": response.status_code, "message": ""}
+        api_error = {
+            "status_code": response.status_code,
+            "message": ""
+        }
         if response.data:
-            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            api_error["message"] = json.dumps(response.data)
+            #await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
+            api_error["message"] =json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
-            )
+            api_error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
+            api_error["message"] =json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
+            api_error["message"] =json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Permission Denied")
+            api_error["message"] =json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
-            )
+            api_error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
-            )
+            api_error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
         raise ToolError(api_error)
 
     return response.data

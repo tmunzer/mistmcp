@@ -41,42 +41,40 @@ mcp = mcp_instance.get()
 )
 async def searchOrgAlarms(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")] = None,
-    type: Annotated[Optional[str], Field(description="""Alarm type""")] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    type: Annotated[Optional[str], Field(description="""Alarm type""")],
     status: Annotated[
         Optional[str],
         Field(
             description="""Alarm status. Accepts multiple values separated by comma. enum: `open`, `resolved`"""
         ),
-    ] = None,
+    ],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    limit: Optional[int] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    limit: Optional[int],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     search_after: Annotated[
         Optional[str],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Org Alarms"""
 
@@ -116,14 +114,14 @@ async def searchOrgAlarms(
         apisession,
         org_id=str(org_id),
         site_id=str(site_id) if site_id else None,
-        type=type,
-        status=status,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        sort=sort,
-        search_after=search_after,
+        type=type if type else None,
+        status=status if status else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        limit=limit if limit else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

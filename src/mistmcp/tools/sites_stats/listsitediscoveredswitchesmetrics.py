@@ -44,11 +44,11 @@ async def listSiteDiscoveredSwitchesMetrics(
     threshold: Annotated[
         Optional[str],
         Field(description="""Configurable # ap per switch threshold, default 12"""),
-    ] = None,
+    ],
     system_name: Annotated[
         Optional[str],
         Field(description="""System name for switch level metrics, optional"""),
-    ] = None,
+    ],
 ) -> dict | list:
     """Discovered switches related metrics, lists related switch system names & details if not compliant"""
 
@@ -87,8 +87,8 @@ async def listSiteDiscoveredSwitchesMetrics(
     response = mistapi.api.v1.sites.stats.listSiteDiscoveredSwitchesMetrics(
         apisession,
         site_id=str(site_id),
-        threshold=threshold,
-        system_name=system_name,
+        threshold=threshold if threshold else None,
+        system_name=system_name if system_name else None,
     )
 
     if response.status_code != 200:

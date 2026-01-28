@@ -41,40 +41,36 @@ mcp = mcp_instance.get()
 )
 async def searchOrgBgpStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    mac: Optional[str] = None,
-    neighbor_mac: Optional[str] = None,
-    site_id: Annotated[
-        Optional[str], Field(description="""ID of the Mist Site""")
-    ] = None,
-    vrf_name: Optional[str] = None,
-    limit: Optional[int] = None,
+    mac: Optional[str],
+    neighbor_mac: Optional[str],
+    site_id: Annotated[Optional[str], Field(description="""ID of the Mist Site""")],
+    vrf_name: Optional[str],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     search_after: Annotated[
         Optional[str],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Org BGP Stats"""
 
@@ -113,16 +109,16 @@ async def searchOrgBgpStats(
     response = mistapi.api.v1.orgs.stats.searchOrgBgpStats(
         apisession,
         org_id=str(org_id),
-        mac=mac,
-        neighbor_mac=neighbor_mac,
-        site_id=site_id,
-        vrf_name=vrf_name,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-        sort=sort,
-        search_after=search_after,
+        mac=mac if mac else None,
+        neighbor_mac=neighbor_mac if neighbor_mac else None,
+        site_id=site_id if site_id else None,
+        vrf_name=vrf_name if vrf_name else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

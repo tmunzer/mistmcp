@@ -41,54 +41,52 @@ mcp = mcp_instance.get()
 )
 async def searchSiteDeviceEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mac: Annotated[Optional[str], Field(description="""Device mac""")] = None,
-    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    text: Annotated[Optional[str], Field(description="""Event message""")] = None,
-    timestamp: Annotated[Optional[str], Field(description="""Event time""")] = None,
+    mac: Annotated[Optional[str], Field(description="""Device mac""")],
+    model: Annotated[Optional[str], Field(description="""Device model""")],
+    text: Annotated[Optional[str], Field(description="""Event message""")],
+    timestamp: Annotated[Optional[str], Field(description="""Event time""")],
     type: Annotated[
         Optional[str],
         Field(
             description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
         ),
-    ] = None,
+    ],
     last_by: Annotated[
         Optional[str],
         Field(description="""Return last/recent event for passed in field"""),
-    ] = None,
+    ],
     includes: Annotated[
         Optional[str],
         Field(
             description="""Keyword to include events from additional indices (e.g. ext_tunnel for prisma events)"""
         ),
-    ] = None,
-    limit: Optional[int] = None,
+    ],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     search_after: Annotated[
         Optional[str],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Devices Events"""
 
@@ -127,19 +125,19 @@ async def searchSiteDeviceEvents(
     response = mistapi.api.v1.sites.devices.searchSiteDeviceEvents(
         apisession,
         site_id=str(site_id),
-        mac=mac,
-        model=model,
-        text=text,
-        timestamp=timestamp,
-        type=type,
-        last_by=last_by,
-        includes=includes,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-        sort=sort,
-        search_after=search_after,
+        mac=mac if mac else None,
+        model=model if model else None,
+        text=text if text else None,
+        timestamp=timestamp if timestamp else None,
+        type=type if type else None,
+        last_by=last_by if last_by else None,
+        includes=includes if includes else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

@@ -43,25 +43,23 @@ async def troubleshootSiteCall(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     client_mac: str,
     meeting_id: Annotated[str, Field(description="""meeting_id""")],
-    mac: Annotated[Optional[str], Field(description="""Device identifier""")] = None,
-    app: Annotated[Optional[str], Field(description="""Third party app name""")] = None,
+    mac: Annotated[Optional[str], Field(description="""Device identifier""")],
+    app: Annotated[Optional[str], Field(description="""Third party app name""")],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    limit: Optional[int] = None,
-    page: Annotated[Optional[int], Field(ge=1)] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    limit: Optional[int],
+    page: Annotated[Optional[int], Field(ge=1)],
 ) -> dict | list:
     """Troubleshoot a call"""
 
@@ -100,15 +98,15 @@ async def troubleshootSiteCall(
     response = mistapi.api.v1.sites.stats.troubleshootSiteCall(
         apisession,
         site_id=str(site_id),
-        client_mac=client_mac,
-        meeting_id=meeting_id,
-        mac=mac,
-        app=app,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
+        client_mac=client_mac if client_mac else None,
+        meeting_id=meeting_id if meeting_id else None,
+        mac=mac if mac else None,
+        app=app if app else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

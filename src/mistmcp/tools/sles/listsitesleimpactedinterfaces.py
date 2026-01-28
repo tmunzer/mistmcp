@@ -56,17 +56,15 @@ async def listSiteSleImpactedInterfaces(
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    classifier: Optional[str] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    classifier: Optional[str],
 ) -> dict | list:
     """For Wired and WAN SLEs. List the impacted interfaces optionally filtered by classifier and failure type"""
 
@@ -107,11 +105,11 @@ async def listSiteSleImpactedInterfaces(
         site_id=str(site_id),
         scope=scope.value,
         scope_id=str(scope_id),
-        metric=metric,
-        start=start,
-        end=end,
-        duration=duration,
-        classifier=classifier,
+        metric=metric if metric else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        classifier=classifier if classifier else None,
     )
 
     if response.status_code != 200:

@@ -43,79 +43,75 @@ async def searchOrgSites(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     analytic_enabled: Annotated[
         Optional[bool], Field(description="""If Advanced Analytic feature is enabled""")
-    ] = None,
+    ],
     app_waking: Annotated[
         Optional[bool], Field(description="""If App Waking feature is enabled""")
-    ] = None,
+    ],
     asset_enabled: Annotated[
         Optional[bool], Field(description="""If Asset Tracking is enabled""")
-    ] = None,
+    ],
     auto_upgrade_enabled: Annotated[
         Optional[bool], Field(description="""If Auto Upgrade feature is enabled""")
-    ] = None,
+    ],
     auto_upgrade_version: Annotated[
         Optional[str], Field(description="""If Auto Upgrade feature is enabled""")
-    ] = None,
-    country_code: Annotated[
-        Optional[str], Field(description="""Site country code""")
-    ] = None,
+    ],
+    country_code: Annotated[Optional[str], Field(description="""Site country code""")],
     honeypot_enabled: Annotated[
         Optional[bool], Field(description="""If Honeypot detection is enabled""")
-    ] = None,
-    id: Annotated[Optional[str], Field(description="""Site id""")] = None,
+    ],
+    id: Annotated[Optional[str], Field(description="""Site id""")],
     locate_unconnected: Annotated[
         Optional[bool], Field(description="""If unconnected client are located""")
-    ] = None,
+    ],
     mesh_enabled: Annotated[
         Optional[bool], Field(description="""If Mesh feature is enabled""")
-    ] = None,
+    ],
     name: Annotated[
         Optional[str],
         Field(description="""Site name. Adds '*' at the end for partial match"""),
-    ] = None,
+    ],
     rogue_enabled: Annotated[
         Optional[bool], Field(description="""If Rogue detection is enabled""")
-    ] = None,
+    ],
     remote_syslog_enabled: Annotated[
         Optional[bool], Field(description="""If Remote Syslog is enabled""")
-    ] = None,
+    ],
     rtsa_enabled: Annotated[
         Optional[bool], Field(description="""If managed mobility feature is enabled""")
-    ] = None,
+    ],
     vna_enabled: Annotated[
         Optional[bool], Field(description="""If Virtual Network Assistant is enabled""")
-    ] = None,
+    ],
     wifi_enabled: Annotated[
         Optional[bool], Field(description="""If Wi-Fi feature is enabled""")
-    ] = None,
-    limit: Optional[int] = None,
+    ],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     search_after: Annotated[
         Optional[str],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Sites"""
 
@@ -154,28 +150,28 @@ async def searchOrgSites(
     response = mistapi.api.v1.orgs.sites.searchOrgSites(
         apisession,
         org_id=str(org_id),
-        analytic_enabled=analytic_enabled,
-        app_waking=app_waking,
-        asset_enabled=asset_enabled,
-        auto_upgrade_enabled=auto_upgrade_enabled,
-        auto_upgrade_version=auto_upgrade_version,
-        country_code=country_code,
-        honeypot_enabled=honeypot_enabled,
-        id=id,
-        locate_unconnected=locate_unconnected,
-        mesh_enabled=mesh_enabled,
-        name=name,
-        rogue_enabled=rogue_enabled,
-        remote_syslog_enabled=remote_syslog_enabled,
-        rtsa_enabled=rtsa_enabled,
-        vna_enabled=vna_enabled,
-        wifi_enabled=wifi_enabled,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-        sort=sort,
-        search_after=search_after,
+        analytic_enabled=analytic_enabled if analytic_enabled else None,
+        app_waking=app_waking if app_waking else None,
+        asset_enabled=asset_enabled if asset_enabled else None,
+        auto_upgrade_enabled=auto_upgrade_enabled if auto_upgrade_enabled else None,
+        auto_upgrade_version=auto_upgrade_version if auto_upgrade_version else None,
+        country_code=country_code if country_code else None,
+        honeypot_enabled=honeypot_enabled if honeypot_enabled else None,
+        id=id if id else None,
+        locate_unconnected=locate_unconnected if locate_unconnected else None,
+        mesh_enabled=mesh_enabled if mesh_enabled else None,
+        name=name if name else None,
+        rogue_enabled=rogue_enabled if rogue_enabled else None,
+        remote_syslog_enabled=remote_syslog_enabled if remote_syslog_enabled else None,
+        rtsa_enabled=rtsa_enabled if rtsa_enabled else None,
+        vna_enabled=vna_enabled if vna_enabled else None,
+        wifi_enabled=wifi_enabled if wifi_enabled else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

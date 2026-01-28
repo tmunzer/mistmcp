@@ -41,20 +41,18 @@ mcp = mcp_instance.get()
 )
 async def searchOrgUserMacs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    mac: Annotated[
-        Optional[str], Field(description="""Partial/full MAC address""")
-    ] = None,
+    mac: Annotated[Optional[str], Field(description="""Partial/full MAC address""")],
     labels: Annotated[
         Optional[list], Field(description="""Optional, array of strings of labels""")
-    ] = None,
-    limit: Optional[int] = None,
-    page: Annotated[Optional[int], Field(ge=1)] = None,
+    ],
+    limit: Optional[int],
+    page: Annotated[Optional[int], Field(ge=1)],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Org User MACs"""
 
@@ -93,11 +91,11 @@ async def searchOrgUserMacs(
     response = mistapi.api.v1.orgs.usermacs.searchOrgUserMacs(
         apisession,
         org_id=str(org_id),
-        mac=mac,
-        labels=labels,
-        limit=limit,
-        page=page,
-        sort=sort,
+        mac=mac if mac else None,
+        labels=labels if labels else None,
+        limit=limit if limit else None,
+        page=page if page else None,
+        sort=sort if sort else None,
     )
 
     if response.status_code != 200:

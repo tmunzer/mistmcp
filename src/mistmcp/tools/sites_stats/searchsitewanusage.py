@@ -41,48 +41,38 @@ mcp = mcp_instance.get()
 )
 async def searchSiteWanUsage(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
-    peer_mac: Annotated[
-        Optional[str], Field(description="""Peer MAC address""")
-    ] = None,
-    port_id: Annotated[
-        Optional[str], Field(description="""Port ID for the device""")
-    ] = None,
+    mac: Annotated[Optional[str], Field(description="""MAC address""")],
+    peer_mac: Annotated[Optional[str], Field(description="""Peer MAC address""")],
+    port_id: Annotated[Optional[str], Field(description="""Port ID for the device""")],
     peer_port_id: Annotated[
         Optional[str], Field(description="""Peer Port ID for the device""")
-    ] = None,
-    policy: Annotated[
-        Optional[str], Field(description="""Policy for the wan path""")
-    ] = None,
+    ],
+    policy: Annotated[Optional[str], Field(description="""Policy for the wan path""")],
     tenant: Annotated[
         Optional[str],
         Field(description="""Tenant network in which the packet is sent"""),
-    ] = None,
-    path_type: Annotated[
-        Optional[str], Field(description="""path_type of the port""")
-    ] = None,
-    limit: Optional[int] = None,
+    ],
+    path_type: Annotated[Optional[str], Field(description="""path_type of the port""")],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Site WAN Usages"""
 
@@ -121,18 +111,18 @@ async def searchSiteWanUsage(
     response = mistapi.api.v1.sites.wan_usages.searchSiteWanUsage(
         apisession,
         site_id=str(site_id),
-        mac=mac,
-        peer_mac=peer_mac,
-        port_id=port_id,
-        peer_port_id=peer_port_id,
-        policy=policy,
-        tenant=tenant,
-        path_type=path_type,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-        sort=sort,
+        mac=mac if mac else None,
+        peer_mac=peer_mac if peer_mac else None,
+        port_id=port_id if port_id else None,
+        peer_port_id=peer_port_id if peer_port_id else None,
+        policy=policy if policy else None,
+        tenant=tenant if tenant else None,
+        path_type=path_type if path_type else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
     )
 
     if response.status_code != 200:

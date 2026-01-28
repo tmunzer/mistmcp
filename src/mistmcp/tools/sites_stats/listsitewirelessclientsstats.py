@@ -41,29 +41,27 @@ mcp = mcp_instance.get()
 )
 async def listSiteWirelessClientsStats(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    wired: Optional[bool] = None,
-    limit: Optional[int] = None,
+    wired: Optional[bool],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     client_mac: Annotated[
         Optional[str],
         Field(
             description="""MAC address of the client to filter stats by. Optional, if not provided all clients will be listed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Get List of Site All Clients Stats Details"""
 
@@ -107,11 +105,11 @@ async def listSiteWirelessClientsStats(
         response = mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(
             apisession,
             site_id=str(site_id),
-            wired=wired,
-            limit=limit,
-            start=start,
-            end=end,
-            duration=duration,
+            wired=wired if wired else None,
+            limit=limit if limit else None,
+            start=start if start else None,
+            end=end if end else None,
+            duration=duration if duration else None,
         )
 
     if response.status_code != 200:

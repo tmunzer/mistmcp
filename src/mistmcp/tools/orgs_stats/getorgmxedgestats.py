@@ -42,7 +42,7 @@ mcp = mcp_instance.get()
 async def getOrgMxEdgeStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mxedge_id: Annotated[UUID, Field(description="""ID of the Mist Mxedge""")],
-    for_site: Optional[bool] = None,
+    for_site: Optional[bool],
 ) -> dict | list:
     """Get Org MxEdge Details Stats"""
 
@@ -82,7 +82,7 @@ async def getOrgMxEdgeStats(
         apisession,
         org_id=str(org_id),
         mxedge_id=str(mxedge_id),
-        for_site=for_site,
+        for_site=for_site if for_site else None,
     )
 
     if response.status_code != 200:

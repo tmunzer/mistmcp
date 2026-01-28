@@ -41,39 +41,37 @@ mcp = mcp_instance.get()
 )
 async def searchOrgGuestAuthorization(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    wlan_id: Annotated[Optional[str], Field(description="""WLAN ID""")] = None,
+    wlan_id: Annotated[Optional[str], Field(description="""WLAN ID""")],
     auth_method: Annotated[
         Optional[str], Field(description="""Authentication Method""")
-    ] = None,
-    ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
-    limit: Optional[int] = None,
+    ],
+    ssid: Annotated[Optional[str], Field(description="""SSID""")],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     guest_mac: Annotated[
         Optional[str],
         Field(
             description="""MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Authorized Guest"""
 
@@ -117,14 +115,14 @@ async def searchOrgGuestAuthorization(
         response = mistapi.api.v1.orgs.guests.searchOrgGuestAuthorization(
             apisession,
             org_id=str(org_id),
-            wlan_id=wlan_id,
-            auth_method=auth_method,
-            ssid=ssid,
-            limit=limit,
-            start=start,
-            end=end,
-            duration=duration,
-            sort=sort,
+            wlan_id=wlan_id if wlan_id else None,
+            auth_method=auth_method if auth_method else None,
+            ssid=ssid if ssid else None,
+            limit=limit if limit else None,
+            start=start if start else None,
+            end=end if end else None,
+            duration=duration if duration else None,
+            sort=sort if sort else None,
         )
 
     if response.status_code != 200:

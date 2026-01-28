@@ -41,25 +41,25 @@ mcp = mcp_instance.get()
 )
 async def getSiteCallsSummary(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    ap_mac: Annotated[Optional[str], Field(description="""AP MAC, optional""")] = None,
+    ap_mac: Annotated[Optional[str], Field(description="""AP MAC, optional""")],
     app: Annotated[
         Optional[str],
         Field(
             description="""APp name (`zoom` or `teams`). default is both. Optional"""
         ),
-    ] = None,
+    ],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Summarized, aggregated stats for the site calls"""
 
@@ -98,10 +98,10 @@ async def getSiteCallsSummary(
     response = mistapi.api.v1.sites.stats.getSiteCallsSummary(
         apisession,
         site_id=str(site_id),
-        ap_mac=ap_mac,
-        app=app,
-        start=start,
-        end=end,
+        ap_mac=ap_mac if ap_mac else None,
+        app=app if app else None,
+        start=start if start else None,
+        end=end if end else None,
     )
 
     if response.status_code != 200:

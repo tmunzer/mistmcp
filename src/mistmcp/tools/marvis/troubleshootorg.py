@@ -52,22 +52,22 @@ async def troubleshootOrg(
     mac: Annotated[
         Optional[str],
         Field(description="""**required** when troubleshooting device or a client"""),
-    ] = None,
+    ],
     site_id: Annotated[
         Optional[UUID], Field(description="""**required** when troubleshooting site""")
-    ] = None,
+    ],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
+    ],
     type: Annotated[
         Optional[Type],
         Field(
@@ -112,10 +112,10 @@ async def troubleshootOrg(
     response = mistapi.api.v1.orgs.troubleshoot.troubleshootOrg(
         apisession,
         org_id=str(org_id),
-        mac=mac,
+        mac=mac if mac else None,
         site_id=str(site_id) if site_id else None,
-        start=start,
-        end=end,
+        start=start if start else None,
+        end=end if end else None,
         type=type.value if type else None,
     )
 

@@ -41,8 +41,8 @@ mcp = mcp_instance.get()
 )
 async def listOrgApsMacs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    limit: Optional[int] = None,
-    page: Annotated[Optional[int], Field(ge=1)] = None,
+    limit: Optional[int],
+    page: Annotated[Optional[int], Field(ge=1)],
 ) -> dict | list:
     """For some scenarios like E911 or security systems, the BSSIDs are required to identify which AP the client is connecting to. Then the location of the AP can be used as the approximate location of the client.Each radio MAC can have 16 BSSIDs (enumerate the last octet from 0-F)"""
 
@@ -81,8 +81,8 @@ async def listOrgApsMacs(
     response = mistapi.api.v1.orgs.devices.listOrgApsMacs(
         apisession,
         org_id=str(org_id),
-        limit=limit,
-        page=page,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

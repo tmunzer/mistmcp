@@ -49,8 +49,8 @@ class Band(Enum):
 async def listSiteCurrentRrmNeighbors(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     band: Annotated[Band, Field(description="""802.11 Band""")],
-    limit: Optional[int] = None,
-    page: Annotated[Optional[int], Field(ge=1)] = None,
+    limit: Optional[int],
+    page: Annotated[Optional[int], Field(ge=1)],
 ) -> dict | list:
     """List Current RRM observed neighbors"""
 
@@ -90,8 +90,8 @@ async def listSiteCurrentRrmNeighbors(
         apisession,
         site_id=str(site_id),
         band=band.value,
-        limit=limit,
-        page=page,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

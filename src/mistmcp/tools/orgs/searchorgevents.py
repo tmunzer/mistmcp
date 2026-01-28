@@ -41,35 +41,33 @@ mcp = mcp_instance.get()
 )
 async def searchOrgEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Annotated[Optional[str], Field(description="""Event type""")] = None,
-    limit: Optional[int] = None,
+    type: Annotated[Optional[str], Field(description="""Event type""")],
+    limit: Optional[int],
     start: Annotated[
         Optional[str],
         Field(
             description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
-    ] = None,
+    ],
     end: Annotated[
         Optional[str],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    ],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
     sort: Annotated[
         Optional[str],
         Field(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
-    ] = None,
+    ],
     search_after: Annotated[
         Optional[str],
         Field(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
-    ] = None,
+    ],
 ) -> dict | list:
     """Search Org eventsSupported Event Types:- CRADLEPOINT_SYNC_FAILED- ORG_CA_CERT_ADDED- ORG_CA_CERT_REGENERATED"""
 
@@ -108,13 +106,13 @@ async def searchOrgEvents(
     response = mistapi.api.v1.orgs.events.searchOrgEvents(
         apisession,
         org_id=str(org_id),
-        type=type,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-        sort=sort,
-        search_after=search_after,
+        type=type if type else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

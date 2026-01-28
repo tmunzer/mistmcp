@@ -1,4 +1,4 @@
-""" "
+""""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.server.dependencies import get_context, get_http_request
@@ -17,7 +16,7 @@ from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
-# from mistmcp.server_factory import mcp
+#from mistmcp.server_factory import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -28,6 +27,7 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
+
 class For_site(Enum):
     ANY = "any"
     TRUE = "true"
@@ -35,12 +35,13 @@ class For_site(Enum):
     NONE = None
 
 
+
 @mcp.tool(
     enabled=False,
-    name="listOrgMxEdgesStats",
-    description="""Get List of Org MxEdge Stats""",
-    tags={"orgs_stats"},
-    annotations={
+    name = "listOrgMxEdgesStats",
+    description = """Get List of Org MxEdge Stats""",
+    tags = {"orgs_stats"},
+    annotations = {
         "title": "listOrgMxEdgesStats",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -48,34 +49,16 @@ class For_site(Enum):
     },
 )
 async def listOrgMxEdgesStats(
+    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[
-        Optional[For_site], Field(description="""Filter for site level mist edges""")
-    ] = For_site.NONE,
-    start: Annotated[
-        Optional[str],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
-    ] = None,
-    end: Annotated[
-        Optional[str],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
-    ] = None,
-    duration: Annotated[
-        Optional[str], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    limit: Optional[int] = None,
-    page: Annotated[Optional[int], Field(ge=1)] = None,
-    mxedge_id: Annotated[
-        Optional[str],
-        Field(
-            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
-        ),
-    ] = None,
-) -> dict | list:
+    for_site: Annotated[Optional[For_site], Field(description="""Filter for site level mist edges""")] = For_site.NONE,
+    start: Annotated[Optional[str], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")],
+    end: Annotated[Optional[str], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")],
+    duration: Annotated[Optional[str], Field(description="""Duration like 7d, 2w""")],
+    limit: Optional[int],
+    page: Annotated[Optional[int], Field(ge=1)],
+    mxedge_id: Annotated[Optional[str], Field(description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed.""")],
+) -> dict|list:
     """Get List of Org MxEdge Stats"""
 
     ctx = get_context()
@@ -96,6 +79,7 @@ async def listOrgMxEdgesStats(
         apitoken = config.mist_apitoken
         cloud = config.mist_host
 
+
     if not apitoken:
         raise ClientError(
             "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
@@ -110,51 +94,48 @@ async def listOrgMxEdgesStats(
         apitoken=apitoken,
     )
 
+    
     if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(
-            apisession, org_id=str(org_id), mxedge_id=mxedge_id
-        )
+        response = mistapi.api.v1.sites.stats.org_id(apisession, org_id=str(org_id), mxedge_id=mxedge_id)
     else:
         response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
             apisession,
             org_id=str(org_id),
             for_site=for_site.value if for_site else None,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
-        )
+            start=start if start else None,
+            end=end if end else None,
+            duration=duration if duration else None,
+            limit=limit if limit else None,
+            page=page if page else None,
+    )
+
 
     if response.status_code != 200:
-        api_error = {"status_code": response.status_code, "message": ""}
+        api_error = {
+            "status_code": response.status_code,
+            "message": ""
+        }
         if response.data:
-            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            api_error["message"] = json.dumps(response.data)
+            #await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
+            api_error["message"] =json.dumps(response.data)
         elif response.status_code == 400:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
-            )
+            api_error["message"] =json.dumps("Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
+            api_error["message"] =json.dumps("Unauthorized")
         elif response.status_code == 403:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
+            api_error["message"] =json.dumps("Unauthorized")
         elif response.status_code == 401:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Permission Denied")
+            api_error["message"] =json.dumps("Permission Denied")
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
-            )
+            api_error["message"] =json.dumps("Not found. The API endpoint doesn’t exist or resource doesn’t exist")
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
-            )
+            api_error["message"] =json.dumps("Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold")
         raise ToolError(api_error)
 
     return response.data
