@@ -1,6 +1,4 @@
 - listApLEslVersions
-- listAppCategoryDefinitions
-- listAppSubCategoryDefinitions
 - listApplications
 - listCountryCodes
 - listGatewayApplications
@@ -29,7 +27,6 @@
 - listSiteAllGuestAuthorizationsDerived
 - listSiteSecIntelProfilesDerived
 - listSiteAvailableDeviceVersions
-- listApLedDefinition
 - listApChannels
 - getOrgMxEdgeUpgradeInfo
 - searchOrgMxEdges

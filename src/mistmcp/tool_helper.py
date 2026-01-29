@@ -17,8 +17,8 @@ class McpToolsCategory(Enum):
     UTILITIES_UPGRADE = "utilities_upgrade"
     CONFIGURATION = "configuration"
     SITES_INSIGHTS = "sites_insights"
+    CONSTANTS = "constants"
     CONSTANTS_MODELS = "constants_models"
-    CONSTANTS_DEFINITIONS = "constants_definitions"
     ORGS = "orgs"
     CLIENTS = "clients"
     DEVICES = "devices"
@@ -57,22 +57,13 @@ TOOLS = {
         "description": "Configuration related objects for the sites and organizations. It provides access to various configuration objects such as site settings, device profiles, and more. These objects can be used to configure the network in a consistent manner.",
         "tools": ["getOrgConfigurationObjects", "getSiteConfigurationObjects"],
     },
-    "constants_definitions": {
-        "description": "tools to retrieve constant values that can be used in different parts of the configuration",
-        "tools": [
-            "listFingerprintTypes",
-            "listInsightMetrics",
-            "listLicenseTypes",
-            "listWebhookTopics",
-        ],
+    "constants": {
+        "description": "Constants are read-only values and definitions used across the Juniper Mist platform. They include predefined lists of device models, alarm types, and other standardized values that are referenced throughout the API.",
+        "tools": ["getConstants"],
     },
     "constants_models": {
         "description": "tools to retrieve the list of Hardware Models and their features",
-        "tools": [
-            "listDeviceModels",
-            "listMxEdgeModels",
-            "listSupportedOtherDeviceModels",
-        ],
+        "tools": ["listSupportedOtherDeviceModels"],
     },
     "devices": {
         "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices. Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",

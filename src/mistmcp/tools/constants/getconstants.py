@@ -19,24 +19,45 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
+from pydantic import Field
+from typing import Annotated
+from enum import Enum
+
 
 mcp = mcp_instance.get()
 
 
+class Object_type(Enum):
+    FINGERPRINT_TYPES = "fingerprint_types"
+    INSIGHT_METRICS = "insight_metrics"
+    LICENSE_TYPES = "license_types"
+    WEBHOOK_TOPICS = "webhook_topics"
+    DEVICE_MODELS = "device_models"
+    MXEDGE_MODELS = "mxedge_models"
+    ALARM_DEFINITIONS = "alarm_definitions"
+    CLIENT_EVENTS = "client_events"
+    MXEDGE_EVENTS = "mxedge_events"
+    NAC_EVENTS = "nac_events"
+
+
 @mcp.tool(
     enabled=False,
-    name="listWebhookTopics",
-    description="""Get List of the available Webhook Topics.""",
-    tags={"Constants Definitions"},
+    name="getConstants",
+    description="""Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)""",
+    tags={"constants"},
     annotations={
-        "title": "listWebhookTopics",
+        "title": "getConstants",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listWebhookTopics() -> dict | list:
-    """Get List of the available Webhook Topics."""
+async def getConstants(
+    object_type: Annotated[
+        Object_type, Field(description="""Type of object to retrieve metrics for.""")
+    ],
+) -> dict | list:
+    """Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -70,9 +91,45 @@ async def listWebhookTopics() -> dict | list:
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.const.webhook_topics.listWebhookTopics(
-        apisession,
-    )
+    match object_type.value:
+        case "fingerprint_types":
+            response = mistapi.api.v1.const.fingerprint_types.listFingerprintTypes(
+                apisession
+            )
+        case "insight_metrics":
+            response = mistapi.api.v1.const.insight_metrics.listInsightMetrics(
+                apisession
+            )
+        case "license_types":
+            response = mistapi.api.v1.const.license_types.listLicenseTypes(apisession)
+        case "webhook_topics":
+            response = mistapi.api.v1.const.webhook_topics.listWebhookTopics(apisession)
+        case "device_models":
+            response = mistapi.api.v1.const.device_models.listDeviceModels(apisession)
+        case "mxedge_models":
+            response = mistapi.api.v1.const.mxedge_models.listMxEdgeModels(apisession)
+        case "alarm_definitions":
+            response = mistapi.api.v1.const.alarm_defs.listAlarmDefinitions(apisession)
+        case "client_events":
+            response = mistapi.api.v1.const.client_events.listClientEventsDefinitions(
+                apisession
+            )
+        case "mxedge_events":
+            response = mistapi.api.v1.const.mxedge_events.listMxEdgeEventsDefinitions(
+                apisession
+            )
+        case "nac_events":
+            response = mistapi.api.v1.const.nac_events.listNacEventsDefinitions(
+                apisession
+            )
+
+        case _:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}",
+                }
+            )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}

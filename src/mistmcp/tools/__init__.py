@@ -20,15 +20,10 @@ from .utilities_upgrade import (
 from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
 from .sites_insights import getinsightmetrics as getinsightmetrics
-from .constants_models import listdevicemodels as listdevicemodels
-from .constants_models import listmxedgemodels as listmxedgemodels
+from .constants import getconstants as getconstants
 from .constants_models import (
     listsupportedotherdevicemodels as listsupportedotherdevicemodels,
 )
-from .constants_definitions import listfingerprinttypes as listfingerprinttypes
-from .constants_definitions import listinsightmetrics as listinsightmetrics
-from .constants_definitions import listlicensetypes as listlicensetypes
-from .constants_definitions import listwebhooktopics as listwebhooktopics
 from .orgs import getorg as getorg
 from .orgs import searchorgalarms as searchorgalarms
 from .orgs import listorgsuppressedalarms as listorgsuppressedalarms
