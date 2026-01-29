@@ -18,7 +18,6 @@ class McpToolsCategory(Enum):
     CONFIGURATION = "configuration"
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
-    CONSTANTS_MODELS = "constants_models"
     ORGS = "orgs"
     CLIENTS = "clients"
     DEVICES = "devices"
@@ -60,10 +59,6 @@ TOOLS = {
     "constants": {
         "description": "Constants are read-only values and definitions used across the Juniper Mist platform. They include predefined lists of device models, alarm types, and other standardized values that are referenced throughout the API.",
         "tools": ["getConstants"],
-    },
-    "constants_models": {
-        "description": "tools to retrieve the list of Hardware Models and their features",
-        "tools": ["listSupportedOtherDeviceModels"],
     },
     "devices": {
         "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices. Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",

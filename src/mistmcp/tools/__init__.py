@@ -21,9 +21,6 @@ from .configuration import getorgconfigurationobjects as getorgconfigurationobje
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
 from .sites_insights import getinsightmetrics as getinsightmetrics
 from .constants import getconstants as getconstants
-from .constants_models import (
-    listsupportedotherdevicemodels as listsupportedotherdevicemodels,
-)
 from .orgs import getorg as getorg
 from .orgs import searchorgalarms as searchorgalarms
 from .orgs import listorgsuppressedalarms as listorgsuppressedalarms
