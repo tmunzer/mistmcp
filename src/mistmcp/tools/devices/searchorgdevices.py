@@ -43,7 +43,7 @@ class Type(Enum):
 @mcp.tool(
     enabled=False,
     name="searchOrgDevices",
-    description="""Search Org Devices""",
+    description="""Search Org Devices. This is only returning the connected devices.""",
     tags={"devices"},
     annotations={
         "title": "searchOrgDevices",
@@ -221,7 +221,7 @@ async def searchOrgDevices(
         ),
     ] = None,
 ) -> dict | list:
-    """Search Org Devices"""
+    """Search Org Devices. This is only returning the connected devices."""
 
     ctx = get_context()
     if config.transport_mode == "http":
