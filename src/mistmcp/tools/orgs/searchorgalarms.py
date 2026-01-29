@@ -22,9 +22,24 @@ from mistmcp.server_factory import mcp_instance
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
+from enum import Enum
 
 
 mcp = mcp_instance.get()
+
+
+class Group(Enum):
+    INFRASTRUCTURE = "infrastructure"
+    MARVIS = "marvis"
+    SECURITY = "security"
+    NONE = None
+
+
+class Severity(Enum):
+    CRITICAL = "critical"
+    INFO = "info"
+    WARN = "warn"
+    NONE = None
 
 
 @mcp.tool(
@@ -42,13 +57,31 @@ mcp = mcp_instance.get()
 async def searchOrgAlarms(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
-    type: Annotated[Optional[str | None], Field(description="""Alarm type""")] = None,
-    status: Annotated[
+    group: Annotated[
+        Optional[Group | None],
+        Field(
+            description="""Alarm group. enum: `infrastructure`, `marvis`, `security`"""
+        ),
+    ] = Group.NONE,
+    severity: Annotated[
+        Optional[Severity | None],
+        Field(
+            description="""Severity of the alarm. enum: `critical`, `info`, `warn`"""
+        ),
+    ] = Severity.NONE,
+    type: Annotated[
         Optional[str | None],
         Field(
-            description="""Alarm status. Accepts multiple values separated by comma. enum: `open`, `resolved`"""
+            description="""Type of the alarm. Accepts multiple values separated by comma. Use [List Alarm Definitions](/#operations/listAlarmDefinitions) to get the list of possible alarm types."""
         ),
     ] = None,
+    ack_admin_name: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Name of the admins who have acked the alarms; accepts multiple values separated by comma"""
+        ),
+    ] = None,
+    acked: Optional[bool | None] = None,
     start: Annotated[
         Optional[str | None],
         Field(
@@ -116,8 +149,11 @@ async def searchOrgAlarms(
         apisession,
         org_id=str(org_id),
         site_id=str(site_id) if site_id else None,
+        group=group.value if group else None,
+        severity=severity.value if severity else None,
         type=type if type else None,
-        status=status if status else None,
+        ack_admin_name=ack_admin_name if ack_admin_name else None,
+        acked=acked if acked else None,
         start=start if start else None,
         end=end if end else None,
         duration=duration if duration else None,
