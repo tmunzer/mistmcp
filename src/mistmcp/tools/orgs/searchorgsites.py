@@ -75,7 +75,9 @@ async def searchOrgSites(
     ] = None,
     name: Annotated[
         Optional[str | None],
-        Field(description="""Site name. Add '*' at the end for wildcard search"""),
+        Field(
+            description="""Site name. Case sensitive. Add '*' at the end for wildcard search"""
+        ),
     ] = None,
     rogue_enabled: Annotated[
         Optional[bool | None], Field(description="""If Rogue detection is enabled""")
