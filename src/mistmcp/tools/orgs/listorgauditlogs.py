@@ -29,7 +29,7 @@ mcp = mcp_instance.get()
 
 
 class Sort(Enum):
-    _TIMESTAMP = "-timestamp"
+    _TIMESTAMP = "_timestamp"
     ADMIN_ID = "admin_id"
     SITE_ID = "site_id"
     TIMESTAMP = "timestamp"
@@ -50,30 +50,32 @@ class Sort(Enum):
 )
 async def listOrgAuditLogs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site id""")] = None,
+    site_id: Annotated[Optional[UUID | None], Field(description="""Site id""")] = None,
     admin_name: Annotated[
-        Optional[str], Field(description="""Admin name or email""")
+        Optional[str | None], Field(description="""Admin name or email""")
     ] = None,
-    message: Annotated[Optional[str], Field(description="""Message""")] = None,
-    sort: Annotated[Optional[Sort], Field(description="""Sort order""")] = Sort.NONE,
+    message: Annotated[Optional[str | None], Field(description="""Message""")] = None,
+    sort: Annotated[
+        Optional[Sort | None], Field(description="""Sort order""")
+    ] = Sort.NONE,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+) -> dict | list:
     """Get List of change logs for the current Org"""
 
     ctx = get_context()
@@ -112,14 +114,14 @@ async def listOrgAuditLogs(
         apisession,
         org_id=str(org_id),
         site_id=str(site_id) if site_id else None,
-        admin_name=admin_name,
-        message=message,
+        admin_name=admin_name if admin_name else None,
+        message=message if message else None,
         sort=sort.value if sort else None,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

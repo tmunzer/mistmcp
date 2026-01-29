@@ -11,18 +11,19 @@
 """
 
 import json
-import mistapi
-from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError, ClientError, NotFoundError
-from starlette.requests import Request
-from mistmcp.config import config
-from mistmcp.server_factory import mcp_instance
-# from mistmcp.server_factory import mcp
-
-from pydantic import Field
 from typing import Annotated
 from uuid import UUID
 
+import mistapi
+from fastmcp.exceptions import ClientError, NotFoundError, ToolError
+from fastmcp.server.dependencies import get_context, get_http_request
+
+# from mistmcp.server_factory import mcp
+from pydantic import Field
+from starlette.requests import Request
+
+from mistmcp.config import config
+from mistmcp.server_factory import mcp_instance
 
 mcp = mcp_instance.get()
 
@@ -41,7 +42,7 @@ mcp = mcp_instance.get()
 )
 async def getSiteInfo(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict:
+) -> dict | list:
     """Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site."""
 
     ctx = get_context()

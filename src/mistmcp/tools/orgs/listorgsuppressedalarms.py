@@ -48,9 +48,10 @@ class Scope(Enum):
 async def listOrgSuppressedAlarms(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     scope: Annotated[
-        Optional[Scope], Field(description="""Returns both scopes if not specified""")
+        Optional[Scope | None],
+        Field(description="""Returns both scopes if not specified"""),
     ] = Scope.SITE,
-) -> dict:
+) -> dict | list:
     """Get List of Org Alarms Currently Suppressed"""
 
     ctx = get_context()

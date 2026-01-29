@@ -42,54 +42,73 @@ mcp = mcp_instance.get()
 async def searchSiteServicePathEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     type: Annotated[
-        Optional[str], Field(description="""Event type, e.g. GW_SERVICE_PATH_DOWN""")
+        Optional[str | None],
+        Field(description="""Event type, e.g. GW_SERVICE_PATH_DOWN"""),
     ] = None,
     text: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Description of the event including the reason it is triggered"""
         ),
     ] = None,
     peer_port_id: Annotated[
-        Optional[str], Field(description="""Port ID of the peer gateway""")
+        Optional[str | None], Field(description="""Port ID of the peer gateway""")
     ] = None,
     peer_mac: Annotated[
-        Optional[str], Field(description="""MAC address of the peer gateway""")
+        Optional[str | None], Field(description="""MAC address of the peer gateway""")
     ] = None,
-    vpn_name: Annotated[Optional[str], Field(description="""Peer name""")] = None,
-    vpn_path: Annotated[Optional[str], Field(description="""Peer path name""")] = None,
+    vpn_name: Annotated[
+        Optional[str | None], Field(description="""Peer name""")
+    ] = None,
+    vpn_path: Annotated[
+        Optional[str | None], Field(description="""Peer path name""")
+    ] = None,
     policy: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Service policy associated with that specific path"""),
     ] = None,
     port_id: Annotated[
-        Optional[str], Field(description="""Network interface""")
+        Optional[str | None], Field(description="""Network interface""")
     ] = None,
-    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
+    model: Annotated[
+        Optional[str | None], Field(description="""Device model""")
+    ] = None,
     version: Annotated[
-        Optional[str], Field(description="""Device firmware version""")
+        Optional[str | None], Field(description="""Device firmware version""")
     ] = None,
     timestamp: Annotated[
-        Optional[float], Field(description="""Start time, in epoch""")
+        Optional[float | None], Field(description="""Start time, in epoch""")
     ] = None,
-    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
+    mac: Annotated[Optional[str | None], Field(description="""MAC address""")] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Service Path Events"""
 
     ctx = get_context()
@@ -127,22 +146,24 @@ async def searchSiteServicePathEvents(
     response = mistapi.api.v1.sites.services.searchSiteServicePathEvents(
         apisession,
         site_id=str(site_id),
-        type=type,
-        text=text,
-        peer_port_id=peer_port_id,
-        peer_mac=peer_mac,
-        vpn_name=vpn_name,
-        vpn_path=vpn_path,
-        policy=policy,
-        port_id=port_id,
-        model=model,
-        version=version,
-        timestamp=timestamp,
-        mac=mac,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
+        type=type if type else None,
+        text=text if text else None,
+        peer_port_id=peer_port_id if peer_port_id else None,
+        peer_mac=peer_mac if peer_mac else None,
+        vpn_name=vpn_name if vpn_name else None,
+        vpn_path=vpn_path if vpn_path else None,
+        policy=policy if policy else None,
+        port_id=port_id if port_id else None,
+        model=model if model else None,
+        version=version if version else None,
+        timestamp=timestamp if timestamp else None,
+        mac=mac if mac else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

@@ -40,23 +40,23 @@ mcp = mcp_instance.get()
 )
 async def listSelfAuditLogs(
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+) -> dict | list:
     """Get List of change logs across all Orgs for current adminAudit logs records all administrative activities done by current admin across all orgs"""
 
     ctx = get_context()
@@ -93,11 +93,11 @@ async def listSelfAuditLogs(
 
     response = mistapi.api.v1.self.logs.listSelfAuditLogs(
         apisession,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

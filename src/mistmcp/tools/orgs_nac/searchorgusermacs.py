@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 from uuid import UUID
 
 
@@ -42,14 +42,21 @@ mcp = mcp_instance.get()
 async def searchOrgUserMacs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mac: Annotated[
-        Optional[str], Field(description="""Partial/full MAC address""")
+        Optional[str | None], Field(description="""Partial/full MAC address""")
     ] = None,
     labels: Annotated[
-        Optional[list], Field(description="""Optional, array of strings of labels""")
+        Optional[List[str] | None],
+        Field(description="""Optional, array of strings of labels"""),
     ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Org User MACs"""
 
     ctx = get_context()
@@ -87,10 +94,11 @@ async def searchOrgUserMacs(
     response = mistapi.api.v1.orgs.usermacs.searchOrgUserMacs(
         apisession,
         org_id=str(org_id),
-        mac=mac,
-        labels=labels,
-        limit=limit,
-        page=page,
+        mac=mac if mac else None,
+        labels=labels if labels else None,
+        limit=limit if limit else None,
+        page=page if page else None,
+        sort=sort if sort else None,
     )
 
     if response.status_code != 200:

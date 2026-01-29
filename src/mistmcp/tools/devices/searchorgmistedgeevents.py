@@ -41,40 +41,54 @@ mcp = mcp_instance.get()
 )
 async def searchOrgMistEdgeEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    mxedge_id: Annotated[Optional[str], Field(description="""Mist edge id""")] = None,
+    mxedge_id: Annotated[
+        Optional[str | None], Field(description="""Mist edge id""")
+    ] = None,
     mxcluster_id: Annotated[
-        Optional[str], Field(description="""Mist edge cluster id""")
+        Optional[str | None], Field(description="""Mist edge cluster id""")
     ] = None,
     type: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
         ),
     ] = None,
     service: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Service running on mist edge(mxagent, tunterm etc)"""),
     ] = None,
     component: Annotated[
-        Optional[str], Field(description="""Component like PS1, PS2""")
+        Optional[str | None], Field(description="""Component like PS1, PS2""")
     ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Org Mist Edge Events"""
 
     ctx = get_context()
@@ -112,15 +126,17 @@ async def searchOrgMistEdgeEvents(
     response = mistapi.api.v1.orgs.mxedges.searchOrgMistEdgeEvents(
         apisession,
         org_id=str(org_id),
-        mxedge_id=mxedge_id,
-        mxcluster_id=mxcluster_id,
-        type=type,
-        service=service,
-        component=component,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
+        mxedge_id=mxedge_id if mxedge_id else None,
+        mxcluster_id=mxcluster_id if mxcluster_id else None,
+        type=type if type else None,
+        service=service if service else None,
+        component=component if component else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

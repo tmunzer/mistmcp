@@ -28,6 +28,7 @@
 "orgs stats - ports": "orgs_stats"
 "orgs stats - sites": "orgs_stats"
 "orgs stats - tunnels": "orgs_stats"
+"orgs stats - ospf": "orgs_stats"
 "orgs stats - vpn peers": "orgs_stats"
 # orgs_clients
 "orgs clients - nac": "clients"

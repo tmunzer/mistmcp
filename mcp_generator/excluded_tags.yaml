@@ -65,6 +65,7 @@
 - Sites Stats - Assets
 - Sites Stats - Beacons
 - Sites Stats - Clients SDK
+- Sites Stats - OSPF
 - Sites Stats - Zones
 - Self API Token
 - Self OAuth2
@@ -95,10 +96,15 @@
 - Sites WxTunnels
 - Sites Skyatp
 - Constants Events
-- Constants Models
 - Orgs Devices - Others
 ## These information can be retrieved from the Org API calls
 - Sites Clients - NAC
 - Sites Clients - Wan
 - Sites Clients - Wired
 - Sites Clients - Wireless
+- Sites Insights
+- Sites Rfdiags
+- Sites Spectrum Analysis
+- Constants Definitions
+- Constants Events
+- Constants Models

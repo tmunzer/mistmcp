@@ -49,25 +49,27 @@ class Band(Enum):
 )
 async def listSiteRrmEvents(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    band: Annotated[Optional[Band], Field(description="""802.11 Band""")] = Band.NONE,
+    band: Annotated[
+        Optional[Band | None], Field(description="""802.11 Band""")
+    ] = Band.NONE,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+) -> dict | list:
     """List Site RRM Events"""
 
     ctx = get_context()
@@ -106,11 +108,11 @@ async def listSiteRrmEvents(
         apisession,
         site_id=str(site_id),
         band=band.value if band else None,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

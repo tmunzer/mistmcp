@@ -35,7 +35,7 @@ mcp = mcp_instance.get()
         "openWorldHint": True,
     },
 )
-async def getSelfApiUsage() -> dict:
+async def getSelfApiUsage() -> dict | list:
     """Get the status of the API usage for the current user or API Token"""
 
     ctx = get_context()

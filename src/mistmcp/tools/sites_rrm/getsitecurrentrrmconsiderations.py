@@ -50,7 +50,7 @@ async def getSiteCurrentRrmConsiderations(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     device_id: Annotated[UUID, Field(description="""ID of the Mist Device""")],
     band: Annotated[Band, Field(description="""802.11 Band""")],
-) -> dict:
+) -> dict | list:
     """Get Current RRM Considerations for an AP on a Specific Band"""
 
     ctx = get_context()
@@ -89,7 +89,7 @@ async def getSiteCurrentRrmConsiderations(
         apisession,
         site_id=str(site_id),
         device_id=str(device_id),
-        band=band,
+        band=band.value,
     )
 
     if response.status_code != 200:

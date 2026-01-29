@@ -49,44 +49,62 @@ class Device_type(Enum):
 )
 async def searchOrgDeviceEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    mac: Annotated[Optional[str], Field(description="""Device mac""")] = None,
-    model: Annotated[Optional[str], Field(description="""Device model""")] = None,
-    device_type: Optional[Device_type] = Device_type.AP,
-    text: Annotated[Optional[str], Field(description="""Event message""")] = None,
-    timestamp: Annotated[Optional[str], Field(description="""Event time""")] = None,
+    mac: Annotated[Optional[str | None], Field(description="""Device mac""")] = None,
+    model: Annotated[
+        Optional[str | None], Field(description="""Device model""")
+    ] = None,
+    device_type: Optional[Device_type | None] = Device_type.AP,
+    text: Annotated[
+        Optional[str | None], Field(description="""Event message""")
+    ] = None,
+    timestamp: Annotated[
+        Optional[str | None], Field(description="""Event time""")
+    ] = None,
     type: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""See [List Device Events Definitions](/#operations/listDeviceEventsDefinitions)"""
         ),
     ] = None,
     last_by: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Return last/recent event for passed in field"""),
     ] = None,
     includes: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Keyword to include events from additional indices (e.g. ext_tunnel for prisma events)"""
         ),
     ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Org Devices Events"""
 
     ctx = get_context()
@@ -124,18 +142,20 @@ async def searchOrgDeviceEvents(
     response = mistapi.api.v1.orgs.devices.searchOrgDeviceEvents(
         apisession,
         org_id=str(org_id),
-        mac=mac,
-        model=model,
+        mac=mac if mac else None,
+        model=model if model else None,
         device_type=device_type.value if device_type else Device_type.AP.value,
-        text=text,
-        timestamp=timestamp,
-        type=type,
-        last_by=last_by,
-        includes=includes,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
+        text=text if text else None,
+        timestamp=timestamp if timestamp else None,
+        type=type if type else None,
+        last_by=last_by if last_by else None,
+        includes=includes if includes else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

@@ -49,31 +49,31 @@ class Sle(Enum):
 )
 async def getOrgSitesSle(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    sle: Optional[Sle] = Sle.NONE,
+    sle: Optional[Sle | None] = Sle.NONE,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     interval: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+) -> dict | list:
     """Get Org Sites SLE"""
 
     ctx = get_context()
@@ -112,12 +112,12 @@ async def getOrgSitesSle(
         apisession,
         org_id=str(org_id),
         sle=sle.value if sle else None,
-        start=start,
-        end=end,
-        duration=duration,
-        interval=interval,
-        limit=limit,
-        page=page,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        interval=interval if interval else None,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

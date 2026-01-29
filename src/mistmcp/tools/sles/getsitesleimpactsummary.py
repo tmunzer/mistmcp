@@ -78,23 +78,23 @@ async def getSiteSleImpactSummary(
     ],
     metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    fields: Optional[Fields] = Fields.NONE,
-    classifier: Optional[str] = None,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    fields: Optional[Fields | None] = Fields.NONE,
+    classifier: Optional[str | None] = None,
+) -> dict | list:
     """Get impact summary counts optionally filtered by classifier and failure type * Wireless SLE Fields: `wlan`, `device_type`, `device_os` ,`band`, `ap`, `server`, `mxedge`* Wired SLE Fields: `switch`, `client`, `vlan`, `interface`, `chassis`* WAN SLE Fields: `gateway`, `client`, `interface`, `chassis`, `peer_path`, `gateway_zones`"""
 
     ctx = get_context()
@@ -132,14 +132,14 @@ async def getSiteSleImpactSummary(
     response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
         apisession,
         site_id=str(site_id),
-        scope=scope,
-        scope_id=scope_id,
-        metric=metric,
-        start=start,
-        end=end,
-        duration=duration,
+        scope=scope.value,
+        scope_id=scope_id if scope_id else None,
+        metric=metric if metric else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
         fields=fields.value if fields else None,
-        classifier=classifier,
+        classifier=classifier if classifier else None,
     )
 
     if response.status_code != 200:

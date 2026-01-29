@@ -20,7 +20,7 @@ from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
 from pydantic import Field
-from typing import Annotated
+from typing import Annotated, Optional
 from uuid import UUID
 
 
@@ -41,9 +41,9 @@ mcp = mcp_instance.get()
 )
 async def listOrgApsMacs(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+) -> dict | list:
     """For some scenarios like E911 or security systems, the BSSIDs are required to identify which AP the client is connecting to. Then the location of the AP can be used as the approximate location of the client.Each radio MAC can have 16 BSSIDs (enumerate the last octet from 0-F)"""
 
     ctx = get_context()
@@ -81,8 +81,8 @@ async def listOrgApsMacs(
     response = mistapi.api.v1.orgs.devices.listOrgApsMacs(
         apisession,
         org_id=str(org_id),
-        limit=limit,
-        page=page,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

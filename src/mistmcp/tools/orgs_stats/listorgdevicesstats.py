@@ -55,45 +55,45 @@ class Status(Enum):
 )
 async def listOrgDevicesStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Optional[Type] = Type.AP,
-    status: Optional[Status] = Status.ALL,
+    type: Optional[Type | None] = Type.AP,
+    status: Optional[Status | None] = Status.ALL,
     site_id: Annotated[
-        Optional[str], Field(description="""ID of the Mist Site""")
+        Optional[str | None], Field(description="""ID of the Mist Site""")
     ] = None,
-    mac: Optional[str] = None,
+    mac: Optional[str | None] = None,
     evpntopo_id: Annotated[
-        Optional[str], Field(description="""EVPN Topology ID""")
+        Optional[str | None], Field(description="""EVPN Topology ID""")
     ] = None,
     evpn_unused: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""If `evpn_unused`==`true`, find EVPN eligible switches which don’t belong to any EVPN Topology yet"""
         ),
     ] = None,
     fields: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""List of additional fields requests, comma separated, or `fields=*` for all of them"""
         ),
     ] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+) -> dict | list:
     """Get List of Org Devices statsThis API renders some high-level device stats, pagination is assumed and returned in response header (as the response is an array)"""
 
     ctx = get_context()
@@ -133,16 +133,16 @@ async def listOrgDevicesStats(
         org_id=str(org_id),
         type=type.value if type else Type.AP.value,
         status=status.value if status else Status.ALL.value,
-        site_id=site_id,
-        mac=mac,
-        evpntopo_id=evpntopo_id,
-        evpn_unused=evpn_unused,
-        fields=fields,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
+        site_id=site_id if site_id else None,
+        mac=mac if mac else None,
+        evpntopo_id=evpntopo_id if evpntopo_id else None,
+        evpn_unused=evpn_unused if evpn_unused else None,
+        fields=fields if fields else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
 
     if response.status_code != 200:

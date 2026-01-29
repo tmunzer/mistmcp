@@ -42,7 +42,7 @@ mcp = mcp_instance.get()
 async def getOrgOtherDeviceStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     device_mac: str,
-) -> dict:
+) -> dict | list:
     """Get Otherdevice Stats"""
 
     ctx = get_context()
@@ -80,7 +80,7 @@ async def getOrgOtherDeviceStats(
     response = mistapi.api.v1.orgs.stats.getOrgOtherDeviceStats(
         apisession,
         org_id=str(org_id),
-        device_mac=device_mac,
+        device_mac=device_mac if device_mac else None,
     )
 
     if response.status_code != 200:

@@ -42,7 +42,7 @@ mcp = mcp_instance.get()
 async def getOrgCurrentMatchingClientsOfAWxTag(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     wxtag_id: Annotated[UUID, Field(description="""ID of the Mist Wxtag""")],
-) -> dict:
+) -> dict | list:
     """Get Current Matching Clients of a WXLAN Tag"""
 
     ctx = get_context()

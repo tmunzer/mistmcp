@@ -49,42 +49,60 @@ class Band(Enum):
 )
 async def searchOrgWirelessClientSessions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    ap: Annotated[Optional[str], Field(description="""AP MAC""")] = None,
-    band: Annotated[Optional[Band], Field(description="""802.11 Band""")] = Band.NONE,
+    ap: Annotated[Optional[str | None], Field(description="""AP MAC""")] = None,
+    band: Annotated[
+        Optional[Band | None], Field(description="""802.11 Band""")
+    ] = Band.NONE,
     client_family: Annotated[
-        Optional[str], Field(description="""E.g. 'Mac', 'iPhone', 'Apple watch'""")
+        Optional[str | None],
+        Field(description="""E.g. 'Mac', 'iPhone', 'Apple watch'"""),
     ] = None,
     client_manufacture: Annotated[
-        Optional[str], Field(description="""E.g. 'Apple'""")
+        Optional[str | None], Field(description="""E.g. 'Apple'""")
     ] = None,
     client_model: Annotated[
-        Optional[str], Field(description="""E.g. '8+', 'XS'""")
+        Optional[str | None], Field(description="""E.g. '8+', 'XS'""")
     ] = None,
-    client_username: Annotated[Optional[str], Field(description="""Username""")] = None,
+    client_username: Annotated[
+        Optional[str | None], Field(description="""Username""")
+    ] = None,
     client_os: Annotated[
-        Optional[str], Field(description="""E.g. 'Mojave', 'Windows 10', 'Linux'""")
+        Optional[str | None],
+        Field(description="""E.g. 'Mojave', 'Windows 10', 'Linux'"""),
     ] = None,
-    ssid: Annotated[Optional[str], Field(description="""SSID""")] = None,
-    wlan_id: Annotated[Optional[UUID], Field(description="""WLAN_id""")] = None,
-    psk_id: Annotated[Optional[str], Field(description="""PSK ID""")] = None,
-    psk_name: Annotated[Optional[str], Field(description="""PSK Name""")] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
+    ssid: Annotated[Optional[str | None], Field(description="""SSID""")] = None,
+    wlan_id: Annotated[Optional[UUID | None], Field(description="""WLAN_id""")] = None,
+    psk_id: Annotated[Optional[str | None], Field(description="""PSK ID""")] = None,
+    psk_name: Annotated[Optional[str | None], Field(description="""PSK Name""")] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Org Wireless Clients Sessions"""
 
     ctx = get_context()
@@ -122,21 +140,23 @@ async def searchOrgWirelessClientSessions(
     response = mistapi.api.v1.orgs.clients.searchOrgWirelessClientSessions(
         apisession,
         org_id=str(org_id),
-        ap=ap,
+        ap=ap if ap else None,
         band=band.value if band else None,
-        client_family=client_family,
-        client_manufacture=client_manufacture,
-        client_model=client_model,
-        client_username=client_username,
-        client_os=client_os,
-        ssid=ssid,
+        client_family=client_family if client_family else None,
+        client_manufacture=client_manufacture if client_manufacture else None,
+        client_model=client_model if client_model else None,
+        client_username=client_username if client_username else None,
+        client_os=client_os if client_os else None,
+        ssid=ssid if ssid else None,
         wlan_id=str(wlan_id) if wlan_id else None,
-        psk_id=psk_id,
-        psk_name=psk_name,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
+        psk_id=psk_id if psk_id else None,
+        psk_name=psk_name if psk_name else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

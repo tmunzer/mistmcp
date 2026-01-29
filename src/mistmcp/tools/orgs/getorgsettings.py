@@ -41,7 +41,7 @@ mcp = mcp_instance.get()
 )
 async def getOrgSettings(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-) -> dict:
+) -> dict | list:
     """Get Org Settings"""
 
     ctx = get_context()

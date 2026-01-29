@@ -29,50 +29,48 @@ mcp = mcp_instance.get()
 
 @mcp.tool(
     enabled=False,
-    name="getSiteInsightMetricsForClient",
-    description="""Get Client Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)""",
-    tags={"Sites Insights"},
+    name="searchSiteOspfStats",
+    description="""Search OSPF Neighbor Stats""",
+    tags={"sites_stats"},
     annotations={
-        "title": "getSiteInsightMetricsForClient",
+        "title": "searchSiteOspfStats",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def getSiteInsightMetricsForClient(
+async def searchSiteOspfStats(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    client_mac: str,
-    metric: Annotated[
-        str,
-        Field(
-            description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics"""
-        ),
-    ],
+    mac: Optional[str | None] = None,
+    vrf_name: Optional[str | None] = None,
+    peer_ip: Optional[str | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
-    duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    interval: Annotated[
-        Optional[str],
+    limit: Optional[int | None] = None,
+    sort: Annotated[
+        Optional[str | None],
         Field(
-            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
     ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
-    """Get Client Insight MetricsSee metrics possibilities at [List Insight Metrics](/#operations/listInsightMetrics)"""
+    search_after: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
+) -> dict | list:
+    """Search OSPF Neighbor Stats"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -106,17 +104,17 @@ async def getSiteInsightMetricsForClient(
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForClient(
+    response = mistapi.api.v1.sites.stats.searchSiteOspfStats(
         apisession,
         site_id=str(site_id),
-        client_mac=client_mac,
-        metric=metric,
-        start=start,
-        end=end,
-        duration=duration,
-        interval=interval,
-        limit=limit,
-        page=page,
+        mac=mac if mac else None,
+        vrf_name=vrf_name if vrf_name else None,
+        peer_ip=peer_ip if peer_ip else None,
+        start=start if start else None,
+        end=end if end else None,
+        limit=limit if limit else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

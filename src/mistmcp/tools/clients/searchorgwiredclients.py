@@ -49,69 +49,85 @@ class Source(Enum):
 async def searchOrgWiredClients(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     auth_state: Annotated[
-        Optional[str], Field(description="""Authentication state""")
+        Optional[str | None], Field(description="""Authentication state""")
     ] = None,
     auth_method: Annotated[
-        Optional[str], Field(description="""Authentication method""")
+        Optional[str | None], Field(description="""Authentication method""")
     ] = None,
     source: Annotated[
-        Optional[Source],
+        Optional[Source | None],
         Field(description="""source from where the client was learned (lldp, mac)"""),
     ] = Source.NONE,
-    site_id: Annotated[Optional[str], Field(description="""Site ID""")] = None,
+    site_id: Annotated[Optional[str | None], Field(description="""Site ID""")] = None,
     device_mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Device mac (Gateway/Switch) where the client has connected to"""
         ),
     ] = None,
     mac: Annotated[
-        Optional[str], Field(description="""Partial / full MAC address""")
+        Optional[str | None], Field(description="""Partial / full MAC address""")
     ] = None,
     port_id: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Port id where the client has connected to"""),
     ] = None,
-    vlan: Annotated[Optional[int], Field(description="""VLAN""")] = None,
-    ip_address: Optional[str] = None,
+    vlan: Annotated[Optional[int | None], Field(description="""VLAN""")] = None,
+    ip: Optional[str | None] = None,
     manufacture: Annotated[
-        Optional[str], Field(description="""Client manufacturer""")
+        Optional[str | None], Field(description="""Client manufacturer""")
     ] = None,
     text: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Partial / full MAC address, hostname or username"""),
     ] = None,
-    nacrule_id: Annotated[Optional[str], Field(description="""nacrule_id""")] = None,
-    dhcp_hostname: Annotated[
-        Optional[str], Field(description="""DHCP Hostname""")
+    nacrule_id: Annotated[
+        Optional[str | None], Field(description="""nacrule_id""")
     ] = None,
-    dhcp_fqdn: Annotated[Optional[str], Field(description="""DHCP FQDN""")] = None,
+    dhcp_hostname: Annotated[
+        Optional[str | None], Field(description="""DHCP Hostname""")
+    ] = None,
+    dhcp_fqdn: Annotated[
+        Optional[str | None], Field(description="""DHCP FQDN""")
+    ] = None,
     dhcp_client_identifier: Annotated[
-        Optional[str], Field(description="""DHCP Client Identifier""")
+        Optional[str | None], Field(description="""DHCP Client Identifier""")
     ] = None,
     dhcp_vendor_class_identifier: Annotated[
-        Optional[str], Field(description="""DHCP Vendor Class Identifier""")
+        Optional[str | None], Field(description="""DHCP Vendor Class Identifier""")
     ] = None,
     dhcp_request_params: Annotated[
-        Optional[str], Field(description="""DHCP Request Parameters""")
+        Optional[str | None], Field(description="""DHCP Request Parameters""")
     ] = None,
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
+) -> dict | list:
     """Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)"""
 
     ctx = get_context()
@@ -149,27 +165,33 @@ async def searchOrgWiredClients(
     response = mistapi.api.v1.orgs.wired_clients.searchOrgWiredClients(
         apisession,
         org_id=str(org_id),
-        auth_state=auth_state,
-        auth_method=auth_method,
+        auth_state=auth_state if auth_state else None,
+        auth_method=auth_method if auth_method else None,
         source=source.value if source else None,
-        site_id=site_id,
-        device_mac=device_mac,
-        mac=mac,
-        port_id=port_id,
-        vlan=vlan,
-        ip_address=ip_address,
-        manufacture=manufacture,
-        text=text,
-        nacrule_id=nacrule_id,
-        dhcp_hostname=dhcp_hostname,
-        dhcp_fqdn=dhcp_fqdn,
-        dhcp_client_identifier=dhcp_client_identifier,
-        dhcp_vendor_class_identifier=dhcp_vendor_class_identifier,
-        dhcp_request_params=dhcp_request_params,
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
+        site_id=site_id if site_id else None,
+        device_mac=device_mac if device_mac else None,
+        mac=mac if mac else None,
+        port_id=port_id if port_id else None,
+        vlan=vlan if vlan else None,
+        ip=ip if ip else None,
+        manufacture=manufacture if manufacture else None,
+        text=text if text else None,
+        nacrule_id=nacrule_id if nacrule_id else None,
+        dhcp_hostname=dhcp_hostname if dhcp_hostname else None,
+        dhcp_fqdn=dhcp_fqdn if dhcp_fqdn else None,
+        dhcp_client_identifier=dhcp_client_identifier
+        if dhcp_client_identifier
+        else None,
+        dhcp_vendor_class_identifier=dhcp_vendor_class_identifier
+        if dhcp_vendor_class_identifier
+        else None,
+        dhcp_request_params=dhcp_request_params if dhcp_request_params else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

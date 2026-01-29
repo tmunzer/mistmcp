@@ -41,44 +41,49 @@ mcp = mcp_instance.get()
 )
 async def searchSiteWanUsage(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    mac: Annotated[Optional[str], Field(description="""MAC address""")] = None,
+    mac: Annotated[Optional[str | None], Field(description="""MAC address""")] = None,
     peer_mac: Annotated[
-        Optional[str], Field(description="""Peer MAC address""")
+        Optional[str | None], Field(description="""Peer MAC address""")
     ] = None,
     port_id: Annotated[
-        Optional[str], Field(description="""Port ID for the device""")
+        Optional[str | None], Field(description="""Port ID for the device""")
     ] = None,
     peer_port_id: Annotated[
-        Optional[str], Field(description="""Peer Port ID for the device""")
+        Optional[str | None], Field(description="""Peer Port ID for the device""")
     ] = None,
     policy: Annotated[
-        Optional[str], Field(description="""Policy for the wan path""")
+        Optional[str | None], Field(description="""Policy for the wan path""")
     ] = None,
     tenant: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""Tenant network in which the packet is sent"""),
     ] = None,
     path_type: Annotated[
-        Optional[str], Field(description="""path_type of the port""")
+        Optional[str | None], Field(description="""path_type of the port""")
     ] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Site WAN Usages"""
 
     ctx = get_context()
@@ -116,18 +121,18 @@ async def searchSiteWanUsage(
     response = mistapi.api.v1.sites.wan_usages.searchSiteWanUsage(
         apisession,
         site_id=str(site_id),
-        mac=mac,
-        peer_mac=peer_mac,
-        port_id=port_id,
-        peer_port_id=peer_port_id,
-        policy=policy,
-        tenant=tenant,
-        path_type=path_type,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
-        page=page,
+        mac=mac if mac else None,
+        peer_mac=peer_mac if peer_mac else None,
+        port_id=port_id if port_id else None,
+        peer_port_id=peer_port_id if peer_port_id else None,
+        policy=policy if policy else None,
+        tenant=tenant if tenant else None,
+        path_type=path_type if path_type else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
     )
 
     if response.status_code != 200:

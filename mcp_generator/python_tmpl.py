@@ -67,8 +67,8 @@ mcp = mcp_instance.get()
     }},
 )
 async def {operationId}(
-    {parameters}) -> dict:
-    """{description}"""
+    {parameters}) -> dict|list:
+    \"\"\"{description}\"\"\"
 
     ctx = get_context()
     if config.transport_mode == "http":

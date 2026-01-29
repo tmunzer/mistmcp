@@ -58,7 +58,7 @@ async def getSiteSleThreshold(
         ),
     ],
     metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
-) -> dict:
+) -> dict | list:
     """Get the SLE threshold"""
 
     ctx = get_context()
@@ -96,9 +96,9 @@ async def getSiteSleThreshold(
     response = mistapi.api.v1.sites.sle.getSiteSleThreshold(
         apisession,
         site_id=str(site_id),
-        scope=scope,
-        scope_id=scope_id,
-        metric=metric,
+        scope=scope.value,
+        scope_id=scope_id if scope_id else None,
+        metric=metric if metric else None,
     )
 
     if response.status_code != 200:

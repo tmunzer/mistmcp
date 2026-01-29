@@ -19,24 +19,63 @@ from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
 # from mistmcp.server_factory import mcp
 
+from pydantic import Field
+from typing import Annotated, Optional
+from uuid import UUID
+from enum import Enum
+
 
 mcp = mcp_instance.get()
 
 
+class Scope(Enum):
+    AP = "ap"
+    CLIENT = "client"
+    GATEWAY = "gateway"
+    SITE = "site"
+    SWITCH = "switch"
+
+
 @mcp.tool(
     enabled=False,
-    name="listLicenseTypes",
-    description="""Get License Types""",
-    tags={"Constants Definitions"},
+    name="getSiteSleClassifierSummaryTrend",
+    description="""Get SLE classifier Summary Trend""",
+    tags={"sles"},
     annotations={
-        "title": "listLicenseTypes",
+        "title": "getSiteSleClassifierSummaryTrend",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listLicenseTypes() -> dict:
-    """Get License Types"""
+async def getSiteSleClassifierSummaryTrend(
+    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    scope: Scope,
+    scope_id: Annotated[
+        str,
+        Field(
+            description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`"""
+        ),
+    ],
+    metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
+    classifier: str,
+    start: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
+        ),
+    ] = None,
+    end: Annotated[
+        Optional[str | None],
+        Field(
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
+        ),
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+) -> dict | list:
+    """Get SLE classifier Summary Trend"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -70,8 +109,16 @@ async def listLicenseTypes() -> dict:
         apitoken=apitoken,
     )
 
-    response = mistapi.api.v1.const.license_types.listLicenseTypes(
+    response = mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(
         apisession,
+        site_id=str(site_id),
+        scope=scope.value,
+        scope_id=scope_id if scope_id else None,
+        metric=metric if metric else None,
+        classifier=classifier if classifier else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
     )
 
     if response.status_code != 200:

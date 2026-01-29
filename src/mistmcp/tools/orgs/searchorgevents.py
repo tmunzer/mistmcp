@@ -41,24 +41,36 @@ mcp = mcp_instance.get()
 )
 async def searchOrgEvents(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    type: Annotated[Optional[str], Field(description="""Event type""")] = None,
+    type: Annotated[Optional[str | None], Field(description="""Event type""")] = None,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Org eventsSupported Event Types:- CRADLEPOINT_SYNC_FAILED- ORG_CA_CERT_ADDED- ORG_CA_CERT_REGENERATED"""
 
     ctx = get_context()
@@ -96,11 +108,13 @@ async def searchOrgEvents(
     response = mistapi.api.v1.orgs.events.searchOrgEvents(
         apisession,
         org_id=str(org_id),
-        type=type,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
+        type=type if type else None,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

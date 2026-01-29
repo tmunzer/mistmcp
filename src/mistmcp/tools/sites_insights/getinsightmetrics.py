@@ -1,4 +1,4 @@
-"""
+""" "
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -28,30 +28,50 @@ from enum import Enum
 mcp = mcp_instance.get()
 
 
-class Type(Enum):
-    HONEYPOT = "honeypot"
-    LAN = "lan"
-    OTHERS = "others"
-    SPOOF = "spoof"
-    NONE = None
+class Object_type(Enum):
+    SITE = "site"
+    CLIENT = "client"
+    AP = "ap"
+    GATEWAY = "gateway"
+    MXEDGE = "mxedge"
+    SWITCH = "switch"
 
 
 @mcp.tool(
     enabled=False,
-    name="listSiteRogueAPs",
-    description="""Get List of Site Rogue/Neighbor APs""",
-    tags={"Sites Rogues"},
+    name="getInsightMetrics",
+    description="""Get insight metrics for a given object""",
+    tags={"sites_insights"},
     annotations={
-        "title": "listSiteRogueAPs",
+        "title": "getInsightMetrics",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def listSiteRogueAPs(
+async def getInsightMetrics(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Optional[Type | None] = Type.NONE,
-    limit: Optional[int | None] = None,
+    object_type: Annotated[
+        Object_type, Field(description="""Type of object to retrieve metrics for.""")
+    ],
+    metric: Annotated[
+        str,
+        Field(
+            description="""Name of the metric to retrieve. Use the tool `listSiteInsightMetrics` to see available metrics."""
+        ),
+    ],
+    mac: Annotated[
+        Optional[str | None],
+        Field(
+            description="""MAC address of the client or device to retrieve metrics for. Required if object_type is 'client', 'ap', 'mxedge' or 'switch'."""
+        ),
+    ] = None,
+    device_id: Annotated[
+        Optional[UUID | None],
+        Field(
+            description="""ID of the gateway device to retrieve metrics for. Required if object_type is 'gateway'."""
+        ),
+    ] = None,
     start: Annotated[
         Optional[str | None],
         Field(
@@ -73,14 +93,12 @@ async def listSiteRogueAPs(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
-    rogue_bssid: Annotated[
-        Optional[str | None],
-        Field(
-            description="""BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed."""
-        ),
+    page: Annotated[Optional[int | None], Field(description="""Page number""")] = None,
+    limit: Annotated[
+        Optional[int | None], Field(description="""Number of records per page""")
     ] = None,
 ) -> dict | list:
-    """Get List of Site Rogue/Neighbor APs"""
+    """Get insight metrics for a given object"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -114,21 +132,92 @@ async def listSiteRogueAPs(
         apitoken=apitoken,
     )
 
-    if rogue_bssid:
-        response = mistapi.api.v1.sites.rogues.getSiteRogueAP(
-            apisession, site_id=str(site_id), rogue_bssid=rogue_bssid
-        )
-    else:
-        response = mistapi.api.v1.sites.insights.listSiteRogueAPs(
-            apisession,
-            site_id=str(site_id),
-            type=type.value if type else None,
-            limit=limit if limit else None,
-            start=start if start else None,
-            end=end if end else None,
-            duration=duration if duration else None,
-            interval=interval if interval else None,
-        )
+    match object_type.value:
+        case "site":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetrics(
+                apisession,
+                site_id=str(site_id),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "client":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForClient(
+                apisession,
+                site_id=str(site_id),
+                client_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "ap":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForDevice(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "gateway":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForGateway(
+                apisession,
+                site_id=str(site_id),
+                device_id=str(device_id),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "mxedge":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForMxEdge(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+        case "switch":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForSwitch(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+
+        case _:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}",
+                }
+            )
 
     if response.status_code != 200:
         api_error = {"status_code": response.status_code, "message": ""}
@@ -152,7 +241,7 @@ async def listSiteRogueAPs(
         elif response.status_code == 404:
             await ctx.error(f"Got HTTP{response.status_code}")
             api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn't exist or resource doesn't exist"
+                "Not found. The API endpoint doesn’t exist or resource doesn’t exist"
             )
         elif response.status_code == 429:
             await ctx.error(f"Got HTTP{response.status_code}")

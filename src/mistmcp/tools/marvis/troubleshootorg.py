@@ -50,31 +50,32 @@ class Type(Enum):
 async def troubleshootOrg(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(description="""**required** when troubleshooting device or a client"""),
     ] = None,
     site_id: Annotated[
-        Optional[UUID], Field(description="""**required** when troubleshooting site""")
+        Optional[UUID | None],
+        Field(description="""**required** when troubleshooting site"""),
     ] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     type: Annotated[
-        Optional[Type],
+        Optional[Type | None],
         Field(
             description="""When troubleshooting site, type of network to troubleshoot"""
         ),
     ] = Type.NONE,
-) -> dict:
+) -> dict | list:
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license"""
 
     ctx = get_context()
@@ -112,10 +113,10 @@ async def troubleshootOrg(
     response = mistapi.api.v1.orgs.troubleshoot.troubleshootOrg(
         apisession,
         org_id=str(org_id),
-        mac=mac,
+        mac=mac if mac else None,
         site_id=str(site_id) if site_id else None,
-        start=start,
-        end=end,
+        start=start if start else None,
+        end=end if end else None,
         type=type.value if type else None,
     )
 

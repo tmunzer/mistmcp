@@ -39,7 +39,7 @@ class Scope(Enum):
 @mcp.tool(
     enabled=False,
     name="getSiteSleClassifierDetails",
-    description="""Get SLE classifier details""",
+    description="""Get SLE classifier detailsThis API Endpoint is deprecated and replaced by [Get Site SLE Classifier Summary Trend](/#operations/getSiteSleClassifierSummaryTrend)""",
     tags={"sles"},
     annotations={
         "title": "getSiteSleClassifierDetails",
@@ -60,22 +60,22 @@ async def getSiteSleClassifierDetails(
     metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
     classifier: str,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-) -> dict:
-    """Get SLE classifier details"""
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+) -> dict | list:
+    """Get SLE classifier detailsThis API Endpoint is deprecated and replaced by [Get Site SLE Classifier Summary Trend](/#operations/getSiteSleClassifierSummaryTrend)"""
 
     ctx = get_context()
     if config.transport_mode == "http":
@@ -112,13 +112,13 @@ async def getSiteSleClassifierDetails(
     response = mistapi.api.v1.sites.sle.getSiteSleClassifierDetails(
         apisession,
         site_id=str(site_id),
-        scope=scope,
-        scope_id=scope_id,
-        metric=metric,
-        classifier=classifier,
-        start=start,
-        end=end,
-        duration=duration,
+        scope=scope.value,
+        scope_id=scope_id if scope_id else None,
+        metric=metric if metric else None,
+        classifier=classifier if classifier else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
     )
 
     if response.status_code != 200:

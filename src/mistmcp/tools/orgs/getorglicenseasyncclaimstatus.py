@@ -42,9 +42,9 @@ mcp = mcp_instance.get()
 async def GetOrgLicenseAsyncClaimStatus(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     detail: Annotated[
-        Optional[bool], Field(description="""Request license details""")
+        Optional[bool | None], Field(description="""Request license details""")
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get Processing Status for Async Claim"""
 
     ctx = get_context()
@@ -82,7 +82,7 @@ async def GetOrgLicenseAsyncClaimStatus(
     response = mistapi.api.v1.orgs.claim.GetOrgLicenseAsyncClaimStatus(
         apisession,
         org_id=str(org_id),
-        detail=detail,
+        detail=detail if detail else None,
     )
 
     if response.status_code != 200:

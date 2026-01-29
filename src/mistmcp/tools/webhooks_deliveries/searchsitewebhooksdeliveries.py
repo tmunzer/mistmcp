@@ -37,8 +37,8 @@ class Status(Enum):
 class Topic(Enum):
     ALARMS = "alarms"
     AUDITS = "audits"
-    DEVICE_UPDOWNS = "device-updowns"
-    OCCUPANCY_ALERTS = "occupancy-alerts"
+    DEVICE_UPDOWNS = "device_updowns"
+    OCCUPANCY_ALERTS = "occupancy_alerts"
     PING = "ping"
     NONE = None
 
@@ -58,31 +58,43 @@ class Topic(Enum):
 async def searchSiteWebhooksDeliveries(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     webhook_id: Annotated[UUID, Field(description="""ID of the Mist Webhook""")],
-    error: Optional[str] = None,
-    status_code: Optional[int] = None,
+    error: Optional[str | None] = None,
+    status_code: Optional[int | None] = None,
     status: Annotated[
-        Optional[Status], Field(description="""Webhook delivery status""")
+        Optional[Status | None], Field(description="""Webhook delivery status""")
     ] = Status.NONE,
     topic: Annotated[
-        Optional[Topic], Field(description="""Webhook topic""")
+        Optional[Topic | None], Field(description="""Webhook topic""")
     ] = Topic.NONE,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-) -> dict:
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+    search_after: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Site Webhooks deliveriesTopics Supported:- alarms- audits- device-updowns- occupancy-alerts- ping"""
 
     ctx = get_context()
@@ -121,14 +133,16 @@ async def searchSiteWebhooksDeliveries(
         apisession,
         site_id=str(site_id),
         webhook_id=str(webhook_id),
-        error=error,
-        status_code=status_code,
+        error=error if error else None,
+        status_code=status_code if status_code else None,
         status=status.value if status else None,
         topic=topic.value if topic else None,
-        start=start,
-        end=end,
-        duration=duration,
-        limit=limit,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        sort=sort if sort else None,
+        search_after=search_after if search_after else None,
     )
 
     if response.status_code != 200:

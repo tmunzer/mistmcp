@@ -42,7 +42,7 @@ mcp = mcp_instance.get()
 async def getSiteDeviceSyntheticTest(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     device_id: Annotated[UUID, Field(description="""ID of the Mist Device""")],
-) -> dict:
+) -> dict | list:
     """Get Device Synthetic Test"""
 
     ctx = get_context()

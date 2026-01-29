@@ -49,15 +49,15 @@ class Channel(Enum):
 async def listOrgAvailableSsrVersions(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     channel: Annotated[
-        Optional[Channel], Field(description="""SSR version channel""")
+        Optional[Channel | None], Field(description="""SSR version channel""")
     ] = Channel.STABLE,
     mac: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Optional. MAC address, or comma separated MAC address list."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get available version for SSR"""
 
     ctx = get_context()
@@ -96,7 +96,7 @@ async def listOrgAvailableSsrVersions(
         apisession,
         org_id=str(org_id),
         channel=channel.value if channel else Channel.STABLE.value,
-        mac=mac,
+        mac=mac if mac else None,
     )
 
     if response.status_code != 200:

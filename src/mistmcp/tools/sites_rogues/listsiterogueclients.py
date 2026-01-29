@@ -41,29 +41,29 @@ mcp = mcp_instance.get()
 )
 async def listSiteRogueClients(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    limit: Annotated[int, Field(default=100)] = 100,
+    limit: Optional[int | None] = None,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     interval: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get List of Site Rogue Clients"""
 
     ctx = get_context()
@@ -101,11 +101,11 @@ async def listSiteRogueClients(
     response = mistapi.api.v1.sites.insights.listSiteRogueClients(
         apisession,
         site_id=str(site_id),
-        limit=limit,
-        start=start,
-        end=end,
-        duration=duration,
-        interval=interval,
+        limit=limit if limit else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        interval=interval if interval else None,
     )
 
     if response.status_code != 200:

@@ -29,7 +29,7 @@ mcp = mcp_instance.get()
 
 
 class For_site(Enum):
-    ALL = "all"
+    ANY = "any"
     TRUE = "true"
     FALSE = "false"
     NONE = None
@@ -50,32 +50,33 @@ class For_site(Enum):
 async def listOrgMxEdgesStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     for_site: Annotated[
-        Optional[For_site], Field(description="""Filter for site level mist edges""")
+        Optional[For_site | None],
+        Field(description="""Filter for site level mist edges"""),
     ] = For_site.NONE,
     start: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified"""
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
         ),
     ] = None,
     end: Annotated[
-        Optional[int],
+        Optional[str | None],
         Field(
-            description="""End datetime, can be epoch or relative time like -1d, -2h; now if not specified"""
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
     duration: Annotated[
-        str, Field(description="""Duration like 7d, 2w""", default="1d")
-    ] = "1d",
-    limit: Annotated[int, Field(default=100)] = 100,
-    page: Annotated[int, Field(ge=1, default=1)] = 1,
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+    limit: Optional[int | None] = None,
+    page: Annotated[Optional[int | None], Field(ge=1)] = None,
     mxedge_id: Annotated[
-        Optional[str],
+        Optional[str | None],
         Field(
             description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
         ),
     ] = None,
-) -> dict:
+) -> dict | list:
     """Get List of Org MxEdge Stats"""
 
     ctx = get_context()
@@ -119,11 +120,11 @@ async def listOrgMxEdgesStats(
             apisession,
             org_id=str(org_id),
             for_site=for_site.value if for_site else None,
-            start=start,
-            end=end,
-            duration=duration,
-            limit=limit,
-            page=page,
+            start=start if start else None,
+            end=end if end else None,
+            duration=duration if duration else None,
+            limit=limit if limit else None,
+            page=page if page else None,
         )
 
     if response.status_code != 200:

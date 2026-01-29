@@ -240,7 +240,11 @@ def _process_params(
                 _add_import(imports, "enum", "Enum")
                 tmp_enum = f"\nclass {tmp_param['name'].capitalize()}(Enum):\n"
                 tmp_choices = []
-                for e in tmp_param["enum"]:
+                for entry in tmp_param["enum"]:
+                    # discard empty enums
+                    if entry == "":
+                        continue
+                    e = entry.replace("/", "_").replace("-", "_")
                     tmp_choices.append(e.lower())
                     e_tmp = snake_case(e)
                     if e_tmp in ["24", "5", "6"]:
@@ -261,26 +265,49 @@ def _process_params(
                 elif force_default:
                     tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else None,\n"
+                else:
+                    tmp_mistapi_parameters = (
+                        f"            {tmp_param['name']}={tmp_param['name']}.value,\n"
+                    )
+        elif tmp_param["type"] == "array":
+            if (
+                tmp_param.get("items", {}).get("$ref")
+                or tmp_param.get("items", {}).get("type") == "string"
+            ):
+                _add_import(imports, "typing", "List")
+                item_type = "str"
+                if tmp_param.get("items", {}).get("$ref"):
+                    ref_name = tmp_param["items"]["$ref"].split("/")[-1:][0]
+                    ref = openapi_schemas.get(ref_name, {})
+                    if ref.get("type") and TRANSLATION.get(ref.get("type")):
+                        item_type = TRANSLATION.get(ref.get("type"))
+                tmp_type = f"List[{item_type}]"
+            else:
+                _add_import(imports, "typing", "List")
+                item_type = TRANSLATION.get(
+                    tmp_param.get("items", {}).get("type", "string"), "str"
+                )
+                tmp_type = f"List[{item_type}]"
 
         if not tmp_default:
             if tmp_param["required"]:
                 tmp_optional = ""
-            elif tmp_param["default"]:
-                tmp_optional = ""
-                if tmp_param["type"] == "string":
-                    tmp_default = f' = "{tmp_param["default"]}"'
-                    annotations.append(f'default="{tmp_param["default"]}"')
-                else:
-                    tmp_default = f" = {tmp_param['default']}"
-                    annotations.append(f"default={tmp_param['default']}")
+            # elif tmp_param["default"]:
+            #     tmp_optional = ""
+            #     if tmp_param["type"] == "string":
+            #         tmp_default = f' = "{tmp_param["default"]}"'
+            #         annotations.append(f'default="{tmp_param["default"]}"')
+            #     else:
+            #         tmp_default = f" = {tmp_param['default']}"
+            #         annotations.append(f"default={tmp_param['default']}")
             else:
                 _add_import(imports, "typing", "Optional")
-                tmp_type = f"Optional[{tmp_type}]"
+                tmp_type = f"Optional[{tmp_type} | None]"
                 # tmp_optional = " | None"
                 tmp_default = " = None"
         elif not tmp_param["required"]:
             _add_import(imports, "typing", "Optional")
-            tmp_type = f"Optional[{tmp_type}]"
+            tmp_type = f"Optional[{tmp_type} | None]"
 
         if annotations:
             _add_import(imports, "typing", "Annotated")
@@ -288,9 +315,7 @@ def _process_params(
             tmp_type = f"Annotated[{tmp_type}, Field({','.join(annotations)})]"
 
         if not tmp_mistapi_parameters:
-            tmp_mistapi_parameters = (
-                f"            {tmp_param['name']}={tmp_param['name']},\n"
-            )
+            tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']} if {tmp_param['name']} else None,\n"
 
         parameters += (
             f"    {tmp_param['name']}: {tmp_type}{tmp_optional}{tmp_default},\n"
@@ -440,7 +465,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             for object_type, details in func_data.get("requests", {}).items():
                 enums_optim.append(object_type)
                 request += f"        case '{object_type}':\n"
-                if details.get("get"):
+                if details.get("get") and details.get("list"):
                     request += (
                         f"            if {func_data.get('if_filter', 'object_id')}:\n"
                         f"                response = {details['get'].get('function', '')}\n"
@@ -449,10 +474,18 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
                     processed_operation_ids.append(
                         details["get"].get("operationId", "").lower()
                     )
-                request += f"                response = {details['list'].get('function', '')}\n"
-                processed_operation_ids.append(
-                    details["list"].get("operationId", "").lower()
-                )
+                elif details.get("get"):
+                    request += (
+                        f"            response = {details['get'].get('function', '')}\n"
+                    )
+                    processed_operation_ids.append(
+                        details["get"].get("operationId", "").lower()
+                    )
+                if details.get("list"):
+                    request += f"                response = {details['list'].get('function', '')}\n"
+                    processed_operation_ids.append(
+                        details["list"].get("operationId", "").lower()
+                    )
             request += f"""
         case _:
             raise ToolError({{
