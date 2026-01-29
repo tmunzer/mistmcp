@@ -20,7 +20,7 @@ classifiers = [
   "Topic :: System :: Networking",
   "Development Status :: 4 - Beta",
 ]
-dependencies = ["FastMCP", "marvin", "mcp[cli]>=1.9.2", "mistapi>=0.59.4"]
+dependencies = ["FastMCP", "marvin", "mcp[cli]>=1.9.2", "mistapi>=0.59.5"]
 
 [project.urls]
 "Source" = "https://github.com/tmunzer/mistmcp"

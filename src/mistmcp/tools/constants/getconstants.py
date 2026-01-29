@@ -11,18 +11,19 @@
 """
 
 import json
+from enum import Enum
+from typing import Annotated
+
 import mistapi
+from fastmcp.exceptions import ClientError, NotFoundError, ToolError
 from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError, ClientError, NotFoundError
+
+# from mistmcp.server_factory import mcp
+from pydantic import Field
 from starlette.requests import Request
+
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
-# from mistmcp.server_factory import mcp
-
-from pydantic import Field
-from typing import Annotated
-from enum import Enum
-
 
 mcp = mcp_instance.get()
 
@@ -162,4 +163,10 @@ async def getConstants(
             )
         raise ToolError(api_error)
 
-    return response.data
+    data = []
+    for item in response.data:
+        if isinstance(item, dict) and "example" in item:
+            del item["example"]
+        data.append(item)
+
+    return data
