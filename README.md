@@ -135,7 +135,7 @@ Configure the client (Claude Desktop, VS Code MCP extension):
         "mcp-remote",
         "http://127.0.0.1:8000/mcp/?cloud=api.mist.com",
         "--header",
-        "X-Authorization:${MIST_APITOKEN}",
+        "Authorization:Bearer ${MIST_APITOKEN}",
         "--transport",
         "http-only"
       ],

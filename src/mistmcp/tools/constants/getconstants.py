@@ -11,19 +11,18 @@
 """
 
 import json
-from enum import Enum
-from typing import Annotated
-
 import mistapi
-from fastmcp.exceptions import ClientError, NotFoundError, ToolError
 from fastmcp.server.dependencies import get_context, get_http_request
-
-# from mistmcp.server_factory import mcp
-from pydantic import Field
+from fastmcp.exceptions import ToolError, ClientError, NotFoundError
 from starlette.requests import Request
-
 from mistmcp.config import config
 from mistmcp.server_factory import mcp_instance
+# from mistmcp.server_factory import mcp
+
+from pydantic import Field
+from typing import Annotated
+from enum import Enum
+
 
 mcp = mcp_instance.get()
 
@@ -63,16 +62,28 @@ async def getConstants(
     ctx = get_context()
     if config.transport_mode == "http":
         try:
+            apitoken = ""
             request: Request = get_http_request()
-            cloud = request.query_params.get("cloud", None)
-            apitoken = request.headers.get("X-Authorization", None)
+            cloud = (
+                request.query_params.get("cloud", None)
+                .replace("https://", "")
+                .replace("http://", "")
+            )
+            if request.headers.get("Authorization", None):
+                apitoken = request.headers.get("Authorization", "").replace(
+                    "Bearer ", ""
+                )
+            else:
+                apitoken = request.headers.get("X-Authorization", "").replace(
+                    "Bearer ", ""
+                )
         except NotFoundError as exc:
             raise ClientError(
                 "HTTP request context not found. Are you using HTTP transport?"
             ) from exc
         if not cloud or not apitoken:
             raise ClientError(
-                "Missing required parameters: 'cloud' and 'X-Authorization' header"
+                "Missing required parameters: 'cloud' and 'Authorization' or 'X-Authorization' header"
             )
     else:
         apitoken = config.mist_apitoken
@@ -80,7 +91,7 @@ async def getConstants(
 
     if not apitoken:
         raise ClientError(
-            "Missing required parameter: 'X-Authorization' header or mist_apitoken in config"
+            "Missing required parameter: 'Authorization' or 'X-Authorization' header or mist_apitoken in config"
         )
     if not cloud:
         raise ClientError(
@@ -163,10 +174,4 @@ async def getConstants(
             )
         raise ToolError(api_error)
 
-    data = []
-    for item in response.data:
-        if isinstance(item, dict) and "example" in item:
-            del item["example"]
-        data.append(item)
-
-    return data
+    return response.data
