@@ -95,35 +95,35 @@ listUpgrades:
     ap:
       list:
         operationId: listOrgDeviceUpgrades
-        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgDeviceUpgrade
         function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
     switch:
       list:
         operationId: listOrgDeviceUpgrades
-        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgDeviceUpgrade
         function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
     srx:
       list:
         operationId: listOrgDeviceUpgrades
-        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgDeviceUpgrade
         function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
     mxedge:
       list:
         operationId: listOrgMxEdgeUpgrades
-        function: mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgMxEdgeUpgrade
         function: mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
     ssr:
       list:
         operationId: listOrgSsrUpgrades
-        function: mistapi.api.v1.orgs.ssr.listOrgSsrUpgrades(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.ssr.listOrgSsrUpgrades(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgSsrUpgrade
         function: mistapi.api.v1.orgs.ssr.getOrgSsrUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
@@ -155,7 +155,8 @@ getOrgConfigurationObjects:
     alarmtemplates:
       list:
         operationId: listOrgAlarmTemplates
-        function: mistapi.api.v1.orgs.alarmtemplates.listOrgAlarmTemplates(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.alarmtemplates.listOrgAlarmTemplates(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgAlarmTemplate
         function: mistapi.api.v1.orgs.alarmtemplates.getOrgAlarmTemplate(apisession, org_id=str(org_id), alarmtemplate_id=str(object_id))
@@ -163,7 +164,9 @@ getOrgConfigurationObjects:
     wlans:
       list:
         operationId: listOrgWlans
-        function: mistapi.api.v1.orgs.wlans.listOrgWlans(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.wlans.listOrgWlans(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
+        reduce_attribute: ssid
       get:
         operationId: getOrgWlan
         function: mistapi.api.v1.orgs.wlans.getOrgWLAN(apisession, org_id=str(org_id), wlan_id=str(object_id))
@@ -171,7 +174,7 @@ getOrgConfigurationObjects:
     sitegroups:
       list:
         operationId: listOrgSiteGroups
-        function: mistapi.api.v1.orgs.sitegroups.listOrgSiteGroups(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.sitegroups.listOrgSiteGroups(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgSiteGroup
         function: mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(object_id))
@@ -179,7 +182,8 @@ getOrgConfigurationObjects:
     aptemplates:
       list:
         operationId: listOrgAptemplates
-        function: mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgAptemplate
         function: mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id))
@@ -187,7 +191,8 @@ getOrgConfigurationObjects:
     avprofiles:
       list:
         operationId: listOrgAntivirusProfiles
-        function: mistapi.api.v1.orgs.avprofiles.listOrgAntivirusProfiles(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.avprofiles.listOrgAntivirusProfiles(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgAntivirusProfile
         function: mistapi.api.v1.orgs.avprofiles.getOrgAntivirusProfile(apisession, org_id=str(org_id), avprofile_id=str(object_id))
@@ -200,7 +205,8 @@ getOrgConfigurationObjects:
     deviceprofiles:
       list:
         operationId: listOrgDeviceProfiles
-        function: mistapi.api.v1.orgs.deviceprofiles.listOrgDeviceProfiles(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.deviceprofiles.listOrgDeviceProfiles(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgDeviceProfile
         function: mistapi.api.v1.orgs.deviceprofiles.getOrgDeviceProfile(apisession, org_id=str(org_id), deviceprofile_id=str(object_id))
@@ -208,7 +214,8 @@ getOrgConfigurationObjects:
     evpn_topologies:
       list:
         operationId: listOrgEvpnTopologies
-        function: mistapi.api.v1.orgs.evpn_topologies.listOrgEvpnTopologies(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.evpn_topologies.listOrgEvpnTopologies(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgEvpnTopology
         function: mistapi.api.v1.orgs.evpn_topologies.getOrgEvpnTopology(apisession, org_id=str(org_id), evpn_topology_id=str(object_id))
@@ -216,7 +223,8 @@ getOrgConfigurationObjects:
     gatewaytemplates:
       list:
         operationId: listOrgGatewayTemplates
-        function: mistapi.api.v1.orgs.gatewaytemplates.listOrgGatewayTemplates(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.gatewaytemplates.listOrgGatewayTemplates(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgGatewayTemplate
         function: mistapi.api.v1.orgs.gatewaytemplates.getOrgGatewayTemplate(apisession, org_id=str(org_id), gatewaytemplate_id=str(object_id))
@@ -224,7 +232,8 @@ getOrgConfigurationObjects:
     idpprofiles:
       list:
         operationId: listOrgIdpProfiles
-        function: mistapi.api.v1.orgs.idpprofiles.listOrgIdpProfiles(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.idpprofiles.listOrgIdpProfiles(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgIdpProfile
         function: mistapi.api.v1.orgs.idpprofiles.getOrgIdpProfile(apisession, org_id=str(org_id), idpprofile_id=str(object_id))
@@ -233,6 +242,7 @@ getOrgConfigurationObjects:
       list:
         operationId: listOrgAAMWProfiles
         function: mistapi.api.v1.orgs.aamwprofiles.listOrgAAMWProfiles(apisession, org_id=str(org_id))
+        reduce: true
       get:
         operationId: getOrgAAMWProfile
         function: mistapi.api.v1.orgs.aamwprofiles.getOrgAAMWProfile(apisession, org_id=str(org_id), aamwprofile_id=str(object_id))
@@ -240,7 +250,7 @@ getOrgConfigurationObjects:
     mxclusters:
       list:
         operationId: listOrgMxEdgeClusters
-        function: mistapi.api.v1.orgs.mxclusters.listOrgMxEdgeClusters(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.mxclusters.listOrgMxEdgeClusters(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgMxEdgeCluster
         function: mistapi.api.v1.orgs.mxclusters.getOrgMxEdgeCluster(apisession, org_id=str(org_id), mxcluster_id=str(object_id))
@@ -248,7 +258,7 @@ getOrgConfigurationObjects:
     mxedges:
       list:
         operationId: listOrgMxEdges
-        function: mistapi.api.v1.orgs.mxedges.listOrgMxEdges(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.mxedges.listOrgMxEdges(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgMxEdge
         function: mistapi.api.v1.orgs.mxedges.getOrgMxEdge(apisession, org_id=str(org_id), mxedge_id=str(object_id))
@@ -256,7 +266,7 @@ getOrgConfigurationObjects:
     mxtunnels:
       list:
         operationId: listOrgMxTunnels
-        function: mistapi.api.v1.orgs.mxtunnels.listOrgMxTunnels(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.mxtunnels.listOrgMxTunnels(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgMxTunnel
         function: mistapi.api.v1.orgs.mxtunnels.getOrgMxTunnel(apisession, org_id=str(org_id), mxtunnel_id=str(object_id))
@@ -264,7 +274,7 @@ getOrgConfigurationObjects:
     nactags:
       list:
         operationId: listOrgNacTags
-        function: mistapi.api.v1.orgs.nactags.listOrgNacTags(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.nactags.listOrgNacTags(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgNacTag
         function: mistapi.api.v1.orgs.nactags.getOrgNacTag(apisession, org_id=str(org_id), nactag_id=str(object_id))
@@ -272,7 +282,7 @@ getOrgConfigurationObjects:
     nacrules:
       list:
         operationId: listOrgNacRules
-        function: mistapi.api.v1.orgs.nacrules.listOrgNacRules(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.nacrules.listOrgNacRules(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgNacRule
         function: mistapi.api.v1.orgs.nacrules.getOrgNacRule(apisession, org_id=str(org_id), nacrule_id=str(object_id))
@@ -280,7 +290,8 @@ getOrgConfigurationObjects:
     networktemplates:
       list:
         operationId: listOrgNetworkTemplates
-        function: mistapi.api.v1.orgs.networktemplates.listOrgNetworkTemplates(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.networktemplates.listOrgNetworkTemplates(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgNetworkTemplate
         function: mistapi.api.v1.orgs.networktemplates.getOrgNetworkTemplate(apisession, org_id=str(org_id), networktemplate_id=str(object_id))
@@ -288,7 +299,7 @@ getOrgConfigurationObjects:
     networks:
       list:
         operationId: listOrgNetworks
-        function: mistapi.api.v1.orgs.networks.listOrgNetworks(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.networks.listOrgNetworks(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgNetwork
         function: mistapi.api.v1.orgs.networks.getOrgNetwork(apisession, org_id=str(org_id), network_id=str(object_id))
@@ -296,7 +307,7 @@ getOrgConfigurationObjects:
     psks:
       list:
         operationId: listOrgPsks
-        function: mistapi.api.v1.orgs.psks.listOrgPsks(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.psks.listOrgPsks(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgPsk
         function: mistapi.api.v1.orgs.psks.getOrgPsk(apisession, org_id=str(org_id), psk_id=str(object_id))
@@ -304,7 +315,8 @@ getOrgConfigurationObjects:
     rftemplates:
       list:
         operationId: listOrgRfTemplates
-        function: mistapi.api.v1.orgs.rftemplates.listOrgRfTemplates(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.rftemplates.listOrgRfTemplates(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgRfTemplate
         function: mistapi.api.v1.orgs.rftemplates.getOrgRfTemplate(apisession, org_id=str(org_id), rftemplate_id=str(object_id))
@@ -312,7 +324,8 @@ getOrgConfigurationObjects:
     services:
       list:
         operationId: listOrgServices
-        function: mistapi.api.v1.orgs.services.listOrgServices(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.services.listOrgServices(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgService
         function: mistapi.api.v1.orgs.services.getOrgService(apisession, org_id=str(org_id), service_id=str(object_id))
@@ -320,7 +333,8 @@ getOrgConfigurationObjects:
     servicepolicies:
       list:
         operationId: listOrgServicePolicies
-        function: mistapi.api.v1.orgs.servicepolicies.listOrgServicePolicies(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.servicepolicies.listOrgServicePolicies(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgServicePolicy
         function: mistapi.api.v1.orgs.servicepolicies.getOrgServicePolicy(apisession, org_id=str(org_id), servicepolicy_id=str(object_id))
@@ -328,28 +342,21 @@ getOrgConfigurationObjects:
     sites:
       list:
         operationId: listOrgSites
-        function: mistapi.api.v1.orgs.sites.listOrgSites(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.sites.listOrgSites(apisession, org_id=str(org_id), limit=1000)
 
     sitetemplates:
       list:
         operationId: listOrgSiteTemplates
-        function: mistapi.api.v1.orgs.sitetemplates.listOrgSiteTemplates(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.sitetemplates.listOrgSiteTemplates(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
       get:
         operationId: getOrgSiteTemplate
         function: mistapi.api.v1.orgs.sitetemplates.getOrgSiteTemplate(apisession, org_id=str(org_id), sitetemplate_id=str(object_id))
 
-    wlantemplates:
-      list:
-        operationId: listOrgTemplates
-        function: mistapi.api.v1.orgs.templates.listOrgTemplates(apisession, org_id=str(org_id))
-      get:
-        operationId: getOrgTemplate
-        function: mistapi.api.v1.orgs.templates.getOrgTemplate(apisession, org_id=str(org_id), template_id=str(object_id))
-
     vpns:
       list:
         operationId: listOrgVpns
-        function: mistapi.api.v1.orgs.vpns.listOrgVpns(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.vpns.listOrgVpns(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgVpn
         function: mistapi.api.v1.orgs.vpns.getOrgVpn(apisession, org_id=str(org_id), vpn_id=str(object_id))
@@ -357,15 +364,24 @@ getOrgConfigurationObjects:
     webhooks:
       list:
         operationId: listOrgWebhooks
-        function: mistapi.api.v1.orgs.webhooks.listOrgWebhooks(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.webhooks.listOrgWebhooks(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgWebhook
         function: mistapi.api.v1.orgs.webhooks.getOrgWebhook(apisession, org_id=str(org_id), webhook_id=str(object_id))
 
+    wlantemplates:
+      list:
+        operationId: listOrgTemplates
+        function: mistapi.api.v1.orgs.templates.listOrgTemplates(apisession, org_id=str(org_id), limit=1000)
+        reduce: true
+      get:
+        operationId: getOrgTemplate
+        function: mistapi.api.v1.orgs.templates.getOrgTemplate(apisession, org_id=str(org_id), template_id=str(object_id))
+
     wxrules:
       list:
         operationId: listOrgWxRules
-        function: mistapi.api.v1.orgs.wxrules.listOrgWxRules(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.wxrules.listOrgWxRules(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgWxRule
         function: mistapi.api.v1.orgs.wxrules.getOrgWxRule(apisession, org_id=str(org_id), wxrule_id=str(object_id))
@@ -373,7 +389,7 @@ getOrgConfigurationObjects:
     wxtags:
       list:
         operationId: listOrgWxTags
-        function: mistapi.api.v1.orgs.wxtags.listOrgWxTags(apisession, org_id=str(org_id))
+        function: mistapi.api.v1.orgs.wxtags.listOrgWxTags(apisession, org_id=str(org_id), limit=1000)
       get:
         operationId: getOrgWxTag
         function: mistapi.api.v1.orgs.wxtags.getOrgWxTag(apisession, org_id=str(org_id), wxtag_id=str(object_id))
@@ -405,7 +421,7 @@ getSiteConfigurationObjects:
     devices:
       list:
         operationId: listSiteDevices
-        function: mistapi.api.v1.sites.devices.listSiteDevices(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.devices.listSiteDevices(apisession, site_id=str(site_id), limit=1000)
       get:
         operationId: getSiteDevice
         function: mistapi.api.v1.sites.devices.getSiteDevice(apisession, site_id=str(site_id), device_id=str(object_id))
@@ -413,7 +429,8 @@ getSiteConfigurationObjects:
     evpn_topologies:
       list:
         operationId: listSiteEvpnTopologies
-        function: mistapi.api.v1.sites.evpn_topologies.listSiteEvpnTopologies(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.evpn_topologies.listSiteEvpnTopologies(apisession, site_id=str(site_id), limit=1000)
+        reduce: true
       get:
         operationId: getSiteEvpnTopology
         function: mistapi.api.v1.sites.evpn_topologies.getSiteEvpnTopology(apisession, site_id=str(site_id), evpn_topology_id=str(object_id))
@@ -421,7 +438,8 @@ getSiteConfigurationObjects:
     maps:
       list:
         operationId: listSiteMaps
-        function: mistapi.api.v1.sites.maps.listSiteMaps(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.maps.listSiteMaps(apisession, site_id=str(site_id), limit=1000)
+        reduce: true
       get:
         operationId: getSiteMap
         function: mistapi.api.v1.sites.maps.getSiteMap(apisession, site_id=str(site_id), map_id=str(object_id))
@@ -429,7 +447,7 @@ getSiteConfigurationObjects:
     mxedges:
       list:
         operationId: listSiteMxEdges
-        function: mistapi.api.v1.sites.mxedges.listSiteMxEdges(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.mxedges.listSiteMxEdges(apisession, site_id=str(site_id), limit=1000)
       get:
         operationId: getSiteMxEdge
         function: mistapi.api.v1.sites.mxedges.getSiteMxEdge(apisession, site_id=str(site_id), mxedge_id=str(object_id))
@@ -437,7 +455,7 @@ getSiteConfigurationObjects:
     psks:
       list:
         operationId: listSitePsks
-        function: mistapi.api.v1.sites.psks.listSitePsks(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.psks.listSitePsks(apisession, site_id=str(site_id), limit=1000)
       get:
         operationId: getSitePsk
         function: mistapi.api.v1.sites.psks.getSitePsk(apisession, site_id=str(site_id), psk_id=str(object_id))
@@ -445,7 +463,8 @@ getSiteConfigurationObjects:
     webhooks:
       list:
         operationId: listSiteWebhooks
-        function: mistapi.api.v1.sites.webhooks.listSiteWebhooks(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.webhooks.listSiteWebhooks(apisession, site_id=str(site_id), limit=1000)
+        reduce: true
       get:
         operationId: getSiteWebhook
         function: mistapi.api.v1.sites.webhooks.getSiteWebhook(apisession, site_id=str(site_id), webhook_id=str(object_id))
@@ -453,7 +472,8 @@ getSiteConfigurationObjects:
     wlans:
       list:
         operationId: listSiteWlans
-        function: mistapi.api.v1.sites.wlans.listSiteWlans(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.wlans.listSiteWlans(apisession, site_id=str(site_id), limit=1000)
+        reduce: true
       get:
         operationId: getSiteWlan
         function: mistapi.api.v1.sites.wlans.getSiteWlan(apisession, site_id=str(site_id), wlan_id=str(object_id))
@@ -461,7 +481,7 @@ getSiteConfigurationObjects:
     wxrules:
       list:
         operationId: listSiteWxRules
-        function: mistapi.api.v1.sites.wxrules.listSiteWxRules(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.wxrules.listSiteWxRules(apisession, site_id=str(site_id), limit=1000)
       get:
         operationId: getSiteWxRule
         function: mistapi.api.v1.sites.wxrules.getSiteWxRule(apisession, site_id=str(site_id), wxrule_id=str(object_id))
@@ -469,84 +489,10 @@ getSiteConfigurationObjects:
     wxtags:
       list:
         operationId: listSiteWxTags
-        function: mistapi.api.v1.sites.wxtags.listSiteWxTags(apisession, site_id=str(site_id))
+        function: mistapi.api.v1.sites.wxtags.listSiteWxTags(apisession, site_id=str(site_id), limit=1000)
       get:
         operationId: getSiteWxTag
         function: mistapi.api.v1.sites.wxtags.getSiteWxTag(apisession, site_id=str(site_id), wxtag_id=str(object_id))
-
-    # rftemplates_derived:
-    #   list:
-    #     operationId: listSiteRfTemplatesDerived
-    #     function: mistapi.api.v1.sites.rftemplates.listSiteRfTemplatesDerived(apisession, site_id=str(site_id))
-
-    # wlans_derived:
-    #   list:
-    #     operationId: listSiteWlansDerived
-    #     function: mistapi.api.v1.sites.wlans.listSiteWlansDerived(apisession, site_id=str(site_id))
-
-    # wxrules_derived:
-    #   list:
-    #     operationId: ListSiteWxRulesDerived
-    #     function: mistapi.api.v1.sites.wxrules.ListSiteWxRulesDerived(apisession, site_id=str(site_id))
-
-    # avprofiles_derived:
-    #   list:
-    #     operationId: listSiteAntivirusProfilesDerived
-    #     function: mistapi.api.v1.sites.avprofiles.listSiteAntivirusProfilesDerived(apisession, site_id=str(site_id))
-
-    # idpprofiles_derived:
-    #   list:
-    #     operationId: listSiteIdpProfilesDerived
-    #     function: mistapi.api.v1.sites.idpprofiles.listSiteIdpProfilesDerived(apisession, site_id=str(site_id))
-
-    # aamwprofiles_derived:
-    #   list:
-    #     operationId: listSiteAAMWProfilesDerived
-    #     function: mistapi.api.v1.sites.aamwprofiles.listSiteAAMWProfilesDerived(apisession, site_id=str(site_id))
-
-    # aptemplates_derived:
-    #   list:
-    #     operationId: listSiteApTemplatesDerived
-    #     function: mistapi.api.v1.sites.aptemplates.listSiteApTemplatesDerived(apisession, site_id=str(site_id))
-    # networktemplates_derived:
-    #   list:
-    #     operationId: listSiteNetworkTemplatesDerived
-    #     function: mistapi.api.v1.sites.networktemplates.listSiteNetworkTemplatesDerived(apisession, site_id=str(site_id))
-
-    # gatewaytemplates_derived:
-    #   list:
-    #     operationId: listSiteGatewayTemplatesDerived
-    #     function: mistapi.api.v1.sites.gatewaytemplates.listSiteGatewayTemplatesDerived(apisession, site_id=str(site_id))
-
-    # deviceprofiles_derived:
-    #   list:
-    #     operationId: listSiteDeviceProfilesDerived
-    #     function: mistapi.api.v1.sites.deviceprofiles.listSiteDeviceProfilesDerived(apisession, site_id=str(site_id))
-
-    # networks_derived:
-    #   list:
-    #     operationId: listSiteNetworksDerived
-    #     function: mistapi.api.v1.sites.networks.listSiteNetworksDerived(apisession, site_id=str(site_id))
-
-    # services_derived:
-    #   list:
-    #     operationId: listSiteServicesDerived
-    #     function: mistapi.api.v1.sites.services.listSiteServicesDerived(apisession, site_id=str(site_id))
-
-    # servicepolicies_derived:
-    #   list:
-    #     operationId: listSiteServicePoliciesDerived
-    #     function: mistapi.api.v1.sites.servicepolicies.listSiteServicePoliciesDerived(apisession, site_id=str(site_id))
-
-    # vpns_derived:
-    #   list:
-    #     operationId: listSiteVpnsDerived
-    #     function: mistapi.api.v1.sites.vpns.listSiteVpnsDerived(apisession, site_id=str(site_id))
-
-    # sitetemplates_derived:
-    #   list:
-    #     operationId: listSiteSiteTemplatesDerived
-    #     function: mistapi.api.v1.sites.sitetemplates.listSiteSiteTemplatesDerived(apisession, site_id=str(site_id))
 
 getInsightMetrics:
   type: tool_consolidation
@@ -706,3 +652,109 @@ getConstants:
       get:
         operationId: listNacEventsDefinitions
         function: mistapi.api.v1.const.nac_events.listNacEventsDefinitions(apisession)
+
+getSiteSle:
+  type: tool_consolidation
+  tags: [sles]
+  description: Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs.
+  read_only_hint: true
+  destructive_hint: false
+  parameters:
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the Mist Site
+      required: true
+    - name: scope
+      schema:
+        type: string
+        enum: [client, ap, gateway, mxedge, switch, site]
+      description: Scope of the SLEs to retrieve. Can be 'client', 'ap', 'gateway', 'mxedge', 'switch' or 'site'.
+      required: true
+    - name: scope_id
+      schema:
+        type: string
+        description: ID of the object to retrieve SLEs for. Required if scope is 'client', 'ap', 'gateway', 'mxedge' or 'switch'. Optional if scope is 'site'.
+      required: true
+    - name: metric
+      schema:
+        type: string
+      description: Name of the metric to retrieve SLEs for. Use the tool `listSiteInsightMetrics` to see available metrics.
+      required: true
+    - name: object_type
+      schema:
+        type: string
+      description: Type of object to retrieve metrics for.
+      required: true
+    - name: start
+      schema:
+        type: string
+      description: Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w', 'now')
+      required: false
+    - name: end
+      schema:
+        type: string
+      description: End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')
+      required: false
+    - name: duration
+      schema:
+        type: string
+      description: Duration like 7d, 2w
+      required: false
+
+  requests:
+    summary:
+      get:
+        operationId: getSiteSleSummary
+        function: mistapi.api.v1.sites.sle.getSiteSleSummary(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impact_summary:
+      get:
+        operationId: getSiteSleImpactSummary
+        function: mistapi.api.v1.sites.sle.getSiteSleImpactSummary(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    summary_trend:
+      get:
+        operationId: getSiteSleSummaryTrend
+        function: mistapi.api.v1.sites.sle.getSiteSleSummaryTrend(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impacted_applications:
+      get:
+        operationId: listSiteSleImpactedApplications
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedApplications(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impacted_aps:
+      get:
+        operationId: listSiteSleImpactedAps
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedAps(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impacted_gateways:
+      get:
+        operationId: listSiteSleImpactedGateways
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impacted_interfaces:
+      get:
+        operationId: listSiteSleImpactedInterfaces
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedInterfaces(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impacted_switches:
+      get:
+        operationId: listSiteSleImpactedSwitches
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedSwitches(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impacted_wireless_clients:
+      get:
+        operationId: listSiteSleImpactedWirelessClients
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedWirelessClients(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impacted_wired_clients:
+      get:
+        operationId: listSiteSleImpactedWiredClients
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedWiredClients(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    impacted_chassis:
+      get:
+        operationId: listSiteSleImpactedChassis
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)

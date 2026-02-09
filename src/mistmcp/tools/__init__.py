@@ -10,6 +10,10 @@
 --------------------------------------------------------------------------------
 """
 
+from .configuration import getsiteconfiguration as getsiteconfiguration
+from .configuration import getdeviceconfiguration as getdeviceconfiguration
+from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
+from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
 from .utilities_upgrade import listupgrades as listupgrades
 from .utilities_upgrade import (
     listorgavailabledeviceversions as listorgavailabledeviceversions,
@@ -17,10 +21,16 @@ from .utilities_upgrade import (
 from .utilities_upgrade import (
     listorgavailablessrversions as listorgavailablessrversions,
 )
-from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
-from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
 from .sites_insights import getinsightmetrics as getinsightmetrics
 from .constants import getconstants as getconstants
+from .sles import getsitesle as getsitesle
+from .sles import getorgsitessle as getorgsitessle
+from .sles import getorgsle as getorgsle
+from .sles import getsitesleclassifiersummarytrend as getsitesleclassifiersummarytrend
+from .sles import listsiteslemetricclassifiers as listsiteslemetricclassifiers
+from .sles import getsiteslehistogram as getsiteslehistogram
+from .sles import getsiteslethreshold as getsiteslethreshold
+from .sles import listsiteslesmetrics as listsiteslesmetrics
 from .orgs import getorg as getorg
 from .orgs import searchorgalarms as searchorgalarms
 from .orgs import listorgsuppressedalarms as listorgsuppressedalarms
@@ -43,7 +53,6 @@ from .clients import searchorgwiredclients as searchorgwiredclients
 from .clients import listsiteroamingevents as listsiteroamingevents
 from .clients import searchsiteguestauthorization as searchsiteguestauthorization
 from .devices import searchorgdeviceevents as searchorgdeviceevents
-from .devices import listorgapsmacs as listorgapsmacs
 from .devices import searchorgdevices as searchorgdevices
 from .devices import listorgdevicessummary as listorgdevicessummary
 from .devices import getorginventory as getorginventory
@@ -53,27 +62,6 @@ from .devices import searchsitedeviceevents as searchsitedeviceevents
 from .devices import searchsitedevicelastconfigs as searchsitedevicelastconfigs
 from .devices import searchsitedevices as searchsitedevices
 from .devices import searchsitemistedgeevents as searchsitemistedgeevents
-from .sles import getorgsitessle as getorgsitessle
-from .sles import getorgsle as getorgsle
-from .sles import getsitesleclassifierdetails as getsitesleclassifierdetails
-from .sles import getsitesleclassifiersummarytrend as getsitesleclassifiersummarytrend
-from .sles import listsiteslemetricclassifiers as listsiteslemetricclassifiers
-from .sles import getsiteslehistogram as getsiteslehistogram
-from .sles import getsitesleimpactsummary as getsitesleimpactsummary
-from .sles import listsitesleimpactedapplications as listsitesleimpactedapplications
-from .sles import listsitesleimpactedaps as listsitesleimpactedaps
-from .sles import listsitesleimpactedchassis as listsitesleimpactedchassis
-from .sles import listsitesleimpactedwiredclients as listsitesleimpactedwiredclients
-from .sles import listsitesleimpactedgateways as listsitesleimpactedgateways
-from .sles import listsitesleimpactedinterfaces as listsitesleimpactedinterfaces
-from .sles import listsitesleimpactedswitches as listsitesleimpactedswitches
-from .sles import (
-    listsitesleimpactedwirelessclients as listsitesleimpactedwirelessclients,
-)
-from .sles import getsiteslesummary as getsiteslesummary
-from .sles import getsiteslesummarytrend as getsiteslesummarytrend
-from .sles import getsiteslethreshold as getsiteslethreshold
-from .sles import listsiteslesmetrics as listsiteslesmetrics
 from .orgs_stats import getorgstats as getorgstats
 from .orgs_stats import searchorgbgpstats as searchorgbgpstats
 from .orgs_stats import listorgdevicesstats as listorgdevicesstats
@@ -90,16 +78,6 @@ from .marvis import getsitedevicesynthetictest as getsitedevicesynthetictest
 from .marvis import searchsitesynthetictest as searchsitesynthetictest
 from .orgs_nac import searchorgusermacs as searchorgusermacs
 from .orgs_nac import searchorgclientfingerprints as searchorgclientfingerprints
-from .webhooks_deliveries import (
-    searchorgwebhooksdeliveries as searchorgwebhooksdeliveries,
-)
-from .webhooks_deliveries import (
-    searchsitewebhooksdeliveries as searchsitewebhooksdeliveries,
-)
-from .orgs_wxtags import getorgapplicationlist as getorgapplicationlist
-from .orgs_wxtags import (
-    getorgcurrentmatchingclientsofawxtag as getorgcurrentmatchingclientsofawxtag,
-)
 from .self_account import getself as getself
 from .self_account import getselfloginfailures as getselfloginfailures
 from .self_account import listselfauditlogs as listselfauditlogs
@@ -116,22 +94,9 @@ from .sites_rrm import (
 )
 from .sites_rrm import listsiterrmevents as listsiterrmevents
 from .sites_rrm import listsitecurrentrrmneighbors as listsitecurrentrrmneighbors
-from .sites_services import searchsiteservicepathevents as searchsiteservicepathevents
 from .sites_stats import getsitestats as getsitestats
-from .sites_stats import troubleshootsitecall as troubleshootsitecall
-from .sites_stats import searchsitecalls as searchsitecalls
-from .sites_stats import getsitecallssummary as getsitecallssummary
-from .sites_stats import listsitetroubleshootcalls as listsitetroubleshootcalls
 from .sites_stats import listsitewirelessclientsstats as listsitewirelessclientsstats
-from .sites_stats import (
-    searchsitediscoveredswitchesmetrics as searchsitediscoveredswitchesmetrics,
-)
-from .sites_stats import (
-    listsitediscoveredswitchesmetrics as listsitediscoveredswitchesmetrics,
-)
-from .sites_stats import searchsitediscoveredswitches as searchsitediscoveredswitches
 from .sites_stats import listsitemxedgesstats as listsitemxedgesstats
-from .sites_stats import searchsiteospfstats as searchsiteospfstats
 from .sites_stats import getsitewxrulesusage as getsitewxrulesusage
 from .sites_stats import searchsitewanusage as searchsitewanusage
 from .sites_stats import getsiteapplicationlist as getsiteapplicationlist

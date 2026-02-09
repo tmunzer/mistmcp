@@ -12,12 +12,10 @@
 
 import json
 import mistapi
-from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError, ClientError, NotFoundError
-from starlette.requests import Request
-from mistmcp.config import config
-from mistmcp.server_factory import mcp_instance
-# from mistmcp.server_factory import mcp
+from fastmcp.exceptions import ToolError
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_processor import process_response
+from mistmcp.server import get_mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -25,7 +23,12 @@ from uuid import UUID
 from enum import Enum
 
 
-mcp = mcp_instance.get()
+mcp = get_mcp()
+
+if not mcp:
+    raise RuntimeError(
+        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
+    )
 
 
 class Object_type(Enum):
@@ -53,15 +56,15 @@ class Object_type(Enum):
     SERVICEPOLICIES = "servicepolicies"
     SITES = "sites"
     SITETEMPLATES = "sitetemplates"
-    WLANTEMPLATES = "wlantemplates"
     VPNS = "vpns"
     WEBHOOKS = "webhooks"
+    WLANTEMPLATES = "wlantemplates"
     WXRULES = "wxrules"
     WXTAGS = "wxtags"
 
 
 @mcp.tool(
-    enabled=False,
+    enabled=True,
     name="getOrgConfigurationObjects",
     description="""Retrieve configuration objects from a specified organization or site.""",
     tags={"configuration"},
@@ -91,49 +94,8 @@ async def getOrgConfigurationObjects(
 ) -> dict | list:
     """Retrieve configuration objects from a specified organization or site."""
 
-    ctx = get_context()
-    if config.transport_mode == "http":
-        try:
-            apitoken = ""
-            request: Request = get_http_request()
-            cloud = (
-                request.query_params.get("cloud", None)
-                .replace("https://", "")
-                .replace("http://", "")
-            )
-            if request.headers.get("Authorization", None):
-                apitoken = request.headers.get("Authorization", "").replace(
-                    "Bearer ", ""
-                )
-            else:
-                apitoken = request.headers.get("X-Authorization", "").replace(
-                    "Bearer ", ""
-                )
-        except NotFoundError as exc:
-            raise ClientError(
-                "HTTP request context not found. Are you using HTTP transport?"
-            ) from exc
-        if not cloud or not apitoken:
-            raise ClientError(
-                "Missing required parameters: 'cloud' and 'Authorization' or 'X-Authorization' header"
-            )
-    else:
-        apitoken = config.mist_apitoken
-        cloud = config.mist_host
-
-    if not apitoken:
-        raise ClientError(
-            "Missing required parameter: 'Authorization' or 'X-Authorization' header or mist_apitoken in config"
-        )
-    if not cloud:
-        raise ClientError(
-            "Missing required parameter: 'cloud' query parameter or mist_host in config"
-        )
-
-    apisession = mistapi.APISession(
-        host=cloud,
-        apitoken=apitoken,
-    )
+    apisession = get_apisession()
+    data = {}
 
     match object_type.value:
         case "alarmtemplates":
@@ -141,252 +103,424 @@ async def getOrgConfigurationObjects(
                 response = mistapi.api.v1.orgs.alarmtemplates.getOrgAlarmTemplate(
                     apisession, org_id=str(org_id), alarmtemplate_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.alarmtemplates.listOrgAlarmTemplates(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "wlans":
             if object_id:
                 response = mistapi.api.v1.orgs.wlans.getOrgWLAN(
                     apisession, org_id=str(org_id), wlan_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wlans.listOrgWlans(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("ssid"): item.get("id")
+                    for item in response.data
+                    if item.get("ssid")
+                }
         case "sitegroups":
             if object_id:
                 response = mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(
                     apisession, org_id=str(org_id), sitegroup_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.sitegroups.listOrgSiteGroups(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "aptemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(
                     apisession, org_id=str(org_id), aptemplate_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "avprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.avprofiles.getOrgAntivirusProfile(
                     apisession, org_id=str(org_id), avprofile_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.avprofiles.listOrgAntivirusProfiles(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "devices":
             response = mistapi.api.v1.orgs.devices.listOrgDevices(
                 apisession, org_id=str(org_id)
             )
+            await process_response(response)
+            data = response.data
         case "deviceprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.deviceprofiles.getOrgDeviceProfile(
                     apisession, org_id=str(org_id), deviceprofile_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.deviceprofiles.listOrgDeviceProfiles(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "evpn_topologies":
             if object_id:
                 response = mistapi.api.v1.orgs.evpn_topologies.getOrgEvpnTopology(
                     apisession, org_id=str(org_id), evpn_topology_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.evpn_topologies.listOrgEvpnTopologies(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "gatewaytemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.gatewaytemplates.getOrgGatewayTemplate(
                     apisession, org_id=str(org_id), gatewaytemplate_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.gatewaytemplates.listOrgGatewayTemplates(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "idpprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.idpprofiles.getOrgIdpProfile(
                     apisession, org_id=str(org_id), idpprofile_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.idpprofiles.listOrgIdpProfiles(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "aamwprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.aamwprofiles.getOrgAAMWProfile(
                     apisession, org_id=str(org_id), aamwprofile_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.aamwprofiles.listOrgAAMWProfiles(
                     apisession, org_id=str(org_id)
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "mxclusters":
             if object_id:
                 response = mistapi.api.v1.orgs.mxclusters.getOrgMxEdgeCluster(
                     apisession, org_id=str(org_id), mxcluster_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.mxclusters.listOrgMxEdgeClusters(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "mxedges":
             if object_id:
                 response = mistapi.api.v1.orgs.mxedges.getOrgMxEdge(
                     apisession, org_id=str(org_id), mxedge_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.mxedges.listOrgMxEdges(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "mxtunnels":
             if object_id:
                 response = mistapi.api.v1.orgs.mxtunnels.getOrgMxTunnel(
                     apisession, org_id=str(org_id), mxtunnel_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.mxtunnels.listOrgMxTunnels(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "nactags":
             if object_id:
                 response = mistapi.api.v1.orgs.nactags.getOrgNacTag(
                     apisession, org_id=str(org_id), nactag_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.nactags.listOrgNacTags(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "nacrules":
             if object_id:
                 response = mistapi.api.v1.orgs.nacrules.getOrgNacRule(
                     apisession, org_id=str(org_id), nacrule_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.nacrules.listOrgNacRules(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "networktemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.networktemplates.getOrgNetworkTemplate(
                     apisession, org_id=str(org_id), networktemplate_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.networktemplates.listOrgNetworkTemplates(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "networks":
             if object_id:
                 response = mistapi.api.v1.orgs.networks.getOrgNetwork(
                     apisession, org_id=str(org_id), network_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.networks.listOrgNetworks(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "psks":
             if object_id:
                 response = mistapi.api.v1.orgs.psks.getOrgPsk(
                     apisession, org_id=str(org_id), psk_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.psks.listOrgPsks(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "rftemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.rftemplates.getOrgRfTemplate(
                     apisession, org_id=str(org_id), rftemplate_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.rftemplates.listOrgRfTemplates(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "services":
             if object_id:
                 response = mistapi.api.v1.orgs.services.getOrgService(
                     apisession, org_id=str(org_id), service_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.services.listOrgServices(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "servicepolicies":
             if object_id:
                 response = mistapi.api.v1.orgs.servicepolicies.getOrgServicePolicy(
                     apisession, org_id=str(org_id), servicepolicy_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.servicepolicies.listOrgServicePolicies(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "sites":
             response = mistapi.api.v1.orgs.sites.listOrgSites(
-                apisession, org_id=str(org_id)
+                apisession, org_id=str(org_id), limit=1000
             )
+            await process_response(response)
+            data = response.data
         case "sitetemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.sitetemplates.getOrgSiteTemplate(
                     apisession, org_id=str(org_id), sitetemplate_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.sitetemplates.listOrgSiteTemplates(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
-        case "wlantemplates":
-            if object_id:
-                response = mistapi.api.v1.orgs.templates.getOrgTemplate(
-                    apisession, org_id=str(org_id), template_id=str(object_id)
-                )
-            else:
-                response = mistapi.api.v1.orgs.templates.listOrgTemplates(
-                    apisession, org_id=str(org_id)
-                )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "vpns":
             if object_id:
                 response = mistapi.api.v1.orgs.vpns.getOrgVpn(
                     apisession, org_id=str(org_id), vpn_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.vpns.listOrgVpns(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "webhooks":
             if object_id:
                 response = mistapi.api.v1.orgs.webhooks.getOrgWebhook(
                     apisession, org_id=str(org_id), webhook_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.webhooks.listOrgWebhooks(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
+        case "wlantemplates":
+            if object_id:
+                response = mistapi.api.v1.orgs.templates.getOrgTemplate(
+                    apisession, org_id=str(org_id), template_id=str(object_id)
+                )
+                await process_response(response)
+                data = response.data
+            else:
+                response = mistapi.api.v1.orgs.templates.listOrgTemplates(
+                    apisession, org_id=str(org_id), limit=1000
+                )
+                await process_response(response)
+                data = {
+                    item.get("name"): item.get("id")
+                    for item in response.data
+                    if item.get("name")
+                }
         case "wxrules":
             if object_id:
                 response = mistapi.api.v1.orgs.wxrules.getOrgWxRule(
                     apisession, org_id=str(org_id), wxrule_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wxrules.listOrgWxRules(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
         case "wxtags":
             if object_id:
                 response = mistapi.api.v1.orgs.wxtags.getOrgWxTag(
                     apisession, org_id=str(org_id), wxtag_id=str(object_id)
                 )
+                await process_response(response)
+                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wxtags.listOrgWxTags(
-                    apisession, org_id=str(org_id)
+                    apisession, org_id=str(org_id), limit=1000
                 )
+                await process_response(response)
+                data = response.data
 
         case _:
             raise ToolError(
@@ -396,35 +530,4 @@ async def getOrgConfigurationObjects(
                 }
             )
 
-    if response.status_code != 200:
-        api_error = {"status_code": response.status_code, "message": ""}
-        if response.data:
-            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            api_error["message"] = json.dumps(response.data)
-        elif response.status_code == 400:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
-            )
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
-        elif response.status_code == 403:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Permission Denied")
-        elif response.status_code == 404:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn't exist or resource doesn't exist"
-            )
-        elif response.status_code == 429:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
-            )
-        raise ToolError(api_error)
-
-    return response.data
+    return data

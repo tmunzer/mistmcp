@@ -12,19 +12,22 @@
 
 import json
 import mistapi
-from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError, ClientError, NotFoundError
-from starlette.requests import Request
-from mistmcp.config import config
-from mistmcp.server_factory import mcp_instance
-# from mistmcp.server_factory import mcp
+from fastmcp.exceptions import ToolError
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_processor import process_response
+from mistmcp.server import get_mcp
 
 from pydantic import Field
 from typing import Annotated
 from enum import Enum
 
 
-mcp = mcp_instance.get()
+mcp = get_mcp()
+
+if not mcp:
+    raise RuntimeError(
+        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
+    )
 
 
 class Object_type(Enum):
@@ -41,7 +44,7 @@ class Object_type(Enum):
 
 
 @mcp.tool(
-    enabled=False,
+    enabled=True,
     name="getConstants",
     description="""Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)""",
     tags={"constants"},
@@ -59,81 +62,60 @@ async def getConstants(
 ) -> dict | list:
     """Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)"""
 
-    ctx = get_context()
-    if config.transport_mode == "http":
-        try:
-            apitoken = ""
-            request: Request = get_http_request()
-            cloud = (
-                request.query_params.get("cloud", None)
-                .replace("https://", "")
-                .replace("http://", "")
-            )
-            if request.headers.get("Authorization", None):
-                apitoken = request.headers.get("Authorization", "").replace(
-                    "Bearer ", ""
-                )
-            else:
-                apitoken = request.headers.get("X-Authorization", "").replace(
-                    "Bearer ", ""
-                )
-        except NotFoundError as exc:
-            raise ClientError(
-                "HTTP request context not found. Are you using HTTP transport?"
-            ) from exc
-        if not cloud or not apitoken:
-            raise ClientError(
-                "Missing required parameters: 'cloud' and 'Authorization' or 'X-Authorization' header"
-            )
-    else:
-        apitoken = config.mist_apitoken
-        cloud = config.mist_host
-
-    if not apitoken:
-        raise ClientError(
-            "Missing required parameter: 'Authorization' or 'X-Authorization' header or mist_apitoken in config"
-        )
-    if not cloud:
-        raise ClientError(
-            "Missing required parameter: 'cloud' query parameter or mist_host in config"
-        )
-
-    apisession = mistapi.APISession(
-        host=cloud,
-        apitoken=apitoken,
-    )
+    apisession = get_apisession()
+    data = {}
 
     match object_type.value:
         case "fingerprint_types":
             response = mistapi.api.v1.const.fingerprint_types.listFingerprintTypes(
                 apisession
             )
+            await process_response(response)
+            data = response.data
         case "insight_metrics":
             response = mistapi.api.v1.const.insight_metrics.listInsightMetrics(
                 apisession
             )
+            await process_response(response)
+            data = response.data
         case "license_types":
             response = mistapi.api.v1.const.license_types.listLicenseTypes(apisession)
+            await process_response(response)
+            data = response.data
         case "webhook_topics":
             response = mistapi.api.v1.const.webhook_topics.listWebhookTopics(apisession)
+            await process_response(response)
+            data = response.data
         case "device_models":
             response = mistapi.api.v1.const.device_models.listDeviceModels(apisession)
+            await process_response(response)
+            data = response.data
         case "mxedge_models":
             response = mistapi.api.v1.const.mxedge_models.listMxEdgeModels(apisession)
+            await process_response(response)
+            data = response.data
         case "alarm_definitions":
             response = mistapi.api.v1.const.alarm_defs.listAlarmDefinitions(apisession)
+            await process_response(response)
+            data = response.data
         case "client_events":
             response = mistapi.api.v1.const.client_events.listClientEventsDefinitions(
                 apisession
             )
+            await process_response(response)
+            data = response.data
         case "mxedge_events":
             response = mistapi.api.v1.const.mxedge_events.listMxEdgeEventsDefinitions(
                 apisession
             )
+            await process_response(response)
+            data = response.data
         case "nac_events":
             response = mistapi.api.v1.const.nac_events.listNacEventsDefinitions(
                 apisession
             )
+            await process_response(response)
+            data = response.data
 
         case _:
             raise ToolError(
@@ -143,35 +125,4 @@ async def getConstants(
                 }
             )
 
-    if response.status_code != 200:
-        api_error = {"status_code": response.status_code, "message": ""}
-        if response.data:
-            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            api_error["message"] = json.dumps(response.data)
-        elif response.status_code == 400:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
-            )
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
-        elif response.status_code == 403:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Permission Denied")
-        elif response.status_code == 404:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn't exist or resource doesn't exist"
-            )
-        elif response.status_code == 429:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
-            )
-        raise ToolError(api_error)
-
-    return response.data
+    return data

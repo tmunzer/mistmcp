@@ -58,3 +58,17 @@
 - getOrgSecPolicy
 - getOrgUiSetting
 - listOrgUiSettings
+- listOrgApsMacs
+- searchOrgWebhooksDeliveries
+- searchSiteWebhooksDeliveries
+- getSiteSleClassifierDetails # deprecated
+- getSiteCallsSummary
+- listSiteTroubleshootCalls
+- searchSiteCalls
+- troubleshootSiteCall
+- listSiteDiscoveredSwitchesMetrics
+- searchSiteDiscoveredSwitches
+- searchSiteDiscoveredSwitchesMetrics
+- searchSiteServicePathEvents
+- getOrgApplicationList
+- getOrgCurrentMatchingClientsOfAWxTag
