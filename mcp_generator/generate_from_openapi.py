@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Dict, List
 
 import yaml
+from templates.tmpl_device_configuration import DEVICE_CONFIGURATION_TEMPLATE
 from templates.tmpl_helper import TOOLS_HELPER
 from templates.tmpl_init import INIT_TEMPLATE
 from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
@@ -49,6 +50,11 @@ CUSTOM_TOOLS = [
     {
         "name": "getSiteConfiguration",
         "template": SITE_CONFIGURATION_TEMPLATE,
+        "tag": "configuration",
+    },
+    {
+        "name": "getDeviceConfiguration",
+        "template": DEVICE_CONFIGURATION_TEMPLATE,
         "tag": "configuration",
     },
 ]

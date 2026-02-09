@@ -53,6 +53,7 @@ TOOLS = {
         "description": "Configuration related objects for the sites and organizations. It provides access to various configuration objects such as site settings, device profiles, and more. These objects can be used to configure the network in a consistent manner.",
         "tools": [
             "getSiteConfiguration",
+            "getDeviceConfiguration",
             "getOrgConfigurationObjects",
             "getSiteConfigurationObjects",
         ],

@@ -11,6 +11,7 @@
 """
 
 from .configuration import getsiteconfiguration as getsiteconfiguration
+from .configuration import getdeviceconfiguration as getdeviceconfiguration
 from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
 from .utilities_upgrade import listupgrades as listupgrades

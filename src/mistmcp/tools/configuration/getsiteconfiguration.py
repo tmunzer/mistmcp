@@ -10,19 +10,16 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 from enum import Enum
 from typing import Annotated
 from uuid import UUID
 
 import mistapi
-from fastmcp.exceptions import ClientError, NotFoundError, ToolError
-from fastmcp.server.dependencies import get_context, get_http_request
-from mistapi.__api_response import APIResponse
+from fastmcp.exceptions import ToolError
 from pydantic import Field
-from starlette.requests import Request
 
-from mistmcp.config import config
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_processor import process_response
 from mistmcp.server import get_mcp
 
 mcp = get_mcp()
@@ -98,48 +95,7 @@ async def getSiteConfiguration(
 ) -> dict | list:
     """Retrieve configuration applied to a specific site"""
 
-    if config.transport_mode == "http":
-        try:
-            apitoken = ""
-            request: Request = get_http_request()
-            cloud = (
-                request.query_params.get("cloud", "")
-                .replace("https://", "")
-                .replace("http://", "")
-            )
-            if request.headers.get("Authorization", None):
-                apitoken = request.headers.get("Authorization", "").replace(
-                    "Bearer ", ""
-                )
-            else:
-                apitoken = request.headers.get("X-Authorization", "").replace(
-                    "Bearer ", ""
-                )
-        except NotFoundError as exc:
-            raise ClientError(
-                "HTTP request context not found. Are you using HTTP transport?"
-            ) from exc
-        if not cloud or not apitoken:
-            raise ClientError(
-                "Missing required parameters: 'cloud' and 'Authorization' or 'X-Authorization' header"
-            )
-    else:
-        apitoken = config.mist_apitoken
-        cloud = config.mist_host
-
-    if not apitoken:
-        raise ClientError(
-            "Missing required parameter: 'Authorization' or 'X-Authorization' header or mist_apitoken in config"
-        )
-    if not cloud:
-        raise ClientError(
-            "Missing required parameter: 'cloud' query parameter or mist_host in config"
-        )
-
-    apisession = mistapi.APISession(
-        host=cloud,
-        apitoken=apitoken,
-    )
+    apisession = get_apisession()
 
     site_data = mistapi.api.v1.sites.sites.getSiteInfo(apisession, site_id=str(site_id))
     await process_response(site_data)
@@ -293,37 +249,3 @@ async def getSiteConfiguration(
             )
 
     return data
-
-
-async def process_response(response: APIResponse):
-    ctx = get_context()
-    if response.status_code != 200:
-        api_error = {"status_code": response.status_code, "message": ""}
-        if response.data:
-            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            api_error["message"] = json.dumps(response.data)
-        elif response.status_code == 400:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
-            )
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
-        elif response.status_code == 403:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Permission Denied")
-        elif response.status_code == 404:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn't exist or resource doesn't exist"
-            )
-        elif response.status_code == 429:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
-            )
-        raise ToolError(api_error)
