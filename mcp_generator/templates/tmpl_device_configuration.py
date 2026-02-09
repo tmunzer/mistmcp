@@ -73,15 +73,15 @@ async def getDeviceConfiguration(
     org_id: Annotated[
         UUID,
         Field(description="""ID of the Mist Org"""),
-    ] = UUID("9777c1a0-6ef6-11e6-8bbf-02e208b2d34f"),
+    ],
     site_id: Annotated[
         UUID,
         Field(description="""ID of the site to retrieve configuration objects from."""),
-    ] = UUID("978c48e6-6ef6-11e6-8bbf-02e208b2d34f"),
+    ],
     device_id: Annotated[
         UUID,
         Field(description="""ID of the device to retrieve configuration for."""),
-    ] = UUID("00000000-0000-0000-1000-aca09d7ada80"),
+    ],
 ) -> dict | list:
     """Retrieve configuration applied to a specific site"""
 
