@@ -14,24 +14,21 @@ from enum import Enum
 
 
 class McpToolsCategory(Enum):
-    UTILITIES_UPGRADE = "utilities_upgrade"
     CONFIGURATION = "configuration"
+    UTILITIES_UPGRADE = "utilities_upgrade"
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
+    SLES = "sles"
     ORGS = "orgs"
     CLIENTS = "clients"
     DEVICES = "devices"
-    SLES = "sles"
     ORGS_STATS = "orgs_stats"
     MARVIS = "marvis"
     ORGS_NAC = "orgs_nac"
-    WEBHOOKS_DELIVERIES = "webhooks_deliveries"
-    ORGS_WXTAGS = "orgs_wxtags"
     SELF_ACCOUNT = "self_account"
     SITES = "sites"
     SITES_ROGUES = "sites_rogues"
     SITES_RRM = "sites_rrm"
-    SITES_SERVICES = "sites_services"
     SITES_STATS = "sites_stats"
 
 
@@ -54,7 +51,11 @@ TOOLS = {
     },
     "configuration": {
         "description": "Configuration related objects for the sites and organizations. It provides access to various configuration objects such as site settings, device profiles, and more. These objects can be used to configure the network in a consistent manner.",
-        "tools": ["getOrgConfigurationObjects", "getSiteConfigurationObjects"],
+        "tools": [
+            "getSiteConfiguration",
+            "getOrgConfigurationObjects",
+            "getSiteConfigurationObjects",
+        ],
     },
     "constants": {
         "description": "Constants are read-only values and definitions used across the Juniper Mist platform. They include predefined lists of device models, alarm types, and other standardized values that are referenced throughout the API.",
@@ -64,7 +65,6 @@ TOOLS = {
         "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices. Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
         "tools": [
             "searchOrgDeviceEvents",
-            "listOrgApsMacs",
             "searchOrgDevices",
             "listOrgDevicesSummary",
             "getOrgInventory",
@@ -119,10 +119,6 @@ TOOLS = {
             "searchOrgPeerPathStats",
         ],
     },
-    "orgs_wxtags": {
-        "description": "Wxtags are tags or groups that can be created and used within the Org.\n\nThey are used to classify users and resources and can be applied to Access Points, WLAN configurations or WxRules within that site.\n\nOrg WxTags are created and managed at the org level and can only be referenced and used within the org level configuration.",
-        "tools": ["getOrgApplicationList", "getOrgCurrentMatchingClientsOfAWxTag"],
-    },
     "self_account": {
         "description": "tools related to the currently connected user account.",
         "tools": [
@@ -153,24 +149,12 @@ TOOLS = {
             "listSiteCurrentRrmNeighbors",
         ],
     },
-    "sites_services": {
-        "description": "A Service represents an a traffic destination or an application that network users connect to. They are associated with users and networks and are used in application policies to permit or deny access.\n\nServices are defined at the [Org level](/#operations/createOrgService).\n\nThe Site level endpoints can be used to get the site services statistics or the derived services, meaning the merge between the site level configuration and the org level configuration.",
-        "tools": ["searchSiteServicePathEvents"],
-    },
     "sites_stats": {
         "description": "Statistics for the sites. It provides access to various statistics related to the site, such as application statistics, call statistics, client statistics, and more.",
         "tools": [
             "getSiteStats",
-            "troubleshootSiteCall",
-            "searchSiteCalls",
-            "getSiteCallsSummary",
-            "listSiteTroubleshootCalls",
             "listSiteWirelessClientsStats",
-            "searchSiteDiscoveredSwitchesMetrics",
-            "listSiteDiscoveredSwitchesMetrics",
-            "searchSiteDiscoveredSwitches",
             "listSiteMxEdgesStats",
-            "searchSiteOspfStats",
             "getSiteWxRulesUsage",
             "searchSiteWanUsage",
             "getSiteApplicationList",
@@ -179,23 +163,12 @@ TOOLS = {
     "sles": {
         "description": "SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network.\\n\\nThey are generated through data science and machine learning algorithms and provide insights into various aspects of the network, such as coverage, capacity, connectivity, and performance.\\n\\nMist SLEs help identify when users do not have sufficient network quality, when they face issues with connecting or roaming between access points, and when there are problems on the wired network.\\n\\n SLEs API Calls at the MSP level can be used to retrieve the SLEs summary for each Organization attached to the MSP account.",
         "tools": [
+            "getSiteSle",
             "getOrgSitesSle",
             "getOrgSle",
-            "getSiteSleClassifierDetails",
             "getSiteSleClassifierSummaryTrend",
             "listSiteSleMetricClassifiers",
             "getSiteSleHistogram",
-            "getSiteSleImpactSummary",
-            "listSiteSleImpactedApplications",
-            "listSiteSleImpactedAps",
-            "listSiteSleImpactedChassis",
-            "listSiteSleImpactedWiredClients",
-            "listSiteSleImpactedGateways",
-            "listSiteSleImpactedInterfaces",
-            "listSiteSleImpactedSwitches",
-            "listSiteSleImpactedWirelessClients",
-            "getSiteSleSummary",
-            "getSiteSleSummaryTrend",
             "getSiteSleThreshold",
             "listSiteSlesMetrics",
         ],
@@ -207,9 +180,5 @@ TOOLS = {
             "listOrgAvailableDeviceVersions",
             "listOrgAvailableSsrVersions",
         ],
-    },
-    "webhooks_deliveries": {
-        "description": "A Webhook is a configuration that allows real-time events and data from the Org to be pushed to a provided url.\n\nIt enables the collection of information about various topics such as device events, alarms, and audits updates at the org level.\n\nThe webhook deliveries can be used to identify the messages sent by Mist, and the response (if any) from the remote server. NOTE: all the webhook topics are not supported, see the information from listWebhookTopics for more details",
-        "tools": ["searchOrgWebhooksDeliveries", "searchSiteWebhooksDeliveries"],
     },
 }

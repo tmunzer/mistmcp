@@ -17,8 +17,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from mistmcp.config import ToolLoadingMode, config
-from mistmcp.server_factory import create_mcp_server
+from mistmcp.config import config
+from mistmcp.server import create_mcp_server
 
 
 def print_help() -> None:
@@ -30,24 +30,19 @@ Usage: uv run mistmcp [OPTIONS]
 
 OPTIONS:
     -t, --transport MODE    Transport mode: stdio (default) or http
-    -m, --mode MODE         Only when `transport`==`stdio`, Tool loading mode: managed, all (default)
     --host HOST             Only when `transport`==`http`, HTTP server host (default: 127.0.0.1)
     -p, --port PORT         Only when `transport`==`http`, HTTP server port (default: 8000)
     -e, --env-file PATH     Path to .env file
     -d, --debug             Enable debug output
     -h, --help              Show help message
 
-TOOL LOADING MODES:
-    managed    - Essential tools loaded at startup
-    all        - All tools loaded at startup (default)
-
 TRANSPORT MODES:
     stdio      - Standard input/output (for Claude Desktop, VS Code)
     http       - HTTP server (for remote access)
 
 EXAMPLES:
-    uv run mistmcp                                    # Default: stdio + all mode
-    uv run mistmcp --mode managed --debug            # Managed mode with debug
+    uv run mistmcp                                    # Default: stdio transport
+    uv run mistmcp --debug                            # With debug output
     uv run mistmcp --transport http --host 0.0.0.0    # HTTP on all interfaces
     uv run mistmcp --env-file ~/.mist.env             # Custom env file
     """
@@ -56,58 +51,38 @@ EXAMPLES:
 
 def start(
     transport_mode: str,
-    tool_loading_mode: ToolLoadingMode,
-    tool_categories: list[str],
     mcp_host: str,
     mcp_port: int,
     debug: bool = False,
 ) -> None:
     """
     Main entry point for the Mist MCP Server
-    Args:
-        transport_mode (str): Transport mode to use (e.g., "stdio", "streamable-http")
-        tool_mode (ToolLoadingMode): Tool loading mode to use
-        tool_categories (list[str]): List of tool categories to load (unused in simplified version)
-        debug (bool): Enable debug output
-    Raises:
-        SystemExit: If configuration is invalid or an error occurs
-    """
 
-    # Create server configuration
+    Args:
+        transport_mode: Transport mode to use ("stdio" or "http")
+        mcp_host: Host to bind HTTP server to
+        mcp_port: Port for HTTP server
+        debug: Enable debug output
+    """
+    # Update global config
     config.transport_mode = transport_mode
-    config.tool_loading_mode = tool_loading_mode
-    config.tool_categories = tool_categories
     config.debug = debug
 
     if config.debug:
         print(
-            " Starting Mist MCP Server with configuration ".center(80, "="),
+            " Starting Mist MCP Server ".center(60, "="),
             file=sys.stderr,
         )
         print(f"  TRANSPORT: {transport_mode}", file=sys.stderr)
-        print(f"  TOOL LOADING MODE: {tool_loading_mode.value}", file=sys.stderr)
-        if tool_categories:
-            print(f"  CATEGORIES: {', '.join(tool_categories)}", file=sys.stderr)
-
         print(f"  MIST_HOST: {config.mist_host}", file=sys.stderr)
-        print(f"  MISTMCP_TRANSPORT_MODE: {config.transport_mode}", file=sys.stderr)
-        print(
-            f"  MISTMCP_TOOL_LOADING_MODE: {config.tool_loading_mode.value}",
-            file=sys.stderr,
-        )
-        print(
-            f"  MISTMCP_TOOL_CATEGORIES: {', '.join(config.tool_categories)}",
-            file=sys.stderr,
-        )
-        print(f"  MISTMCP_HOST: {mcp_host}", file=sys.stderr)
-        print(f"  MISTMCP_PORT: {mcp_port}", file=sys.stderr)
-        print(f"  MISTMCP_DEBUG: {config.debug}", file=sys.stderr)
-        print("".center(80, "="), file=sys.stderr)
+        if transport_mode == "http":
+            print(f"  MCP_HOST: {mcp_host}", file=sys.stderr)
+            print(f"  MCP_PORT: {mcp_port}", file=sys.stderr)
+        print("".center(60, "="), file=sys.stderr)
 
     try:
-        # Create and start the MCP server
-
         mcp_server = create_mcp_server(config)
+
         if transport_mode == "http":
             mcp_server.run(transport="streamable-http", host=mcp_host, port=mcp_port)
         else:
@@ -153,34 +128,18 @@ def load_env_file(env_file: str | None = None) -> None:
 
 def load_env_var(
     transport_mode: str | None,
-    tool_loading_mode: ToolLoadingMode | None,
-    tool_categories: list[str] | None,
     mcp_host: str | None,
     mcp_port: int | None,
     debug: bool,
-) -> tuple[str, ToolLoadingMode, list[str], str, int, bool]:
-    """Load environment variables from MIST_ENV_FILE if set"""
+) -> tuple[str, str, int, bool]:
+    """Load configuration from environment variables"""
 
     if transport_mode is None:
         transport_mode = os.getenv("MISTMCP_TRANSPORT_MODE", "stdio").lower()
 
-    if tool_loading_mode is None:
-        msitmcp_tool_loading_mode = os.getenv(
-            "MISTMCP_TOOL_LOADING_MODE", "all"
-        ).lower()
-        try:
-            tool_loading_mode = ToolLoadingMode(msitmcp_tool_loading_mode.lower())
-        except ValueError:
-            tool_loading_mode = ToolLoadingMode.ALL
-
-    if tool_categories is None:
-        msitmcp_tool_categories = os.getenv("MISTMCP_TOOL_CATEGORIES", "")
-        tool_categories = [
-            cat.strip() for cat in msitmcp_tool_categories.split(",") if cat.strip()
-        ]
-
     if mcp_host is None:
         mcp_host = os.getenv("MISTMCP_HOST", "127.0.0.1")
+
     if mcp_port is None:
         port = os.getenv("MISTMCP_PORT", "8000")
         try:
@@ -189,20 +148,20 @@ def load_env_var(
             print(f"Invalid port number: {port}. Using default 8000.", file=sys.stderr)
             mcp_port = 8000
 
-    msitmcp_debug = os.getenv("MISTMCP_DEBUG", str(debug))
-    debug = msitmcp_debug.lower() in ("true", "1", "yes")
+    env_debug = os.getenv("MISTMCP_DEBUG", str(debug))
+    debug = env_debug.lower() in ("true", "1", "yes")
 
     if transport_mode == "stdio":
         config.mist_apitoken = os.getenv("MIST_APITOKEN", "")
         config.mist_host = os.getenv("MIST_HOST", "")
 
-    return transport_mode, tool_loading_mode, tool_categories, mcp_host, mcp_port, debug
+    return transport_mode, mcp_host, mcp_port, debug
 
 
 def main() -> None:
     """Main entry point for the CLI"""
     parser = argparse.ArgumentParser(
-        description="Mist MCP Server - Modular Network Management Assistant",
+        description="Mist MCP Server - Network Management Assistant",
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
@@ -210,13 +169,7 @@ def main() -> None:
         "-t",
         "--transport",
         choices=["stdio", "http"],
-        help="Transport mode to use (default: stdio)",
-    )
-    parser.add_argument(
-        "-m",
-        "--mode",
-        choices=["managed", "all"],
-        help="Tool loading mode (default: all)",
+        help="Transport mode (default: stdio)",
     )
     parser.add_argument(
         "-d", "--debug", action="store_true", help="Enable debug output"
@@ -224,72 +177,31 @@ def main() -> None:
     parser.add_argument(
         "-e",
         "--env-file",
-        help="Path to .env file to load environment variables (default: MIST_ENV_FILE)",
+        help="Path to .env file (default: MIST_ENV_FILE env var)",
     )
     parser.add_argument(
         "--host",
-        help="When `transport`==`http`, host to bind the MCP server to (default: 127.0.0.1)",
+        help="HTTP server host (default: 127.0.0.1)",
     )
     parser.add_argument(
         "-p",
         "--port",
         type=int,
-        help="Port to run the server on (default: 8080)",
+        help="HTTP server port (default: 8000)",
     )
 
-    # don't need try except here, argparse handles it directly
     args = parser.parse_args()
 
-    transport_mode: str | None = args.transport
-    tool_loading_mode: ToolLoadingMode | None = None
-    # tool_categories no longer used in simplified version
-    tool_categories: list[str] = []
-    mcp_host: str | None = args.host
-    mcp_port: int | None = args.port
-    mcp_debug: bool
-
-    if args.mode:
-        try:
-            tool_loading_mode = ToolLoadingMode(args.mode.lower())
-        except ValueError:
-            print(
-                f"Error: Invalid mode '{args.mode}'. Valid modes: managed, all",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-
-    if transport_mode == "http" and tool_loading_mode:
-        raise ValueError(
-            "Tool loading mode is not applicable for HTTP transport. Use stdio transport instead."
-        )
-    elif transport_mode == "http":
-        tool_loading_mode = ToolLoadingMode("all")
-    mcp_debug = args.debug
-
     load_env_file(args.env_file)
-    (
-        transport_mode,
-        tool_loading_mode,
-        tool_categories,
-        mcp_host,
-        mcp_port,
-        mcp_debug,
-    ) = load_env_var(
-        transport_mode,
-        tool_loading_mode,
-        tool_categories,
-        mcp_host,
-        mcp_port,
-        mcp_debug,
+
+    transport_mode, mcp_host, mcp_port, debug = load_env_var(
+        args.transport,
+        args.host,
+        args.port,
+        args.debug,
     )
-    start(
-        transport_mode,
-        tool_loading_mode,
-        tool_categories,
-        mcp_host,
-        mcp_port,
-        mcp_debug,
-    )
+
+    start(transport_mode, mcp_host, mcp_port, debug)
 
 
 if __name__ == "__main__":

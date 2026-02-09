@@ -65,7 +65,6 @@
 - Sites Stats - Assets
 - Sites Stats - Beacons
 - Sites Stats - Clients SDK
-- Sites Stats - OSPF
 - Sites Stats - Zones
 - Self API Token
 - Self OAuth2
@@ -83,6 +82,7 @@
 - Orgs Stats - Assets
 - Orgs WxTunnels
 - Sites Stats - BGP Peers
+- Sites Stats - Ospf
 - Sites Stats - Devices
 - Sites Stats - Ports
 - Sites Devices - Wireless

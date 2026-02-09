@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from mistmcp.config import ServerConfig, ToolLoadingMode
+from mistmcp.config import ServerConfig
 
 
 @pytest.fixture
@@ -20,26 +20,13 @@ def mock_mcp_instance():
 @pytest.fixture
 def basic_config():
     """Create a basic server configuration for testing"""
-    return ServerConfig(
-        tool_loading_mode=ToolLoadingMode.MANAGED, tool_categories=[], debug=False
-    )
+    return ServerConfig(debug=False)
 
 
 @pytest.fixture
-def all_config():
-    """Create an all mode server configuration for testing"""
-    return ServerConfig(
-        tool_loading_mode=ToolLoadingMode.ALL, tool_categories=[], debug=False
-    )
-
-
-@pytest.fixture
-def managed_config():
-    """Create a managed mode server configuration for testing"""
-    return ServerConfig(
-        tool_loading_mode=ToolLoadingMode.MANAGED,
-        debug=False,
-    )
+def debug_config():
+    """Create a debug server configuration for testing"""
+    return ServerConfig(debug=True)
 
 
 @pytest.fixture

@@ -12,12 +12,10 @@
 
 import json
 import mistapi
-from fastmcp.server.dependencies import get_context, get_http_request
-from fastmcp.exceptions import ToolError, ClientError, NotFoundError
-from starlette.requests import Request
-from mistmcp.config import config
-from mistmcp.server_factory import mcp_instance
-# from mistmcp.server_factory import mcp
+from fastmcp.exceptions import ToolError
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_processor import process_response
+from mistmcp.server import get_mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -25,7 +23,12 @@ from uuid import UUID
 from enum import Enum
 
 
-mcp = mcp_instance.get()
+mcp = get_mcp()
+
+if not mcp:
+    raise RuntimeError(
+        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
+    )
 
 
 class Band(Enum):
@@ -36,7 +39,7 @@ class Band(Enum):
 
 
 @mcp.tool(
-    enabled=False,
+    enabled=True,
     name="searchOrgWirelessClientSessions",
     description="""Search Org Wireless Clients Sessions""",
     tags={"clients"},
@@ -105,49 +108,8 @@ async def searchOrgWirelessClientSessions(
 ) -> dict | list:
     """Search Org Wireless Clients Sessions"""
 
-    ctx = get_context()
-    if config.transport_mode == "http":
-        try:
-            apitoken = ""
-            request: Request = get_http_request()
-            cloud = (
-                request.query_params.get("cloud", None)
-                .replace("https://", "")
-                .replace("http://", "")
-            )
-            if request.headers.get("Authorization", None):
-                apitoken = request.headers.get("Authorization", "").replace(
-                    "Bearer ", ""
-                )
-            else:
-                apitoken = request.headers.get("X-Authorization", "").replace(
-                    "Bearer ", ""
-                )
-        except NotFoundError as exc:
-            raise ClientError(
-                "HTTP request context not found. Are you using HTTP transport?"
-            ) from exc
-        if not cloud or not apitoken:
-            raise ClientError(
-                "Missing required parameters: 'cloud' and 'Authorization' or 'X-Authorization' header"
-            )
-    else:
-        apitoken = config.mist_apitoken
-        cloud = config.mist_host
-
-    if not apitoken:
-        raise ClientError(
-            "Missing required parameter: 'Authorization' or 'X-Authorization' header or mist_apitoken in config"
-        )
-    if not cloud:
-        raise ClientError(
-            "Missing required parameter: 'cloud' query parameter or mist_host in config"
-        )
-
-    apisession = mistapi.APISession(
-        host=cloud,
-        apitoken=apitoken,
-    )
+    apisession = get_apisession()
+    data = {}
 
     response = mistapi.api.v1.orgs.clients.searchOrgWirelessClientSessions(
         apisession,
@@ -170,36 +132,8 @@ async def searchOrgWirelessClientSessions(
         sort=sort if sort else None,
         search_after=search_after if search_after else None,
     )
+    await process_response(response)
 
-    if response.status_code != 200:
-        api_error = {"status_code": response.status_code, "message": ""}
-        if response.data:
-            # await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
-            api_error["message"] = json.dumps(response.data)
-        elif response.status_code == 400:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given"
-            )
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
-        elif response.status_code == 403:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Unauthorized")
-        elif response.status_code == 401:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps("Permission Denied")
-        elif response.status_code == 404:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Not found. The API endpoint doesn't exist or resource doesn't exist"
-            )
-        elif response.status_code == 429:
-            await ctx.error(f"Got HTTP{response.status_code}")
-            api_error["message"] = json.dumps(
-                "Too Many Request. The API Token used for the request reached the 5000 API Calls per hour threshold"
-            )
-        raise ToolError(api_error)
+    data = response.data
 
-    return response.data
+    return data

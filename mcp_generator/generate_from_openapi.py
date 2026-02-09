@@ -31,13 +31,11 @@ from pathlib import Path
 from typing import Dict, List
 
 import yaml
-from python_tmpl import (
-    INIT_TEMPLATE,
-    REQ_OPTIMIZED_TEMPLATE,
-    REQ_TEMPLATE,
-    TOOL_TEMPLATE,
-    TOOLS_HELPER,
-)
+from templates.tmpl_helper import TOOLS_HELPER
+from templates.tmpl_init import INIT_TEMPLATE
+from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
+from templates.tmpl_site_configuration import SITE_CONFIGURATION_TEMPLATE
+from templates.tmpl_tool import TOOL_TEMPLATE
 
 # Configuration Constants
 FILE_PATH = os.path.realpath(__file__)
@@ -47,6 +45,13 @@ OPENAPI_PATH = (
         DIR_PATH, "../mist_openapi/mist.openapi.yaml"
     )  # Path to the OpenAPI specification file
 )
+CUSTOM_TOOLS = [
+    {
+        "name": "getSiteConfiguration",
+        "template": SITE_CONFIGURATION_TEMPLATE,
+        "tag": "configuration",
+    },
+]
 
 
 OUTPUT_DIR = Path(os.path.join(DIR_PATH, "../src/mistmcp/tools"))
@@ -451,6 +456,40 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     root_functions: dict = {}
     processed_operation_ids = []
 
+    for func in CUSTOM_TOOLS:
+        func_name = func["name"]
+        func_tmpl = func["template"]
+        func_tag = func.get("tag", "untagged")
+
+        tag_dir = OUTPUT_DIR / snake_case(func_tag)
+        tag_dir.mkdir(parents=True, exist_ok=True)
+        init_file = tag_dir / "__init__.py"
+        init_file.write_text("", encoding="utf-8")
+        tool_file = tag_dir / f"{snake_case(func_name)}.py"
+        tool_file.write_text(func_tmpl, encoding="utf-8")
+        tag_to_tools.setdefault(func_tag, []).append(str(tool_file))
+
+        ## tool_tools_import
+        if not root_tools_import.get(snake_case(func_tag)):
+            root_tools_import[snake_case(func_tag)] = []
+        root_tools_import[snake_case(func_tag)].append(snake_case(func_name))
+        ## root_enums
+        if (
+            f'    {snake_case(func_tag).upper()} = "{snake_case(func_tag).lower()}"'
+            not in root_enums
+        ):
+            root_enums.append(
+                f'    {snake_case(func_tag).upper()} = "{snake_case(func_tag).lower()}"'
+            )
+        ## root_functions
+        if not root_functions.get(snake_case(snake_case(func_tag))):
+            root_functions[snake_case(snake_case(func_tag))] = []
+        root_functions[snake_case(snake_case(func_tag))].append(
+            f"{snake_case(func_name)}.add_tool()"
+        )
+        ## root_tag_defs
+        root_tag_defs[snake_case(snake_case(func_tag))]["tools"].append(func_name)
+
     for func_name, func_data in OPTIMIZED_TOOLS.items():
         if func_data.get("type") == "tool_consolidation":
             description = func_data.get("description", "")
@@ -469,20 +508,43 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
                     request += (
                         f"            if {func_data.get('if_filter', 'object_id')}:\n"
                         f"                response = {details['get'].get('function', '')}\n"
+                        f"                await process_response(response)\n"
+                        f"                data = response.data\n"
                         f"            else:\n"
                     )
                     processed_operation_ids.append(
                         details["get"].get("operationId", "").lower()
                     )
+
                 elif details.get("get"):
                     request += (
                         f"            response = {details['get'].get('function', '')}\n"
+                        f"            await process_response(response)\n"
+                        f"            data = response.data\n"
                     )
                     processed_operation_ids.append(
                         details["get"].get("operationId", "").lower()
                     )
-                if details.get("list"):
-                    request += f"                response = {details['list'].get('function', '')}\n"
+                if details.get("list") and details.get("list", {}).get("reduce", False):
+                    reduce_attribute = details["list"].get("reduce_attribute", "name")
+                    request += (
+                        f"                response = {details['list'].get('function', '')}\n"
+                        f"                await process_response(response)\n"
+                        f"                data = {{\n"
+                        f"                    item.get('{reduce_attribute}'): item.get('id')\n"
+                        f"                    for item in response.data\n"
+                        f"                    if item.get('{reduce_attribute}')\n"
+                        f"                }}\n"
+                    )
+                    processed_operation_ids.append(
+                        details["list"].get("operationId", "").lower()
+                    )
+                elif details.get("list"):
+                    request += (
+                        f"                response = {details['list'].get('function', '')}\n"
+                        f"                await process_response(response)\n"
+                        f"                data = response.data\n"
+                    )
                     processed_operation_ids.append(
                         details["list"].get("operationId", "").lower()
                     )
