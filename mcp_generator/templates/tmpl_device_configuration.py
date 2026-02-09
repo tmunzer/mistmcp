@@ -127,7 +127,10 @@ async def getDeviceConfiguration(
             )
 
             for key, value in device_data.data.items():
-                if isinstance(value, dict) and isinstance(data.get(key, {}), dict):
+                if key == "port_config":
+                    port_config = process_switch_interface(value)
+                    data[key] = {**data.get(key, {}), **port_config}
+                elif isinstance(value, dict) and isinstance(data.get(key, {}), dict):
                     data[key] = {**data.get(key, {}), **value}
                 elif isinstance(value, list) and isinstance(data.get(key, []), list):
                     data[key] = data.get(key, []) + value
@@ -230,7 +233,10 @@ def process_switch_rule(
             and (not match_role_enabled or match_role_true)
         ):
             for key, value in rule_cleansed.items():
-                if isinstance(value, dict) and isinstance(data.get(key, {}), dict):
+                if key == "port_config":
+                    port_config = process_switch_interface(value)
+                    data[key] = {**data.get(key, {}), **port_config}
+                elif isinstance(value, dict) and isinstance(data.get(key, {}), dict):
                     data[key] = {**data.get(key, {}), **value}
                 elif isinstance(value, list) and isinstance(data.get(key, []), list):
                     data[key] = data.get(key, []) + value
@@ -257,5 +263,38 @@ def process_switch_rule_match(
     elif switch_value.lower() == match_value.lower():
         return True
     return False
+
+
+def process_switch_interface(port_config: dict) -> dict:
+    port_config_tmp = {}
+    for key, value in port_config.items():
+        if "," in key:
+            keys = [k.strip() for k in key.split(",")]
+            for k in keys:
+                port_config_tmp[k] = value
+        else:
+            port_config_tmp[key] = value
+
+    port_config_cleansed = {}
+    for key, value in port_config_tmp.items():
+        if key.count("-") > 1:
+            prefix, interfaces = key.split("-", 1)
+            fpc, pic, port = interfaces.split("/")
+            if "-" in fpc:
+                fpc_start, fpc_end = fpc.split("-")
+                for fpc_num in range(int(fpc_start), int(fpc_end) + 1):
+                    port_config_cleansed[f"{prefix}-{fpc_num}/{pic}/{port}"] = value
+            elif "-" in pic:
+                pic_start, pic_end = pic.split("-")
+                for pic_num in range(int(pic_start), int(pic_end) + 1):
+                    port_config_cleansed[f"{prefix}-{fpc}/{pic_num}/{port}"] = value
+            elif "-" in port:
+                port_start, port_end = port.split("-")
+                for port_num in range(int(port_start), int(port_end) + 1):
+                    port_config_cleansed[f"{prefix}-{fpc}/{pic}/{port_num}"] = value
+        else:
+            port_config_cleansed[key] = value
+
+    return port_config_cleansed
 
 '''
