@@ -131,7 +131,7 @@ listUpgrades:
 getOrgConfigurationObjects:
   type: tool_consolidation
   tags: [configuration]
-  description: Retrieve configuration objects from a specified organization or site.
+  description: Retrieve configuration objects from a specified organization.
   read_only_hint: true
   destructive_hint: false
   parameters:
@@ -397,7 +397,7 @@ getOrgConfigurationObjects:
 getSiteConfigurationObjects:
   type: tool_consolidation
   tags: [configuration]
-  description: Retrieve configuration objects from a specified site. The "_derived" tools are used to retrieve derived configuration objects that are generated from the org level objects with jinja2 variables resolved with the site variables.
+  description: Retrieve configuration objects from a specified site. Use the tool `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site
   read_only_hint: true
   destructive_hint: false
   parameters:
@@ -474,6 +474,7 @@ getSiteConfigurationObjects:
         operationId: listSiteWlans
         function: mistapi.api.v1.sites.wlans.listSiteWlans(apisession, site_id=str(site_id), limit=1000)
         reduce: true
+        reduce_attribute: ssid
       get:
         operationId: getSiteWlan
         function: mistapi.api.v1.sites.wlans.getSiteWlan(apisession, site_id=str(site_id), wlan_id=str(object_id))

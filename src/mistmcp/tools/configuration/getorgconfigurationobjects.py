@@ -66,7 +66,7 @@ class Object_type(Enum):
 @mcp.tool(
     enabled=True,
     name="getOrgConfigurationObjects",
-    description="""Retrieve configuration objects from a specified organization or site.""",
+    description="""Retrieve configuration objects from a specified organization.""",
     tags={"configuration"},
     annotations={
         "title": "getOrgConfigurationObjects",
@@ -92,7 +92,7 @@ async def getOrgConfigurationObjects(
         ),
     ] = None,
 ) -> dict | list:
-    """Retrieve configuration objects from a specified organization or site."""
+    """Retrieve configuration objects from a specified organization."""
 
     apisession = get_apisession()
     data = {}
