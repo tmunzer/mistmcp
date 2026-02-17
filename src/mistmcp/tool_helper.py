@@ -56,6 +56,8 @@ TOOLS = {
             "getDeviceConfiguration",
             "getOrgConfigurationObjects",
             "getSiteConfigurationObjects",
+            "updateSiteConfigurationObjects",
+            "updateOrgConfigurationObjects",
         ],
     },
     "constants": {

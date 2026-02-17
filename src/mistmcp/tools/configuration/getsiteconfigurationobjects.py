@@ -46,7 +46,7 @@ class Object_type(Enum):
 @mcp.tool(
     enabled=True,
     name="getSiteConfigurationObjects",
-    description="""Retrieve configuration objects from a specified site. The "_derived" tools are used to retrieve derived configuration objects that are generated from the org level objects with jinja2 variables resolved with the site variables.""",
+    description="""Retrieve configuration objects from a specified site.""",
     tags={"configuration"},
     annotations={
         "title": "getSiteConfigurationObjects",
@@ -70,7 +70,7 @@ async def getSiteConfigurationObjects(
         ),
     ] = None,
 ) -> dict | list:
-    """Retrieve configuration objects from a specified site. The "_derived" tools are used to retrieve derived configuration objects that are generated from the org level objects with jinja2 variables resolved with the site variables."""
+    """Retrieve configuration objects from a specified site."""
 
     apisession = get_apisession()
     data = {}
@@ -179,9 +179,9 @@ async def getSiteConfigurationObjects(
                 )
                 await process_response(response)
                 data = {
-                    item.get("name"): item.get("id")
+                    item.get("ssid"): item.get("id")
                     for item in response.data
-                    if item.get("name")
+                    if item.get("ssid")
                 }
         case "wxrules":
             if object_id:

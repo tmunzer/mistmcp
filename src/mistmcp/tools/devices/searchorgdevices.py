@@ -46,7 +46,7 @@ class Type(Enum):
 @mcp.tool(
     enabled=True,
     name="searchOrgDevices",
-    description="""Search Org Devices. This is only returning the connected devices.""",
+    description="""Search Org Devices""",
     tags={"devices"},
     annotations={
         "title": "searchOrgDevices",
@@ -224,7 +224,7 @@ async def searchOrgDevices(
         ),
     ] = None,
 ) -> dict | list:
-    """Search Org Devices. This is only returning the connected devices."""
+    """Search Org Devices"""
 
     apisession = get_apisession()
     data = {}

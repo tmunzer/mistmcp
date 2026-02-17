@@ -8,6 +8,7 @@ PROJECT_NAME ?= $(shell basename $(CURDIR))
 
 # Version for code generation (can be overridden)
 VERSION ?= 0.55.14
+READ_ONLY ?= true
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -54,7 +55,7 @@ publish: clean build ## Publish to PyPI
 
 generate: ## Generate the tools from the OpenAPI spec
 	@echo "Generating tools from OpenAPI spec..."
-	uv run python ./mcp_generator/generate_from_openapi.py $(VERSION)
+	uv run python ./mcp_generator/generate_from_openapi.py $(VERSION:+--version) --read_only=$(READ_ONLY)
 	@echo "Attempting to format generated code..."
 	@$(MAKE) format || echo "Warning: Formatting failed, but generation completed successfully"
 

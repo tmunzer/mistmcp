@@ -14,6 +14,12 @@ from .configuration import getsiteconfiguration as getsiteconfiguration
 from .configuration import getdeviceconfiguration as getdeviceconfiguration
 from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
+from .configuration import (
+    updatesiteconfigurationobjects as updatesiteconfigurationobjects,
+)
+from .configuration import (
+    updateorgconfigurationobjects as updateorgconfigurationobjects,
+)
 from .utilities_upgrade import listupgrades as listupgrades
 from .utilities_upgrade import (
     listorgavailabledeviceversions as listorgavailabledeviceversions,

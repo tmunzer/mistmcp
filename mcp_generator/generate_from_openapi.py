@@ -27,6 +27,7 @@ import json
 import os
 import re
 import shutil
+import argparse
 from pathlib import Path
 from typing import Dict, List
 
@@ -58,7 +59,7 @@ CUSTOM_TOOLS = [
         "tag": "configuration",
     },
 ]
-
+READ_ONLY_HINT = True
 
 OUTPUT_DIR = Path(os.path.join(DIR_PATH, "../src/mistmcp/tools"))
 
@@ -73,7 +74,8 @@ INIT_FILE = Path(
 )
 # TOOLS_FILE = Path("../src/mistmcp/tools.json")  # File storing tool configuration
 TOOLS_HELPER_FILE = Path(
-    os.path.join(DIR_PATH, "../src/mistmcp/tool_helper.py")  # Helper file for tools
+    # Helper file for tools
+    os.path.join(DIR_PATH, "../src/mistmcp/tool_helper.py")
 )
 # List of API tags that should be excluded from tool generation
 # These tags represent endpoints that are either deprecated, internal,
@@ -211,7 +213,8 @@ def _process_params(
             r_tmp = re.findall(r, description)
             if r_tmp:
                 description = re.sub(r, f"`{r_tmp[0]}`", description)
-            cleaned_description = description.replace('"', "'").replace("\n", " ")
+            cleaned_description = description.replace(
+                '"', "'").replace("\n", " ")
             annotations.append(f'description="""{cleaned_description}"""')
         elif tmp_param["name"].endswith("_id"):
             _add_import(imports, "pydantic", "Field")
@@ -475,11 +478,11 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
         tool_file.write_text(func_tmpl, encoding="utf-8")
         tag_to_tools.setdefault(func_tag, []).append(str(tool_file))
 
-        ## tool_tools_import
+        #  tool_tools_import
         if not root_tools_import.get(snake_case(func_tag)):
             root_tools_import[snake_case(func_tag)] = []
         root_tools_import[snake_case(func_tag)].append(snake_case(func_name))
-        ## root_enums
+        # root_enums
         if (
             f'    {snake_case(func_tag).upper()} = "{snake_case(func_tag).lower()}"'
             not in root_enums
@@ -487,17 +490,18 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             root_enums.append(
                 f'    {snake_case(func_tag).upper()} = "{snake_case(func_tag).lower()}"'
             )
-        ## root_functions
+        # root_functions
         if not root_functions.get(snake_case(snake_case(func_tag))):
             root_functions[snake_case(snake_case(func_tag))] = []
         root_functions[snake_case(snake_case(func_tag))].append(
             f"{snake_case(func_name)}.add_tool()"
         )
-        ## root_tag_defs
-        root_tag_defs[snake_case(snake_case(func_tag))]["tools"].append(func_name)
+        # root_tag_defs
+        root_tag_defs[snake_case(snake_case(func_tag))
+                      ]["tools"].append(func_name)
 
     for func_name, func_data in OPTIMIZED_TOOLS.items():
-        if func_data.get("type") == "tool_consolidation":
+        if (func_data.get("type") == "tool_consolidation") and (func_data.get("read_only_hint") is True or READ_ONLY_HINT is False):
             description = func_data.get("description", "")
             tag = func_data.get("tags", [])[0]
             enums_optim = []
@@ -510,50 +514,82 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             for object_type, details in func_data.get("requests", {}).items():
                 enums_optim.append(object_type)
                 request += f"        case '{object_type}':\n"
-                if details.get("get") and details.get("list"):
-                    request += (
-                        f"            if {func_data.get('if_filter', 'object_id')}:\n"
-                        f"                response = {details['get'].get('function', '')}\n"
-                        f"                await process_response(response)\n"
-                        f"                data = response.data\n"
-                        f"            else:\n"
-                    )
-                    processed_operation_ids.append(
-                        details["get"].get("operationId", "").lower()
-                    )
+                if func_data.get("read_only_hint") is False:
+                    if details.get("update") and details.get("create"):
+                        request += (
+                            f"            if {func_data.get('if_filter', 'object_id')}:\n"
+                            f"                response = {details['update'].get('function', '')}\n"
+                            f"                await process_response(response)\n"
+                            f"                data = response.data\n"
+                            f"            else:\n"
+                        )
+                        processed_operation_ids.append(
+                            details["update"].get("operationId", "").lower()
+                        )
+                    elif details.get("update"):
+                        request += (
+                            f"            response = {details['update'].get('function', '')}\n"
+                            f"            await process_response(response)\n"
+                            f"            data = response.data\n"
+                        )
+                        processed_operation_ids.append(
+                            details["update"].get("operationId", "").lower()
+                        )
+                    if details.get("create"):
+                        request += (
+                            f"                response = {details['create'].get('function', '')}\n"
+                            f"                await process_response(response)\n"
+                            f"                data = response.data\n"
+                        )
+                        processed_operation_ids.append(
+                            details["create"].get("operationId", "").lower()
+                        )
+                else:
+                    if details.get("get") and details.get("list"):
+                        request += (
+                            f"            if {func_data.get('if_filter', 'object_id')}:\n"
+                            f"                response = {details['get'].get('function', '')}\n"
+                            f"                await process_response(response)\n"
+                            f"                data = response.data\n"
+                            f"            else:\n"
+                        )
+                        processed_operation_ids.append(
+                            details["get"].get("operationId", "").lower()
+                        )
 
-                elif details.get("get"):
-                    request += (
-                        f"            response = {details['get'].get('function', '')}\n"
-                        f"            await process_response(response)\n"
-                        f"            data = response.data\n"
-                    )
-                    processed_operation_ids.append(
-                        details["get"].get("operationId", "").lower()
-                    )
-                if details.get("list") and details.get("list", {}).get("reduce", False):
-                    reduce_attribute = details["list"].get("reduce_attribute", "name")
-                    request += (
-                        f"                response = {details['list'].get('function', '')}\n"
-                        f"                await process_response(response)\n"
-                        f"                data = {{\n"
-                        f"                    item.get('{reduce_attribute}'): item.get('id')\n"
-                        f"                    for item in response.data\n"
-                        f"                    if item.get('{reduce_attribute}')\n"
-                        f"                }}\n"
-                    )
-                    processed_operation_ids.append(
-                        details["list"].get("operationId", "").lower()
-                    )
-                elif details.get("list"):
-                    request += (
-                        f"                response = {details['list'].get('function', '')}\n"
-                        f"                await process_response(response)\n"
-                        f"                data = response.data\n"
-                    )
-                    processed_operation_ids.append(
-                        details["list"].get("operationId", "").lower()
-                    )
+                    elif details.get("get"):
+                        request += (
+                            f"            response = {details['get'].get('function', '')}\n"
+                            f"            await process_response(response)\n"
+                            f"            data = response.data\n"
+                        )
+                        processed_operation_ids.append(
+                            details["get"].get("operationId", "").lower()
+                        )
+                    if details.get("list") and details.get("list", {}).get("reduce", False):
+                        reduce_attribute = details["list"].get(
+                            "reduce_attribute", "name")
+                        request += (
+                            f"                response = {details['list'].get('function', '')}\n"
+                            f"                await process_response(response)\n"
+                            f"                data = {{\n"
+                            f"                    item.get('{reduce_attribute}'): item.get('id')\n"
+                            f"                    for item in response.data\n"
+                            f"                    if item.get('{reduce_attribute}')\n"
+                            f"                }}\n"
+                        )
+                        processed_operation_ids.append(
+                            details["list"].get("operationId", "").lower()
+                        )
+                    elif details.get("list"):
+                        request += (
+                            f"                response = {details['list'].get('function', '')}\n"
+                            f"                await process_response(response)\n"
+                            f"                data = response.data\n"
+                        )
+                        processed_operation_ids.append(
+                            details["list"].get("operationId", "").lower()
+                        )
             request += f"""
         case _:
             raise ToolError({{
@@ -601,11 +637,11 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             tool_file.write_text(tool_code, encoding="utf-8")
             tag_to_tools.setdefault(tag, []).append(str(tool_file))
 
-            ## tool_tools_import
+            #  tool_tools_import
             if not root_tools_import.get(snake_case(tag)):
                 root_tools_import[snake_case(tag)] = []
             root_tools_import[snake_case(tag)].append(snake_case(func_name))
-            ## root_enums
+            # root_enums
             if (
                 f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
                 not in root_enums
@@ -613,7 +649,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
                 root_enums.append(
                     f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
                 )
-            ## root_functions
+            # root_functions
             if not root_functions.get(snake_case(snake_case(tag))):
                 root_functions[snake_case(snake_case(tag))] = []
             root_functions[snake_case(snake_case(tag))].append(
@@ -622,8 +658,9 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             root_functions[snake_case(snake_case(tag))].append(
                 f"TOOL_REMOVE_FCT.append({snake_case(func_name)}.remove_tool)"
             )
-            ## root_tag_defs
-            root_tag_defs[snake_case(snake_case(tag))]["tools"].append(func_name)
+            # root_tag_defs
+            root_tag_defs[snake_case(snake_case(tag))
+                          ]["tools"].append(func_name)
 
     for path, methods in openapi_paths.items():
         for method, details in methods.items():
@@ -742,11 +779,11 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             tool_file.write_text(tool_code)
             tag_to_tools.setdefault(tag, []).append(str(tool_file))
 
-            ## tool_tools_import
+            #  tool_tools_import
             if not root_tools_import.get(snake_case(tag)):
                 root_tools_import[snake_case(tag)] = []
             root_tools_import[snake_case(tag)].append(snake_case(operation_id))
-            ## root_enums
+            # root_enums
             if (
                 f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
                 not in root_enums
@@ -754,7 +791,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
                 root_enums.append(
                     f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
                 )
-            ## root_functions
+            # root_functions
             if not root_functions.get(snake_case(snake_case(tag))):
                 root_functions[snake_case(snake_case(tag))] = []
             root_functions[snake_case(snake_case(tag))].append(
@@ -763,8 +800,9 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             root_functions[snake_case(snake_case(tag))].append(
                 f"TOOL_REMOVE_FCT.append({snake_case(operation_id)}.remove_tool)"
             )
-            ## root_tag_defs
-            root_tag_defs[snake_case(snake_case(tag))]["tools"].append(operation_id)
+            # root_tag_defs
+            root_tag_defs[snake_case(snake_case(tag))
+                          ]["tools"].append(operation_id)
 
     final_tag_tools = {}
     for tag_name, tag_data in root_tag_defs.items():
@@ -785,7 +823,8 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
 
     with open(INIT_FILE, "w", encoding="utf-8") as f_init:
         f_init.write(
-            INIT_TEMPLATE.format(tools_import=_gen_tools_init(root_tools_import))
+            INIT_TEMPLATE.format(
+                tools_import=_gen_tools_init(root_tools_import))
         )
 
     with open(TOOLS_HELPER_FILE, "w", encoding="utf-8") as f_tool:
@@ -809,6 +848,18 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Generate tools from OpenAPI specification.")
+    parser.add_argument("--openapi", type=str, default=OPENAPI_PATH,
+                        help="Path to the OpenAPI specification file.")
+    parser.add_argument("-r", "--read_only", type=str,
+                        help="Set read_only_hint to True for all tools.", default=True)
+    parser.add_argument("--version", action="version", version="%(prog)s 1.0")
+    args = parser.parse_args()
+
+    if str(args.read_only).lower() in ["false", "0", "no"]:
+        READ_ONLY_HINT = False
+
     # Clean up existing tools directory
     if os.path.exists(OUTPUT_DIR):
         shutil.rmtree(OUTPUT_DIR)
@@ -822,3 +873,5 @@ if __name__ == "__main__":
     OPENAPI_SCHEMAS = openapi_json.get("components", {}).get("schemas")
 
     main(OPENAPI_PATHS, OPENAPI_TAGS, OPENAPI_PARAMETERS, OPENAPI_SCHEMAS)
+    print("Tool generation completed successfully. READ_ONLY_HINT is set to", READ_ONLY_HINT)
+    print(args.read_only)
