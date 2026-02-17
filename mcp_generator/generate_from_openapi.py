@@ -111,6 +111,7 @@ TRANSLATION = {
     "string": "str",  # OpenAPI string type maps to Python str
     "array": "list",  # OpenAPI array type maps to Python list
     "boolean": "bool",  # OpenAPI boolean type maps to Python bool
+    "object": "dict",  # OpenAPI object type maps to Python dict
 }
 
 

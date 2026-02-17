@@ -44,7 +44,7 @@ class Object_type(Enum):
 @mcp.tool(
     enabled=True,
     name="updateSiteConfigurationObjects",
-    description="""Update or create configuration object for a specified site. When updating the object, make sure to first retrieve the current configuration object using the `getSiteConfigurationObjects` tool, modify the desired attributes and then use this tool to update the configuration object with the modified attributes. This is required to ensure that you are not missing any required attributes when updating the configuration object.""",
+    description="""Update or create configuration object for a specified site. IMPORTANT:To ensure that you are not missing any required attributes when updating the configuration object when updating the object, make sure to :* first retrieve the current configuration object using the tools `getSiteConfigurationObjects` to retrieve the object defined at the site level or `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site* modify the desired attributes * use this tool to update the configuration object with the modified attributes""",
     tags={"configuration"},
     annotations={
         "title": "updateSiteConfigurationObjects",
@@ -62,7 +62,7 @@ async def updateSiteConfigurationObjects(
         Object_type, Field(description="""Type of configuration object to update.""")
     ],
     payload: Annotated[
-        None,
+        dict,
         Field(
             description="""JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getSiteConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes."""
         ),
@@ -74,7 +74,7 @@ async def updateSiteConfigurationObjects(
         ),
     ] = None,
 ) -> dict | list:
-    """Update or create configuration object for a specified site. When updating the object, make sure to first retrieve the current configuration object using the `getSiteConfigurationObjects` tool, modify the desired attributes and then use this tool to update the configuration object with the modified attributes. This is required to ensure that you are not missing any required attributes when updating the configuration object."""
+    """Update or create configuration object for a specified site. IMPORTANT:To ensure that you are not missing any required attributes when updating the configuration object when updating the object, make sure to :* first retrieve the current configuration object using the tools `getSiteConfigurationObjects` to retrieve the object defined at the site level or `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site* modify the desired attributes * use this tool to update the configuration object with the modified attributes"""
 
     apisession = get_apisession()
     data = {}
@@ -93,14 +93,14 @@ async def updateSiteConfigurationObjects(
                         apisession,
                         site_id=str(site_id),
                         evpn_topology_id=str(object_id),
-                        data=payload,
+                        body=payload,
                     )
                 )
                 await process_response(response)
                 data = response.data
             else:
                 response = mistapi.api.v1.sites.evpn_topologies.createSiteEvpnTopology(
-                    apisession, site_id=str(site_id), data=payload
+                    apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
@@ -110,13 +110,13 @@ async def updateSiteConfigurationObjects(
                     apisession,
                     site_id=str(site_id),
                     psk_id=str(object_id),
-                    data=payload,
+                    body=payload,
                 )
                 await process_response(response)
                 data = response.data
             else:
                 response = mistapi.api.v1.sites.psks.createSitePsk(
-                    apisession, site_id=str(site_id), data=payload
+                    apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
@@ -126,13 +126,13 @@ async def updateSiteConfigurationObjects(
                     apisession,
                     site_id=str(site_id),
                     webhook_id=str(object_id),
-                    data=payload,
+                    body=payload,
                 )
                 await process_response(response)
                 data = response.data
             else:
                 response = mistapi.api.v1.sites.webhooks.createSiteWebhook(
-                    apisession, site_id=str(site_id), data=payload
+                    apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
@@ -142,13 +142,13 @@ async def updateSiteConfigurationObjects(
                     apisession,
                     site_id=str(site_id),
                     wlan_id=str(object_id),
-                    data=payload,
+                    body=payload,
                 )
                 await process_response(response)
                 data = response.data
             else:
                 response = mistapi.api.v1.sites.wlans.createSiteWlan(
-                    apisession, site_id=str(site_id), data=payload
+                    apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
@@ -158,13 +158,13 @@ async def updateSiteConfigurationObjects(
                     apisession,
                     site_id=str(site_id),
                     wxrule_id=str(object_id),
-                    data=payload,
+                    body=payload,
                 )
                 await process_response(response)
                 data = response.data
             else:
                 response = mistapi.api.v1.sites.wxrules.createSiteWxRule(
-                    apisession, site_id=str(site_id), data=payload
+                    apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
@@ -174,13 +174,13 @@ async def updateSiteConfigurationObjects(
                     apisession,
                     site_id=str(site_id),
                     wxtag_id=str(object_id),
-                    data=payload,
+                    body=payload,
                 )
                 await process_response(response)
                 data = response.data
             else:
                 response = mistapi.api.v1.sites.wxtags.createSiteWxTag(
-                    apisession, site_id=str(site_id), data=payload
+                    apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
