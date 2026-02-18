@@ -33,9 +33,9 @@ org_deviceprofile_switch: deviceprofile_switch
 
 org_deviceprofile_gateway: deviceprofile_gateway
 
-ORG_network: network
+org_network: network
 
-ORG_servicepolicy: service_policy
+org_servicepolicy: service_policy
 
 org_vpn: vpn
 

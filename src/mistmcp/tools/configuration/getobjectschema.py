@@ -72,4 +72,3 @@ async def getObjectSchema(
 
     resolved["x-schema-name"] = entry["_schema_name"]
     return resolved
-

@@ -23,11 +23,11 @@ Author: Thomas Munzer (tmunzer@juniper.net)
 License: MIT License
 """
 
+import argparse
 import json
 import os
 import re
 import shutil
-import argparse
 from pathlib import Path
 from typing import Dict, List
 
@@ -38,7 +38,8 @@ from templates.tmpl_helper import TOOLS_HELPER
 from templates.tmpl_init import INIT_TEMPLATE
 from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
 from templates.tmpl_site_configuration import SITE_CONFIGURATION_TEMPLATE
-from templates.tmpl_tool import TOOL_TEMPLATE
+from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
+from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
 
 # Configuration Constants
 FILE_PATH = os.path.realpath(__file__)
@@ -50,7 +51,8 @@ OPENAPI_PATH = (
 )
 SCHEMAS_CONFIG_PATH = Path(os.path.join(DIR_PATH, "schemas_config.yaml"))
 SCHEMAS_DATA_OUTPUT_PATH = Path(
-    os.path.join(DIR_PATH, "../src/mistmcp/tools/configuration/schemas_data.py")
+    os.path.join(
+        DIR_PATH, "../src/mistmcp/tools/configuration/schemas_data.py")
 )
 CUSTOM_TOOLS = [
     {
@@ -94,9 +96,8 @@ TOOLS_HELPER_FILE = Path(
 with open(os.path.join(DIR_PATH, "excluded_tags.yaml"), "r", encoding="utf-8") as f:
     EXCLUDED_TAGS = yaml.safe_load(f)
 
-with open(
-    os.path.join(DIR_PATH, "excluded_operation_ids.yaml"), "r", encoding="utf-8"
-) as f:
+with open(os.path.join(DIR_PATH, "excluded_operation_ids.yaml"), "r", encoding="utf-8"
+          ) as f:
     EXCLUDED_OPERATION_IDS = yaml.safe_load(f)
 
 with open(os.path.join(DIR_PATH, "custom_tags_def.yaml"), "r", encoding="utf-8") as f:
@@ -626,19 +627,34 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
                 "/api/v1/orgs/{org_id}/consolidated"
             )
 
-            tool_code = TOOL_TEMPLATE.format(
-                class_name=func_name.capitalize(),
-                imports=imports,
-                models=models,
-                enums=enums,
-                operationId=func_name,
-                description=description.replace("\n", ""),
-                tag=tag,
-                readOnlyHint=func_data.get("read_only_hint", False),
-                destructiveHint=func_data.get("destructive_hint", True),
-                parameters=parameters,
-                request=request,
-            )
+            if func_data.get("read_only_hint") is True:
+                tool_code = TOOL_TEMPLATE_READ.format(
+                    class_name=func_name.capitalize(),
+                    imports=imports,
+                    models=models,
+                    enums=enums,
+                    operationId=func_name,
+                    description=description.replace("\n", ""),
+                    tag=tag,
+                    readOnlyHint=func_data.get("read_only_hint", False),
+                    destructiveHint=func_data.get("destructive_hint", True),
+                    parameters=parameters,
+                    request=request,
+                )
+            else:
+                tool_code = TOOL_TEMPLATE_WRITE.format(
+                    class_name=func_name.capitalize(),
+                    imports=imports,
+                    models=models,
+                    enums=enums,
+                    operationId=func_name,
+                    description=description.replace("\n", ""),
+                    tag=tag,
+                    readOnlyHint=func_data.get("read_only_hint", True),
+                    destructiveHint=func_data.get("destructive_hint", True),
+                    parameters=parameters,
+                    request=request,
+                )
 
             tag_dir = OUTPUT_DIR / snake_case(tag)
             tag_dir.mkdir(parents=True, exist_ok=True)
@@ -768,7 +784,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             else:
                 request = REQ_TEMPLATE.format(request=mistapi_request)
 
-            tool_code = TOOL_TEMPLATE.format(
+            tool_code = TOOL_TEMPLATE_READ.format(
                 class_name=operation_id.capitalize(),
                 imports=imports,
                 models=models,
@@ -917,7 +933,8 @@ def _resolve_schema_for_generator(
                 if ref_schema is not None:
                     resolved.update(
                         _resolve_schema_for_generator(
-                            ref_schema, all_schemas, visited | {ref_name}, depth + 1, max_depth
+                            ref_schema, all_schemas, visited | {
+                                ref_name}, depth + 1, max_depth
                         )
                     )
                     continue
@@ -926,12 +943,14 @@ def _resolve_schema_for_generator(
             )
         elif key == "properties" and isinstance(value, dict):
             resolved[key] = {
-                k: _resolve_schema_for_generator(v, all_schemas, visited, depth + 1, max_depth)
+                k: _resolve_schema_for_generator(
+                    v, all_schemas, visited, depth + 1, max_depth)
                 for k, v in value.items()
             }
         elif key in ("allOf", "anyOf", "oneOf") and isinstance(value, list):
             resolved[key] = [
-                _resolve_schema_for_generator(item, all_schemas, visited, depth + 1, max_depth)
+                _resolve_schema_for_generator(
+                    item, all_schemas, visited, depth + 1, max_depth)
                 for item in value
             ]
         elif key in ("items", "additionalProperties") and isinstance(value, dict):
@@ -954,7 +973,8 @@ def generate_schemas_data(all_schemas: dict) -> None:
     module containing a single SCHEMAS_DATA dict that can be imported with zero
     I/O overhead at runtime.
     """
-    raw_config = yaml.safe_load(SCHEMAS_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+    raw_config = yaml.safe_load(
+        SCHEMAS_CONFIG_PATH.read_text(encoding="utf-8")) or {}
     # raw_config: {enum_name: oas_schema_name | None, ...}
 
     # Cache resolved schemas by OAS name to avoid redundant work.
@@ -964,7 +984,8 @@ def generate_schemas_data(all_schemas: dict) -> None:
         if schema_name not in resolved_cache:
             raw_schema = all_schemas.get(schema_name)
             if raw_schema is None:
-                print(f"  WARNING: schema '{schema_name}' not found in OAS — stored as empty dict")
+                print(
+                    f"  WARNING: schema '{schema_name}' not found in OAS — stored as empty dict")
                 resolved_cache[schema_name] = {}
             else:
                 resolved_cache[schema_name] = _resolve_schema_for_generator(
@@ -988,7 +1009,8 @@ def generate_schemas_data(all_schemas: dict) -> None:
     SCHEMAS_DATA_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     SCHEMAS_DATA_OUTPUT_PATH.write_text(content, encoding="utf-8")
     size_kb = SCHEMAS_DATA_OUTPUT_PATH.stat().st_size // 1024
-    print(f"schemas_data.py written: {len(schemas_data)} entries, ~{size_kb} KB")
+    print(
+        f"schemas_data.py written: {len(schemas_data)} entries, ~{size_kb} KB")
 
 
 if __name__ == "__main__":

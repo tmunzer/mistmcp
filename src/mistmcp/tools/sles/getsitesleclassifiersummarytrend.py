@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -22,14 +23,12 @@ from uuid import UUID
 from enum import Enum
 
 
-
 mcp = get_mcp()
 
 if not mcp:
     raise RuntimeError(
         "MCP instance not found. Make sure to initialize the MCP server before defining tools."
     )
-
 
 
 class Scope(Enum):
@@ -40,13 +39,12 @@ class Scope(Enum):
     SWITCH = "switch"
 
 
-
 @mcp.tool(
     enabled=True,
-    name = "getSiteSleClassifierSummaryTrend",
-    description = """Get SLE classifier Summary Trend""",
-    tags = {"sles"},
-    annotations = {
+    name="getSiteSleClassifierSummaryTrend",
+    description="""Get SLE classifier Summary Trend""",
+    tags={"sles"},
+    annotations={
         "title": "getSiteSleClassifierSummaryTrend",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -54,36 +52,50 @@ class Scope(Enum):
     },
 )
 async def getSiteSleClassifierSummaryTrend(
-    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     scope: Scope,
-    scope_id: Annotated[str, Field(description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`""")],
+    scope_id: Annotated[
+        str,
+        Field(
+            description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`"""
+        ),
+    ],
     metric: Annotated[str, Field(description="""Values from `listSiteSlesMetrics`""")],
     classifier: str,
-    start: Annotated[Optional[str | None], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")] = None,
-    end: Annotated[Optional[str | None], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")] = None,
-    duration: Annotated[Optional[str | None], Field(description="""Duration like 7d, 2w""")] = None,
-) -> dict|list:
+    start: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
+        ),
+    ] = None,
+    end: Annotated[
+        Optional[str | None],
+        Field(
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
+        ),
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
+) -> dict | list:
     """Get SLE classifier Summary Trend"""
 
     apisession = get_apisession()
     data = {}
-    
-    
+
     response = mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(
-            apisession,
-            site_id=str(site_id),
-            scope=scope.value,
-            scope_id=scope_id if scope_id else None,
-            metric=metric if metric else None,
-            classifier=classifier if classifier else None,
-            start=start if start else None,
-            end=end if end else None,
-            duration=duration if duration else None,
+        apisession,
+        site_id=str(site_id),
+        scope=scope.value,
+        scope_id=scope_id if scope_id else None,
+        metric=metric if metric else None,
+        classifier=classifier if classifier else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
     )
     await process_response(response)
-    
-    data = response.data
 
+    data = response.data
 
     return data

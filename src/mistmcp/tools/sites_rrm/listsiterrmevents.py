@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -22,14 +23,12 @@ from uuid import UUID
 from enum import Enum
 
 
-
 mcp = get_mcp()
 
 if not mcp:
     raise RuntimeError(
         "MCP instance not found. Make sure to initialize the MCP server before defining tools."
     )
-
 
 
 class Band(Enum):
@@ -39,13 +38,12 @@ class Band(Enum):
     NONE = None
 
 
-
 @mcp.tool(
     enabled=True,
-    name = "listSiteRrmEvents",
-    description = """List Site RRM Events""",
-    tags = {"Sites RRM"},
-    annotations = {
+    name="listSiteRrmEvents",
+    description="""List Site RRM Events""",
+    tags={"Sites RRM"},
+    annotations={
         "title": "listSiteRrmEvents",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -53,34 +51,45 @@ class Band(Enum):
     },
 )
 async def listSiteRrmEvents(
-    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    band: Annotated[Optional[Band | None], Field(description="""802.11 Band""")] = Band.NONE,
-    start: Annotated[Optional[str | None], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")] = None,
-    end: Annotated[Optional[str | None], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")] = None,
-    duration: Annotated[Optional[str | None], Field(description="""Duration like 7d, 2w""")] = None,
+    band: Annotated[
+        Optional[Band | None], Field(description="""802.11 Band""")
+    ] = Band.NONE,
+    start: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
+        ),
+    ] = None,
+    end: Annotated[
+        Optional[str | None],
+        Field(
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
+        ),
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-) -> dict|list:
+) -> dict | list:
     """List Site RRM Events"""
 
     apisession = get_apisession()
     data = {}
-    
-    
+
     response = mistapi.api.v1.sites.rrm.listSiteRrmEvents(
-            apisession,
-            site_id=str(site_id),
-            band=band.value if band else None,
-            start=start if start else None,
-            end=end if end else None,
-            duration=duration if duration else None,
-            limit=limit if limit else None,
-            page=page if page else None,
+        apisession,
+        site_id=str(site_id),
+        band=band.value if band else None,
+        start=start if start else None,
+        end=end if end else None,
+        duration=duration if duration else None,
+        limit=limit if limit else None,
+        page=page if page else None,
     )
     await process_response(response)
-    
-    data = response.data
 
+    data = response.data
 
     return data

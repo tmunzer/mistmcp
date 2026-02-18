@@ -179,14 +179,14 @@ getOrgConfigurationObjects:
         operationId: getOrgSiteGroup
         function: mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(object_id))
 
-    aptemplates:
-      list:
-        operationId: listOrgAptemplates
-        function: mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(apisession, org_id=str(org_id), limit=1000)
-        reduce: true
-      get:
-        operationId: getOrgAptemplate
-        function: mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id))
+    # aptemplates:
+    #   list:
+    #     operationId: listOrgAptemplates
+    #     function: mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(apisession, org_id=str(org_id), limit=1000)
+    #     reduce: true
+    #   get:
+    #     operationId: getOrgAptemplate
+    #     function: mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id))
 
     avprofiles:
       list:
@@ -804,7 +804,7 @@ updateSiteConfigurationObjects:
     evpn_topologies:
       update:
         operationId: updateSiteEvpnTopologies
-        function: mistapi.api.v1.sites.evpn_topologies.updateSiteEvpnTopologies(apisession, site_id=str(site_id), evpn_topology_id=str(object_id), body=payload)
+        function: mistapi.api.v1.sites.evpn_topologies.updateSiteEvpnTopology(apisession, site_id=str(site_id), evpn_topology_id=str(object_id), body=payload)
       create:
         operationId: createSiteEvpnTopology
         function: mistapi.api.v1.sites.evpn_topologies.createSiteEvpnTopology(apisession, site_id=str(site_id), body=payload)
@@ -910,13 +910,13 @@ updateOrgConfigurationObjects:
         operationId: createOrgSiteGroup
         function: mistapi.api.v1.orgs.sitegroups.createOrgSiteGroup(apisession, org_id=str(org_id), body=payload)
 
-    aptemplates:
-      update:
-        operationId: updateOrgAptemplate
-        function: mistapi.api.v1.orgs.aptemplates.updateOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id), body=payload)
-      create:
-        operationId: createOrgAptemplate
-        function: mistapi.api.v1.orgs.aptemplates.createOrgAptemplate(apisession, org_id=str(org_id), body=payload)
+    # aptemplates:
+    #   update:
+    #     operationId: updateOrgAptemplate
+    #     function: mistapi.api.v1.orgs.aptemplates.updateOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgAptemplate
+    #     function: mistapi.api.v1.orgs.aptemplates.createOrgAptemplate(apisession, org_id=str(org_id), body=payload)
 
     avprofiles:
       update:

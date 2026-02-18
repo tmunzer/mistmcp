@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -21,7 +22,6 @@ from typing import Annotated
 from uuid import UUID
 
 
-
 mcp = get_mcp()
 
 if not mcp:
@@ -30,15 +30,12 @@ if not mcp:
     )
 
 
-
-
-
 @mcp.tool(
     enabled=True,
-    name = "getOrgLicensesBySite",
-    description = """Get Licenses Usage by SitesThis shows license usage (i.e. needed) based on the features enabled for the site.""",
-    tags = {"orgs"},
-    annotations = {
+    name="getOrgLicensesBySite",
+    description="""Get Licenses Usage by SitesThis shows license usage (i.e. needed) based on the features enabled for the site.""",
+    tags={"orgs"},
+    annotations={
         "title": "getOrgLicensesBySite",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -46,22 +43,19 @@ if not mcp:
     },
 )
 async def getOrgLicensesBySite(
-    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-) -> dict|list:
+) -> dict | list:
     """Get Licenses Usage by SitesThis shows license usage (i.e. needed) based on the features enabled for the site."""
 
     apisession = get_apisession()
     data = {}
-    
-    
+
     response = mistapi.api.v1.orgs.licenses.getOrgLicensesBySite(
-            apisession,
-            org_id=str(org_id),
+        apisession,
+        org_id=str(org_id),
     )
     await process_response(response)
-    
-    data = response.data
 
+    data = response.data
 
     return data

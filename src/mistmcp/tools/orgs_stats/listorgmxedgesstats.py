@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -22,14 +23,12 @@ from uuid import UUID
 from enum import Enum
 
 
-
 mcp = get_mcp()
 
 if not mcp:
     raise RuntimeError(
         "MCP instance not found. Make sure to initialize the MCP server before defining tools."
     )
-
 
 
 class For_site(Enum):
@@ -39,13 +38,12 @@ class For_site(Enum):
     NONE = None
 
 
-
 @mcp.tool(
     enabled=True,
-    name = "listOrgMxEdgesStats",
-    description = """Get List of Org MxEdge Stats""",
-    tags = {"orgs_stats"},
-    annotations = {
+    name="listOrgMxEdgesStats",
+    description="""Get List of Org MxEdge Stats""",
+    tags={"orgs_stats"},
+    annotations={
         "title": "listOrgMxEdgesStats",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -53,24 +51,44 @@ class For_site(Enum):
     },
 )
 async def listOrgMxEdgesStats(
-    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    for_site: Annotated[Optional[For_site | None], Field(description="""Filter for site level mist edges""")] = For_site.NONE,
-    start: Annotated[Optional[str | None], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")] = None,
-    end: Annotated[Optional[str | None], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")] = None,
-    duration: Annotated[Optional[str | None], Field(description="""Duration like 7d, 2w""")] = None,
+    for_site: Annotated[
+        Optional[For_site | None],
+        Field(description="""Filter for site level mist edges"""),
+    ] = For_site.NONE,
+    start: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
+        ),
+    ] = None,
+    end: Annotated[
+        Optional[str | None],
+        Field(
+            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
+        ),
+    ] = None,
+    duration: Annotated[
+        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+    ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-    mxedge_id: Annotated[Optional[str | None], Field(description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed.""")] = None,
-) -> dict|list:
+    mxedge_id: Annotated[
+        Optional[str | None],
+        Field(
+            description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
+        ),
+    ] = None,
+) -> dict | list:
     """Get List of Org MxEdge Stats"""
 
     apisession = get_apisession()
     data = {}
-    
-    
+
     if mxedge_id:
-        response = mistapi.api.v1.sites.stats.org_id(apisession, org_id=str(org_id), mxedge_id=mxedge_id)
+        response = mistapi.api.v1.sites.stats.org_id(
+            apisession, org_id=str(org_id), mxedge_id=mxedge_id
+        )
         await process_response(response)
     else:
         response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
@@ -82,10 +100,9 @@ async def listOrgMxEdgesStats(
             duration=duration if duration else None,
             limit=limit if limit else None,
             page=page if page else None,
-    )
+        )
         await process_response(response)
-        
-    data = response.data
 
+    data = response.data
 
     return data

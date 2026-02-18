@@ -9,6 +9,7 @@
 
 --------------------------------------------------------------------------------
 """
+
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -21,7 +22,6 @@ from typing import Annotated, Optional, List
 from uuid import UUID
 
 
-
 mcp = get_mcp()
 
 if not mcp:
@@ -30,15 +30,12 @@ if not mcp:
     )
 
 
-
-
-
 @mcp.tool(
     enabled=True,
-    name = "searchOrgUserMacs",
-    description = """Search Org User MACs""",
-    tags = {"orgs_nac"},
-    annotations = {
+    name="searchOrgUserMacs",
+    description="""Search Org User MACs""",
+    tags={"orgs_nac"},
+    annotations={
         "title": "searchOrgUserMacs",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -46,32 +43,39 @@ if not mcp:
     },
 )
 async def searchOrgUserMacs(
-    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    mac: Annotated[Optional[str | None], Field(description="""Partial/full MAC address""")] = None,
-    labels: Annotated[Optional[List[str] | None], Field(description="""Optional, array of strings of labels""")] = None,
+    mac: Annotated[
+        Optional[str | None], Field(description="""Partial/full MAC address""")
+    ] = None,
+    labels: Annotated[
+        Optional[List[str] | None],
+        Field(description="""Optional, array of strings of labels"""),
+    ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-    sort: Annotated[Optional[str | None], Field(description="""On which field the list should be sorted, -prefix represents DESC order""")] = None,
-) -> dict|list:
+    sort: Annotated[
+        Optional[str | None],
+        Field(
+            description="""On which field the list should be sorted, -prefix represents DESC order"""
+        ),
+    ] = None,
+) -> dict | list:
     """Search Org User MACs"""
 
     apisession = get_apisession()
     data = {}
-    
-    
+
     response = mistapi.api.v1.orgs.usermacs.searchOrgUserMacs(
-            apisession,
-            org_id=str(org_id),
-            mac=mac if mac else None,
-            labels=labels if labels else None,
-            limit=limit if limit else None,
-            page=page if page else None,
-            sort=sort if sort else None,
+        apisession,
+        org_id=str(org_id),
+        mac=mac if mac else None,
+        labels=labels if labels else None,
+        limit=limit if limit else None,
+        page=page if page else None,
+        sort=sort if sort else None,
     )
     await process_response(response)
-    
-    data = response.data
 
+    data = response.data
 
     return data

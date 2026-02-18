@@ -296,4 +296,3 @@ def process_switch_interface(port_config: dict) -> dict:
             port_config_cleansed[key] = value
 
     return port_config_cleansed
-

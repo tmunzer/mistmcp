@@ -122,13 +122,6 @@ IMPORTANT:
 * If a tool requires the `org_id`, use the `getSelf` tool to get it
 * If a tool requires the `site_id`, use the `listOrgSites` tool to get it
 
-When you need to validate the configuration applied to a specific device or site:
-1. Identify the template assigned to the site with "getSiteInfo" (if any)
-2. Retrieve the template configuration at Org level with "getOrgConfigurationObjects"
-3. Check site level configuration with "getSiteSettingsDerived"
-4. Check device level configuration with "getSiteConfigurationObjects"
-5. Merge configurations (device overrides site, site overrides org) and validate
-
 CONFIGURATION OBJECTS:
 - aamwprofiles: Sky ATP Advanced Anti-Malware profiles
 - alarmtemplates: Alarm Rules templates for sites or org

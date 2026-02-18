@@ -21,7 +21,7 @@ import json as _json
 #   "schema":       fully-resolved schema dict
 #   "_schema_name": OAS component/schemas name used to resolve this entry
 SCHEMAS_DATA: dict = _json.loads(
-'''
+    """
 {
   "org_wlan": {
     "schema": {
@@ -7042,6 +7042,10 @@ SCHEMAS_DATA: dict = _json.loads(
                 "items": {
                   "additionalProperties": false,
                   "properties": {
+                    "description": {
+                      "description": "Optional description of the rule",
+                      "type": "string"
+                    },
                     "equals": {
                       "type": "string"
                     },
@@ -9392,9 +9396,6 @@ SCHEMAS_DATA: dict = _json.loads(
                         "wan_arp_policer": {
                           "$comment": "max depth reached"
                         },
-                        "wan_disable_speedtest": {
-                          "$comment": "max depth reached"
-                        },
                         "wan_ext_ip": {
                           "$comment": "max depth reached"
                         },
@@ -9414,6 +9415,9 @@ SCHEMAS_DATA: dict = _json.loads(
                           "$comment": "max depth reached"
                         },
                         "wan_source_nat": {
+                          "$comment": "max depth reached"
+                        },
+                        "wan_speedtest_mode": {
                           "$comment": "max depth reached"
                         },
                         "wan_type": {
@@ -10451,11 +10455,6 @@ SCHEMAS_DATA: dict = _json.loads(
                 ],
                 "type": "string"
               },
-              "wan_disable_speedtest": {
-                "default": false,
-                "description": "If `wan_type`==`wan`, disable speedtest",
-                "type": "boolean"
-              },
               "wan_ext_ip": {
                 "description": "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP",
                 "examples": [
@@ -10560,6 +10559,19 @@ SCHEMAS_DATA: dict = _json.loads(
                   }
                 },
                 "type": "object"
+              },
+              "wan_speedtest_mode": {
+                "default": "auto",
+                "description": "Controls whether Marvis/scheduler can run speedtest on this port. enum: `auto`, `enabled`, `disabled`",
+                "enum": [
+                  "auto",
+                  "enabled",
+                  "disabled"
+                ],
+                "examples": [
+                  "auto"
+                ],
+                "type": "string"
               },
               "wan_type": {
                 "default": "broadband",
@@ -10761,45 +10773,66 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "SRX only",
                 "properties": {
                   "dns_dga_detection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `default`, `standard`, `strict`",
-                    "enum": [
-                      "disabled",
-                      "default",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `default`, `standard`, `strict`",
+                        "enum": [
+                          "default",
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "dns_tunnel_detection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `default`, `standard`, `strict`",
-                    "enum": [
-                      "disabled",
-                      "default",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `default`, `standard`, `strict`",
+                        "enum": [
+                          "default",
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "http_inspection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `standard`",
-                    "enum": [
-                      "disabled",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `standard`, `strict`",
+                        "enum": [
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "iot_device_policy": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `enabled`",
-                    "enum": [
-                      "disabled",
-                      "enabled"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "type": "object"
                   }
                 },
                 "type": "object"
@@ -15176,7 +15209,8 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "managed": {
           "default": false,
-          "description": "An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist.",
+          "deprecated": true,
+          "description": "An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist. Deprecated in favour of mist_configured, which is more intuitive and can be used for both adopted and claimed devices.",
           "type": "boolean"
         },
         "map_id": {
@@ -15186,6 +15220,10 @@ SCHEMAS_DATA: dict = _json.loads(
           ],
           "format": "uuid",
           "type": "string"
+        },
+        "mist_configured": {
+          "description": "whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)",
+          "type": "boolean"
         },
         "mist_nac": {
           "additionalProperties": false,
@@ -16064,6 +16102,10 @@ SCHEMAS_DATA: dict = _json.loads(
                 "items": {
                   "additionalProperties": false,
                   "properties": {
+                    "description": {
+                      "description": "Optional description of the rule",
+                      "type": "string"
+                    },
                     "equals": {
                       "type": "string"
                     },
@@ -18426,6 +18468,8 @@ SCHEMAS_DATA: dict = _json.loads(
           "type": "string"
         },
         "managed": {
+          "deprecated": true,
+          "description": "Whether the device is managed by Mist. Deprecated in favour of mist_configured.",
           "type": "boolean"
         },
         "map_id": {
@@ -19307,11 +19351,6 @@ SCHEMAS_DATA: dict = _json.loads(
                 ],
                 "type": "string"
               },
-              "wan_disable_speedtest": {
-                "default": false,
-                "description": "If `wan_type`==`wan`, disable speedtest",
-                "type": "boolean"
-              },
               "wan_ext_ip": {
                 "description": "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP",
                 "examples": [
@@ -19416,6 +19455,19 @@ SCHEMAS_DATA: dict = _json.loads(
                   }
                 },
                 "type": "object"
+              },
+              "wan_speedtest_mode": {
+                "default": "auto",
+                "description": "Controls whether Marvis/scheduler can run speedtest on this port. enum: `auto`, `enabled`, `disabled`",
+                "enum": [
+                  "auto",
+                  "enabled",
+                  "disabled"
+                ],
+                "examples": [
+                  "auto"
+                ],
+                "type": "string"
               },
               "wan_type": {
                 "default": "broadband",
@@ -19659,45 +19711,66 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "SRX only",
                 "properties": {
                   "dns_dga_detection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `default`, `standard`, `strict`",
-                    "enum": [
-                      "disabled",
-                      "default",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `default`, `standard`, `strict`",
+                        "enum": [
+                          "default",
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "dns_tunnel_detection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `default`, `standard`, `strict`",
-                    "enum": [
-                      "disabled",
-                      "default",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `default`, `standard`, `strict`",
+                        "enum": [
+                          "default",
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "http_inspection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `standard`",
-                    "enum": [
-                      "disabled",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `standard`, `strict`",
+                        "enum": [
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "iot_device_policy": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `enabled`",
-                    "enum": [
-                      "disabled",
-                      "enabled"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "type": "object"
                   }
                 },
                 "type": "object"
@@ -24288,6 +24361,10 @@ SCHEMAS_DATA: dict = _json.loads(
                 "items": {
                   "additionalProperties": false,
                   "properties": {
+                    "description": {
+                      "description": "Optional description of the rule",
+                      "type": "string"
+                    },
                     "equals": {
                       "type": "string"
                     },
@@ -26513,9 +26590,6 @@ SCHEMAS_DATA: dict = _json.loads(
                         "wan_arp_policer": {
                           "$comment": "max depth reached"
                         },
-                        "wan_disable_speedtest": {
-                          "$comment": "max depth reached"
-                        },
                         "wan_ext_ip": {
                           "$comment": "max depth reached"
                         },
@@ -26535,6 +26609,9 @@ SCHEMAS_DATA: dict = _json.loads(
                           "$comment": "max depth reached"
                         },
                         "wan_source_nat": {
+                          "$comment": "max depth reached"
+                        },
+                        "wan_speedtest_mode": {
                           "$comment": "max depth reached"
                         },
                         "wan_type": {
@@ -27572,11 +27649,6 @@ SCHEMAS_DATA: dict = _json.loads(
                 ],
                 "type": "string"
               },
-              "wan_disable_speedtest": {
-                "default": false,
-                "description": "If `wan_type`==`wan`, disable speedtest",
-                "type": "boolean"
-              },
               "wan_ext_ip": {
                 "description": "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP",
                 "examples": [
@@ -27681,6 +27753,19 @@ SCHEMAS_DATA: dict = _json.loads(
                   }
                 },
                 "type": "object"
+              },
+              "wan_speedtest_mode": {
+                "default": "auto",
+                "description": "Controls whether Marvis/scheduler can run speedtest on this port. enum: `auto`, `enabled`, `disabled`",
+                "enum": [
+                  "auto",
+                  "enabled",
+                  "disabled"
+                ],
+                "examples": [
+                  "auto"
+                ],
+                "type": "string"
               },
               "wan_type": {
                 "default": "broadband",
@@ -27882,45 +27967,66 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "SRX only",
                 "properties": {
                   "dns_dga_detection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `default`, `standard`, `strict`",
-                    "enum": [
-                      "disabled",
-                      "default",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `default`, `standard`, `strict`",
+                        "enum": [
+                          "default",
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "dns_tunnel_detection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `default`, `standard`, `strict`",
-                    "enum": [
-                      "disabled",
-                      "default",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `default`, `standard`, `strict`",
+                        "enum": [
+                          "default",
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "http_inspection": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `standard`",
-                    "enum": [
-                      "disabled",
-                      "standard",
-                      "strict"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "profile": {
+                        "description": "enum: `standard`, `strict`",
+                        "enum": [
+                          "standard",
+                          "strict"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
                   },
                   "iot_device_policy": {
-                    "default": "disabled",
-                    "description": "enum: `disabled`, `enabled`",
-                    "enum": [
-                      "disabled",
-                      "enabled"
-                    ],
-                    "type": "string"
+                    "additionalProperties": false,
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      }
+                    },
+                    "type": "object"
                   }
                 },
                 "type": "object"
@@ -28686,7 +28792,7 @@ SCHEMAS_DATA: dict = _json.loads(
     },
     "_schema_name": "deviceprofile_gateway"
   },
-  "ORG_network": {
+  "org_network": {
     "schema": {
       "description": "Networks are usually subnets that have cross-site significance. `networks`in Org Settings will got merged into `networks`in Site Setting. For gateways, they can be used to define Service Routes.",
       "properties": {
@@ -29074,7 +29180,7 @@ SCHEMAS_DATA: dict = _json.loads(
     },
     "_schema_name": "network"
   },
-  "ORG_servicepolicy": {
+  "org_servicepolicy": {
     "schema": {
       "additionalProperties": false,
       "properties": {
@@ -29228,45 +29334,66 @@ SCHEMAS_DATA: dict = _json.loads(
           "description": "SRX only",
           "properties": {
             "dns_dga_detection": {
-              "default": "disabled",
-              "description": "enum: `disabled`, `default`, `standard`, `strict`",
-              "enum": [
-                "disabled",
-                "default",
-                "standard",
-                "strict"
-              ],
-              "type": "string"
+              "additionalProperties": false,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "profile": {
+                  "description": "enum: `default`, `standard`, `strict`",
+                  "enum": [
+                    "default",
+                    "standard",
+                    "strict"
+                  ],
+                  "type": "string"
+                }
+              },
+              "type": "object"
             },
             "dns_tunnel_detection": {
-              "default": "disabled",
-              "description": "enum: `disabled`, `default`, `standard`, `strict`",
-              "enum": [
-                "disabled",
-                "default",
-                "standard",
-                "strict"
-              ],
-              "type": "string"
+              "additionalProperties": false,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "profile": {
+                  "description": "enum: `default`, `standard`, `strict`",
+                  "enum": [
+                    "default",
+                    "standard",
+                    "strict"
+                  ],
+                  "type": "string"
+                }
+              },
+              "type": "object"
             },
             "http_inspection": {
-              "default": "disabled",
-              "description": "enum: `disabled`, `standard`",
-              "enum": [
-                "disabled",
-                "standard",
-                "strict"
-              ],
-              "type": "string"
+              "additionalProperties": false,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "profile": {
+                  "description": "enum: `standard`, `strict`",
+                  "enum": [
+                    "standard",
+                    "strict"
+                  ],
+                  "type": "string"
+                }
+              },
+              "type": "object"
             },
             "iot_device_policy": {
-              "default": "disabled",
-              "description": "enum: `disabled`, `enabled`",
-              "enum": [
-                "disabled",
-                "enabled"
-              ],
-              "type": "string"
+              "additionalProperties": false,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "type": "object"
             }
           },
           "type": "object"
@@ -34240,6 +34367,13 @@ SCHEMAS_DATA: dict = _json.loads(
                 "snapshot": {
                   "default": false,
                   "type": "boolean"
+                },
+                "version": {
+                  "description": "Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified",
+                  "examples": [
+                    "23.4R2-S5.5"
+                  ],
+                  "type": "string"
                 }
               },
               "type": "object"
@@ -34404,6 +34538,37 @@ SCHEMAS_DATA: dict = _json.loads(
               "description": "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
               "type": "boolean"
             },
+            "fingerprinting": {
+              "additionalProperties": false,
+              "description": "Allows customer to enable client fingerprinting for policy enforcement",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "description": "enable/disable writes to NAC DDB fingerprint table",
+                  "type": "boolean"
+                },
+                "generate_coa": {
+                  "default": false,
+                  "description": "enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce",
+                  "type": "boolean"
+                },
+                "generate_wireless_coa": {
+                  "default": false,
+                  "description": "enable/disable CoA triggers on fingerprint change for wireless clients",
+                  "type": "boolean"
+                },
+                "wireless_coa_type": {
+                  "default": "reauth",
+                  "description": "type of CoA trigger for wireless clients",
+                  "enum": [
+                    "reauth",
+                    "disconnect"
+                  ],
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
             "idp_machine_cert_lookup_field": {
               "default": "automatic",
               "description": "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`",
@@ -34496,6 +34661,16 @@ SCHEMAS_DATA: dict = _json.loads(
               "default": false,
               "description": "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
               "type": "boolean"
+            },
+            "usermac_expiry": {
+              "default": 0,
+              "description": "Allow customer to configure an expiry time for usermacs by attaching a Quarantine label to those which have been inactive for the configured period of time (in days). 0 means no expiry",
+              "examples": [
+                30
+              ],
+              "maximum": 1095,
+              "minimum": 0,
+              "type": "integer"
             }
           },
           "type": "object"
@@ -34775,6 +34950,13 @@ SCHEMAS_DATA: dict = _json.loads(
                 "enabled": {
                   "default": false,
                   "type": "boolean"
+                },
+                "version": {
+                  "description": "Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified",
+                  "examples": [
+                    "6.3.0-107.r1"
+                  ],
+                  "type": "string"
                 }
               },
               "type": "object"
@@ -34905,19 +35087,12 @@ SCHEMAS_DATA: dict = _json.loads(
                     ],
                     "type": "string"
                   },
-                  "host": {
-                    "description": "If `type`==`icmp` or `type`==`tcp`, Host to be used for the custom probe",
+                  "target": {
+                    "description": "Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination",
                     "examples": [
-                      "internal.host"
+                      "10.3.5.3:8080"
                     ],
                     "type": "string"
-                  },
-                  "port": {
-                    "description": "If `type`==`tcp`, Port to be used for the custom probe",
-                    "examples": [
-                      443
-                    ],
-                    "type": "integer"
                   },
                   "threshold": {
                     "description": "In milliseconds",
@@ -34928,18 +35103,13 @@ SCHEMAS_DATA: dict = _json.loads(
                   },
                   "type": {
                     "default": "icmp",
-                    "description": "enum: `curl`, `icmp`, `tcp`",
+                    "description": "enum: `application`, `curl`, `icmp`, `reachability`, `tcp`",
                     "enum": [
+                      "application",
                       "curl",
                       "icmp",
+                      "reachability",
                       "tcp"
-                    ],
-                    "type": "string"
-                  },
-                  "url": {
-                    "description": "If `type`==`curl`, URL to be used for the custom probe, can be url or IP",
-                    "examples": [
-                      "https://10.3.5.1:8080/about"
                     ],
                     "type": "string"
                   }
@@ -38170,11 +38340,6 @@ SCHEMAS_DATA: dict = _json.loads(
                     ],
                     "type": "string"
                   },
-                  "wan_disable_speedtest": {
-                    "default": false,
-                    "description": "If `wan_type`==`wan`, disable speedtest",
-                    "type": "boolean"
-                  },
                   "wan_ext_ip": {
                     "description": "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP",
                     "examples": [
@@ -38279,6 +38444,19 @@ SCHEMAS_DATA: dict = _json.loads(
                       }
                     },
                     "type": "object"
+                  },
+                  "wan_speedtest_mode": {
+                    "default": "auto",
+                    "description": "Controls whether Marvis/scheduler can run speedtest on this port. enum: `auto`, `enabled`, `disabled`",
+                    "enum": [
+                      "auto",
+                      "enabled",
+                      "disabled"
+                    ],
+                    "examples": [
+                      "auto"
+                    ],
+                    "type": "string"
                   },
                   "wan_type": {
                     "default": "broadband",
@@ -39361,6 +39539,13 @@ SCHEMAS_DATA: dict = _json.loads(
                 "snapshot": {
                   "default": false,
                   "type": "boolean"
+                },
+                "version": {
+                  "description": "Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified",
+                  "examples": [
+                    "23.4R2-S5.5"
+                  ],
+                  "type": "string"
                 }
               },
               "type": "object"
@@ -40753,6 +40938,10 @@ SCHEMAS_DATA: dict = _json.loads(
                 "items": {
                   "additionalProperties": false,
                   "properties": {
+                    "description": {
+                      "description": "Optional description of the rule",
+                      "type": "string"
+                    },
                     "equals": {
                       "type": "string"
                     },
@@ -42688,6 +42877,13 @@ SCHEMAS_DATA: dict = _json.loads(
                 "enabled": {
                   "default": false,
                   "type": "boolean"
+                },
+                "version": {
+                  "description": "Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified",
+                  "examples": [
+                    "6.3.0-107.r1"
+                  ],
+                  "type": "string"
                 }
               },
               "type": "object"
@@ -44607,19 +44803,12 @@ SCHEMAS_DATA: dict = _json.loads(
                     ],
                     "type": "string"
                   },
-                  "host": {
-                    "description": "If `type`==`icmp` or `type`==`tcp`, Host to be used for the custom probe",
+                  "target": {
+                    "description": "Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination",
                     "examples": [
-                      "internal.host"
+                      "10.3.5.3:8080"
                     ],
                     "type": "string"
-                  },
-                  "port": {
-                    "description": "If `type`==`tcp`, Port to be used for the custom probe",
-                    "examples": [
-                      443
-                    ],
-                    "type": "integer"
                   },
                   "threshold": {
                     "description": "In milliseconds",
@@ -44630,18 +44819,13 @@ SCHEMAS_DATA: dict = _json.loads(
                   },
                   "type": {
                     "default": "icmp",
-                    "description": "enum: `curl`, `icmp`, `tcp`",
+                    "description": "enum: `application`, `curl`, `icmp`, `reachability`, `tcp`",
                     "enum": [
+                      "application",
                       "curl",
                       "icmp",
+                      "reachability",
                       "tcp"
-                    ],
-                    "type": "string"
-                  },
-                  "url": {
-                    "description": "If `type`==`curl`, URL to be used for the custom probe, can be url or IP",
-                    "examples": [
-                      "https://10.3.5.1:8080/about"
                     ],
                     "type": "string"
                   }
@@ -44886,6 +45070,11 @@ SCHEMAS_DATA: dict = _json.loads(
             }
           },
           "type": "object"
+        },
+        "uses_description_from_port_usage": {
+          "default": false,
+          "description": "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
+          "type": "boolean"
         },
         "vars": {
           "additionalProperties": {
@@ -45381,5 +45570,5 @@ SCHEMAS_DATA: dict = _json.loads(
     "_schema_name": "site_setting"
   }
 }
-'''
+"""
 )
