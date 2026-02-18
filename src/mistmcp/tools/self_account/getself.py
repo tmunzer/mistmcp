@@ -9,13 +9,14 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import get_mcp
+
+
 
 
 mcp = get_mcp()
@@ -26,29 +27,35 @@ if not mcp:
     )
 
 
+
+
+
 @mcp.tool(
     enabled=True,
-    name="getSelf",
-    description="""Get ‘whoami’ and privileges (which org and which sites I have access to)""",
-    tags={"Self Account"},
-    annotations={
+    name = "getSelf",
+    description = """Get ‘whoami’ and privileges (which org and which sites I have access to)""",
+    tags = {"Self Account"},
+    annotations = {
         "title": "getSelf",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def getSelf() -> dict | list:
+async def getSelf(
+    ) -> dict|list:
     """Get ‘whoami’ and privileges (which org and which sites I have access to)"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.self.self.getSelf(
-        apisession,
+            apisession,
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

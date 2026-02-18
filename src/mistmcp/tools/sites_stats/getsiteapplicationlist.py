@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -22,6 +21,7 @@ from typing import Annotated
 from uuid import UUID
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -30,12 +30,15 @@ if not mcp:
     )
 
 
+
+
+
 @mcp.tool(
     enabled=True,
-    name="getSiteApplicationList",
-    description="""Get Application List""",
-    tags={"sites_stats"},
-    annotations={
+    name = "getSiteApplicationList",
+    description = """Get Application List""",
+    tags = {"sites_stats"},
+    annotations = {
         "title": "getSiteApplicationList",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -43,19 +46,22 @@ if not mcp:
     },
 )
 async def getSiteApplicationList(
+    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict | list:
+) -> dict|list:
     """Get Application List"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.sites.wxtags.getSiteApplicationList(
-        apisession,
-        site_id=str(site_id),
+            apisession,
+            site_id=str(site_id),
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

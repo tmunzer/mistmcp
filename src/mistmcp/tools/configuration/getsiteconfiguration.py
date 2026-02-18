@@ -249,3 +249,4 @@ async def getSiteConfiguration(
             )
 
     return data
+

@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -23,6 +22,7 @@ from uuid import UUID
 from enum import Enum
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -31,18 +31,20 @@ if not mcp:
     )
 
 
+
 class Channel(Enum):
     ALPHA = "alpha"
     BETA = "beta"
     STABLE = "stable"
 
 
+
 @mcp.tool(
     enabled=True,
-    name="listOrgAvailableSsrVersions",
-    description="""Get available version for SSR""",
-    tags={"Utilities Upgrade"},
-    annotations={
+    name = "listOrgAvailableSsrVersions",
+    description = """Get available version for SSR""",
+    tags = {"Utilities Upgrade"},
+    annotations = {
         "title": "listOrgAvailableSsrVersions",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -50,30 +52,26 @@ class Channel(Enum):
     },
 )
 async def listOrgAvailableSsrVersions(
+    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    channel: Annotated[
-        Optional[Channel | None], Field(description="""SSR version channel""")
-    ] = Channel.STABLE,
-    mac: Annotated[
-        Optional[str | None],
-        Field(
-            description="""Optional. MAC address, or comma separated MAC address list."""
-        ),
-    ] = None,
-) -> dict | list:
+    channel: Annotated[Optional[Channel | None], Field(description="""SSR version channel""")] = Channel.STABLE,
+    mac: Annotated[Optional[str | None], Field(description="""Optional. MAC address, or comma separated MAC address list.""")] = None,
+) -> dict|list:
     """Get available version for SSR"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.orgs.ssr.listOrgAvailableSsrVersions(
-        apisession,
-        org_id=str(org_id),
-        channel=channel.value if channel else Channel.STABLE.value,
-        mac=mac if mac else None,
+            apisession,
+            org_id=str(org_id),
+            channel=channel.value if channel else Channel.STABLE.value,
+            mac=mac if mac else None,
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

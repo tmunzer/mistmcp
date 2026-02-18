@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -22,6 +21,7 @@ from typing import Annotated, Optional
 from uuid import UUID
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -30,12 +30,15 @@ if not mcp:
     )
 
 
+
+
+
 @mcp.tool(
     enabled=True,
-    name="getOrgSle",
-    description="""Get Org SLEs (all/worst sites, Mx Edges, ...)""",
-    tags={"sles"},
-    annotations={
+    name = "getOrgSle",
+    description = """Get Org SLEs (all/worst sites, Mx Edges, ...)""",
+    tags = {"sles"},
+    annotations = {
         "title": "getOrgSle",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -43,58 +46,34 @@ if not mcp:
     },
 )
 async def getOrgSle(
+    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    metric: Annotated[
-        str,
-        Field(
-            description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics"""
-        ),
-    ],
-    sle: Annotated[
-        Optional[str | None],
-        Field(
-            description="""See [List Insight Metrics](/#operations/listInsightMetrics) for more details"""
-        ),
-    ] = None,
-    duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    interval: Annotated[
-        Optional[str | None],
-        Field(
-            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
-        ),
-    ] = None,
-    start: Annotated[
-        Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
-    ] = None,
-    end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
-    ] = None,
-) -> dict | list:
+    metric: Annotated[str, Field(description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics""")],
+    sle: Annotated[Optional[str | None], Field(description="""See [List Insight Metrics](/#operations/listInsightMetrics) for more details""")] = None,
+    duration: Annotated[Optional[str | None], Field(description="""Duration like 7d, 2w""")] = None,
+    interval: Annotated[Optional[str | None], Field(description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to.""")] = None,
+    start: Annotated[Optional[str | None], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")] = None,
+    end: Annotated[Optional[str | None], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")] = None,
+) -> dict|list:
     """Get Org SLEs (all/worst sites, Mx Edges, ...)"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.orgs.insights.getOrgSle(
-        apisession,
-        org_id=str(org_id),
-        metric=metric if metric else None,
-        sle=sle if sle else None,
-        duration=duration if duration else None,
-        interval=interval if interval else None,
-        start=start if start else None,
-        end=end if end else None,
+            apisession,
+            org_id=str(org_id),
+            metric=metric if metric else None,
+            sle=sle if sle else None,
+            duration=duration if duration else None,
+            interval=interval if interval else None,
+            start=start if start else None,
+            end=end if end else None,
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

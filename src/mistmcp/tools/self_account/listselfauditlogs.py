@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -21,6 +20,7 @@ from pydantic import Field
 from typing import Annotated, Optional
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -29,12 +29,15 @@ if not mcp:
     )
 
 
+
+
+
 @mcp.tool(
     enabled=True,
-    name="listSelfAuditLogs",
-    description="""Get List of change logs across all Orgs for current adminAudit logs records all administrative activities done by current admin across all orgs""",
-    tags={"self_account"},
-    annotations={
+    name = "listSelfAuditLogs",
+    description = """Get List of change logs across all Orgs for current adminAudit logs records all administrative activities done by current admin across all orgs""",
+    tags = {"self_account"},
+    annotations = {
         "title": "listSelfAuditLogs",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -42,39 +45,30 @@ if not mcp:
     },
 )
 async def listSelfAuditLogs(
-    start: Annotated[
-        Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
-    ] = None,
-    end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
-    ] = None,
-    duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
-    ] = None,
+    
+    start: Annotated[Optional[str | None], Field(description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')""")] = None,
+    end: Annotated[Optional[str | None], Field(description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')""")] = None,
+    duration: Annotated[Optional[str | None], Field(description="""Duration like 7d, 2w""")] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-) -> dict | list:
+) -> dict|list:
     """Get List of change logs across all Orgs for current adminAudit logs records all administrative activities done by current admin across all orgs"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.self.logs.listSelfAuditLogs(
-        apisession,
-        start=start if start else None,
-        end=end if end else None,
-        duration=duration if duration else None,
-        limit=limit if limit else None,
-        page=page if page else None,
+            apisession,
+            start=start if start else None,
+            end=end if end else None,
+            duration=duration if duration else None,
+            limit=limit if limit else None,
+            page=page if page else None,
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data
