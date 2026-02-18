@@ -80,7 +80,7 @@ async def updateOrgConfigurationObjects(
         Object_type, Field(description="""Type of configuration object to update.""")
     ],
     payload: Annotated[
-        None,
+        dict,
         Field(
             description="""JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getOrgConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes."""
         ),

@@ -47,10 +47,10 @@ class Object_type(Enum):
 
 @mcp.tool(
     enabled=True,
-    name = "getSiteConfigurationObjects",
-    description = """Retrieve configuration objects from a specified site.""",
-    tags = {"configuration"},
-    annotations = {
+    name="getSiteConfigurationObjects",
+    description="""Retrieve configuration objects from a specified site. Use the tool `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site""",
+    tags={"configuration"},
+    annotations={
         "title": "getSiteConfigurationObjects",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -58,12 +58,21 @@ class Object_type(Enum):
     },
 )
 async def getSiteConfigurationObjects(
-    
-    site_id: Annotated[UUID, Field(description="""ID of the site to retrieve configuration objects from.""")],
-    object_type: Annotated[Object_type, Field(description="""Type of configuration object to retrieve.""")],
-    object_id: Annotated[Optional[UUID | None], Field(description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned.""")] = None,
-) -> dict|list:
-    """Retrieve configuration objects from a specified site."""
+    site_id: Annotated[
+        UUID,
+        Field(description="""ID of the site to retrieve configuration objects from."""),
+    ],
+    object_type: Annotated[
+        Object_type, Field(description="""Type of configuration object to retrieve.""")
+    ],
+    object_id: Annotated[
+        Optional[UUID | None],
+        Field(
+            description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
+        ),
+    ] = None,
+) -> dict | list:
+    """Retrieve configuration objects from a specified site. Use the tool `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site"""
 
     apisession = get_apisession()
     data = {}
