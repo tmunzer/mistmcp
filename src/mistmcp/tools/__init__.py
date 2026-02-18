@@ -12,21 +12,14 @@
 
 from .configuration import getsiteconfiguration as getsiteconfiguration
 from .configuration import getdeviceconfiguration as getdeviceconfiguration
+from .configuration import getobjectschema as getobjectschema
 from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
-from .configuration import (
-    updatesiteconfigurationobjects as updatesiteconfigurationobjects,
-)
-from .configuration import (
-    updateorgconfigurationobjects as updateorgconfigurationobjects,
-)
+from .configuration import updateorgconfigurationobjects as updateorgconfigurationobjects
+from .configuration import updatesiteconfigurationobjects as updatesiteconfigurationobjects
 from .utilities_upgrade import listupgrades as listupgrades
-from .utilities_upgrade import (
-    listorgavailabledeviceversions as listorgavailabledeviceversions,
-)
-from .utilities_upgrade import (
-    listorgavailablessrversions as listorgavailablessrversions,
-)
+from .utilities_upgrade import listorgavailabledeviceversions as listorgavailabledeviceversions
+from .utilities_upgrade import listorgavailablessrversions as listorgavailablessrversions
 from .sites_insights import getinsightmetrics as getinsightmetrics
 from .constants import getconstants as getconstants
 from .sles import getsitesle as getsitesle
@@ -95,9 +88,7 @@ from .sites_rogues import listsiterogueaps as listsiterogueaps
 from .sites_rogues import listsiterogueclients as listsiterogueclients
 from .sites_rogues import searchsiterogueevents as searchsiterogueevents
 from .sites_rrm import getsitecurrentchannelplanning as getsitecurrentchannelplanning
-from .sites_rrm import (
-    getsitecurrentrrmconsiderations as getsitecurrentrrmconsiderations,
-)
+from .sites_rrm import getsitecurrentrrmconsiderations as getsitecurrentrrmconsiderations
 from .sites_rrm import listsiterrmevents as listsiterrmevents
 from .sites_rrm import listsitecurrentrrmneighbors as listsitecurrentrrmneighbors
 from .sites_stats import getsitestats as getsitestats
