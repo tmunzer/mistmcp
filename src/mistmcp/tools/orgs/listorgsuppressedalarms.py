@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -23,6 +22,7 @@ from uuid import UUID
 from enum import Enum
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -31,17 +31,19 @@ if not mcp:
     )
 
 
+
 class Scope(Enum):
     ORG = "org"
     SITE = "site"
 
 
+
 @mcp.tool(
     enabled=True,
-    name="listOrgSuppressedAlarms",
-    description="""Get List of Org Alarms Currently Suppressed""",
-    tags={"orgs"},
-    annotations={
+    name = "listOrgSuppressedAlarms",
+    description = """Get List of Org Alarms Currently Suppressed""",
+    tags = {"orgs"},
+    annotations = {
         "title": "listOrgSuppressedAlarms",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -49,24 +51,24 @@ class Scope(Enum):
     },
 )
 async def listOrgSuppressedAlarms(
+    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    scope: Annotated[
-        Optional[Scope | None],
-        Field(description="""Returns both scopes if not specified"""),
-    ] = Scope.SITE,
-) -> dict | list:
+    scope: Annotated[Optional[Scope | None], Field(description="""Returns both scopes if not specified""")] = Scope.SITE,
+) -> dict|list:
     """Get List of Org Alarms Currently Suppressed"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.orgs.alarmtemplates.listOrgSuppressedAlarms(
-        apisession,
-        org_id=str(org_id),
-        scope=scope.value if scope else Scope.SITE.value,
+            apisession,
+            org_id=str(org_id),
+            scope=scope.value if scope else Scope.SITE.value,
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -22,6 +21,7 @@ from typing import Annotated
 from uuid import UUID
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -30,12 +30,15 @@ if not mcp:
     )
 
 
+
+
+
 @mcp.tool(
     enabled=True,
-    name="getOrg",
-    description="""Get Organization information""",
-    tags={"Orgs"},
-    annotations={
+    name = "getOrg",
+    description = """Get Organization information""",
+    tags = {"Orgs"},
+    annotations = {
         "title": "getOrg",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -43,19 +46,22 @@ if not mcp:
     },
 )
 async def getOrg(
+    
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-) -> dict | list:
+) -> dict|list:
     """Get Organization information"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.orgs.orgs.getOrg(
-        apisession,
-        org_id=str(org_id),
+            apisession,
+            org_id=str(org_id),
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

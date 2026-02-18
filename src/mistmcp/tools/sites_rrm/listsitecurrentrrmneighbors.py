@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -23,6 +22,7 @@ from uuid import UUID
 from enum import Enum
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -31,18 +31,20 @@ if not mcp:
     )
 
 
+
 class Band(Enum):
     B24 = "24"
     B5 = "5"
     B6 = "6"
 
 
+
 @mcp.tool(
     enabled=True,
-    name="listSiteCurrentRrmNeighbors",
-    description="""List Current RRM observed neighbors""",
-    tags={"Sites RRM"},
-    annotations={
+    name = "listSiteCurrentRrmNeighbors",
+    description = """List Current RRM observed neighbors""",
+    tags = {"Sites RRM"},
+    annotations = {
         "title": "listSiteCurrentRrmNeighbors",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -50,25 +52,28 @@ class Band(Enum):
     },
 )
 async def listSiteCurrentRrmNeighbors(
+    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     band: Annotated[Band, Field(description="""802.11 Band""")],
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-) -> dict | list:
+) -> dict|list:
     """List Current RRM observed neighbors"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.sites.rrm.listSiteCurrentRrmNeighbors(
-        apisession,
-        site_id=str(site_id),
-        band=band.value,
-        limit=limit if limit else None,
-        page=page if page else None,
+            apisession,
+            site_id=str(site_id),
+            band=band.value,
+            limit=limit if limit else None,
+            page=page if page else None,
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

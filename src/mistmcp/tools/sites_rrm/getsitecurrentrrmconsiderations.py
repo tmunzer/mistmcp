@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -23,6 +22,7 @@ from uuid import UUID
 from enum import Enum
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -31,18 +31,20 @@ if not mcp:
     )
 
 
+
 class Band(Enum):
     B24 = "24"
     B5 = "5"
     B6 = "6"
 
 
+
 @mcp.tool(
     enabled=True,
-    name="getSiteCurrentRrmConsiderations",
-    description="""Get Current RRM Considerations for an AP on a Specific Band""",
-    tags={"Sites RRM"},
-    annotations={
+    name = "getSiteCurrentRrmConsiderations",
+    description = """Get Current RRM Considerations for an AP on a Specific Band""",
+    tags = {"Sites RRM"},
+    annotations = {
         "title": "getSiteCurrentRrmConsiderations",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -50,23 +52,26 @@ class Band(Enum):
     },
 )
 async def getSiteCurrentRrmConsiderations(
+    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     device_id: Annotated[UUID, Field(description="""ID of the Mist Device""")],
     band: Annotated[Band, Field(description="""802.11 Band""")],
-) -> dict | list:
+) -> dict|list:
     """Get Current RRM Considerations for an AP on a Specific Band"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.sites.rrm.getSiteCurrentRrmConsiderations(
-        apisession,
-        site_id=str(site_id),
-        device_id=str(device_id),
-        band=band.value,
+            apisession,
+            site_id=str(site_id),
+            device_id=str(device_id),
+            band=band.value,
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

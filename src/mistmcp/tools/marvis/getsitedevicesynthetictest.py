@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -22,6 +21,7 @@ from typing import Annotated
 from uuid import UUID
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -30,12 +30,15 @@ if not mcp:
     )
 
 
+
+
+
 @mcp.tool(
     enabled=True,
-    name="getSiteDeviceSyntheticTest",
-    description="""Get Device Synthetic Test""",
-    tags={"marvis"},
-    annotations={
+    name = "getSiteDeviceSyntheticTest",
+    description = """Get Device Synthetic Test""",
+    tags = {"marvis"},
+    annotations = {
         "title": "getSiteDeviceSyntheticTest",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -43,21 +46,24 @@ if not mcp:
     },
 )
 async def getSiteDeviceSyntheticTest(
+    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     device_id: Annotated[UUID, Field(description="""ID of the Mist Device""")],
-) -> dict | list:
+) -> dict|list:
     """Get Device Synthetic Test"""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.sites.devices.getSiteDeviceSyntheticTest(
-        apisession,
-        site_id=str(site_id),
-        device_id=str(device_id),
+            apisession,
+            site_id=str(site_id),
+            device_id=str(device_id),
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data

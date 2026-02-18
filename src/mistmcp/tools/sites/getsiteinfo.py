@@ -9,7 +9,6 @@
 
 --------------------------------------------------------------------------------
 """
-
 import json
 import mistapi
 from fastmcp.exceptions import ToolError
@@ -22,6 +21,7 @@ from typing import Annotated
 from uuid import UUID
 
 
+
 mcp = get_mcp()
 
 if not mcp:
@@ -30,12 +30,15 @@ if not mcp:
     )
 
 
+
+
+
 @mcp.tool(
     enabled=True,
-    name="getSiteInfo",
-    description="""Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site.""",
-    tags={"Sites"},
-    annotations={
+    name = "getSiteInfo",
+    description = """Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site.""",
+    tags = {"Sites"},
+    annotations = {
         "title": "getSiteInfo",
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -43,19 +46,22 @@ if not mcp:
     },
 )
 async def getSiteInfo(
+    
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict | list:
+) -> dict|list:
     """Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site."""
 
     apisession = get_apisession()
     data = {}
-
+    
+    
     response = mistapi.api.v1.sites.sites.getSiteInfo(
-        apisession,
-        site_id=str(site_id),
+            apisession,
+            site_id=str(site_id),
     )
     await process_response(response)
-
+    
     data = response.data
+
 
     return data
