@@ -43,14 +43,13 @@ class ElicitationMiddleware(Middleware):
 
         enable_write_tools = False
 
+        # DANGER ZONE: If both enable_write_tools and disable_elicitation config flags are set, enable write tools
+        # without elicitation safeguards. This is not recommended and should only be used for testing with non-malicious
+        # AI Apps or if you have other safeguards in place. Do NOT use this in production or with untrusted AI Apps!
         if config.enable_write_tools and config.disable_elicitation:
             enable_write_tools = True
-            # Log warning to FastMCP logs (visible in Docker)
-            if ctx is not None:
-                await ctx.info(
-                    "Elicitation middleware: WARNING - both enable_write_tools and disable_elicitation config flags are set. "
-                    "This is not recommended as it will enable write tools without elicitation safeguards. Proceed with caution!"
-                )
+            # During on_initialize, ctx.info() is not available (request_id not set yet)
+            # Log to stderr only for debugging
             if config.debug:
                 print(
                     "Elicitation middleware: WARNING - both enable_write_tools and disable_elicitation config flags are set. This is not recommended as it will enable write tools without elicitation safeguards. Proceed with caution!",
@@ -62,62 +61,60 @@ class ElicitationMiddleware(Middleware):
             try:
                 caps = context.message.params.capabilities
                 if (
-                    caps is not None
-                    and caps.elicitation is not None
-                    and caps.elicitation.form is not None
+                    caps is not None and caps.elicitation is not None
+                    # and caps.elicitation.form is not None
                 ):
                     enable_write_tools = True
                     if ctx is not None:
-                        await ctx.info(
-                            "Elicitation middleware: client supports elicitation"
-                        )
+                        await ctx.set_state("disable_elicitation", False)
                     if config.debug:
                         print(
                             "Elicitation middleware: client supports elicitation",
                             file=sys.stderr,
                         )
-            except Exception:
+            except Exception as exc:
+                if config.debug:
+                    print(
+                        f"Elicitation middleware: error checking capabilities for elicitation support: {exc}",
+                        file=sys.stderr,
+                    )
                 pass
 
             # Check 2: Transport-specific elicitation bypass
-            if not enable_write_tools and config.transport_mode == "http":
+            if config.transport_mode == "http":
                 try:
                     from fastmcp.server.dependencies import get_http_request
 
                     request = get_http_request()
+                    print(request.headers, file=sys.stderr)
                     if (
                         request.headers.get("X-Disable-Elicitation", "false").lower()
                         == "true"
                     ):
                         enable_write_tools = True
                         if ctx is not None:
-                            await ctx.info(
-                                "Elicitation middleware: X-Disable-Elicitation header detected"
-                            )
+                            await ctx.set_state("disable_elicitation", True)
                         if config.debug:
                             print(
                                 "Elicitation middleware: X-Disable-Elicitation header detected",
                                 file=sys.stderr,
                             )
-                except Exception:
-                    pass
+                except Exception as exc:
+                    if config.debug:
+                        print(
+                            f"Elicitation middleware: error checking X-Disable-Elicitation header: {exc}",
+                            file=sys.stderr,
+                        )
 
         if enable_write_tools:
-            await ctx.enable_components(tags={"write"}, components={"tool"})
             if ctx is not None:
-                await ctx.info(
-                    "Elicitation middleware: write tools enabled for this session"
-                )
+                await ctx.enable_components(tags={"write"}, components={"tool"})
             if config.debug:
                 print(
                     "Elicitation middleware: write tools enabled for this session",
                     file=sys.stderr,
                 )
         else:
-            if ctx is not None:
-                await ctx.info(
-                    "Elicitation middleware: write tools disabled (no elicitation support detected)"
-                )
             if config.debug:
                 print(
                     "Elicitation middleware: write tools disabled (no elicitation support detected)",
