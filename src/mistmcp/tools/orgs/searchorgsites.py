@@ -76,7 +76,12 @@ async def searchOrgSites(
     mesh_enabled: Annotated[
         Optional[bool | None], Field(description="""If Mesh feature is enabled""")
     ] = None,
-    name: Annotated[Optional[str | None], Field(description="""Site name""")] = None,
+    name: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Site name. Case insensitive. Add a wildcard (`*`) at the end for partial search"""
+        ),
+    ] = None,
     rogue_enabled: Annotated[
         Optional[bool | None], Field(description="""If Rogue detection is enabled""")
     ] = None,

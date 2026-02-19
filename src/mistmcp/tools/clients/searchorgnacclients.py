@@ -79,6 +79,12 @@ async def searchOrgNacClients(
             description="""Authentication type, e.g. 'eap-tls', 'eap-peap', 'eap-ttls', 'eap-teap', 'mab', 'psk', 'device-auth'"""
         ),
     ] = None,
+    cert_expiry_duration: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Filter by certificate expiry within a specific duration from now (e.g., '7d' for 7 days, '1m' for 1 month)"""
+        ),
+    ] = None,
     edr_managed: Annotated[
         Optional[bool | None],
         Field(
@@ -230,6 +236,7 @@ async def searchOrgNacClients(
         org_id=str(org_id),
         ap=ap if ap else None,
         auth_type=auth_type if auth_type else None,
+        cert_expiry_duration=cert_expiry_duration if cert_expiry_duration else None,
         edr_managed=edr_managed if edr_managed else None,
         edr_provider=edr_provider.value if edr_provider else None,
         edr_status=edr_status.value if edr_status else None,
