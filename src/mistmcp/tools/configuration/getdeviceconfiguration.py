@@ -22,7 +22,6 @@ from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
 
-
 NETWORK_TEMPLATE_FIELDS = [
     "auto_upgrade_linecard",
     "acl_policies",

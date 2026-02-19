@@ -18,9 +18,8 @@ from pydantic import Field
 
 from fastmcp import Context
 from mistmcp.request_processor import get_apisession
-from mistmcp.server import mcp
 from mistmcp.tools.configuration import schemas_data as _schemas_data_module
-
+from mistmcp.server import mcp
 
 # Pre-resolved schemas keyed by schema_name (= schemas_config.yaml entry key).
 # Each entry: {"schema": <dict>, "_schema_name": <oas_schema_name>}
