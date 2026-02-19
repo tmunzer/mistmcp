@@ -8,7 +8,7 @@ PROJECT_NAME ?= $(shell basename $(CURDIR))
 
 # Version for code generation (can be overridden)
 VERSION ?= 0.55.14
-READ_ONLY ?= true
+READ_ONLY ?= false
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'

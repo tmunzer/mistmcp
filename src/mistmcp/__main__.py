@@ -57,10 +57,8 @@ def start(
         print(f"  TRANSPORT: {transport_mode}", file=sys.stderr)
         print(f"  MIST_HOST: {config.mist_host}", file=sys.stderr)
         print(f"  RESPONSE_FORMAT: {config.response_format}", file=sys.stderr)
-        print(
-            f"  ENABLE_WRITE_TOOLS: {config.enable_write_tools}", file=sys.stderr)
-        print(
-            f"  DISABLE_ELICITATION: {config.disable_elicitation}", file=sys.stderr)
+        print(f"  ENABLE_WRITE_TOOLS: {config.enable_write_tools}", file=sys.stderr)
+        print(f"  DISABLE_ELICITATION: {config.disable_elicitation}", file=sys.stderr)
         if transport_mode == "http":
             print(f"  MCP_HOST: {mcp_host}", file=sys.stderr)
             print(f"  MCP_PORT: {mcp_port}", file=sys.stderr)
@@ -92,8 +90,7 @@ def load_env_file(env_file: str | None = None) -> None:
 
     if env_file:
         if env_file.startswith("~/"):
-            env_file = os.path.join(os.path.expanduser(
-                "~"), env_file.replace("~/", ""))
+            env_file = os.path.join(os.path.expanduser("~"), env_file.replace("~/", ""))
         env_file = os.path.abspath(env_file)
         dotenv_path = Path(env_file)
         try:
@@ -135,15 +132,15 @@ def load_env_var(
         try:
             mcp_port = int(port)
         except ValueError:
-            print(
-                f"Invalid port number: {port}. Using default 8000.", file=sys.stderr)
+            print(f"Invalid port number: {port}. Using default 8000.", file=sys.stderr)
             mcp_port = 8000
 
     env_debug = os.getenv("MISTMCP_DEBUG", str(debug))
     debug = env_debug.lower() in ("true", "1", "yes")
 
     env_enable_write_tools = os.getenv(
-        "MISTMCP_ENABLE_WRITE_TOOLS", str(enable_write_tools))
+        "MISTMCP_ENABLE_WRITE_TOOLS", str(enable_write_tools)
+    )
     enable_write_tools = env_enable_write_tools.lower() in ("true", "1", "yes")
 
     if response_format is None:
@@ -216,20 +213,32 @@ def main() -> None:
 
     load_env_file(args.env_file)
 
-    transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format = (
-        load_env_var(
-            args.transport,
-            args.host,
-            args.port,
-            args.debug,
-            args.enable_write_tools,
-            args.disable_elicitation,
-            args.response_format,
-        )
+    (
+        transport_mode,
+        mcp_host,
+        mcp_port,
+        debug,
+        enable_write_tools,
+        disable_elicitation,
+        response_format,
+    ) = load_env_var(
+        args.transport,
+        args.host,
+        args.port,
+        args.debug,
+        args.enable_write_tools,
+        args.disable_elicitation,
+        args.response_format,
     )
 
     start(
-        transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format
+        transport_mode,
+        mcp_host,
+        mcp_port,
+        debug,
+        enable_write_tools,
+        disable_elicitation,
+        response_format,
     )
 
 

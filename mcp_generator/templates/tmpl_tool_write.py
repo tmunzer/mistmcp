@@ -17,7 +17,7 @@ from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 
-from mistmcp.elicitation.elicitation_handler import config_elicitation_handler
+from mistmcp.elicitation_processor import config_elicitation_handler
 from mistmcp.server import mcp
 
 {imports}

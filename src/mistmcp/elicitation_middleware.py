@@ -68,7 +68,9 @@ class ElicitationMiddleware(Middleware):
                 ):
                     enable_write_tools = True
                     if ctx is not None:
-                        await ctx.info("Elicitation middleware: client supports elicitation")
+                        await ctx.info(
+                            "Elicitation middleware: client supports elicitation"
+                        )
                     if config.debug:
                         print(
                             "Elicitation middleware: client supports elicitation",
@@ -84,13 +86,14 @@ class ElicitationMiddleware(Middleware):
 
                     request = get_http_request()
                     if (
-                        request.headers.get(
-                            "X-Disable-Elicitation", "false").lower()
+                        request.headers.get("X-Disable-Elicitation", "false").lower()
                         == "true"
                     ):
                         enable_write_tools = True
                         if ctx is not None:
-                            await ctx.info("Elicitation middleware: X-Disable-Elicitation header detected")
+                            await ctx.info(
+                                "Elicitation middleware: X-Disable-Elicitation header detected"
+                            )
                         if config.debug:
                             print(
                                 "Elicitation middleware: X-Disable-Elicitation header detected",
@@ -102,7 +105,9 @@ class ElicitationMiddleware(Middleware):
         if enable_write_tools:
             await ctx.enable_components(tags={"write"}, components={"tool"})
             if ctx is not None:
-                await ctx.info("Elicitation middleware: write tools enabled for this session")
+                await ctx.info(
+                    "Elicitation middleware: write tools enabled for this session"
+                )
             if config.debug:
                 print(
                     "Elicitation middleware: write tools enabled for this session",
@@ -110,7 +115,9 @@ class ElicitationMiddleware(Middleware):
                 )
         else:
             if ctx is not None:
-                await ctx.info("Elicitation middleware: write tools disabled (no elicitation support detected)")
+                await ctx.info(
+                    "Elicitation middleware: write tools disabled (no elicitation support detected)"
+                )
             if config.debug:
                 print(
                     "Elicitation middleware: write tools disabled (no elicitation support detected)",
