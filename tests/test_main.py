@@ -16,7 +16,8 @@ class TestStart:
         mock_server = Mock()
         mock_create_server.return_value = mock_server
 
-        start("http", "127.0.0.1", 8000, debug=True, enable_write_tools=False, disable_elicitation=False, response_format="json")
+        start("http", "127.0.0.1", 8000, debug=True, enable_write_tools=False,
+              disable_elicitation=False, response_format="json")
 
         mock_create_server.assert_called_once()
         config_arg = mock_create_server.call_args[0][0]
@@ -33,7 +34,8 @@ class TestStart:
         mock_server = Mock()
         mock_create_server.return_value = mock_server
 
-        start("http", "0.0.0.0", 8000, debug=True, enable_write_tools=False, disable_elicitation=False, response_format="json")
+        start("http", "0.0.0.0", 8000, debug=True, enable_write_tools=False,
+              disable_elicitation=False, response_format="json")
 
         mock_create_server.assert_called_once()
         config_arg = mock_create_server.call_args[0][0]
@@ -50,7 +52,8 @@ class TestStart:
         mock_server = Mock()
         mock_create_server.return_value = mock_server
 
-        start("stdio", "127.0.0.1", 8000, debug=False, enable_write_tools=False, disable_elicitation=False, response_format="json")
+        start("stdio", "127.0.0.1", 8000, debug=False, enable_write_tools=False,
+              disable_elicitation=False, response_format="json")
 
         mock_create_server.assert_called_once()
         mock_server.run.assert_called_once_with()
@@ -62,7 +65,8 @@ class TestStart:
         mock_server.run.side_effect = KeyboardInterrupt()
         mock_create_server.return_value = mock_server
 
-        start("stdio", "127.0.0.1", 8000, debug=False, enable_write_tools=False, disable_elicitation=False, response_format="json")
+        start("stdio", "127.0.0.1", 8000, debug=False, enable_write_tools=False,
+              disable_elicitation=False, response_format="json")
 
         captured = capsys.readouterr()
         assert "stopped by user" in captured.err
@@ -72,7 +76,8 @@ class TestStart:
         """Test handling of exceptions without debug mode"""
         mock_create_server.side_effect = Exception("Test error")
 
-        start("stdio", "127.0.0.1", 8000, debug=False, enable_write_tools=False, disable_elicitation=False, response_format="json")
+        start("stdio", "127.0.0.1", 8000, debug=False, enable_write_tools=False,
+              disable_elicitation=False, response_format="json")
 
         captured = capsys.readouterr()
         assert "Mist MCP Error: Test error" in captured.err
@@ -85,7 +90,8 @@ class TestStart:
         """Test handling of exceptions with debug mode"""
         mock_create_server.side_effect = Exception("Test error")
 
-        start("stdio", "127.0.0.1", 8000, debug=True, enable_write_tools=False, disable_elicitation=False, response_format="json")
+        start("stdio", "127.0.0.1", 8000, debug=True, enable_write_tools=False,
+              disable_elicitation=False, response_format="json")
 
         captured = capsys.readouterr()
         assert "Mist MCP Error: Test error" in captured.err
@@ -97,7 +103,8 @@ class TestStart:
         mock_server = Mock()
         mock_create_server.return_value = mock_server
 
-        start("http", "127.0.0.1", 8000, debug=True, enable_write_tools=False, disable_elicitation=False, response_format="json")
+        start("http", "127.0.0.1", 8000, debug=True, enable_write_tools=False,
+              disable_elicitation=False, response_format="json")
 
         captured = capsys.readouterr()
         assert "Starting Mist MCP Server" in captured.err
@@ -113,7 +120,8 @@ class TestMain:
         with patch("sys.argv", ["mistmcp"]):
             main()
 
-        mock_start.assert_called_once_with("stdio", "127.0.0.1", 8000, False, False, False, "json")
+        mock_start.assert_called_once_with(
+            "stdio", "127.0.0.1", 8000, False, False, False, "json")
 
     @patch("mistmcp.__main__.start")
     def test_main_with_debug(self, mock_start) -> None:
@@ -121,7 +129,8 @@ class TestMain:
         with patch("sys.argv", ["mistmcp", "--debug"]):
             main()
 
-        mock_start.assert_called_once_with("stdio", "127.0.0.1", 8000, True, False, False, "json")
+        mock_start.assert_called_once_with(
+            "stdio", "127.0.0.1", 8000, True, False, False, "json")
 
     def test_main_help_exits(self) -> None:
         """Test that --help exits appropriately"""
@@ -144,8 +153,10 @@ class TestMain:
         """Test main with custom host and port"""
         with patch(
             "sys.argv",
-            ["mistmcp", "--transport", "http", "--host", "0.0.0.0", "--port", "9000"],
+            ["mistmcp", "--transport", "http",
+                "--host", "0.0.0.0", "--port", "9000"],
         ):
             main()
 
-        mock_start.assert_called_once_with("http", "0.0.0.0", 9000, False, False, False, "json")
+        mock_start.assert_called_once_with(
+            "http", "0.0.0.0", 9000, False, False, False, "json")

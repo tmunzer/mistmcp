@@ -1,7 +1,15 @@
 
 # Mist MCP Server
 
+MCP Server providing Mist API access to LLM applications like Claude Desktop and VS Code Copilot.
 
+## Tool Safety
+
+By default, **only read-only tools are enabled** for safety. This allows AI assistants to query and analyze your Mist environment without risk of accidental modifications.
+
+To enable tools that can modify your configuration (create, update, delete operations), use the `--enable-write-tools` flag. Write tools are protected by **elicitation** - a confirmation mechanism that requires user approval before any configuration change is applied. This ensures you maintain full control over what changes the AI can make to your network. If the AI App doesn't support elicitation, write tools will be disabled for this client to prevent unintended consequences.
+
+> ⚠️ The `--disable-elicitation` flag removes this safety mechanism and should only be used in controlled testing environments with trusted AI applications.
 
 ## Installation
 
@@ -31,16 +39,14 @@ uv run mistmcp [OPTIONS]
 
 OPTIONS:
     -t, --transport MODE    Transport mode: stdio (default) or http
-    -m, --mode MODE         Only when `transport`==`stdio`, Tool loading mode: managed, all (default)
     --host HOST             Only when `transport`==`http`, HTTP server host (default: 127.0.0.1)
     -p, --port PORT         Only when `transport`==`http`, HTTP server port (default: 8000)
+    -r, --response_format   Only when `transport`==`http`, Response format: json (default) or string
     -e, --env-file PATH     Path to .env file
     -d, --debug             Enable debug output
+    --enable-write-tools    Enable write tools (by default only read tools are enabled for safety)
+    --disable-elicitation   DANGER ZONE! Disable elicitation for write tools
     -h, --help              Show help message
-
-TOOL LOADING MODES:
-    managed    - All tools loaded at startup (default)
-    all        - All tools loaded at startup (same as managed)
 
 TRANSPORT MODES:
     stdio      - Standard input/output (for Claude Desktop, VS Code)
@@ -50,8 +56,8 @@ TRANSPORT MODES:
 Examples:
 
 ```bash
-    uv run mistmcp                                    # Default: stdio + managed mode
-    uv run mistmcp --mode all --debug                 # All tools with debug
+    uv run mistmcp                                    # Default: stdio mode, read-only tools
+    uv run mistmcp --enable-write-tools --debug       # Enable write tools with debug
     uv run mistmcp --transport http --host 0.0.0.0    # HTTP on all interfaces
     uv run mistmcp --env-file ~/.mist.env             # Custom env file
 ```
@@ -67,8 +73,8 @@ Set environment variables directly or via a `.env` file. Requirements differ by 
 | MIST_APITOKEN    | Yes      | Mist API token                      |
 | MIST_HOST        | Yes      | Mist API host (e.g. api.mist.com)   |
 | MIST_ENV_FILE    | No       | Path to .env file                   |
-| MISTMCP_TOOL_LOADING_MODE | No | managed or all (default: managed) |
 | MISTMCP_DEBUG    | No       | true/false (default: false)         |
+| MISTMCP_ENABLE_WRITE_TOOLS | No | true/false (default: false)     |
 
 ### HTTP Mode
 
@@ -77,8 +83,8 @@ Set environment variables directly or via a `.env` file. Requirements differ by 
 | MISTMCP_TRANSPORT_MODE | Yes | http                                |
 | MISTMCP_HOST     | No       | HTTP bind address (default: 127.0.0.1) |
 | MISTMCP_PORT     | No       | HTTP port (default: 8000)           |
-| MISTMCP_TOOL_LOADING_MODE | No | managed or all (default: managed) |
 | MISTMCP_DEBUG    | No       | true/false (default: false)         |
+| MISTMCP_ENABLE_WRITE_TOOLS | No | true/false (default: false)     |
 
 > **Note:** In HTTP mode, Mist API credentials are provided by the client (e.g. Claude, VS Code) via HTTP headers or query parameters, not as environment variables.
 
@@ -101,8 +107,7 @@ Configure the client (Claude Desktop, VS Code MCP extension):
                 "/absolute/path/to/mistmcp",
                 "run",
                 "mistmcp",
-                "--mode",
-                "all"
+                "--enable-write-tools"
             ],
             "env": {
                 "MIST_APITOKEN": "your-api-token",
