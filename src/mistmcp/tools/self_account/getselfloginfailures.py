@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 
 @mcp.tool(
@@ -34,6 +35,8 @@ async def getSelfLoginFailures(
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Get a list of failed login attempts across all Orgs for the current admin"""
+
+    logger.debug("Tool getSelfLoginFailures called")
 
     apisession, response_format = get_apisession()
     data = {}

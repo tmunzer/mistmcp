@@ -37,23 +37,27 @@ class TestCreateMcpServer:
         assert result is mcp
 
     @patch("mistmcp.server._load_tools")
-    def test_create_mcp_server_with_debug(self, mock_load_tools, capsys) -> None:
+    def test_create_mcp_server_with_debug(self, mock_load_tools, caplog) -> None:
         """Test creating MCP server with debug output"""
+        import logging
+
         mock_load_tools.return_value = ["getSelf", "getOrg"]
 
         config = ServerConfig(transport_mode="stdio", debug=True)
-        create_mcp_server(config)
+        with caplog.at_level(logging.DEBUG, logger="mistmcp"):
+            create_mcp_server(config)
 
-        captured = capsys.readouterr()
-        assert "MCP Server ready with 2 tools" in captured.err
+        assert "MCP Server ready with 2 tools" in caplog.text
 
     @patch("mistmcp.server._load_tools")
-    def test_create_mcp_server_without_debug(self, mock_load_tools, capsys) -> None:
+    def test_create_mcp_server_without_debug(self, mock_load_tools, caplog) -> None:
         """Test that no debug output is emitted without debug mode"""
+        import logging
+
         mock_load_tools.return_value = []
 
         config = ServerConfig(transport_mode="stdio", debug=False)
-        create_mcp_server(config)
+        with caplog.at_level(logging.INFO, logger="mistmcp"):
+            create_mcp_server(config)
 
-        captured = capsys.readouterr()
-        assert captured.err == ""
+        assert "MCP Server ready" not in caplog.text

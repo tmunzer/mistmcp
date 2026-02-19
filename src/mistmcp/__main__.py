@@ -12,12 +12,12 @@
 
 import argparse
 import os
-import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from mistmcp.config import config
+from mistmcp.logger import logger, setup_logging
 from mistmcp.server import create_mcp_server
 
 
@@ -29,6 +29,7 @@ def start(
     enable_write_tools: bool = False,
     disable_elicitation: bool = False,
     response_format: str = "json",
+    log_file: str | None = None,
 ) -> None:
     """
     Main entry point for the Mist MCP Server
@@ -41,6 +42,7 @@ def start(
         enable_write_tools: Enable write tools. By default, only read tools are enabled for safety. This flag enabled the full set of tools including those that can modify configuration (secured with elicitation). Use with caution!
         disable_elicitation: DANGER ZONE!!! Disable elicitation for write tools. This will allow any AI App to modify configuration objects without confirmation. Use only for testing with non-malicious AI Apps or if you have other safeguards in place. Do NOT use this in production or with untrusted AI Apps!
         response_format: Response format for HTTP transport ("json" or "string")
+        log_file: Optional path to write logs to a file
     """
     # Update global config
     config.transport_mode = transport_mode
@@ -48,21 +50,18 @@ def start(
     config.enable_write_tools = enable_write_tools
     config.disable_elicitation = disable_elicitation
     config.response_format = response_format
+    config.log_file = log_file
 
-    if config.debug:
-        print(
-            " Starting Mist MCP Server ".center(60, "="),
-            file=sys.stderr,
-        )
-        print(f"  TRANSPORT: {transport_mode}", file=sys.stderr)
-        print(f"  MIST_HOST: {config.mist_host}", file=sys.stderr)
-        print(f"  RESPONSE_FORMAT: {config.response_format}", file=sys.stderr)
-        print(f"  ENABLE_WRITE_TOOLS: {config.enable_write_tools}", file=sys.stderr)
-        print(f"  DISABLE_ELICITATION: {config.disable_elicitation}", file=sys.stderr)
-        if transport_mode == "http":
-            print(f"  MCP_HOST: {mcp_host}", file=sys.stderr)
-            print(f"  MCP_PORT: {mcp_port}", file=sys.stderr)
-        print("".center(60, "="), file=sys.stderr)
+    setup_logging(debug=debug, log_file=log_file)
+
+    logger.info("Starting Mist MCP Server — transport: %s", transport_mode)
+    logger.debug("  MIST_HOST: %s", config.mist_host)
+    logger.debug("  RESPONSE_FORMAT: %s", config.response_format)
+    logger.debug("  ENABLE_WRITE_TOOLS: %s", config.enable_write_tools)
+    logger.debug("  DISABLE_ELICITATION: %s", config.disable_elicitation)
+    if transport_mode == "http":
+        logger.debug("  MCP_HOST: %s", mcp_host)
+        logger.debug("  MCP_PORT: %s", mcp_port)
 
     try:
         mcp_server = create_mcp_server(config)
@@ -73,10 +72,10 @@ def start(
             mcp_server.run()
 
     except KeyboardInterrupt:
-        print("Mist MCP Server stopped by user", file=sys.stderr)
+        logger.info("Mist MCP Server stopped by user")
 
     except Exception as e:
-        print(f"Mist MCP Error: {e}", file=sys.stderr)
+        logger.error("Mist MCP Error: %s", e)
         if debug:
             import traceback
 
@@ -96,18 +95,12 @@ def load_env_file(env_file: str | None = None) -> None:
         try:
             load_dotenv(dotenv_path=dotenv_path, override=True)
         except ImportError:
-            print(
-                "Warning: python-dotenv not installed, skipping .env loading",
-                file=sys.stderr,
-            )
+            logger.warning("python-dotenv not installed, skipping .env loading")
     else:
         try:
             load_dotenv(override=True)
         except ImportError:
-            print(
-                "Warning: python-dotenv not installed, skipping .env loading",
-                file=sys.stderr,
-            )
+            logger.warning("python-dotenv not installed, skipping .env loading")
 
 
 def load_env_var(
@@ -118,7 +111,8 @@ def load_env_var(
     enable_write_tools: bool,
     disable_elicitation: bool,
     response_format: str | None,
-) -> tuple[str, str, int, bool, bool, bool, str]:
+    log_file: str | None,
+) -> tuple[str, str, int, bool, bool, bool, str, str | None]:
     """Load configuration from environment variables"""
 
     if transport_mode is None:
@@ -132,7 +126,7 @@ def load_env_var(
         try:
             mcp_port = int(port)
         except ValueError:
-            print(f"Invalid port number: {port}. Using default 8000.", file=sys.stderr)
+            logger.warning("Invalid port number: %s. Using default 8000.", port)
             mcp_port = 8000
 
     env_debug = os.getenv("MISTMCP_DEBUG", str(debug))
@@ -146,6 +140,9 @@ def load_env_var(
     if response_format is None:
         response_format = "json"
 
+    if log_file is None:
+        log_file = os.getenv("MISTMCP_LOG_FILE") or None
+
     if transport_mode == "stdio":
         config.mist_apitoken = os.getenv("MIST_APITOKEN", "")
         config.mist_host = os.getenv("MIST_HOST", "")
@@ -158,6 +155,7 @@ def load_env_var(
         enable_write_tools,
         disable_elicitation,
         response_format,
+        log_file,
     )
 
 
@@ -208,6 +206,11 @@ def main() -> None:
         choices=["json", "string"],
         help="Response format for HTTP transport (default: json)",
     )
+    parser.add_argument(
+        "--log-file",
+        metavar="PATH",
+        help="Also write logs to a file (default: MISTMCP_LOG_FILE env var)",
+    )
 
     args = parser.parse_args()
 
@@ -221,6 +224,7 @@ def main() -> None:
         enable_write_tools,
         disable_elicitation,
         response_format,
+        log_file,
     ) = load_env_var(
         args.transport,
         args.host,
@@ -229,6 +233,7 @@ def main() -> None:
         args.enable_write_tools,
         args.disable_elicitation,
         args.response_format,
+        args.log_file,
     )
 
     start(
@@ -239,6 +244,7 @@ def main() -> None:
         enable_write_tools,
         disable_elicitation,
         response_format,
+        log_file,
     )
 
 

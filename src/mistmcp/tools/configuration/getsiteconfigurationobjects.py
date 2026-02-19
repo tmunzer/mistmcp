@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -64,6 +65,8 @@ async def getSiteConfigurationObjects(
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve configuration objects from a specified site. Use the tool `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site"""
+
+    logger.debug("Tool getSiteConfigurationObjects called")
 
     apisession, response_format = get_apisession()
     data = {}

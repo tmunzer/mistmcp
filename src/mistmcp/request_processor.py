@@ -16,6 +16,7 @@ from fastmcp.server.dependencies import get_http_request
 from starlette.requests import Request
 
 from mistmcp.config import config
+from mistmcp.logger import logger, mask_token
 
 
 def get_apisession() -> tuple[mistapi.APISession, str]:
@@ -61,6 +62,8 @@ def get_apisession() -> tuple[mistapi.APISession, str]:
         raise ClientError(
             "Missing required parameter: 'cloud' query parameter or mist_host in config"
         )
+
+    logger.info("API request — host: %s, token: %s", cloud, mask_token(apitoken))
 
     apisession = mistapi.APISession(
         host=cloud,

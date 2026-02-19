@@ -19,6 +19,7 @@ from mistmcp.response_processor import process_response
 
 from mistmcp.elicitation_processor import config_elicitation_handler
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -87,6 +88,8 @@ async def updateOrgConfigurationObjects(
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Update or create configuration object for a specified org. When updating the object, make sure to first retrieve the current configuration object using the `getOrgConfigurationObjects` tool, modify the desired attributes and then use this tool to update the configuration object with the modified attributes. This is required to ensure that you are not missing any required attributes when updating the configuration object. You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload."""
+
+    logger.debug("Tool updateOrgConfigurationObjects called")
 
     apisession, response_format = get_apisession()
     data = {}

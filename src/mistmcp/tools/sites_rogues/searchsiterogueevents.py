@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -101,6 +102,8 @@ async def searchSiteRogueEvents(
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Search Rogue Events"""
+
+    logger.debug("Tool searchSiteRogueEvents called")
 
     apisession, response_format = get_apisession()
     data = {}

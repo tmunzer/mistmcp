@@ -21,6 +21,7 @@ class ServerConfig:
         enable_write_tools: bool = False,
         disable_elicitation: bool = False,
         response_format: str = "json",
+        log_file: str | None = None,
     ) -> None:
         self.transport_mode: str = transport_mode
         self.mist_apitoken: str = ""
@@ -29,6 +30,7 @@ class ServerConfig:
         self.enable_write_tools = enable_write_tools
         self.disable_elicitation = disable_elicitation
         self.response_format = response_format
+        self.log_file: str | None = log_file
 
 
 # Global config instance

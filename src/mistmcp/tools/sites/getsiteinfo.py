@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 from pydantic import Field
 from typing import Annotated
@@ -39,6 +40,8 @@ async def getSiteInfo(
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site."""
+
+    logger.debug("Tool getSiteInfo called")
 
     apisession, response_format = get_apisession()
     data = {}

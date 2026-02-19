@@ -19,6 +19,7 @@ from mistmcp.response_processor import process_response
 
 from mistmcp.elicitation_processor import config_elicitation_handler
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 {imports}
 {models}
@@ -41,6 +42,7 @@ async def {operationId}(
     ) -> dict | list | str:
     \"\"\"{description}\"\"\"
 
+    logger.debug("Tool {operationId} called")
 
     apisession, response_format = get_apisession()
     data = {{}}

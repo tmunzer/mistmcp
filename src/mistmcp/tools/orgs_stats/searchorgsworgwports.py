@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -168,6 +169,8 @@ async def searchOrgSwOrGwPorts(
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Search Switch / Gateway Ports Stats.Returns a list of switch/gateway ports stats that match the search criteria.The response provide current/last port status and statistics within the hour.Traffic information (Tx/Rx) are cumulative counters since the last device reboot."""
+
+    logger.debug("Tool searchOrgSwOrGwPorts called")
 
     apisession, response_format = get_apisession()
     data = {}

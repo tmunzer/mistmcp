@@ -11,13 +11,13 @@
 """
 
 import importlib
-import sys
 
 from fastmcp import FastMCP
 from fastmcp.server.transforms import Visibility
 
 from mistmcp.config import ServerConfig
 from mistmcp.elicitation_middleware import ElicitationMiddleware
+from mistmcp.logger import logger
 from mistmcp.tool_helper import TOOLS
 
 _instructions = """
@@ -88,8 +88,7 @@ def _load_tools(config: ServerConfig) -> list[str]:
 
     for category, category_info in TOOLS.items():
         tools = category_info.get("tools", [])
-        if config.debug:
-            print(f"Loading {len(tools)} tools from '{category}'", file=sys.stderr)
+        logger.debug("Loading %d tools from '%s'", len(tools), category)
 
         for tool_name in tools:
             if tool_name in loaded_tools:
@@ -100,14 +99,10 @@ def _load_tools(config: ServerConfig) -> list[str]:
                 module_path = f"mistmcp.tools.{category}.{snake_name}"
                 importlib.import_module(module_path)
                 loaded_tools.append(tool_name)
-                if config.debug:
-                    print(f"  Loaded: {tool_name}", file=sys.stderr)
+                logger.debug("  Loaded: %s", tool_name)
 
             except Exception as e:
-                if config.debug:
-                    print(
-                        f"  Warning: Could not load {tool_name}: {e}", file=sys.stderr
-                    )
+                logger.debug("  Warning: Could not load %s: %s", tool_name, e)
 
     return loaded_tools
 
@@ -116,7 +111,6 @@ def create_mcp_server(config: ServerConfig) -> FastMCP:
     """Configure and return the MCP server with all tools loaded."""
     enabled_tools = _load_tools(config)
 
-    if config.debug:
-        print(f"MCP Server ready with {len(enabled_tools)} tools", file=sys.stderr)
+    logger.debug("MCP Server ready with %d tools", len(enabled_tools))
 
     return mcp

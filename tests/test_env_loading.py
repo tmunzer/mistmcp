@@ -62,15 +62,17 @@ class TestLoadEnvFile:
             load_env_file()
             mock_load_dotenv.assert_called_once_with(override=True)
 
-    def test_load_env_file_dotenv_import_error(self, tmp_path, capsys) -> None:
+    def test_load_env_file_dotenv_import_error(self, tmp_path, caplog) -> None:
         """Test handling of ImportError when dotenv is not available"""
+        import logging
+
         env_file = tmp_path / ".env"
         env_file.write_text("TEST_VAR=test_value\n")
 
-        with patch("mistmcp.__main__.load_dotenv", side_effect=ImportError):
-            load_env_file(str(env_file))
-            captured = capsys.readouterr()
-            assert "Warning: python-dotenv not installed" in captured.err
+        with caplog.at_level(logging.WARNING, logger="mistmcp"):
+            with patch("mistmcp.__main__.load_dotenv", side_effect=ImportError):
+                load_env_file(str(env_file))
+        assert "python-dotenv not installed" in caplog.text
 
 
 class TestLoadEnvVar:
@@ -86,8 +88,8 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format = load_env_var(
-                "stdio", None, None, True, False, False, None
+            transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format, _ = load_env_var(
+                "stdio", None, None, True, False, False, None, None
             )
 
             assert config.mist_apitoken == "test-api-token"
@@ -109,8 +111,8 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format = load_env_var(
-                "http", None, None, False, False, False, None
+            transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format, _ = load_env_var(
+                "http", None, None, False, False, False, None, None
             )
 
             assert transport_mode == "http"
@@ -140,8 +142,8 @@ class TestLoadEnvVar:
             test_env = {**base_env, "MISTMCP_DEBUG": debug_value}
 
             with patch.dict(os.environ, test_env, clear=False):
-                _, _, _, debug, _, _, _ = load_env_var(
-                    "stdio", None, None, False, False, False, None)
+                _, _, _, debug, _, _, _, _ = load_env_var(
+                    "stdio", None, None, False, False, False, None, None)
                 assert debug == expected, f"Failed for debug_value='{debug_value}'"
 
     def test_load_env_var_port_parsing(self) -> None:
@@ -162,8 +164,8 @@ class TestLoadEnvVar:
             test_env = {**base_env, "MISTMCP_PORT": port_value}
 
             with patch.dict(os.environ, test_env, clear=False):
-                _, _, mcp_port, _, _, _, _ = load_env_var(
-                    "stdio", None, None, False, False, False, None)
+                _, _, mcp_port, _, _, _, _, _ = load_env_var(
+                    "stdio", None, None, False, False, False, None, None)
                 assert mcp_port == expected, f"Failed for port='{port_value}'"
 
     def test_load_env_var_host_and_port_from_env(self) -> None:
@@ -176,8 +178,8 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            _, mcp_host, mcp_port, _, _, _, _ = load_env_var(
-                "stdio", None, None, False, False, False, None)
+            _, mcp_host, mcp_port, _, _, _, _, _ = load_env_var(
+                "stdio", None, None, False, False, False, None, None)
 
             assert mcp_host == "0.0.0.0"
             assert mcp_port == 9000

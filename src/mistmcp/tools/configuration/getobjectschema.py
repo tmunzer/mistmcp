@@ -20,6 +20,7 @@ from fastmcp import Context
 from mistmcp.request_processor import get_apisession
 from mistmcp.tools.configuration import schemas_data as _schemas_data_module
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 # Pre-resolved schemas keyed by schema_name (= schemas_config.yaml entry key).
 # Each entry: {"schema": <dict>, "_schema_name": <oas_schema_name>}
@@ -50,6 +51,8 @@ async def getObjectSchema(
     ctx: Context,
 ) -> dict[str, Any] | str:
     """Retrieve the pre-resolved JSON schema for a Mist configuration object."""
+
+    logger.debug("Tool {operationId} called")
 
     _, response_format = get_apisession()
 

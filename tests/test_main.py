@@ -108,7 +108,7 @@ class TestStart:
 
         captured = capsys.readouterr()
         assert "Starting Mist MCP Server" in captured.err
-        assert "TRANSPORT: http" in captured.err
+        assert "transport: http" in captured.err
 
 
 class TestMain:
@@ -121,7 +121,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", "127.0.0.1", 8000, False, False, False, "json")
+            "stdio", "127.0.0.1", 8000, False, False, False, "json", None)
 
     @patch("mistmcp.__main__.start")
     def test_main_with_debug(self, mock_start) -> None:
@@ -130,7 +130,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", "127.0.0.1", 8000, True, False, False, "json")
+            "stdio", "127.0.0.1", 8000, True, False, False, "json", None)
 
     def test_main_help_exits(self) -> None:
         """Test that --help exits appropriately"""
@@ -159,4 +159,4 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "http", "0.0.0.0", 9000, False, False, False, "json")
+            "http", "0.0.0.0", 9000, False, False, False, "json", None)

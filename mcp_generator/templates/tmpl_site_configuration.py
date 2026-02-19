@@ -22,6 +22,7 @@ from pydantic import Field
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 
 class Object_type(Enum):
@@ -89,6 +90,8 @@ async def getSiteConfiguration(
 ) -> dict | list | str:
     """Retrieve configuration applied to a specific site"""
 
+    logger.debug("Tool {operationId} called")
+    
     apisession, response_format = get_apisession()
 
     site_data = mistapi.api.v1.sites.sites.getSiteInfo(apisession, site_id=str(site_id))

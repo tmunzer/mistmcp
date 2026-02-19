@@ -21,6 +21,7 @@ from fastmcp import Context
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 NETWORK_TEMPLATE_FIELDS = [
     "auto_upgrade_linecard",
@@ -53,7 +54,7 @@ NETWORK_TEMPLATE_FIELDS = [
 
 @mcp.tool(
     name="getDeviceConfiguration",
-    description="""Retrieve configuration applied to a specific site.""",
+    description="""Retrieve configuration applied to a specific device. The returned configuration is a merged view of the device configuration, site-level configuration (including any assigned network/gateway templates), and org-level configuration (including any assigned network templates). For APs, this includes the device details as well as the applied configuration. For switches, this includes the device details and port configuration, as well as any matching rules from assigned network templates based on the switch's name/model/role. For gateways, this includes the device details as well as the applied configuration from assigned gateway templates. Note that for switches and gateways, only fields that are defined at the device level or in matching rules will be included in the output, so if a field is defined at the template level but not applied to the specific device, it will not be included in the output.""",
     tags={"configuration"},
     annotations={
         "title": "getDeviceConfiguration",
@@ -77,7 +78,9 @@ async def getDeviceConfiguration(
     ] = UUID("00000000-0000-0000-1000-aca09d7ada80"),
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve configuration applied to a specific site"""
+    """Retrieve configuration applied to a specific device"""
+
+    logger.debug("Tool {operationId} called")
 
     apisession, response_format = get_apisession()
 

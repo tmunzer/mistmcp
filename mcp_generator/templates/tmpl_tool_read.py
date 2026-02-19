@@ -17,6 +17,7 @@ from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
 
 {imports}
 {models}
@@ -39,6 +40,8 @@ async def {operationId}(
     ) -> dict | list | str:
     \"\"\"{description}\"\"\"
 
+    logger.debug("Tool {operationId} called")
+    
     apisession, response_format = get_apisession()
     data = {{}}
     
