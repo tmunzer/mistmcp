@@ -54,6 +54,8 @@ def start(
     mcp_host: str,
     mcp_port: int,
     debug: bool = False,
+    disable_elicitation: bool = False,
+    response_format: str = "json",
 ) -> None:
     """
     Main entry point for the Mist MCP Server
@@ -63,10 +65,14 @@ def start(
         mcp_host: Host to bind HTTP server to
         mcp_port: Port for HTTP server
         debug: Enable debug output
+        disable_elicitation: Disable elicitation (for testing or non-interactive use)
+        response_format: Response format for HTTP transport ("json" or "string")
     """
     # Update global config
     config.transport_mode = transport_mode
     config.debug = debug
+    config.disable_elicitation = disable_elicitation
+    config.response_format = response_format
 
     if config.debug:
         print(
@@ -75,6 +81,8 @@ def start(
         )
         print(f"  TRANSPORT: {transport_mode}", file=sys.stderr)
         print(f"  MIST_HOST: {config.mist_host}", file=sys.stderr)
+        print(f"  RESPONSE_FORMAT: {config.response_format}", file=sys.stderr)
+        print(f"  DISABLE_ELICITATION: {config.disable_elicitation}", file=sys.stderr)
         if transport_mode == "http":
             print(f"  MCP_HOST: {mcp_host}", file=sys.stderr)
             print(f"  MCP_PORT: {mcp_port}", file=sys.stderr)
@@ -131,7 +139,9 @@ def load_env_var(
     mcp_host: str | None,
     mcp_port: int | None,
     debug: bool,
-) -> tuple[str, str, int, bool]:
+    disable_elicitation: bool,
+    response_format: str,
+) -> tuple[str, str, int, bool, bool, str]:
     """Load configuration from environment variables"""
 
     if transport_mode is None:
@@ -155,7 +165,14 @@ def load_env_var(
         config.mist_apitoken = os.getenv("MIST_APITOKEN", "")
         config.mist_host = os.getenv("MIST_HOST", "")
 
-    return transport_mode, mcp_host, mcp_port, debug
+    return (
+        transport_mode,
+        mcp_host,
+        mcp_port,
+        debug,
+        disable_elicitation,
+        response_format,
+    )
 
 
 def main() -> None:
@@ -189,19 +206,36 @@ def main() -> None:
         type=int,
         help="HTTP server port (default: 8000)",
     )
+    parser.add_argument(
+        "--disable-elicitation",
+        action="store_true",
+        help="Disable elicitation",
+    )
+    parser.add_argument(
+        "-r",
+        "--response_format",
+        choices=["json", "string"],
+        help="Response format for HTTP transport (default: json)",
+    )
 
     args = parser.parse_args()
 
     load_env_file(args.env_file)
 
-    transport_mode, mcp_host, mcp_port, debug = load_env_var(
-        args.transport,
-        args.host,
-        args.port,
-        args.debug,
+    transport_mode, mcp_host, mcp_port, debug, disable_elicitation, response_format = (
+        load_env_var(
+            args.transport,
+            args.host,
+            args.port,
+            args.debug,
+            args.disable_elicitation,
+            args.response_format,
+        )
     )
 
-    start(transport_mode, mcp_host, mcp_port, debug)
+    start(
+        transport_mode, mcp_host, mcp_port, debug, disable_elicitation, response_format
+    )
 
 
 if __name__ == "__main__":

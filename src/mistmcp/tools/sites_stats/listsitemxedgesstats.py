@@ -67,10 +67,10 @@ async def listSiteMxEdgesStats(
             description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get List of Site MxEdges Stats"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     if mxedge_id:
@@ -92,4 +92,7 @@ async def listSiteMxEdgesStats(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

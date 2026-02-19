@@ -90,10 +90,10 @@ async def getOrgConfigurationObjects(
             description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Retrieve configuration objects from a specified organization."""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     match object_type.value:
@@ -512,4 +512,7 @@ async def getOrgConfigurationObjects(
                 }
             )
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

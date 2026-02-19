@@ -86,10 +86,10 @@ async def searchSiteWanUsage(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Search Site WAN Usages"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.wan_usages.searchSiteWanUsage(
@@ -112,4 +112,7 @@ async def searchSiteWanUsage(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

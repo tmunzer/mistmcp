@@ -44,10 +44,10 @@ if not mcp:
 )
 async def getSiteStats(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict | list:
+) -> dict | list | str:
     """Get Sites Stats"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.stats.getSiteStats(
@@ -58,4 +58,7 @@ async def getSiteStats(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

@@ -47,46 +47,50 @@ if not mcp:
     }},
 )
 async def {operationId}(
-    {parameters}) -> dict|list:
+    {parameters}) -> dict | list | str:
     \"\"\"{description}\"\"\"
 
 
-    apisession = get_apisession()
+    apisession, disable_elicitation, response_format = get_apisession()
     data = {{}}
     
-    object_action = "create"
-    object_status = "a new"
-    if object_id:
-        object_action = "update"
-        object_status = "an existing"
-    
-    try:
-        elicitation_response = await config_elicitation_handler(
-            message=f"""The LLM wants to {{object_action}} {{object_status}} {{object_type.value}}. Do you accept to trigger the API call?""",
-            context=get_context(),
-        )
-    except Exception as exc:
-        raise ToolError(
-            {{
-                "status_code": 400,
-                "message": (
-                    "AI App does not support elicitation. You cannot use it to "
-                    "modify configuration objects. Please use the Mist API "
-                    "directly or use an AI App with elicitation support to "
-                    "modify configuration objects."
-                ),
-            }}
-        ) from exc
-    
-    
-    if elicitation_response.action == "decline":
-        return {{"message": "Action declined by user."}}
-    elif elicitation_response.action == "cancel":
-        return {{"message": "Action canceled by user."}}
+    if not disable_elicitation:
+        object_action = "create"
+        object_status = "a new"
+        if object_id:
+            object_action = "update"
+            object_status = "an existing"
+        
+        try:
+            elicitation_response = await config_elicitation_handler(
+                message=f"""The LLM wants to {{object_action}} {{object_status}} {{object_type.value}}. Do you accept to trigger the API call?""",
+                context=get_context(),
+            )
+        except Exception as exc:
+            raise ToolError(
+                {{
+                    "status_code": 400,
+                    "message": (
+                        "AI App does not support elicitation. You cannot use it to "
+                        "modify configuration objects. Please use the Mist API "
+                        "directly or use an AI App with elicitation support to "
+                        "modify configuration objects."
+                    ),
+                }}
+            ) from exc
+        
+        
+        if elicitation_response.action == "decline":
+            return {{"message": "Action declined by user."}}
+        elif elicitation_response.action == "cancel":
+            return {{"message": "Action canceled by user."}}
 
     {request}
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data
 '''
 
 TOOL_TEMPLATE_WRITE_ELICITATION = '''

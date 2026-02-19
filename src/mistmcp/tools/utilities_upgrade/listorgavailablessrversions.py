@@ -60,10 +60,10 @@ async def listOrgAvailableSsrVersions(
             description="""Optional. MAC address, or comma separated MAC address list."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get available version for SSR"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.ssr.listOrgAvailableSsrVersions(
@@ -76,4 +76,7 @@ async def listOrgAvailableSsrVersions(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

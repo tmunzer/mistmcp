@@ -44,10 +44,10 @@ if not mcp:
 )
 async def getSiteCurrentChannelPlanning(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-) -> dict | list:
+) -> dict | list | str:
     """Get Current Channel Planning"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.rrm.getSiteCurrentChannelPlanning(
@@ -58,4 +58,7 @@ async def getSiteCurrentChannelPlanning(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

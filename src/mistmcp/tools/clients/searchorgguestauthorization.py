@@ -77,10 +77,10 @@ async def searchOrgGuestAuthorization(
             description="""MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Search Authorized Guest"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     if guest_mac:
@@ -105,4 +105,7 @@ async def searchOrgGuestAuthorization(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

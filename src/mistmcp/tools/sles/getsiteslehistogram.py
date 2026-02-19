@@ -76,10 +76,10 @@ async def getSiteSleHistogram(
     duration: Annotated[
         Optional[str | None], Field(description="""Duration like 7d, 2w""")
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get the histogram for the SLE metric"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.sle.getSiteSleHistogram(
@@ -96,4 +96,7 @@ async def getSiteSleHistogram(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

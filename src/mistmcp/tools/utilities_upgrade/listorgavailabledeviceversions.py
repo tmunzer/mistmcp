@@ -58,10 +58,10 @@ async def listOrgAvailableDeviceVersions(
             description="""Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)"""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get List of Available Device Versions"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.devices.listOrgAvailableDeviceVersions(
@@ -74,4 +74,7 @@ async def listOrgAvailableDeviceVersions(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

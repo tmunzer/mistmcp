@@ -38,10 +38,10 @@ if not mcp:
         "openWorldHint": True,
     },
 )
-async def getSelfApiUsage() -> dict | list:
+async def getSelfApiUsage() -> dict | list | str:
     """Get the status of the API usage for the current user or API Token"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.self.usage.getSelfApiUsage(
@@ -51,4 +51,7 @@ async def getSelfApiUsage() -> dict | list:
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

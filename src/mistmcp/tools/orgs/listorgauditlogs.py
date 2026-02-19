@@ -78,10 +78,10 @@ async def listOrgAuditLogs(
     ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get List of change logs for the current Org"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.logs.listOrgAuditLogs(
@@ -101,4 +101,7 @@ async def listOrgAuditLogs(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

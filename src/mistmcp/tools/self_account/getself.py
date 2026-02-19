@@ -38,10 +38,10 @@ if not mcp:
         "openWorldHint": True,
     },
 )
-async def getSelf() -> dict | list:
+async def getSelf() -> dict | list | str:
     """Get ‘whoami’ and privileges (which org and which sites I have access to)"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.self.self.getSelf(
@@ -51,4 +51,7 @@ async def getSelf() -> dict | list:
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

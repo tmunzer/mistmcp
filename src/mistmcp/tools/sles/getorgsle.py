@@ -77,10 +77,10 @@ async def getOrgSle(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get Org SLEs (all/worst sites, Mx Edges, ...)"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.insights.getOrgSle(
@@ -97,4 +97,7 @@ async def getOrgSle(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

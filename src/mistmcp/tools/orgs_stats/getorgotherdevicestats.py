@@ -45,10 +45,10 @@ if not mcp:
 async def getOrgOtherDeviceStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     device_mac: str,
-) -> dict | list:
+) -> dict | list | str:
     """Get Otherdevice Stats"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.stats.getOrgOtherDeviceStats(
@@ -60,4 +60,7 @@ async def getOrgOtherDeviceStats(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

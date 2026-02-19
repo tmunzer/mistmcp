@@ -99,10 +99,10 @@ async def getSiteSle(
     duration: Annotated[
         Optional[str | None], Field(description="""Duration like 7d, 2w""")
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs."""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     match object_type.value:
@@ -258,4 +258,7 @@ async def getSiteSle(
                 }
             )
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

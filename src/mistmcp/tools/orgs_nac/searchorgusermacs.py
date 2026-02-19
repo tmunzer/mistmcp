@@ -59,10 +59,10 @@ async def searchOrgUserMacs(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Search Org User MACs"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.usermacs.searchOrgUserMacs(
@@ -78,4 +78,7 @@ async def searchOrgUserMacs(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

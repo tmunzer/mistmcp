@@ -76,10 +76,10 @@ async def getOrgSitesSle(
     ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get Org Sites SLE"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.insights.getOrgSitesSle(
@@ -97,4 +97,7 @@ async def getOrgSitesSle(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

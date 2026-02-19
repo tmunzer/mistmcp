@@ -107,10 +107,10 @@ async def searchOrgDeviceEvents(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Search Org Devices Events"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.devices.searchOrgDeviceEvents(
@@ -135,4 +135,7 @@ async def searchOrgDeviceEvents(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

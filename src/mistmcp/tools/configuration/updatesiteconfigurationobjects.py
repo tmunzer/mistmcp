@@ -76,40 +76,41 @@ async def updateSiteConfigurationObjects(
             description="""ID of the specific configuration object to update. Optional, if not provided, a new configuration object will be created with the provided payload."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Update or create configuration object for a specified site. IMPORTANT:To ensure that you are not missing any required attributes when updating the configuration object when updating the object, make sure to :* first retrieve the current configuration object using the tools `getSiteConfigurationObjects` to retrieve the object defined at the site level or `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site* modify the desired attributes * use this tool to update the configuration object with the modified attributes"""
 
-    apisession = get_apisession()
+    apisession, disable_elicitation, response_format = get_apisession()
     data = {}
 
-    object_action = "create"
-    object_status = "a new"
-    if object_id:
-        object_action = "update"
-        object_status = "an existing"
+    if not disable_elicitation:
+        object_action = "create"
+        object_status = "a new"
+        if object_id:
+            object_action = "update"
+            object_status = "an existing"
 
-    try:
-        elicitation_response = await config_elicitation_handler(
-            message=f"""The LLM wants to {object_action} {object_status} {object_type.value}. Do you accept to trigger the API call?""",
-            context=get_context(),
-        )
-    except Exception as exc:
-        raise ToolError(
-            {
-                "status_code": 400,
-                "message": (
-                    "AI App does not support elicitation. You cannot use it to "
-                    "modify configuration objects. Please use the Mist API "
-                    "directly or use an AI App with elicitation support to "
-                    "modify configuration objects."
-                ),
-            }
-        ) from exc
+        try:
+            elicitation_response = await config_elicitation_handler(
+                message=f"""The LLM wants to {object_action} {object_status} {object_type.value}. Do you accept to trigger the API call?""",
+                context=get_context(),
+            )
+        except Exception as exc:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": (
+                        "AI App does not support elicitation. You cannot use it to "
+                        "modify configuration objects. Please use the Mist API "
+                        "directly or use an AI App with elicitation support to "
+                        "modify configuration objects."
+                    ),
+                }
+            ) from exc
 
-    if elicitation_response.action == "decline":
-        return {"message": "Action declined by user."}
-    elif elicitation_response.action == "cancel":
-        return {"message": "Action canceled by user."}
+        if elicitation_response.action == "decline":
+            return {"message": "Action declined by user."}
+        elif elicitation_response.action == "cancel":
+            return {"message": "Action canceled by user."}
 
     match object_type.value:
         case "devices":
@@ -223,4 +224,7 @@ async def updateSiteConfigurationObjects(
                 }
             )
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

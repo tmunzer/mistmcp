@@ -47,10 +47,10 @@ async def GetOrgLicenseAsyncClaimStatus(
     detail: Annotated[
         Optional[bool | None], Field(description="""Request license details""")
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get Processing Status for Async Claim"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.claim.GetOrgLicenseAsyncClaimStatus(
@@ -62,4 +62,7 @@ async def GetOrgLicenseAsyncClaimStatus(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

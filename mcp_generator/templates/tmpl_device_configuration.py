@@ -82,10 +82,10 @@ async def getDeviceConfiguration(
         UUID,
         Field(description="""ID of the device to retrieve configuration for."""),
     ] = UUID("00000000-0000-0000-1000-aca09d7ada80"),
-) -> dict | list:
+) -> dict | list | str:
     """Retrieve configuration applied to a specific site"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
 
     device_data = mistapi.api.v1.sites.devices.getSiteDevice(
         apisession, site_id=str(site_id), device_id=str(device_id)

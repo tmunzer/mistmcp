@@ -44,10 +44,10 @@ if not mcp:
 )
 async def getOrgLicensesSummary(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-) -> dict | list:
+) -> dict | list | str:
     """Get the list of licenses"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.licenses.getOrgLicensesSummary(
@@ -58,4 +58,7 @@ async def getOrgLicensesSummary(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

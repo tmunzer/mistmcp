@@ -67,10 +67,10 @@ async def listSiteWirelessClientsStats(
             description="""MAC address of the client to filter stats by. Optional, if not provided all clients will be listed."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get List of Site All Clients Stats Details"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     if client_mac:
@@ -92,4 +92,7 @@ async def listSiteWirelessClientsStats(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

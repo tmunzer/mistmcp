@@ -67,10 +67,10 @@ async def listUpgrades(
             description="""ID of the specific upgrade to retrieve. Optional, if not provided all upgrades will be listed."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """List all available upgrades for the organization."""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     object_type = device_type
@@ -149,4 +149,7 @@ async def listUpgrades(
                 }
             )
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

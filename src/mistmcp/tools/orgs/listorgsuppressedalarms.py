@@ -54,10 +54,10 @@ async def listOrgSuppressedAlarms(
         Optional[Scope | None],
         Field(description="""Returns both scopes if not specified"""),
     ] = Scope.SITE,
-) -> dict | list:
+) -> dict | list | str:
     """Get List of Org Alarms Currently Suppressed"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.alarmtemplates.listOrgSuppressedAlarms(
@@ -69,4 +69,7 @@ async def listOrgSuppressedAlarms(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

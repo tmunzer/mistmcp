@@ -84,7 +84,6 @@ class Stp_role(Enum):
 )
 async def searchOrgSwOrGwPorts(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    site_id: Annotated[Optional[str | None], Field(description="""Site ID""")] = None,
     device_type: Annotated[
         Optional[Device_type | None],
         Field(description="""Type of device. enum: `switch`, `gateway`, `all`"""),
@@ -174,16 +173,15 @@ async def searchOrgSwOrGwPorts(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Search Switch / Gateway Ports Stats.Returns a list of switch/gateway ports stats that match the search criteria.The response provide current/last port status and statistics within the hour.Traffic information (Tx/Rx) are cumulative counters since the last device reboot."""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.stats.searchOrgSwOrGwPorts(
         apisession,
         org_id=str(org_id),
-        site_id=site_id if site_id else None,
         device_type=device_type.value if device_type else Device_type.ALL.value,
         auth_state=auth_state.value if auth_state else None,
         full_duplex=full_duplex if full_duplex else None,
@@ -213,4 +211,7 @@ async def searchOrgSwOrGwPorts(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

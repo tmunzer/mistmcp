@@ -44,13 +44,16 @@ if not mcp:
     }},
 )
 async def {operationId}(
-    {parameters}) -> dict|list:
+    {parameters}) -> dict | list | str:
     \"\"\"{description}\"\"\"
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {{}}
     
     {request}
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data
 '''

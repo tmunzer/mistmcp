@@ -96,10 +96,10 @@ async def listOrgDevicesStats(
     ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get List of Org Devices statsThis API renders some high-level device stats, pagination is assumed and returned in response header (as the response is an array)"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.stats.listOrgDevicesStats(
@@ -122,4 +122,7 @@ async def listOrgDevicesStats(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

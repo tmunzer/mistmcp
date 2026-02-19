@@ -92,10 +92,10 @@ async def getSiteConfiguration(
     object_type: Annotated[
         Object_type, Field(description="""Type of configuration object to retrieve.""")
     ],
-) -> dict | list:
+) -> dict | list | str:
     """Retrieve configuration applied to a specific site"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
 
     site_data = mistapi.api.v1.sites.sites.getSiteInfo(apisession, site_id=str(site_id))
     await process_response(site_data)

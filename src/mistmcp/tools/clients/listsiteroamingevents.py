@@ -70,10 +70,10 @@ async def listSiteRoamingEvents(
     duration: Annotated[
         Optional[str | None], Field(description="""Duration like 7d, 2w""")
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """List Roaming Events data"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.events.listSiteRoamingEvents(
@@ -89,4 +89,7 @@ async def listSiteRoamingEvents(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

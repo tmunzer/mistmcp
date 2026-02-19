@@ -38,10 +38,10 @@ if not mcp:
         "openWorldHint": True,
     },
 )
-async def getSelfLoginFailures() -> dict | list:
+async def getSelfLoginFailures() -> dict | list | str:
     """Get a list of failed login attempts across all Orgs for the current admin"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.self.login_failures.getSelfLoginFailures(
@@ -51,4 +51,7 @@ async def getSelfLoginFailures() -> dict | list:
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

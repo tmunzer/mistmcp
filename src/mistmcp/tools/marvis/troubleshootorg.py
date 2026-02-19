@@ -78,10 +78,10 @@ async def troubleshootOrg(
             description="""When troubleshooting site, type of network to troubleshoot"""
         ),
     ] = Type.NONE,
-) -> dict | list:
+) -> dict | list | str:
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.troubleshoot.troubleshootOrg(
@@ -97,4 +97,7 @@ async def troubleshootOrg(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

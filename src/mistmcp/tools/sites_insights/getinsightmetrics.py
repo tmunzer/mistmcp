@@ -100,10 +100,10 @@ async def getInsightMetrics(
     limit: Annotated[
         Optional[int | None], Field(description="""Number of records per page""")
     ] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get insight metrics for a given object"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     match object_type.value:
@@ -205,4 +205,7 @@ async def getInsightMetrics(
                 }
             )
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

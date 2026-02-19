@@ -10779,13 +10779,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `default`, `standard`, `strict`",
-                        "enum": [
-                          "default",
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -10797,13 +10791,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `default`, `standard`, `strict`",
-                        "enum": [
-                          "default",
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -10815,12 +10803,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `standard`, `strict`",
-                        "enum": [
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -18480,6 +18463,10 @@ SCHEMAS_DATA: dict = _json.loads(
           "format": "uuid",
           "type": "string"
         },
+        "mist_configured": {
+          "description": "whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)",
+          "type": "boolean"
+        },
         "model": {
           "description": "Device Model",
           "readOnly": true,
@@ -19717,13 +19704,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `default`, `standard`, `strict`",
-                        "enum": [
-                          "default",
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -19735,13 +19716,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `default`, `standard`, `strict`",
-                        "enum": [
-                          "default",
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -19753,12 +19728,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `standard`, `strict`",
-                        "enum": [
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -27973,13 +27943,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `default`, `standard`, `strict`",
-                        "enum": [
-                          "default",
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -27991,13 +27955,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `default`, `standard`, `strict`",
-                        "enum": [
-                          "default",
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -28009,12 +27967,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "profile": {
-                        "description": "enum: `standard`, `strict`",
-                        "enum": [
-                          "standard",
-                          "strict"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -34558,8 +34511,7 @@ SCHEMAS_DATA: dict = _json.loads(
                   "type": "boolean"
                 },
                 "wireless_coa_type": {
-                  "default": "reauth",
-                  "description": "type of CoA trigger for wireless clients",
+                  "description": "enum: `reauth`, `disconnect`",
                   "enum": [
                     "reauth",
                     "disconnect"

@@ -54,10 +54,10 @@ async def listSiteCurrentRrmNeighbors(
     band: Annotated[Band, Field(description="""802.11 Band""")],
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-) -> dict | list:
+) -> dict | list | str:
     """List Current RRM observed neighbors"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.rrm.listSiteCurrentRrmNeighbors(
@@ -71,4 +71,7 @@ async def listSiteCurrentRrmNeighbors(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

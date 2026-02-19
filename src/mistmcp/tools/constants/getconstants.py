@@ -59,10 +59,10 @@ async def getConstants(
     object_type: Annotated[
         Object_type, Field(description="""Type of object to retrieve metrics for.""")
     ],
-) -> dict | list:
+) -> dict | list | str:
     """Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     match object_type.value:
@@ -125,4 +125,7 @@ async def getConstants(
                 }
             )
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

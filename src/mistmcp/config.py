@@ -18,11 +18,15 @@ class ServerConfig:
         self,
         transport_mode: str = "stdio",
         debug: bool = False,
+        disable_elicitation: bool = False,
+        response_format: str = "json",
     ) -> None:
         self.transport_mode: str = transport_mode
         self.mist_apitoken: str = ""
         self.mist_host: str = ""
         self.debug = debug
+        self.disable_elicitation = disable_elicitation
+        self.response_format = response_format
 
 
 # Global config instance

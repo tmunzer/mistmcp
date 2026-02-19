@@ -44,10 +44,10 @@ if not mcp:
 )
 async def getOrgSettings(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-) -> dict | list:
+) -> dict | list | str:
     """Get Org Settings"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.setting.getOrgSettings(
@@ -58,4 +58,7 @@ async def getOrgSettings(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

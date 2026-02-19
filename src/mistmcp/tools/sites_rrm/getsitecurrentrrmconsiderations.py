@@ -53,10 +53,10 @@ async def getSiteCurrentRrmConsiderations(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     device_id: Annotated[UUID, Field(description="""ID of the Mist Device""")],
     band: Annotated[Band, Field(description="""802.11 Band""")],
-) -> dict | list:
+) -> dict | list | str:
     """Get Current RRM Considerations for an AP on a Specific Band"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.rrm.getSiteCurrentRrmConsiderations(
@@ -69,4 +69,7 @@ async def getSiteCurrentRrmConsiderations(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

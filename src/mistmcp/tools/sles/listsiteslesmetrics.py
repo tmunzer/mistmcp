@@ -60,10 +60,10 @@ async def listSiteSlesMetrics(
             description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`"""
         ),
     ],
-) -> dict | list:
+) -> dict | list | str:
     """List the metrics for the given scope"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.sle.listSiteSlesMetrics(
@@ -76,4 +76,7 @@ async def listSiteSlesMetrics(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

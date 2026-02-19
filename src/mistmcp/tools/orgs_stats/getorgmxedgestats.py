@@ -46,10 +46,10 @@ async def getOrgMxEdgeStats(
     org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
     mxedge_id: Annotated[UUID, Field(description="""ID of the Mist Mxedge""")],
     for_site: Optional[bool | None] = None,
-) -> dict | list:
+) -> dict | list | str:
     """Get Org MxEdge Details Stats"""
 
-    apisession = get_apisession()
+    apisession, _, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.stats.getOrgMxEdgeStats(
@@ -62,4 +62,7 @@ async def getOrgMxEdgeStats(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data
