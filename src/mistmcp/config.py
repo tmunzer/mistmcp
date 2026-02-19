@@ -18,6 +18,7 @@ class ServerConfig:
         self,
         transport_mode: str = "stdio",
         debug: bool = False,
+        enable_write_tools: bool = False,
         disable_elicitation: bool = False,
         response_format: str = "json",
     ) -> None:
@@ -25,6 +26,7 @@ class ServerConfig:
         self.mist_apitoken: str = ""
         self.mist_host: str = ""
         self.debug = debug
+        self.enable_write_tools = enable_write_tools
         self.disable_elicitation = disable_elicitation
         self.response_format = response_format
 

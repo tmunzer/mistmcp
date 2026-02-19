@@ -43,35 +43,54 @@ class ElicitationMiddleware(Middleware):
 
         enable_write_tools = False
 
-        # Check 1: Does the client declare elicitation support in its MCP capabilities?
-        try:
-            caps = context.message.params.capabilities
-            if (
-                caps is not None
-                and caps.elicitation is not None
-                and caps.elicitation.form is not None
-            ):
-                enable_write_tools = True
-                if config.debug:
-                    print(
-                        "Elicitation middleware: client supports elicitation",
-                        file=sys.stderr,
-                    )
-        except Exception:
-            pass
+        if config.enable_write_tools and config.disable_elicitation:
+            enable_write_tools = True
+            # Log warning to FastMCP logs (visible in Docker)
+            if ctx is not None:
+                await ctx.info(
+                    "Elicitation middleware: WARNING - both enable_write_tools and disable_elicitation config flags are set. "
+                    "This is not recommended as it will enable write tools without elicitation safeguards. Proceed with caution!"
+                )
+            if config.debug:
+                print(
+                    "Elicitation middleware: WARNING - both enable_write_tools and disable_elicitation config flags are set. This is not recommended as it will enable write tools without elicitation safeguards. Proceed with caution!",
+                    file=sys.stderr,
+                )
 
-        # Check 2: Transport-specific elicitation bypass
-        if not enable_write_tools:
-            if config.transport_mode == "http":
+        # Check 1: Does the client declare elicitation support in its MCP capabilities?
+        elif config.enable_write_tools:
+            try:
+                caps = context.message.params.capabilities
+                if (
+                    caps is not None
+                    and caps.elicitation is not None
+                    and caps.elicitation.form is not None
+                ):
+                    enable_write_tools = True
+                    if ctx is not None:
+                        await ctx.info("Elicitation middleware: client supports elicitation")
+                    if config.debug:
+                        print(
+                            "Elicitation middleware: client supports elicitation",
+                            file=sys.stderr,
+                        )
+            except Exception:
+                pass
+
+            # Check 2: Transport-specific elicitation bypass
+            if not enable_write_tools and config.transport_mode == "http":
                 try:
                     from fastmcp.server.dependencies import get_http_request
 
                     request = get_http_request()
                     if (
-                        request.headers.get("X-Disable-Elicitation", "false").lower()
+                        request.headers.get(
+                            "X-Disable-Elicitation", "false").lower()
                         == "true"
                     ):
                         enable_write_tools = True
+                        if ctx is not None:
+                            await ctx.info("Elicitation middleware: X-Disable-Elicitation header detected")
                         if config.debug:
                             print(
                                 "Elicitation middleware: X-Disable-Elicitation header detected",
@@ -79,27 +98,23 @@ class ElicitationMiddleware(Middleware):
                             )
                 except Exception:
                     pass
-            else:
-                # stdio transport: use the --disable-elicitation flag
-                if config.disable_elicitation:
-                    enable_write_tools = True
-                    if config.debug:
-                        print(
-                            "Elicitation middleware: disable_elicitation config flag set",
-                            file=sys.stderr,
-                        )
 
         if enable_write_tools:
             await ctx.enable_components(tags={"write"}, components={"tool"})
+            if ctx is not None:
+                await ctx.info("Elicitation middleware: write tools enabled for this session")
             if config.debug:
                 print(
                     "Elicitation middleware: write tools enabled for this session",
                     file=sys.stderr,
                 )
-        elif config.debug:
-            print(
-                "Elicitation middleware: write tools disabled (no elicitation support detected)",
-                file=sys.stderr,
-            )
+        else:
+            if ctx is not None:
+                await ctx.info("Elicitation middleware: write tools disabled (no elicitation support detected)")
+            if config.debug:
+                print(
+                    "Elicitation middleware: write tools disabled (no elicitation support detected)",
+                    file=sys.stderr,
+                )
 
         return result

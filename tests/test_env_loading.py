@@ -86,8 +86,8 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            transport_mode, mcp_host, mcp_port, debug = load_env_var(
-                "stdio", None, None, True
+            transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format = load_env_var(
+                "stdio", None, None, True, False, False, None
             )
 
             assert config.mist_apitoken == "test-api-token"
@@ -96,6 +96,9 @@ class TestLoadEnvVar:
             assert debug is True
             assert mcp_host == "127.0.0.1"
             assert mcp_port == 8000
+            assert enable_write_tools is False
+            assert disable_elicitation is False
+            assert response_format == "json"
 
     def test_load_env_var_http_mode(self) -> None:
         """Test loading environment variables for http mode"""
@@ -106,8 +109,8 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            transport_mode, mcp_host, mcp_port, debug = load_env_var(
-                "http", None, None, False
+            transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format = load_env_var(
+                "http", None, None, False, False, False, None
             )
 
             assert transport_mode == "http"
@@ -137,7 +140,7 @@ class TestLoadEnvVar:
             test_env = {**base_env, "MISTMCP_DEBUG": debug_value}
 
             with patch.dict(os.environ, test_env, clear=False):
-                _, _, _, debug = load_env_var("stdio", None, None, False)
+                _, _, _, debug, _, _, _ = load_env_var("stdio", None, None, False, False, False, None)
                 assert debug == expected, f"Failed for debug_value='{debug_value}'"
 
     def test_load_env_var_port_parsing(self) -> None:
@@ -158,7 +161,7 @@ class TestLoadEnvVar:
             test_env = {**base_env, "MISTMCP_PORT": port_value}
 
             with patch.dict(os.environ, test_env, clear=False):
-                _, _, mcp_port, _ = load_env_var("stdio", None, None, False)
+                _, _, mcp_port, _, _, _, _ = load_env_var("stdio", None, None, False, False, False, None)
                 assert mcp_port == expected, f"Failed for port='{port_value}'"
 
     def test_load_env_var_host_and_port_from_env(self) -> None:
@@ -171,7 +174,7 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            _, mcp_host, mcp_port, _ = load_env_var("stdio", None, None, False)
+            _, mcp_host, mcp_port, _, _, _, _ = load_env_var("stdio", None, None, False, False, False, None)
 
             assert mcp_host == "0.0.0.0"
             assert mcp_port == 9000
