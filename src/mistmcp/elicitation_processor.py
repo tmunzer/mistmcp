@@ -6,13 +6,22 @@ from fastmcp.server.elicitation import (
     DeclinedElicitation,
 )
 
+from mistmcp.logger import logger
+
 
 async def config_elicitation_handler(message, ctx: Context):
 
-    if ctx.get_state("disable_elicitation"):
+    if await ctx.get_state("disable_elicitation") is True:
+        logger.debug(
+            "Elicitation middleware: elicitation is disabled for this client, automatically accepting without prompting"
+        )
         return ElicitResult(action="accept")
 
-    result = await ctx.elicit(message, response_type=str)
+    logger.debug(
+        "Elicitation middleware: prompting user with message: %s",
+        message,
+    )
+    result = await ctx.elicit(message, response_type=None)
     match result:
         case AcceptedElicitation():
             return ElicitResult(action="accept")
