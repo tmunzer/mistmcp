@@ -1,0 +1,76 @@
+# Configuration for the getObjectSchema MCP tool.
+#
+# Each entry is a flat mapping:
+#   <enum_name>: <oas_schema_name>
+#
+# The enum_name is what the LLM sees as the schema_name parameter value.
+# The oas_schema_name is the key in OpenAPI components/schemas to resolve.
+# When the value is omitted (bare key), the oas_schema_name defaults to
+# the enum_name itself.
+
+org_wlan: wlan
+site_wlan: wlan
+
+org_rftemplate: rf_template
+
+#ap_template:
+
+org_networktemplate: network_template
+
+gatewaytemplate: gateway_template
+
+org_alarmtemplate: alarm_template
+
+site_device_ap: device_ap
+
+site_device_switch: device_switch
+
+site_device_gateway: device_gateway
+
+org_deviceprofile_ap: deviceprofile_ap
+
+org_deviceprofile_switch: deviceprofile_switch
+
+org_deviceprofile_gateway: deviceprofile_gateway
+
+org_network: network
+
+org_servicepolicy: service_policy
+
+org_vpn: vpn
+
+org_mxedge: mxedge
+site_mxedge: mxedge
+
+org_idpprofile: idp_profile
+
+org_avprofile: avprofile
+
+org_aamwprofile: aamw_profile
+
+org_nactag: nac_tag
+
+org_nacrule: nac_rule
+
+org_psk: psk
+site_psk: psk
+
+org_service: service
+
+org_site: site
+
+org_sitetemplate: site_template
+
+org_sitegroup: sitegroup
+
+org_webhook: webhook
+site_webhook: webhook
+
+org_wxlanrule: wxlan_rule
+site_wxlanrule: wxlan_rule
+
+org_wxlantag: wxlan_tag
+site_wxlantag: wxlan_tag
+
+org_setting: org_setting
+site_setting: site_setting

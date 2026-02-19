@@ -12,26 +12,18 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 
 
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
-
-
 @mcp.tool(
-    enabled=True,
     name="listSiteRogueClients",
     description="""Get List of Site Rogue Clients""",
     tags={"Sites Rogues"},
@@ -66,10 +58,11 @@ async def listSiteRogueClients(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
-) -> dict | list:
+    ctx: Context | None = None,
+) -> dict | list | str:
     """Get List of Site Rogue Clients"""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.insights.listSiteRogueClients(
@@ -85,4 +78,7 @@ async def listSiteRogueClients(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

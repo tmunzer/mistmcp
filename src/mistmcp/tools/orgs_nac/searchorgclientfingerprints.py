@@ -12,23 +12,16 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
-
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
 
 
 class Client_type(Enum):
@@ -39,7 +32,6 @@ class Client_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="searchOrgClientFingerprints",
     description="""Search Client Fingerprints""",
     tags={"orgs_nac"},
@@ -112,10 +104,11 @@ async def searchOrgClientFingerprints(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
     ] = None,
-) -> dict | list:
+    ctx: Context | None = None,
+) -> dict | list | str:
     """Search Client Fingerprints"""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.insights.searchOrgClientFingerprints(
@@ -140,4 +133,7 @@ async def searchOrgClientFingerprints(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

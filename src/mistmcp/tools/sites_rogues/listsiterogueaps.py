@@ -12,23 +12,16 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
-
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
 
 
 class Type(Enum):
@@ -40,7 +33,6 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listSiteRogueAPs",
     description="""Get List of Site Rogue/Neighbor APs""",
     tags={"Sites Rogues"},
@@ -82,10 +74,11 @@ async def listSiteRogueAPs(
             description="""BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed."""
         ),
     ] = None,
-) -> dict | list:
+    ctx: Context | None = None,
+) -> dict | list | str:
     """Get List of Site Rogue/Neighbor APs"""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     if rogue_bssid:
@@ -108,4 +101,7 @@ async def listSiteRogueAPs(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

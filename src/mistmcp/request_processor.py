@@ -18,7 +18,9 @@ from starlette.requests import Request
 from mistmcp.config import config
 
 
-def get_apisession() -> mistapi.APISession:
+def get_apisession() -> tuple[mistapi.APISession, str]:
+    response_format = "json"
+
     if config.transport_mode == "http":
         try:
             apitoken = ""
@@ -36,6 +38,8 @@ def get_apisession() -> mistapi.APISession:
                 apitoken = request.headers.get("X-Authorization", "").replace(
                     "Bearer ", ""
                 )
+            if request.query_params.get("output", "").lower() == "string":
+                response_format = "string"
         except NotFoundError as exc:
             raise ClientError(
                 "HTTP request context not found. Are you using HTTP transport?"
@@ -47,6 +51,7 @@ def get_apisession() -> mistapi.APISession:
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
+        response_format = config.response_format
 
     if not apitoken:
         raise ClientError(
@@ -62,4 +67,4 @@ def get_apisession() -> mistapi.APISession:
         apitoken=apitoken,
     )
 
-    return apisession
+    return apisession, response_format

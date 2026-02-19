@@ -12,26 +12,18 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 
 
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
-
-
 @mcp.tool(
-    enabled=True,
     name="listSiteWirelessClientsStats",
     description="""Get List of Site All Clients Stats Details""",
     tags={"sites_stats"},
@@ -67,10 +59,11 @@ async def listSiteWirelessClientsStats(
             description="""MAC address of the client to filter stats by. Optional, if not provided all clients will be listed."""
         ),
     ] = None,
-) -> dict | list:
+    ctx: Context | None = None,
+) -> dict | list | str:
     """Get List of Site All Clients Stats Details"""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     if client_mac:
@@ -92,4 +85,7 @@ async def listSiteWirelessClientsStats(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

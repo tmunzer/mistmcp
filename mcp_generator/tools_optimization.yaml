@@ -179,14 +179,14 @@ getOrgConfigurationObjects:
         operationId: getOrgSiteGroup
         function: mistapi.api.v1.orgs.sitegroups.getOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(object_id))
 
-    aptemplates:
-      list:
-        operationId: listOrgAptemplates
-        function: mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(apisession, org_id=str(org_id), limit=1000)
-        reduce: true
-      get:
-        operationId: getOrgAptemplate
-        function: mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id))
+    # aptemplates:
+    #   list:
+    #     operationId: listOrgAptemplates
+    #     function: mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(apisession, org_id=str(org_id), limit=1000)
+    #     reduce: true
+    #   get:
+    #     operationId: getOrgAptemplate
+    #     function: mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id))
 
     avprofiles:
       list:
@@ -759,3 +759,355 @@ getSiteSle:
       get:
         operationId: listSiteSleImpactedChassis
         function: mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+updateSiteConfigurationObjects:
+  type: tool_consolidation
+  tags: [write]
+  description: |-
+    Update or create configuration object for a specified site. 
+    IMPORTANT:
+    To ensure that you are not missing any required attributes when updating the configuration object when updating the object, make sure to :
+    * first retrieve the current configuration object using the tools `getSiteConfigurationObjects` to retrieve the object defined at the site level or `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site
+    * modify the desired attributes 
+    * use this tool to update the configuration object with the modified attributes
+
+    You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload.
+  read_only_hint: false
+  destructive_hint: false
+  parameters:
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to update configuration objects for.
+      required: true
+    - name: object_type
+      schema:
+        type: string
+      description: Type of configuration object to update.
+      required: true
+    - name: payload
+      schema:
+        type: object
+      description: JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getSiteConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes.
+      required: true
+    - name: object_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the specific configuration object to update. Optional, if not provided, a new configuration object will be created with the provided payload.
+      required: false
+  requests:
+    devices:
+      update:
+        operationId: updateSiteDevice
+        function: mistapi.api.v1.sites.devices.updateSiteDevice(apisession, site_id=str(site_id), device_id=str(object_id), body=payload)
+
+    evpn_topologies:
+      update:
+        operationId: updateSiteEvpnTopologies
+        function: mistapi.api.v1.sites.evpn_topologies.updateSiteEvpnTopology(apisession, site_id=str(site_id), evpn_topology_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteEvpnTopology
+        function: mistapi.api.v1.sites.evpn_topologies.createSiteEvpnTopology(apisession, site_id=str(site_id), body=payload)
+
+    # mxedges:
+    #   update:
+    #     operationId: updateSiteMxEdge
+    #     function: mistapi.api.v1.sites.mxedges.updateSiteMxEdge(apisession, site_id=str(site_id), mxedge_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createSiteMxEdge
+    #     function: mistapi.api.v1.sites.mxedges.createSiteMxEdge(apisession, site_id=str(site_id), body=payload)
+
+    psks:
+      update:
+        operationId: updateSitePsk
+        function: mistapi.api.v1.sites.psks.updateSitePsk(apisession, site_id=str(site_id), psk_id=str(object_id), body=payload)
+      create:
+        operationId: createSitePsk
+        function: mistapi.api.v1.sites.psks.createSitePsk(apisession, site_id=str(site_id), body=payload)
+
+    webhooks:
+      update:
+        operationId: updateSiteWebhook
+        function: mistapi.api.v1.sites.webhooks.updateSiteWebhook(apisession, site_id=str(site_id), webhook_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteWebhook
+        function: mistapi.api.v1.sites.webhooks.createSiteWebhook(apisession, site_id=str(site_id), body=payload)
+
+    wlans:
+      update:
+        operationId: updateSiteWlan
+        function: mistapi.api.v1.sites.wlans.updateSiteWlan(apisession, site_id=str(site_id), wlan_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteWlan
+        function: mistapi.api.v1.sites.wlans.createSiteWlan(apisession, site_id=str(site_id), body=payload)
+
+    wxrules:
+      update:
+        operationId: updateSiteWxRule
+        function: mistapi.api.v1.sites.wxrules.updateSiteWxRule(apisession, site_id=str(site_id), wxrule_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteWxRule
+        function: mistapi.api.v1.sites.wxrules.createSiteWxRule(apisession, site_id=str(site_id), body=payload)
+
+    wxtags:
+      update:
+        operationId: updateSiteWxTag
+        function: mistapi.api.v1.sites.wxtags.updateSiteWxTag(apisession, site_id=str(site_id), wxtag_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteWxTag
+        function: mistapi.api.v1.sites.wxtags.createSiteWxTag(apisession, site_id=str(site_id), body=payload)
+
+updateOrgConfigurationObjects:
+  type: tool_consolidation
+  tags: [write]
+  description: Update or create configuration object for a specified org. When updating the object, make sure to first retrieve the current configuration object using the `getOrgConfigurationObjects` tool, modify the desired attributes and then use this tool to update the configuration object with the modified attributes. This is required to ensure that you are not missing any required attributes when updating the configuration object. You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload.
+  read_only_hint: false
+  destructive_hint: false
+  parameters:
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization or site to update configuration objects for.
+      required: true
+    - name: object_type
+      schema:
+        type: string
+      description: Type of configuration object to update.
+      required: true
+    - name: payload
+      schema:
+        type: object
+      description: JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getOrgConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes.
+      required: true
+    - name: object_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the specific configuration object to update. Optional, if not provided, a new configuration object will be created with the provided payload.
+  requests:
+    alarmtemplates:
+      update:
+        operationId: updateOrgAlarmTemplate
+        function: mistapi.api.v1.orgs.alarmtemplates.updateOrgAlarmTemplate(apisession, org_id=str(org_id), alarmtemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgAlarmTemplate
+        function: mistapi.api.v1.orgs.alarmtemplates.createOrgAlarmTemplate(apisession, org_id=str(org_id), body=payload)
+
+    wlans:
+      update:
+        operationId: updateOrgWlan
+        function: mistapi.api.v1.orgs.wlans.updateOrgWlan(apisession, org_id=str(org_id), wlan_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgWlan
+        function: mistapi.api.v1.orgs.wlans.createOrgWlan(apisession, org_id=str(org_id), body=payload)
+
+    sitegroups:
+      update:
+        operationId: updateOrgSiteGroup
+        function: mistapi.api.v1.orgs.sitegroups.updateOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgSiteGroup
+        function: mistapi.api.v1.orgs.sitegroups.createOrgSiteGroup(apisession, org_id=str(org_id), body=payload)
+
+    # aptemplates:
+    #   update:
+    #     operationId: updateOrgAptemplate
+    #     function: mistapi.api.v1.orgs.aptemplates.updateOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgAptemplate
+    #     function: mistapi.api.v1.orgs.aptemplates.createOrgAptemplate(apisession, org_id=str(org_id), body=payload)
+
+    avprofiles:
+      update:
+        operationId: updateOrgAntivirusProfile
+        function: mistapi.api.v1.orgs.avprofiles.updateOrgAntivirusProfile(apisession, org_id=str(org_id), avprofile_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgAntivirusProfile
+        function: mistapi.api.v1.orgs.avprofiles.createOrgAntivirusProfile(apisession, org_id=str(org_id), body=payload)
+
+    deviceprofiles:
+      update:
+        operationId: updateOrgDeviceProfile
+        function: mistapi.api.v1.orgs.deviceprofiles.updateOrgDeviceProfile(apisession, org_id=str(org_id), deviceprofile_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgDeviceProfile
+        function: mistapi.api.v1.orgs.deviceprofiles.createOrgDeviceProfile(apisession, org_id=str(org_id), body=payload)
+
+    # evpn_topologies:
+    #   update:
+    #     operationId: updateOrgEvpnTopologies
+    #     function: mistapi.api.v1.orgs.evpn_topologies.updateOrgEvpnTopologies(apisession, org_id=str(org_id), evpn_topology_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgEvpnTopology
+    #     function: mistapi.api.v1.orgs.evpn_topologies.createOrgEvpnTopology(apisession, org_id=str(org_id), body=payload)
+
+    gatewaytemplates:
+      update:
+        operationId: updateOrgGatewayTemplate
+        function: mistapi.api.v1.orgs.gatewaytemplates.updateOrgGatewayTemplate(apisession, org_id=str(org_id), gatewaytemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgGatewayTemplate
+        function: mistapi.api.v1.orgs.gatewaytemplates.createOrgGatewayTemplate(apisession, org_id=str(org_id), body=payload)
+
+    idpprofiles:
+      update:
+        operationId: updateOrgIdpProfile
+        function: mistapi.api.v1.orgs.idpprofiles.updateOrgIdpProfile(apisession, org_id=str(org_id), idpprofile_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgIdpProfile
+        function: mistapi.api.v1.orgs.idpprofiles.createOrgIdpProfile(apisession, org_id=str(org_id), body=payload)
+
+    aamwprofiles:
+      update:
+        operationId: updateOrgAAMWProfile
+        function: mistapi.api.v1.orgs.aamwprofiles.updateOrgAAMWProfile(apisession, org_id=str(org_id), aamwprofile_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgAAMWProfile
+        function: mistapi.api.v1.orgs.aamwprofiles.createOrgAAMWProfile(apisession, org_id=str(org_id), body=payload)
+
+    # mxclusters:
+    #   update:
+    #     operationId: updateOrgMxEdgeClusters
+    #     function: mistapi.api.v1.orgs.mxclusters.updateOrgMxEdgeClusters(apisession, org_id=str(org_id), mxcluster_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgMxEdgeCluster
+    #     function: mistapi.api.v1.orgs.mxclusters.createOrgMxEdgeCluster(apisession, org_id=str(org_id), body=payload)
+
+    # mxedges:
+    #   update:
+    #     operationId: updateOrgMxEdges
+    #     function: mistapi.api.v1.orgs.mxedges.updateOrgMxEdges(apisession, org_id=str(org_id), mxedge_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgMxEdge
+    #     function: mistapi.api.v1.orgs.mxedges.createOrgMxEdge(apisession, org_id=str(org_id), body=payload)
+
+    # mxtunnels:
+    #   update:
+    #     operationId: updateOrgMxTunnels
+    #     function: mistapi.api.v1.orgs.mxtunnels.updateOrgMxTunnels(apisession, org_id=str(org_id), mxtunnel_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgMxTunnel
+    #     function: mistapi.api.v1.orgs.mxtunnels.createOrgMxTunnel(apisession, org_id=str(org_id), body=payload)
+
+    nactags:
+      update:
+        operationId: updateOrgNacTag
+        function: mistapi.api.v1.orgs.nactags.updateOrgNacTag(apisession, org_id=str(org_id), nactag_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgNacTag
+        function: mistapi.api.v1.orgs.nactags.createOrgNacTag(apisession, org_id=str(org_id), body=payload)
+
+    nacrules:
+      update:
+        operationId: updateOrgNacRule
+        function: mistapi.api.v1.orgs.nacrules.updateOrgNacRule(apisession, org_id=str(org_id), nacrule_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgNacRule
+        function: mistapi.api.v1.orgs.nacrules.createOrgNacRule(apisession, org_id=str(org_id), body=payload)
+
+    networktemplates:
+      update:
+        operationId: updateOrgNetworkTemplate
+        function: mistapi.api.v1.orgs.networktemplates.updateOrgNetworkTemplate(apisession, org_id=str(org_id), networktemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgNetworkTemplate
+        function: mistapi.api.v1.orgs.networktemplates.createOrgNetworkTemplate(apisession, org_id=str(org_id), body=payload)
+
+    networks:
+      update:
+        operationId: updateOrgNetwork
+        function: mistapi.api.v1.orgs.networks.updateOrgNetwork(apisession, org_id=str(org_id), network_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgNetwork
+        function: mistapi.api.v1.orgs.networks.createOrgNetwork(apisession, org_id=str(org_id), body=payload)
+
+    psks:
+      update:
+        operationId: updateOrgPsk
+        function: mistapi.api.v1.orgs.psks.updateOrgPsk(apisession, org_id=str(org_id), psk_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgPsk
+        function: mistapi.api.v1.orgs.psks.createOrgPsk(apisession, org_id=str(org_id), body=payload)
+
+    rftemplates:
+      update:
+        operationId: updateOrgRfTemplate
+        function: mistapi.api.v1.orgs.rftemplates.updateOrgRfTemplate(apisession, org_id=str(org_id), rftemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgRfTemplate
+        function: mistapi.api.v1.orgs.rftemplates.createOrgRfTemplate(apisession, org_id=str(org_id), body=payload)
+
+    services:
+      update:
+        operationId: updateOrgService
+        function: mistapi.api.v1.orgs.services.updateOrgService(apisession, org_id=str(org_id), service_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgService
+        function: mistapi.api.v1.orgs.services.createOrgService(apisession, org_id=str(org_id), body=payload)
+
+    servicepolicies:
+      update:
+        operationId: updateOrgServicePolicy
+        function: mistapi.api.v1.orgs.servicepolicies.updateOrgServicePolicy(apisession, org_id=str(org_id), servicepolicy_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgServicePolicy
+        function: mistapi.api.v1.orgs.servicepolicies.createOrgServicePolicy(apisession, org_id=str(org_id), body=payload)
+
+    # sites:
+    #   update:
+    #     operationId: updateOrgSites
+    #     function: mistapi.api.v1.orgs.sites.updateOrgSites(apisession, org_id=str(org_id), site_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgSite
+    #     function: mistapi.api.v1.orgs.sites.createOrgSite(apisession, org_id=str(org_id), body=payload)
+
+    sitetemplates:
+      update:
+        operationId: updateOrgSiteTemplate
+        function: mistapi.api.v1.orgs.sitetemplates.updateOrgSiteTemplate(apisession, org_id=str(org_id), sitetemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgSiteTemplate
+        function: mistapi.api.v1.orgs.sitetemplates.createOrgSiteTemplate(apisession, org_id=str(org_id), body=payload)
+
+    vpns:
+      update:
+        operationId: updateOrgVpn
+        function: mistapi.api.v1.orgs.vpns.updateOrgVpn(apisession, org_id=str(org_id), vpn_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgVpn
+        function: mistapi.api.v1.orgs.vpns.createOrgVpn(apisession, org_id=str(org_id), body=payload)
+
+    webhooks:
+      update:
+        operationId: updateOrgWebhook
+        function: mistapi.api.v1.orgs.webhooks.updateOrgWebhook(apisession, org_id=str(org_id), webhook_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgWebhook
+        function: mistapi.api.v1.orgs.webhooks.createOrgWebhook(apisession, org_id=str(org_id), body=payload)
+
+    wlantemplates:
+      update:
+        operationId: updateOrgTemplate
+        function: mistapi.api.v1.orgs.templates.updateOrgTemplate(apisession, org_id=str(org_id), template_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgTemplate
+        function: mistapi.api.v1.orgs.templates.createOrgTemplate(apisession, org_id=str(org_id), body=payload)
+
+    wxrules:
+      update:
+        operationId: updateOrgWxRule
+        function: mistapi.api.v1.orgs.wxrules.updateOrgWxRule(apisession, org_id=str(org_id), wxrule_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgWxRule
+        function: mistapi.api.v1.orgs.wxrules.createOrgWxRule(apisession, org_id=str(org_id), body=payload)
+
+    wxtags:
+      update:
+        operationId: updateOrgWxTag
+        function: mistapi.api.v1.orgs.wxtags.updateOrgWxTag(apisession, org_id=str(org_id), wxtag_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgWxTag
+        function: mistapi.api.v1.orgs.wxtags.createOrgWxTag(apisession, org_id=str(org_id), body=payload)

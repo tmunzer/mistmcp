@@ -12,22 +12,14 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
-
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
+from mistmcp.server import mcp
 
 
 @mcp.tool(
-    enabled=True,
     name="getSelfApiUsage",
     description="""Get the status of the API usage for the current user or API Token""",
     tags={"Self Account"},
@@ -38,10 +30,12 @@ if not mcp:
         "openWorldHint": True,
     },
 )
-async def getSelfApiUsage() -> dict | list:
+async def getSelfApiUsage(
+    ctx: Context | None = None,
+) -> dict | list | str:
     """Get the status of the API usage for the current user or API Token"""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.self.usage.getSelfApiUsage(
@@ -51,4 +45,7 @@ async def getSelfApiUsage() -> dict | list:
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

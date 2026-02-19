@@ -1,5 +1,5 @@
 # Template for individual tool files
-TOOL_TEMPLATE = '''"""
+TOOL_TEMPLATE_READ = '''"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -12,27 +12,18 @@ TOOL_TEMPLATE = '''"""
 """
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 {imports}
-
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
-
 {models}
 {enums}
 
 
 @mcp.tool(
-    enabled=True,
     name = "{operationId}",
     description = """{description}""",
     tags = {{"{tag}"}},
@@ -44,13 +35,17 @@ if not mcp:
     }},
 )
 async def {operationId}(
-    {parameters}) -> dict|list:
+    {parameters}    ctx: Context|None = None,
+    ) -> dict | list | str:
     \"\"\"{description}\"\"\"
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {{}}
     
     {request}
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data
 '''

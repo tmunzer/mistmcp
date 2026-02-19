@@ -10,23 +10,17 @@
 --------------------------------------------------------------------------------
 """
 
+import json
 from typing import Annotated
 from uuid import UUID
 
 import mistapi
 from pydantic import Field
 
+from fastmcp import Context
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
-
+from mistmcp.server import mcp
 
 NETWORK_TEMPLATE_FIELDS = [
     "auto_upgrade_linecard",
@@ -58,7 +52,6 @@ NETWORK_TEMPLATE_FIELDS = [
 
 
 @mcp.tool(
-    enabled=True,
     name="getDeviceConfiguration",
     description="""Retrieve configuration applied to a specific site.""",
     tags={"configuration"},
@@ -73,19 +66,20 @@ async def getDeviceConfiguration(
     org_id: Annotated[
         UUID,
         Field(description="""ID of the Mist Org"""),
-    ],
+    ] = UUID("9777c1a0-6ef6-11e6-8bbf-02e208b2d34f"),
     site_id: Annotated[
         UUID,
         Field(description="""ID of the site to retrieve configuration objects from."""),
-    ],
+    ] = UUID("978c48e6-6ef6-11e6-8bbf-02e208b2d34f"),
     device_id: Annotated[
         UUID,
         Field(description="""ID of the device to retrieve configuration for."""),
-    ],
-) -> dict | list:
+    ] = UUID("00000000-0000-0000-1000-aca09d7ada80"),
+    ctx: Context | None = None,
+) -> dict | list | str:
     """Retrieve configuration applied to a specific site"""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
 
     device_data = mistapi.api.v1.sites.devices.getSiteDevice(
         apisession, site_id=str(site_id), device_id=str(device_id)
@@ -166,7 +160,10 @@ async def getDeviceConfiguration(
         case _:
             data = device_data.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data
 
 
 def process_switch_template(

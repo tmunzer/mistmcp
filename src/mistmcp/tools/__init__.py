@@ -12,6 +12,7 @@
 
 from .configuration import getsiteconfiguration as getsiteconfiguration
 from .configuration import getdeviceconfiguration as getdeviceconfiguration
+from .configuration import getobjectschema as getobjectschema
 from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
 from .utilities_upgrade import listupgrades as listupgrades
@@ -31,6 +32,8 @@ from .sles import listsiteslemetricclassifiers as listsiteslemetricclassifiers
 from .sles import getsiteslehistogram as getsiteslehistogram
 from .sles import getsiteslethreshold as getsiteslethreshold
 from .sles import listsiteslesmetrics as listsiteslesmetrics
+from .write import updatesiteconfigurationobjects as updatesiteconfigurationobjects
+from .write import updateorgconfigurationobjects as updateorgconfigurationobjects
 from .orgs import getorg as getorg
 from .orgs import searchorgalarms as searchorgalarms
 from .orgs import listorgsuppressedalarms as listorgsuppressedalarms

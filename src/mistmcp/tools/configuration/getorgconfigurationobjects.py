@@ -12,10 +12,11 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
@@ -23,19 +24,10 @@ from uuid import UUID
 from enum import Enum
 
 
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
-
-
 class Object_type(Enum):
     ALARMTEMPLATES = "alarmtemplates"
     WLANS = "wlans"
     SITEGROUPS = "sitegroups"
-    APTEMPLATES = "aptemplates"
     AVPROFILES = "avprofiles"
     DEVICES = "devices"
     DEVICEPROFILES = "deviceprofiles"
@@ -64,7 +56,6 @@ class Object_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="getOrgConfigurationObjects",
     description="""Retrieve configuration objects from a specified organization.""",
     tags={"configuration"},
@@ -91,10 +82,11 @@ async def getOrgConfigurationObjects(
             description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
         ),
     ] = None,
-) -> dict | list:
+    ctx: Context | None = None,
+) -> dict | list | str:
     """Retrieve configuration objects from a specified organization."""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     match object_type.value:
@@ -145,23 +137,6 @@ async def getOrgConfigurationObjects(
                 )
                 await process_response(response)
                 data = response.data
-        case "aptemplates":
-            if object_id:
-                response = mistapi.api.v1.orgs.aptemplates.getOrgAptemplate(
-                    apisession, org_id=str(org_id), aptemplate_id=str(object_id)
-                )
-                await process_response(response)
-                data = response.data
-            else:
-                response = mistapi.api.v1.orgs.aptemplates.listOrgAptemplates(
-                    apisession, org_id=str(org_id), limit=1000
-                )
-                await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
-                    for item in response.data
-                    if item.get("name")
-                }
         case "avprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.avprofiles.getOrgAntivirusProfile(
@@ -530,4 +505,7 @@ async def getOrgConfigurationObjects(
                 }
             )
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

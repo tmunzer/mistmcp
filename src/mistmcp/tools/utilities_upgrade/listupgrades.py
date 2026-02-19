@@ -12,23 +12,16 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
-
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
 
 
 class Device_type(Enum):
@@ -40,7 +33,6 @@ class Device_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listUpgrades",
     description="""List all available upgrades for the organization.""",
     tags={"utilities_upgrade"},
@@ -67,10 +59,11 @@ async def listUpgrades(
             description="""ID of the specific upgrade to retrieve. Optional, if not provided all upgrades will be listed."""
         ),
     ] = None,
-) -> dict | list:
+    ctx: Context | None = None,
+) -> dict | list | str:
     """List all available upgrades for the organization."""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     object_type = device_type
@@ -149,4 +142,7 @@ async def listUpgrades(
                 }
             )
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

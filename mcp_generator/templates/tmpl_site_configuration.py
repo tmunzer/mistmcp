@@ -15,19 +15,13 @@ from typing import Annotated
 from uuid import UUID
 
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from pydantic import Field
 
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
+from mistmcp.server import mcp
 
 
 class Object_type(Enum):
@@ -69,7 +63,6 @@ NETWORK_TEMPLATE_FIELDS = [
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteConfiguration",
     description="""Retrieve configuration applied to a specific site.""",
     tags={"configuration"},
@@ -92,10 +85,11 @@ async def getSiteConfiguration(
     object_type: Annotated[
         Object_type, Field(description="""Type of configuration object to retrieve.""")
     ],
-) -> dict | list:
+    ctx: Context|None = None,
+) -> dict | list | str:
     """Retrieve configuration applied to a specific site"""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
 
     site_data = mistapi.api.v1.sites.sites.getSiteInfo(apisession, site_id=str(site_id))
     await process_response(site_data)

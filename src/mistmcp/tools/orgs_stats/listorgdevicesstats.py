@@ -12,23 +12,16 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
-
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
 
 
 class Type(Enum):
@@ -45,7 +38,6 @@ class Status(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listOrgDevicesStats",
     description="""Get List of Org Devices statsThis API renders some high-level device stats, pagination is assumed and returned in response header (as the response is an array)""",
     tags={"orgs_stats"},
@@ -96,10 +88,11 @@ async def listOrgDevicesStats(
     ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
-) -> dict | list:
+    ctx: Context | None = None,
+) -> dict | list | str:
     """Get List of Org Devices statsThis API renders some high-level device stats, pagination is assumed and returned in response header (as the response is an array)"""
 
-    apisession = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.stats.listOrgDevicesStats(
@@ -122,4 +115,7 @@ async def listOrgDevicesStats(
 
     data = response.data
 
-    return data
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data

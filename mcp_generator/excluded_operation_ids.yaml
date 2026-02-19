@@ -72,5 +72,5 @@
 - searchSiteServicePathEvents
 - getOrgApplicationList
 - getOrgCurrentMatchingClientsOfAWxTag
-- getOrgMxEdgeVmParams
 - getOrgAosRegisterCmd
+- getOrgMxEdgeVmParams
