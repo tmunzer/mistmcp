@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -38,7 +39,6 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listSiteRoamingEvents",
     description="""List Roaming Events data""",
     tags={"clients"},
@@ -70,10 +70,11 @@ async def listSiteRoamingEvents(
     duration: Annotated[
         Optional[str | None], Field(description="""Duration like 7d, 2w""")
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """List Roaming Events data"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.events.listSiteRoamingEvents(

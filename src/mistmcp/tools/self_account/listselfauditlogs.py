@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -30,7 +31,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name="listSelfAuditLogs",
     description="""Get List of change logs across all Orgs for current adminAudit logs records all administrative activities done by current admin across all orgs""",
     tags={"self_account"},
@@ -59,10 +59,11 @@ async def listSelfAuditLogs(
     ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get List of change logs across all Orgs for current adminAudit logs records all administrative activities done by current admin across all orgs"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.self.logs.listSelfAuditLogs(

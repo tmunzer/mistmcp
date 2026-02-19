@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -40,7 +41,6 @@ class Device_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listUpgrades",
     description="""List all available upgrades for the organization.""",
     tags={"utilities_upgrade"},
@@ -67,10 +67,11 @@ async def listUpgrades(
             description="""ID of the specific upgrade to retrieve. Optional, if not provided all upgrades will be listed."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """List all available upgrades for the organization."""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     object_type = device_type

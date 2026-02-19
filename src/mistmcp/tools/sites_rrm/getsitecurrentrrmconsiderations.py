@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -38,7 +39,6 @@ class Band(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteCurrentRrmConsiderations",
     description="""Get Current RRM Considerations for an AP on a Specific Band""",
     tags={"Sites RRM"},
@@ -53,10 +53,11 @@ async def getSiteCurrentRrmConsiderations(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     device_id: Annotated[UUID, Field(description="""ID of the Mist Device""")],
     band: Annotated[Band, Field(description="""802.11 Band""")],
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get Current RRM Considerations for an AP on a Specific Band"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.rrm.getSiteCurrentRrmConsiderations(

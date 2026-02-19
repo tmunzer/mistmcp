@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -39,7 +40,6 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="troubleshootOrg",
     description="""Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license""",
     tags={"marvis"},
@@ -78,10 +78,11 @@ async def troubleshootOrg(
             description="""When troubleshooting site, type of network to troubleshoot"""
         ),
     ] = Type.NONE,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.troubleshoot.troubleshootOrg(

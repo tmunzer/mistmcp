@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -31,7 +32,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteDeviceSyntheticTest",
     description="""Get Device Synthetic Test""",
     tags={"marvis"},
@@ -45,10 +45,11 @@ if not mcp:
 async def getSiteDeviceSyntheticTest(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
     device_id: Annotated[UUID, Field(description="""ID of the Mist Device""")],
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get Device Synthetic Test"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.devices.getSiteDeviceSyntheticTest(

@@ -21,34 +21,6 @@ from mistmcp.config import config
 from mistmcp.server import create_mcp_server
 
 
-def print_help() -> None:
-    """Print help message"""
-    help_text = """
-Mist MCP Server - AI-Powered Network Management Assistant
-
-Usage: uv run mistmcp [OPTIONS]
-
-OPTIONS:
-    -t, --transport MODE    Transport mode: stdio (default) or http
-    --host HOST             Only when `transport`==`http`, HTTP server host (default: 127.0.0.1)
-    -p, --port PORT         Only when `transport`==`http`, HTTP server port (default: 8000)
-    -e, --env-file PATH     Path to .env file
-    -d, --debug             Enable debug output
-    -h, --help              Show help message
-
-TRANSPORT MODES:
-    stdio      - Standard input/output (for Claude Desktop, VS Code)
-    http       - HTTP server (for remote access)
-
-EXAMPLES:
-    uv run mistmcp                                    # Default: stdio transport
-    uv run mistmcp --debug                            # With debug output
-    uv run mistmcp --transport http --host 0.0.0.0    # HTTP on all interfaces
-    uv run mistmcp --env-file ~/.mist.env             # Custom env file
-    """
-    print(help_text)
-
-
 def start(
     transport_mode: str,
     mcp_host: str,
@@ -92,7 +64,7 @@ def start(
         mcp_server = create_mcp_server(config)
 
         if transport_mode == "http":
-            mcp_server.run(transport="streamable-http", host=mcp_host, port=mcp_port)
+            mcp_server.run(transport="http", host=mcp_host, port=mcp_port)
         else:
             mcp_server.run()
 
@@ -140,7 +112,7 @@ def load_env_var(
     mcp_port: int | None,
     debug: bool,
     disable_elicitation: bool,
-    response_format: str,
+    response_format: str | None,
 ) -> tuple[str, str, int, bool, bool, str]:
     """Load configuration from environment variables"""
 
@@ -160,6 +132,9 @@ def load_env_var(
 
     env_debug = os.getenv("MISTMCP_DEBUG", str(debug))
     debug = env_debug.lower() in ("true", "1", "yes")
+
+    if response_format is None:
+        response_format = "json"
 
     if transport_mode == "stdio":
         config.mist_apitoken = os.getenv("MIST_APITOKEN", "")

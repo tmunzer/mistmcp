@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -31,7 +32,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name="listSiteRogueClients",
     description="""Get List of Site Rogue Clients""",
     tags={"Sites Rogues"},
@@ -66,10 +66,11 @@ async def listSiteRogueClients(
             description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get List of Site Rogue Clients"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.insights.listSiteRogueClients(

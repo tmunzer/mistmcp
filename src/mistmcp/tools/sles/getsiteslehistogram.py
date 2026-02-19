@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -40,7 +41,6 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteSleHistogram",
     description="""Get the histogram for the SLE metric""",
     tags={"sles"},
@@ -76,10 +76,11 @@ async def getSiteSleHistogram(
     duration: Annotated[
         Optional[str | None], Field(description="""Duration like 7d, 2w""")
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get the histogram for the SLE metric"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.sle.getSiteSleHistogram(

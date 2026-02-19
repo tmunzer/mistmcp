@@ -5,14 +5,10 @@ from fastmcp.server.elicitation import (
     DeclinedElicitation,
 )
 
-from mistmcp.server import get_mcp
-
-mcp = get_mcp()
-
 
 async def config_elicitation_handler(message, context):
 
-    result = await context.elicit(f"{message}")
+    result = await context.elicit(message)
     match result:
         case AcceptedElicitation():
             return ElicitResult(action="accept")

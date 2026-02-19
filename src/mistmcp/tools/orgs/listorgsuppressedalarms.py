@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -37,7 +38,6 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listOrgSuppressedAlarms",
     description="""Get List of Org Alarms Currently Suppressed""",
     tags={"orgs"},
@@ -54,10 +54,11 @@ async def listOrgSuppressedAlarms(
         Optional[Scope | None],
         Field(description="""Returns both scopes if not specified"""),
     ] = Scope.SITE,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get List of Org Alarms Currently Suppressed"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.alarmtemplates.listOrgSuppressedAlarms(

@@ -10,12 +10,14 @@ DEVICE_CONFIGURATION_TEMPLATE = '''"""
 --------------------------------------------------------------------------------
 """
 
+import json
 from typing import Annotated
 from uuid import UUID
 
 import mistapi
 from pydantic import Field
 
+from fastmcp import Context
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 from mistmcp.server import get_mcp
@@ -58,7 +60,6 @@ NETWORK_TEMPLATE_FIELDS = [
 
 
 @mcp.tool(
-    enabled=True,
     name="getDeviceConfiguration",
     description="""Retrieve configuration applied to a specific site.""",
     tags={"configuration"},
@@ -82,10 +83,11 @@ async def getDeviceConfiguration(
         UUID,
         Field(description="""ID of the device to retrieve configuration for."""),
     ] = UUID("00000000-0000-0000-1000-aca09d7ada80"),
+    ctx: Context|None = None,
 ) -> dict | list | str:
     """Retrieve configuration applied to a specific site"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
 
     device_data = mistapi.api.v1.sites.devices.getSiteDevice(
         apisession, site_id=str(site_id), device_id=str(device_id)
@@ -165,8 +167,11 @@ async def getDeviceConfiguration(
 
         case _:
             data = device_data.data
-
-    return data
+            
+    if response_format == "string":
+        return json.dumps(data)
+    else:
+        return data
 
 
 def process_switch_template(

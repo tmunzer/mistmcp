@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -39,7 +40,6 @@ class For_site(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listOrgMxEdgesStats",
     description="""Get List of Org MxEdge Stats""",
     tags={"orgs_stats"},
@@ -79,10 +79,11 @@ async def listOrgMxEdgesStats(
             description="""ID of the Mist Edge to filter stats by. Optional, if not provided all MX Edges will be listed."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get List of Org MxEdge Stats"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     if mxedge_id:

@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -31,7 +32,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteWxRulesUsage",
     description="""Get Wxlan Rule usage""",
     tags={"sites_stats"},
@@ -44,10 +44,11 @@ if not mcp:
 )
 async def getSiteWxRulesUsage(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get Wxlan Rule usage"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.stats.getSiteWxRulesUsage(

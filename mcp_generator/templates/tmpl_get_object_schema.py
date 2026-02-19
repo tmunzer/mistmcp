@@ -9,12 +9,14 @@ GET_OBJECT_SCHEMA_TEMPLATE = '''"""
 
 --------------------------------------------------------------------------------
 """
-
+import json
 from enum import Enum
 from typing import Annotated, Any
 
 from pydantic import Field
 
+from fastmcp import Context
+from mistmcp.request_processor import get_apisession
 from mistmcp.server import get_mcp
 from mistmcp.tools.configuration import schemas_data as _schemas_data_module
 
@@ -34,7 +36,6 @@ SchemaName = Enum("SchemaName", {name: name for name in _SCHEMAS_DATA})  # type:
 
 
 @mcp.tool(
-    enabled=True,
     name="getObjectSchema",
     description="""Retrieve the JSON schema for a Mist configuration object type.
 The schema is derived from the Mist OpenAPI specification and includes all properties with their types, descriptions, defaults, and constraints.
@@ -52,9 +53,12 @@ async def getObjectSchema(
         SchemaName,
         Field(description="Name of the configuration object schema to retrieve."),
     ],
-) -> dict[str, Any]:
+    ctx: Context,
+) -> dict[str, Any] | str:
     """Retrieve the pre-resolved JSON schema for a Mist configuration object."""
 
+    _, response_format = get_apisession()
+    
     entry = _SCHEMAS_DATA.get(schema_name.value)
     if entry is None:
         raise ValueError(
@@ -71,6 +75,10 @@ async def getObjectSchema(
         )
 
     resolved["x-schema-name"] = entry["_schema_name"]
-    return resolved
+    
+    if response_format == "string":
+        return json.dumps(resolved)
+    else:
+        return resolved
 
 '''

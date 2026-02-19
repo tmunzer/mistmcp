@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -38,7 +39,6 @@ class Source(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="searchOrgWiredClients",
     description="""Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)""",
     tags={"clients"},
@@ -130,10 +130,11 @@ async def searchOrgWiredClients(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search for Wired Clients in orgNote: For list of available `type` values, please refer to [List Client Events Definitions](/#operations/listClientEventsDefinitions)"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.wired_clients.searchOrgWiredClients(

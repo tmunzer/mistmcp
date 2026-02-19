@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -44,7 +45,6 @@ class Object_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="getConstants",
     description="""Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)""",
     tags={"constants"},
@@ -59,10 +59,11 @@ async def getConstants(
     object_type: Annotated[
         Object_type, Field(description="""Type of object to retrieve metrics for.""")
     ],
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     match object_type.value:

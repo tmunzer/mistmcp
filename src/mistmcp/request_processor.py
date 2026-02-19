@@ -18,8 +18,7 @@ from starlette.requests import Request
 from mistmcp.config import config
 
 
-def get_apisession() -> tuple[mistapi.APISession, bool, str]:
-    disable_elicitation = False
+def get_apisession() -> tuple[mistapi.APISession, str]:
     response_format = "json"
 
     if config.transport_mode == "http":
@@ -39,8 +38,6 @@ def get_apisession() -> tuple[mistapi.APISession, bool, str]:
                 apitoken = request.headers.get("X-Authorization", "").replace(
                     "Bearer ", ""
                 )
-            if request.headers.get("X-Disable-Elicitation", "false").lower() == "true":
-                disable_elicitation = True
             if request.query_params.get("output", "").lower() == "string":
                 response_format = "string"
         except NotFoundError as exc:
@@ -54,7 +51,6 @@ def get_apisession() -> tuple[mistapi.APISession, bool, str]:
     else:
         apitoken = config.mist_apitoken
         cloud = config.mist_host
-        disable_elicitation = config.disable_elicitation
         response_format = config.response_format
 
     if not apitoken:
@@ -71,4 +67,4 @@ def get_apisession() -> tuple[mistapi.APISession, bool, str]:
         apitoken=apitoken,
     )
 
-    return apisession, disable_elicitation, response_format
+    return apisession, response_format

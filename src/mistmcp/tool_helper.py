@@ -19,6 +19,7 @@ class McpToolsCategory(Enum):
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
     SLES = "sles"
+    WRITE = "write"
     ORGS = "orgs"
     CLIENTS = "clients"
     DEVICES = "devices"
@@ -57,8 +58,6 @@ TOOLS = {
             "getObjectSchema",
             "getOrgConfigurationObjects",
             "getSiteConfigurationObjects",
-            "updateSiteConfigurationObjects",
-            "updateOrgConfigurationObjects",
         ],
     },
     "constants": {
@@ -184,5 +183,9 @@ TOOLS = {
             "listOrgAvailableDeviceVersions",
             "listOrgAvailableSsrVersions",
         ],
+    },
+    "write": {
+        "description": "Tools that perform write operations, such as creating, updating, or deleting resources in the Juniper Mist platform. These tools allow users to modify configurations, manage devices, and perform other actions that change the state of the network.",
+        "tools": ["updateSiteConfigurationObjects", "updateOrgConfigurationObjects"],
     },
 }

@@ -15,6 +15,7 @@ from typing import Annotated
 from uuid import UUID
 
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from pydantic import Field
 
@@ -69,7 +70,6 @@ NETWORK_TEMPLATE_FIELDS = [
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteConfiguration",
     description="""Retrieve configuration applied to a specific site.""",
     tags={"configuration"},
@@ -92,10 +92,11 @@ async def getSiteConfiguration(
     object_type: Annotated[
         Object_type, Field(description="""Type of configuration object to retrieve.""")
     ],
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve configuration applied to a specific site"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
 
     site_data = mistapi.api.v1.sites.sites.getSiteInfo(apisession, site_id=str(site_id))
     await process_response(site_data)

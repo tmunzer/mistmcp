@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -63,7 +64,6 @@ class Object_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="getOrgConfigurationObjects",
     description="""Retrieve configuration objects from a specified organization.""",
     tags={"configuration"},
@@ -90,10 +90,11 @@ async def getOrgConfigurationObjects(
             description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve configuration objects from a specified organization."""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     match object_type.value:

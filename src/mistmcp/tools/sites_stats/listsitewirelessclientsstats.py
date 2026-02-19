@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -31,7 +32,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name="listSiteWirelessClientsStats",
     description="""Get List of Site All Clients Stats Details""",
     tags={"sites_stats"},
@@ -67,10 +67,11 @@ async def listSiteWirelessClientsStats(
             description="""MAC address of the client to filter stats by. Optional, if not provided all clients will be listed."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get List of Site All Clients Stats Details"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     if client_mac:

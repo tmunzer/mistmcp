@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -31,7 +32,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name="searchOrgUserMacs",
     description="""Search Org User MACs""",
     tags={"orgs_nac"},
@@ -59,10 +59,11 @@ async def searchOrgUserMacs(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search Org User MACs"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.usermacs.searchOrgUserMacs(

@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -71,7 +72,6 @@ class Stp_role(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="searchOrgSwOrGwPorts",
     description="""Search Switch / Gateway Ports Stats.Returns a list of switch/gateway ports stats that match the search criteria.The response provide current/last port status and statistics within the hour.Traffic information (Tx/Rx) are cumulative counters since the last device reboot.""",
     tags={"orgs_stats"},
@@ -173,10 +173,11 @@ async def searchOrgSwOrGwPorts(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search Switch / Gateway Ports Stats.Returns a list of switch/gateway ports stats that match the search criteria.The response provide current/last port status and statistics within the hour.Traffic information (Tx/Rx) are cumulative counters since the last device reboot."""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.stats.searchOrgSwOrGwPorts(

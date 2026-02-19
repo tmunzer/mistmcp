@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -37,7 +38,6 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="searchOrgTunnelsStats",
     description="""By default the endpoint returns only `wxtunnel` type stats, to get `wan` type statsyou need to specify `type=wan` in the query parameters.Tunnel types:- `wxtunnel` (default) - A WxLan Tunnel (WxTunnel) are used to create a secure connection between Juniper Mist Access Points and third-party VPN concentrators using protocols such as L2TPv3 or dmvpn.- `wan` - A WAN Tunnel is a secure connection between two Gateways, typically used for site-to-site or mesh connectivity. It can be configured with various protocols and encryption methods.If `type` is not specified or `type`==`wxtunnel`, the following parameters are supported:- `mxcluster_id` - the MX cluster ID- `site_id` - the site ID- `wxtunnel_id` - the WX tunnel ID- `ap` - the AP MAC addressIf `type`==`wan`, the following parameters are supported:- `mac` - the MAC address of the WAN device- `node` - the node ID- `peer_ip` - the peer IP address- `peer_host` - the peer host name- `ip` - the IP address of the WAN device- `tunnel_name` - the name of the tunnel- `protocol` - the protocol used for the tunnel- `auth_algo` - the authentication algorithm used for the tunnel- `encrypt_algo` - the encryption algorithm used for the tunnel- `ike_version` - the IKE version used for the tunnel- `up` - the status of the tunnel (up or down)""",
     tags={"orgs_stats"},
@@ -124,10 +124,11 @@ async def searchOrgTunnelsStats(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """By default the endpoint returns only `wxtunnel` type stats, to get `wan` type statsyou need to specify `type=wan` in the query parameters.Tunnel types:- `wxtunnel` (default) - A WxLan Tunnel (WxTunnel) are used to create a secure connection between Juniper Mist Access Points and third-party VPN concentrators using protocols such as L2TPv3 or dmvpn.- `wan` - A WAN Tunnel is a secure connection between two Gateways, typically used for site-to-site or mesh connectivity. It can be configured with various protocols and encryption methods.If `type` is not specified or `type`==`wxtunnel`, the following parameters are supported:- `mxcluster_id` - the MX cluster ID- `site_id` - the site ID- `wxtunnel_id` - the WX tunnel ID- `ap` - the AP MAC addressIf `type`==`wan`, the following parameters are supported:- `mac` - the MAC address of the WAN device- `node` - the node ID- `peer_ip` - the peer IP address- `peer_host` - the peer host name- `ip` - the IP address of the WAN device- `tunnel_name` - the name of the tunnel- `protocol` - the protocol used for the tunnel- `auth_algo` - the authentication algorithm used for the tunnel- `encrypt_algo` - the encryption algorithm used for the tunnel- `ike_version` - the IKE version used for the tunnel- `up` - the status of the tunnel (up or down)"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.stats.searchOrgTunnelsStats(

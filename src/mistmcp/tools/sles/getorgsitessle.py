@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -39,7 +40,6 @@ class Sle(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="getOrgSitesSle",
     description="""Get Org Sites SLE""",
     tags={"sles"},
@@ -76,10 +76,11 @@ async def getOrgSitesSle(
     ] = None,
     limit: Optional[int | None] = None,
     page: Annotated[Optional[int | None], Field(ge=1)] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get Org Sites SLE"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.insights.getOrgSitesSle(

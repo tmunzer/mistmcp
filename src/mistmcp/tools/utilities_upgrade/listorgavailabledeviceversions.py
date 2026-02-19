@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -38,7 +39,6 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listOrgAvailableDeviceVersions",
     description="""Get List of Available Device Versions""",
     tags={"Utilities Upgrade"},
@@ -58,10 +58,11 @@ async def listOrgAvailableDeviceVersions(
             description="""Fetch version for device model, use/combine with `type` as needed (for switch and gateway devices)"""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get List of Available Device Versions"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.devices.listOrgAvailableDeviceVersions(

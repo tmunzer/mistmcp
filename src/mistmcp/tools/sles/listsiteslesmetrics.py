@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -40,7 +41,6 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="listSiteSlesMetrics",
     description="""List the metrics for the given scope""",
     tags={"sles"},
@@ -60,10 +60,11 @@ async def listSiteSlesMetrics(
             description="""* site_id if `scope`==`site` * device_id if `scope`==`ap`, `scope`==`switch` or `scope`==`gateway` * mac if `scope`==`client`"""
         ),
     ],
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """List the metrics for the given scope"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.sle.listSiteSlesMetrics(

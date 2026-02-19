@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -31,7 +32,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteInfo",
     description="""Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site.""",
     tags={"Sites"},
@@ -44,10 +44,11 @@ if not mcp:
 )
 async def getSiteInfo(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Provides information about the site, including its name, address,timezone, and associated templates. This endpoint is useful for retrievingthe current configuration and details of a specific site."""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.sites.getSiteInfo(

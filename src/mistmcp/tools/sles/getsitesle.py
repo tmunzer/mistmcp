@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -55,7 +56,6 @@ class Object_type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteSle",
     description="""Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs.""",
     tags={"sles"},
@@ -99,10 +99,11 @@ async def getSiteSle(
     duration: Annotated[
         Optional[str | None], Field(description="""Duration like 7d, 2w""")
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs."""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     match object_type.value:

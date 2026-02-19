@@ -14,8 +14,10 @@ import importlib
 import sys
 
 from fastmcp import FastMCP
+from fastmcp.server.transforms import Visibility
 
 from mistmcp.config import ServerConfig
+from mistmcp.elicitation_middleware import ElicitationMiddleware
 from mistmcp.tool_helper import TOOLS
 
 # Global MCP instance for access from tools
@@ -29,31 +31,16 @@ def get_mcp() -> FastMCP | None:
 
 def _load_tools(config: ServerConfig) -> list[str]:
     """Load all available tools into the MCP server"""
-    enabled_tools: list[str] = []
+    loaded_tools: list[str] = []
 
-    # Always load getSelf first
-    try:
-        module_path = "mistmcp.tools.self_account.getself"
-        if module_path in sys.modules:
-            del sys.modules[module_path]
-        module = importlib.import_module(module_path)
-        if hasattr(module, "getSelf"):
-            getattr(module, "getSelf").enable()
-            enabled_tools.append("getSelf")
-            if config.debug:
-                print("Enabled essential tool: getSelf", file=sys.stderr)
-    except Exception as e:
-        if config.debug:
-            print(f"Warning: Could not enable getSelf: {e}", file=sys.stderr)
-
-    # Load all other tools from TOOLS configuration
+    # Load all tools from TOOLS configuration
     for category, category_info in TOOLS.items():
         tools = category_info.get("tools", [])
         if config.debug:
             print(f"Loading {len(tools)} tools from '{category}'", file=sys.stderr)
 
         for tool_name in tools:
-            if tool_name in enabled_tools:
+            if tool_name in loaded_tools:
                 continue  # Skip already loaded tools
 
             try:
@@ -63,28 +50,10 @@ def _load_tools(config: ServerConfig) -> list[str]:
                 if module_path in sys.modules:
                     del sys.modules[module_path]
 
-                module = importlib.import_module(module_path)
-
-                # Find and enable the tool function
-                tool_func = None
-                if hasattr(module, tool_name):
-                    tool_func = getattr(module, tool_name)
-                else:
-                    # Try case-insensitive search
-                    for attr in dir(module):
-                        if (
-                            attr.lower() == tool_name.lower()
-                            and callable(getattr(module, attr))
-                            and not attr.startswith("_")
-                        ):
-                            tool_func = getattr(module, attr)
-                            break
-
-                if tool_func:
-                    tool_func.enable()
-                    enabled_tools.append(tool_name)
-                    if config.debug:
-                        print(f"  Enabled: {tool_name}", file=sys.stderr)
+                importlib.import_module(module_path)
+                loaded_tools.append(tool_name)
+                if config.debug:
+                    print(f"  Loaded: {tool_name}", file=sys.stderr)
 
             except Exception as e:
                 if config.debug:
@@ -92,7 +61,7 @@ def _load_tools(config: ServerConfig) -> list[str]:
                         f"  Warning: Could not load {tool_name}: {e}", file=sys.stderr
                     )
 
-    return enabled_tools
+    return loaded_tools
 
 
 def create_mcp_server(config: ServerConfig) -> FastMCP:
@@ -158,9 +127,15 @@ CONFIGURATION OBJECTS:
     mcp = FastMCP(
         name="Mist MCP Server",
         instructions=instructions,
-        on_duplicate_tools="replace",
+        on_duplicate="replace",
         mask_error_details=False,
+        middleware=[ElicitationMiddleware()],
     )
+
+    # Write tools are disabled by default and enabled per-session by
+    # ElicitationMiddleware during initialization when the client declares
+    # elicitation support or explicitly sends X-Disable-Elicitation: true.
+    mcp.add_transform(Visibility(False, tags={"write"}, components={"tool"}))
 
     # Store instance globally for tool access
     _mcp_instance = mcp

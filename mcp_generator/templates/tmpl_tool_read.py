@@ -12,6 +12,7 @@ TOOL_TEMPLATE_READ = '''"""
 """
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -32,7 +33,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name = "{operationId}",
     description = """{description}""",
     tags = {{"{tag}"}},
@@ -44,10 +44,11 @@ if not mcp:
     }},
 )
 async def {operationId}(
-    {parameters}) -> dict | list | str:
+    {parameters}    ctx: Context|None = None,
+    ) -> dict | list | str:
     \"\"\"{description}\"\"\"
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {{}}
     
     {request}

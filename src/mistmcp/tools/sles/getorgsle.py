@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -31,7 +32,6 @@ if not mcp:
 
 
 @mcp.tool(
-    enabled=True,
     name="getOrgSle",
     description="""Get Org SLEs (all/worst sites, Mx Edges, ...)""",
     tags={"sles"},
@@ -77,10 +77,11 @@ async def getOrgSle(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get Org SLEs (all/worst sites, Mx Edges, ...)"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.orgs.insights.getOrgSle(

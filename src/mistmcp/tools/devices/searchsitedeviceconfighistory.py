@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -38,7 +39,6 @@ class Type(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="searchSiteDeviceConfigHistory",
     description="""Search for entries in device config history""",
     tags={"devices"},
@@ -83,10 +83,11 @@ async def searchSiteDeviceConfigHistory(
             description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
         ),
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search for entries in device config history"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.devices.searchSiteDeviceConfigHistory(

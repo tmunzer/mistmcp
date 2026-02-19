@@ -12,6 +12,7 @@
 
 import json
 import mistapi
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
@@ -40,7 +41,6 @@ class Scope(Enum):
 
 
 @mcp.tool(
-    enabled=True,
     name="getSiteSleClassifierSummaryTrend",
     description="""Get SLE classifier Summary Trend""",
     tags={"sles"},
@@ -77,10 +77,11 @@ async def getSiteSleClassifierSummaryTrend(
     duration: Annotated[
         Optional[str | None], Field(description="""Duration like 7d, 2w""")
     ] = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get SLE classifier Summary Trend"""
 
-    apisession, _, response_format = get_apisession()
+    apisession, response_format = get_apisession()
     data = {}
 
     response = mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(
