@@ -20,63 +20,7 @@ from mistmcp.config import ServerConfig
 from mistmcp.elicitation_middleware import ElicitationMiddleware
 from mistmcp.tool_helper import TOOLS
 
-# Global MCP instance for access from tools
-_mcp_instance: FastMCP | None = None
-
-
-def get_mcp() -> FastMCP | None:
-    """Get the current MCP instance"""
-    return _mcp_instance
-
-
-def _load_tools(config: ServerConfig) -> list[str]:
-    """Load all available tools into the MCP server"""
-    loaded_tools: list[str] = []
-
-    # Load all tools from TOOLS configuration
-    for category, category_info in TOOLS.items():
-        tools = category_info.get("tools", [])
-        if config.debug:
-            print(f"Loading {len(tools)} tools from '{category}'", file=sys.stderr)
-
-        for tool_name in tools:
-            if tool_name in loaded_tools:
-                continue  # Skip already loaded tools
-
-            try:
-                snake_name = tool_name.lower().replace(" ", "_").replace("-", "_")
-                module_path = f"mistmcp.tools.{category}.{snake_name}"
-
-                if module_path in sys.modules:
-                    del sys.modules[module_path]
-
-                importlib.import_module(module_path)
-                loaded_tools.append(tool_name)
-                if config.debug:
-                    print(f"  Loaded: {tool_name}", file=sys.stderr)
-
-            except Exception as e:
-                if config.debug:
-                    print(
-                        f"  Warning: Could not load {tool_name}: {e}", file=sys.stderr
-                    )
-
-    return loaded_tools
-
-
-def create_mcp_server(config: ServerConfig) -> FastMCP:
-    """
-    Create and configure the MCP server with all tools loaded.
-
-    Args:
-        config: Server configuration
-
-    Returns:
-        Configured FastMCP instance ready to run
-    """
-    global _mcp_instance
-
-    instructions = """
+_instructions = """
 Mist MCP Server provides access to the Juniper Mist MCP API to manage their network (Wi-Fi, LAN, WAN, NAC).
 
 AGENT INSTRUCTION:
@@ -123,24 +67,53 @@ CONFIGURATION OBJECTS:
 - wxtags: Tags for WxRules
 """
 
-    # Create server
-    mcp = FastMCP(
-        name="Mist MCP Server",
-        instructions=instructions,
-        on_duplicate="replace",
-        mask_error_details=False,
-        middleware=[ElicitationMiddleware()],
-    )
+# Module-level MCP instance — imported directly by tool modules
+mcp = FastMCP(
+    name="Mist MCP Server",
+    instructions=_instructions,
+    on_duplicate="replace",
+    mask_error_details=False,
+    middleware=[ElicitationMiddleware()],
+)
 
-    # Write tools are disabled by default and enabled per-session by
-    # ElicitationMiddleware during initialization when the client declares
-    # elicitation support or explicitly sends X-Disable-Elicitation: true.
-    mcp.add_transform(Visibility(False, tags={"write"}, components={"tool"}))
+# Write tools are disabled by default and enabled per-session by
+# ElicitationMiddleware during initialization when the client declares
+# elicitation support or explicitly sends X-Disable-Elicitation: true.
+mcp.add_transform(Visibility(False, tags={"write"}, components={"tool"}))
 
-    # Store instance globally for tool access
-    _mcp_instance = mcp
 
-    # Load all tools
+def _load_tools(config: ServerConfig) -> list[str]:
+    """Load all available tools into the MCP server"""
+    loaded_tools: list[str] = []
+
+    for category, category_info in TOOLS.items():
+        tools = category_info.get("tools", [])
+        if config.debug:
+            print(f"Loading {len(tools)} tools from '{category}'", file=sys.stderr)
+
+        for tool_name in tools:
+            if tool_name in loaded_tools:
+                continue
+
+            try:
+                snake_name = tool_name.lower().replace(" ", "_").replace("-", "_")
+                module_path = f"mistmcp.tools.{category}.{snake_name}"
+                importlib.import_module(module_path)
+                loaded_tools.append(tool_name)
+                if config.debug:
+                    print(f"  Loaded: {tool_name}", file=sys.stderr)
+
+            except Exception as e:
+                if config.debug:
+                    print(
+                        f"  Warning: Could not load {tool_name}: {e}", file=sys.stderr
+                    )
+
+    return loaded_tools
+
+
+def create_mcp_server(config: ServerConfig) -> FastMCP:
+    """Configure and return the MCP server with all tools loaded."""
     enabled_tools = _load_tools(config)
 
     if config.debug:

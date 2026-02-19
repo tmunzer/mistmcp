@@ -18,20 +18,12 @@ from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
 
 from mistmcp.elicitation.elicitation_handler import config_elicitation_handler
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
 from enum import Enum
-
-
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
 
 
 class Object_type(Enum):

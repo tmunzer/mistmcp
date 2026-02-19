@@ -18,15 +18,9 @@ from pydantic import Field
 
 from fastmcp import Context
 from mistmcp.request_processor import get_apisession
-from mistmcp.server import get_mcp
+from mistmcp.server import mcp
 from mistmcp.tools.configuration import schemas_data as _schemas_data_module
 
-mcp = get_mcp()
-
-if not mcp:
-    raise RuntimeError(
-        "MCP instance not found. Make sure to initialize the MCP server before defining tools."
-    )
 
 # Pre-resolved schemas keyed by schema_name (= schemas_config.yaml entry key).
 # Each entry: {"schema": <dict>, "_schema_name": <oas_schema_name>}
