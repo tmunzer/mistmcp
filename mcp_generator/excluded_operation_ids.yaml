@@ -62,6 +62,9 @@
 - searchOrgWebhooksDeliveries
 - searchSiteWebhooksDeliveries
 - getSiteSleClassifierDetails # deprecated
+- getSiteSleHistogram # consolidated into getSiteSle (object_type=histogram)
+- getSiteSleClassifierSummaryTrend # consolidated into getSiteSle (object_type=classifier_summary_trend)
+- getSiteSleThreshold # consolidated into getSiteSle (object_type=threshold)
 - getSiteCallsSummary
 - listSiteTroubleshootCalls
 - searchSiteCalls

@@ -27,10 +27,7 @@ from .constants import getconstants as getconstants
 from .sles import getsitesle as getsitesle
 from .sles import getorgsitessle as getorgsitessle
 from .sles import getorgsle as getorgsle
-from .sles import getsitesleclassifiersummarytrend as getsitesleclassifiersummarytrend
 from .sles import listsiteslemetricclassifiers as listsiteslemetricclassifiers
-from .sles import getsiteslehistogram as getsiteslehistogram
-from .sles import getsiteslethreshold as getsiteslethreshold
 from .sles import listsiteslesmetrics as listsiteslesmetrics
 from .write import updatesiteconfigurationobjects as updatesiteconfigurationobjects
 from .write import updateorgconfigurationobjects as updateorgconfigurationobjects

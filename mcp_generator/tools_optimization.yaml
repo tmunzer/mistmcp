@@ -698,6 +698,13 @@ getSiteSle:
         type: string
       description: End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')
       required: false
+    - name: classifier
+      schema:
+        type: string
+      description: Classifier name. Required when object_type is 'classifier_summary_trend'.
+      required: false
+      required_if:
+        object_type: classifier_summary_trend
     - name: duration
       schema:
         type: string
@@ -759,6 +766,21 @@ getSiteSle:
       get:
         operationId: listSiteSleImpactedChassis
         function: mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    histogram:
+      get:
+        operationId: getSiteSleHistogram
+        function: mistapi.api.v1.sites.sle.getSiteSleHistogram(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    classifier_summary_trend:
+      get:
+        operationId: getSiteSleClassifierSummaryTrend
+        function: mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,classifier=classifier,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+
+    threshold:
+      get:
+        operationId: getSiteSleThreshold
+        function: mistapi.api.v1.sites.sle.getSiteSleThreshold(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,)
 
 updateSiteConfigurationObjects:
   type: tool_consolidation

@@ -46,6 +46,9 @@ class Object_type(Enum):
     IMPACTED_WIRELESS_CLIENTS = "impacted_wireless_clients"
     IMPACTED_WIRED_CLIENTS = "impacted_wired_clients"
     IMPACTED_CHASSIS = "impacted_chassis"
+    HISTOGRAM = "histogram"
+    CLASSIFIER_SUMMARY_TREND = "classifier_summary_trend"
+    THRESHOLD = "threshold"
 
 
 @mcp.tool(
@@ -77,6 +80,12 @@ async def getSiteSle(
     object_type: Annotated[
         Object_type, Field(description="""Type of object to retrieve metrics for.""")
     ],
+    classifier: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Classifier name. Required when object_type is 'classifier_summary_trend'."""
+        ),
+    ] = None,
     start: Annotated[
         Optional[str | None],
         Field(
@@ -242,6 +251,43 @@ async def getSiteSle(
                 start=start if start else None,
                 end=end if end else None,
                 duration=duration if duration else None,
+            )
+            await process_response(response)
+            data = response.data
+        case "histogram":
+            response = mistapi.api.v1.sites.sle.getSiteSleHistogram(
+                apisession,
+                site_id=str(site_id),
+                scope=scope.value,
+                scope_id=scope_id,
+                metric=metric,
+                start=start if start else None,
+                end=end if end else None,
+                duration=duration if duration else None,
+            )
+            await process_response(response)
+            data = response.data
+        case "classifier_summary_trend":
+            response = mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(
+                apisession,
+                site_id=str(site_id),
+                scope=scope.value,
+                scope_id=scope_id,
+                metric=metric,
+                classifier=classifier,
+                start=start if start else None,
+                end=end if end else None,
+                duration=duration if duration else None,
+            )
+            await process_response(response)
+            data = response.data
+        case "threshold":
+            response = mistapi.api.v1.sites.sle.getSiteSleThreshold(
+                apisession,
+                site_id=str(site_id),
+                scope=scope.value,
+                scope_id=scope_id,
+                metric=metric,
             )
             await process_response(response)
             data = response.data
