@@ -41,6 +41,7 @@ class ElicitationMiddleware(Middleware):
             return result
 
         enable_write_tools = False
+        enable_write_delete_tools = False
 
         # DANGER ZONE: If both enable_write_tools and disable_elicitation config flags are set, enable write tools
         # without elicitation safeguards. This is not recommended and should only be used for testing with non-malicious
@@ -85,17 +86,52 @@ class ElicitationMiddleware(Middleware):
                         logger.debug(
                             "Elicitation middleware: X-Disable-Elicitation header detected"
                         )
+                    elif (
+                        request.query_params.get("disable_elicitation", "false").lower()
+                        == "true"
+                    ):
+                        enable_write_tools = True
+                        if ctx is not None:
+                            await ctx.set_state("disable_elicitation", True)
+                        logger.debug(
+                            "Elicitation middleware: disable_elicitation query parameter detected"
+                        )
+                    elif (
+                        request.query_params.get("experimental", "false").lower()
+                        == "true"
+                    ):
+                        enable_write_delete_tools = True
+                        if ctx is not None:
+                            await ctx.set_state("disable_elicitation", True)
+                        logger.debug(
+                            "Elicitation middleware: experimental query parameter detected (elicitation bypass)"
+                        )
                 except Exception as exc:
                     logger.error(
                         "Elicitation middleware: error checking X-Disable-Elicitation header: %s",
                         exc,
                     )
+        else:
+            logger.debug(
+                "Elicitation middleware: write tools not enabled in config, skipping elicitation checks"
+            )
 
-        if enable_write_tools:
+        if enable_write_delete_tools:
+            if ctx is not None:
+                await ctx.enable_components(tags={"write_delete"}, components={"tool"})
+                await ctx.disable_components(tags={"write"}, components={"tool"})
+            logger.debug(
+                "Elicitation middleware: write_delete tools enabled for this session"
+            )
+        elif enable_write_tools:
             if ctx is not None:
                 await ctx.enable_components(tags={"write"}, components={"tool"})
+                await ctx.disable_components(tags={"write_delete"}, components={"tool"})
             logger.debug("Elicitation middleware: write tools enabled for this session")
         else:
+            await ctx.disable_components(
+                tags={"write", "write_delete"}, components={"tool"}
+            )
             logger.debug(
                 "Elicitation middleware: write tools disabled (no elicitation support detected)"
             )

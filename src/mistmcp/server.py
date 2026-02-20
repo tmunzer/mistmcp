@@ -32,6 +32,7 @@ Parameters:
 - only send the parameters that are needed for the request, do not send empty or null parameters
 
 IMPORTANT:
+* do not assume the id used by the tools. Make sure to first retrieve the relevant objects and their ids with the provided tools before trying to use them in other tools.
 * If a tool requires the `org_id`, use the `getSelf` tool to get it
 * If a tool requires the `site_id`, use the `listOrgSites` tool to get it
 

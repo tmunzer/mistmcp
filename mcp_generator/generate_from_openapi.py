@@ -40,6 +40,7 @@ from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
 from templates.tmpl_site_configuration import SITE_CONFIGURATION_TEMPLATE
 from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
 from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
+from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
 
 # Configuration Constants
 FILE_PATH = os.path.realpath(__file__)
@@ -341,7 +342,10 @@ def _process_params(
             tmp_type = f"Annotated[{tmp_type}, Field({','.join(annotations)})]"
 
         if not tmp_mistapi_parameters:
-            tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']} if {tmp_param['name']} else None,\n"
+            if tmp_param["required"]:
+                tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']},\n"
+            else:
+                tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']} if {tmp_param['name']} else None,\n"
 
         parameters += (
             f"    {tmp_param['name']}: {tmp_type}{tmp_optional}{tmp_default},\n"
@@ -461,6 +465,511 @@ def _gen_tools_init(tools_import: dict):
     return "\n".join(tmp)
 
 
+def _gen_tools_custom(
+    func_data: dict,
+    tag_to_tools: dict,
+    root_tools_import: dict,
+    root_enums: list,
+    root_functions: dict,
+    root_tag_defs: dict
+):
+    func_name = func_data["name"]
+    func_tmpl = func_data["template"]
+    func_tag = func_data.get("tag", "untagged")
+
+    tag_dir = OUTPUT_DIR / snake_case(func_tag)
+    tag_dir.mkdir(parents=True, exist_ok=True)
+    init_file = tag_dir / "__init__.py"
+    init_file.write_text("", encoding="utf-8")
+    tool_file = tag_dir / f"{snake_case(func_name)}.py"
+    tool_file.write_text(func_tmpl, encoding="utf-8")
+    tag_to_tools.setdefault(func_tag, []).append(str(tool_file))
+
+    #  tool_tools_import
+    if not root_tools_import.get(snake_case(func_tag)):
+        root_tools_import[snake_case(func_tag)] = []
+    root_tools_import[snake_case(func_tag)].append(snake_case(func_name))
+    # root_enums
+    if (
+        f'    {snake_case(func_tag).upper()} = "{snake_case(func_tag).lower()}"'
+        not in root_enums
+    ):
+        root_enums.append(
+            f'    {snake_case(func_tag).upper()} = "{snake_case(func_tag).lower()}"'
+        )
+    # root_functions
+    if not root_functions.get(snake_case(snake_case(func_tag))):
+        root_functions[snake_case(snake_case(func_tag))] = []
+    root_functions[snake_case(snake_case(func_tag))].append(
+        f"{snake_case(func_name)}.add_tool()"
+    )
+    # root_tag_defs
+    root_tag_defs[snake_case(snake_case(func_tag))
+                  ]["tools"].append(func_name)
+
+
+def _gen_tools_additional_required_parameters(parameter: list, match_name: str = "object_type") -> str:
+    additional_parameters = ""
+    for param in parameter:
+        param_name = param.get("name")
+        for required_if_match_name, required_if_values in param.get("required_if", {}).items():
+            for value in required_if_values:
+                additional_parameters += f"\n    if object_type.value == \"{value}\":\n"
+                additional_parameters += f"        if not {param_name}:\n"
+                additional_parameters += "            raise ToolError(\n"
+                additional_parameters += "                {\n"
+                additional_parameters += "                    'status_code': 400,\n"
+                additional_parameters += f"                    'message': '`{param_name}` parameter is required when `{match_name}` is \"{required_if_match_name}\".',\n"
+                additional_parameters += "            }\n"
+                additional_parameters += "        )\n\n"
+    return additional_parameters
+
+
+def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: list) -> str:
+    request = ""
+    if details.get("get") or details.get("list"):
+        if details.get("get") and details.get("list"):
+            request += (
+                f"            if {func_data.get('if_filter', 'object_id')}:\n"
+                f"                response = {details['get'].get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+                f"            else:\n"
+            )
+            processed_operation_ids.append(
+                details["get"].get("operationId", "").lower()
+            )
+
+        elif details.get("get"):
+            request += (
+                f"            response = {details['get'].get('function', '')}\n"
+                f"            await process_response(response)\n"
+                f"            data = response.data\n"
+            )
+            processed_operation_ids.append(
+                details["get"].get("operationId", "").lower()
+            )
+        if details.get("list") and details.get("list", {}).get("reduce", False):
+            reduce_attribute = details["list"].get(
+                "reduce_attribute", "name")
+            request += (
+                f"                response = {details['list'].get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = {{\n"
+                f"                    item.get('{reduce_attribute}'): item.get('id')\n"
+                f"                    for item in response.data\n"
+                f"                    if item.get('{reduce_attribute}')\n"
+                f"                }}\n"
+            )
+            processed_operation_ids.append(
+                details["list"].get("operationId", "").lower()
+            )
+        elif details.get("list"):
+            request += (
+                f"                response = {details['list'].get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+            )
+            processed_operation_ids.append(
+                details["list"].get("operationId", "").lower()
+            )
+    elif details.get("org_id") or details.get("site_id"):
+        if details.get("site_id") and details.get("org_id"):
+            request += (
+                f"            if site_id:\n"
+                f"                response = {details['site_id'].get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+                f"            else:\n"
+                f"                response = {details['org_id'].get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+            )
+            processed_operation_ids.append(
+                details["site_id"].get("operationId", "").lower()
+            )
+            processed_operation_ids.append(
+                details["org_id"].get("operationId", "").lower()
+            )
+        elif details.get("site_id"):
+            request += (
+                f"            response = {details['site_id'].get('function', '')}\n"
+                f"            await process_response(response)\n"
+                f"            data = response.data\n"
+            )
+            processed_operation_ids.append(
+                details["site_id"].get("operationId", "").lower()
+            )
+        elif details.get("org_id"):
+            request += (
+                f"            response = {details['org_id'].get('function', '')}\n"
+                f"            await process_response(response)\n"
+                f"            data = response.data\n"
+            )
+            processed_operation_ids.append(
+                details["org_id"].get("operationId", "").lower()
+            )
+
+    return request
+
+
+def _gen_tools_write(details: dict, func_data: dict, processed_operation_ids: list) -> str:
+    request = ""
+    i = 0
+    for _, value in details.items():
+        if i == 0:
+            request += (
+                f"            if {func_data.get('if_filter', 'object_id')}:\n"
+                f"                response = {value.get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+            )
+            processed_operation_ids.append(
+                value.get("operationId", "").lower()
+            )
+        else:
+            request += (
+                f"            else:\n"
+                f"                response = {value.get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+            )
+            processed_operation_ids.append(
+                value.get("operationId", "").lower()
+            )
+        i += 1
+    return request
+
+
+def _gen_tools_write_delete(details: dict, func_data: dict, processed_operation_ids: list) -> str:
+    request = ""
+    i = 0
+    for key, value in details.items():
+        if i == 0:
+            request += (
+                f"            if {func_data.get('if_filter', 'action_type')}.value == \"{key}\":\n"
+                f"                response = {value.get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+            )
+            processed_operation_ids.append(
+                value.get("operationId", "").lower()
+            )
+        elif i == len(details) - 1:
+            request += (
+                f"            else:\n"
+                f"                response = {value.get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+            )
+            processed_operation_ids.append(
+                value.get("operationId", "").lower()
+            )
+        else:
+            request += (
+                f"            elif {func_data.get('if_filter', 'action_type')}.value == \"{key}\":\n"
+                f"                response = {value.get('function', '')}\n"
+                f"                await process_response(response)\n"
+                f"                data = response.data\n"
+            )
+            processed_operation_ids.append(
+                value.get("operationId", "").lower()
+            )
+        i += 1
+    return request
+
+
+def _gen_tools_optim(
+        func_name: str,
+        func_data: dict,
+        openapi_parameters: dict,
+        openapi_schemas: dict,
+        tag_to_tools: dict,
+        root_tools_import: dict,
+        root_enums: list,
+        root_functions: dict,
+        root_tag_defs: dict,
+        processed_operation_ids: list
+):
+    if (func_data.get("type") == "tool_consolidation") and (func_data.get("read_only_hint") is True or READ_ONLY_HINT is False):
+        description = func_data.get("description", "")
+        tag = func_data.get("tags", [])[0]
+        enums_optim = []
+        request = "\n"
+        match_name = func_data.get("match_name", "object_type")
+
+        if func_data.get("match_name"):
+            request += f"    object_type = {func_data.get('match_name')}\n"
+            request += _gen_tools_additional_required_parameters(
+                func_data.get("parameters", []))
+
+        request += "    match object_type.value:\n"
+
+        for object_type, details in func_data.get("requests", {}).items():
+            enums_optim.append(object_type)
+            request += f"        case '{object_type}':\n"
+            if func_data.get("read_only_hint") is True:
+                request += _gen_tools_read(details,
+                                           func_data, processed_operation_ids)
+            elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is False:
+                request += _gen_tools_write(details,
+                                            func_data, processed_operation_ids)
+            elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is True:
+                request += _gen_tools_write_delete(details,
+                                                   func_data, processed_operation_ids)
+        request += f"""
+        case _:
+            raise ToolError({{
+                "status_code": 400,
+                "message": f"Invalid object_type: {{object_type.value}}. Valid values are: {{[e.value for e in {match_name.capitalize()}]}}",
+            }})
+            """
+
+        for param in func_data.get("parameters", []):
+            if param.get("name") == match_name:
+                param["schema"]["enum"] = enums_optim
+        imports, models, enums, parameters, _ = (
+            gen_endpoint_parameters(
+                openapi_parameters,
+                openapi_schemas,
+                func_data.get("parameters", []),
+                {},
+                None,
+            )
+        )
+
+        if func_data.get("read_only_hint") is True:
+            tool_code = TOOL_TEMPLATE_READ.format(
+                class_name=func_name.capitalize(),
+                imports=imports,
+                models=models,
+                enums=enums,
+                operationId=func_name,
+                description=description.replace("\n", ""),
+                tag=tag,
+                readOnlyHint=func_data.get("read_only_hint", False),
+                destructiveHint=func_data.get("destructive_hint", True),
+                parameters=parameters,
+                request=request,
+            )
+        elif func_data.get("destructive_hint") is False:
+            tool_code = TOOL_TEMPLATE_WRITE.format(
+                class_name=func_name.capitalize(),
+                imports=imports,
+                models=models,
+                enums=enums,
+                operationId=func_name,
+                description=description.replace("\n", ""),
+                tag=tag,
+                readOnlyHint=func_data.get("read_only_hint", True),
+                destructiveHint=func_data.get("destructive_hint", True),
+                parameters=parameters,
+                request=request,
+            )
+        else:
+            tool_code = TOOL_TEMPLATE_WRITE_DELETE.format(
+                class_name=func_name.capitalize(),
+                imports=imports,
+                models=models,
+                enums=enums,
+                operationId=func_name,
+                description=description.replace("\n", ""),
+                tag=tag,
+                readOnlyHint=func_data.get("read_only_hint", True),
+                destructiveHint=func_data.get("destructive_hint", False),
+                parameters=parameters,
+                request=request,
+            )
+
+        tag_dir = OUTPUT_DIR / snake_case(tag)
+        tag_dir.mkdir(parents=True, exist_ok=True)
+        init_file = tag_dir / "__init__.py"
+        init_file.write_text("", encoding="utf-8")
+        tool_file = tag_dir / f"{snake_case(func_name)}.py"
+        tool_file.write_text(tool_code, encoding="utf-8")
+        tag_to_tools.setdefault(tag, []).append(str(tool_file))
+
+        #  tool_tools_import
+        if not root_tools_import.get(snake_case(tag)):
+            root_tools_import[snake_case(tag)] = []
+        root_tools_import[snake_case(tag)].append(snake_case(func_name))
+        # root_enums
+        if (
+            f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
+            not in root_enums
+        ):
+            root_enums.append(
+                f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
+            )
+        # root_functions
+        if not root_functions.get(snake_case(snake_case(tag))):
+            root_functions[snake_case(snake_case(tag))] = []
+        root_functions[snake_case(snake_case(tag))].append(
+            f"{snake_case(func_name)}.add_tool()"
+        )
+        root_functions[snake_case(snake_case(tag))].append(
+            f"TOOL_REMOVE_FCT.append({snake_case(func_name)}.remove_tool)"
+        )
+        # root_tag_defs
+        root_tag_defs[snake_case(snake_case(tag))
+                      ]["tools"].append(func_name)
+
+
+def _gen_tools_openapi(
+    methods: dict,
+    path: str,
+    details: dict,
+    openapi_parameters: dict,
+    openapi_schemas: dict,
+    tag_to_tools: dict,
+    root_tools_import: dict,
+    root_enums: list,
+    root_functions: dict,
+    root_tag_defs: dict,
+    processed_operation_ids: list
+):
+    for method, details in methods.items():
+        if method.lower() == "get":
+            read_only_hint = True
+            destructive_hint = False
+        elif method.lower() == "delete":
+            destructive_hint = True
+            read_only_hint = False
+            continue
+        elif method.lower() in ["post", "put"]:
+            destructive_hint = True
+            read_only_hint = False
+            continue
+        else:
+            continue
+
+        imports = ""
+        models = ""
+        enums = ""
+        parameters = ""
+        mistapi_parameters = ""
+        tag = ""
+        optimization_parameter_name = ""
+        optimization_request = ""
+        request = ""
+
+        tags = details.get("tags", ["Untagged"])
+        if len(tags) > 0 and tags[0] in EXCLUDED_TAGS:
+            continue
+
+        operation_id = details.get("operationId") or snake_case(
+            path.strip("/").replace("/", "_")
+        )
+        if operation_id in EXCLUDED_OPERATION_IDS:
+            continue
+        if operation_id.lower() in processed_operation_ids:
+            continue
+        if operation_id.startswith("count"):
+            continue
+        if OPTIMIZED_TOOLS.get(operation_id):
+            if OPTIMIZED_TOOLS[operation_id].get("skip", False):
+                continue
+            for new_parameter in OPTIMIZED_TOOLS[operation_id].get(
+                "add_parameters", []
+            ):
+                parameter = {
+                    "name": new_parameter["name"],
+                    "description": new_parameter.get("description", ""),
+                    "in": "query",
+                    "schema": {
+                        "type": new_parameter["schema"]["type"],
+                    },
+                }
+                if new_parameter.get("format"):
+                    parameter["schema"]["format"] = new_parameter["format"]
+
+                if not details.get("parameters"):
+                    details["parameters"] = []
+                details["parameters"].append(parameter)
+
+                optimization_parameter_name = new_parameter["name"]
+                optimization_request = OPTIMIZED_TOOLS[operation_id].get(
+                    "custom_request"
+                )
+        processed_operation_ids.append(operation_id.lower())
+        description = details.get("description", "")
+
+        tag = tags[0]
+        if CUSTOM_TAGS.get(tag.lower()):
+            tag = CUSTOM_TAGS[tag.lower()]
+
+        imports, models, enums, parameters, mistapi_parameters = (
+            gen_endpoint_parameters(
+                openapi_parameters,
+                openapi_schemas,
+                methods.get("parameters", []),
+                details,
+                optimization_parameter_name,
+            )
+        )
+
+        folder_path_parts, file_name = _gen_folder_and_file_paths(path)
+        mistapi_request = f"""mistapi.{".".join(folder_path_parts)}.{file_name}.{operation_id}(
+        apisession,
+    {mistapi_parameters}    )"""
+
+        if optimization_parameter_name:
+            request = REQ_OPTIMIZED_TEMPLATE.format(
+                parameter=optimization_parameter_name,
+                custom_request=optimization_request,
+                request=mistapi_request,
+            )
+        else:
+            request = REQ_TEMPLATE.format(request=mistapi_request)
+
+        tool_code = TOOL_TEMPLATE_READ.format(
+            class_name=operation_id.capitalize(),
+            imports=imports,
+            models=models,
+            enums=enums,
+            operationId=operation_id,
+            description=description.replace("\n", ""),
+            tag=tag,
+            readOnlyHint=read_only_hint,
+            destructiveHint=destructive_hint,
+            parameters=parameters,
+            request=request,
+        )
+
+        tag_dir = OUTPUT_DIR / snake_case(tag)
+        tag_dir.mkdir(parents=True, exist_ok=True)
+        init_file = tag_dir / "__init__.py"
+        init_file.write_text("", encoding="utf-8")
+        tool_file = tag_dir / f"{snake_case(operation_id)}.py"
+        tool_file.write_text(tool_code)
+        tag_to_tools.setdefault(tag, []).append(str(tool_file))
+
+        #  tool_tools_import
+        if not root_tools_import.get(snake_case(tag)):
+            root_tools_import[snake_case(tag)] = []
+        root_tools_import[snake_case(tag)].append(snake_case(operation_id))
+        # root_enums
+        if (
+            f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
+            not in root_enums
+        ):
+            root_enums.append(
+                f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
+            )
+        # root_functions
+        if not root_functions.get(snake_case(snake_case(tag))):
+            root_functions[snake_case(snake_case(tag))] = []
+        root_functions[snake_case(snake_case(tag))].append(
+            f"{snake_case(operation_id)}.add_tool()"
+        )
+        root_functions[snake_case(snake_case(tag))].append(
+            f"TOOL_REMOVE_FCT.append({snake_case(operation_id)}.remove_tool)"
+        )
+        # root_tag_defs
+        root_tag_defs[snake_case(snake_case(tag))
+                      ]["tools"].append(operation_id)
+
+
 def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> None:
     """Main function to process the OpenAPI spec and generate tool files.
 
@@ -478,359 +987,47 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     processed_operation_ids = []
 
     for func in CUSTOM_TOOLS:
-        func_name = func["name"]
-        func_tmpl = func["template"]
-        func_tag = func.get("tag", "untagged")
-
-        tag_dir = OUTPUT_DIR / snake_case(func_tag)
-        tag_dir.mkdir(parents=True, exist_ok=True)
-        init_file = tag_dir / "__init__.py"
-        init_file.write_text("", encoding="utf-8")
-        tool_file = tag_dir / f"{snake_case(func_name)}.py"
-        tool_file.write_text(func_tmpl, encoding="utf-8")
-        tag_to_tools.setdefault(func_tag, []).append(str(tool_file))
-
-        #  tool_tools_import
-        if not root_tools_import.get(snake_case(func_tag)):
-            root_tools_import[snake_case(func_tag)] = []
-        root_tools_import[snake_case(func_tag)].append(snake_case(func_name))
-        # root_enums
-        if (
-            f'    {snake_case(func_tag).upper()} = "{snake_case(func_tag).lower()}"'
-            not in root_enums
-        ):
-            root_enums.append(
-                f'    {snake_case(func_tag).upper()} = "{snake_case(func_tag).lower()}"'
-            )
-        # root_functions
-        if not root_functions.get(snake_case(snake_case(func_tag))):
-            root_functions[snake_case(snake_case(func_tag))] = []
-        root_functions[snake_case(snake_case(func_tag))].append(
-            f"{snake_case(func_name)}.add_tool()"
+        _gen_tools_custom(
+            func,
+            tag_to_tools,
+            root_tools_import,
+            root_enums,
+            root_functions,
+            root_tag_defs,
         )
-        # root_tag_defs
-        root_tag_defs[snake_case(snake_case(func_tag))
-                      ]["tools"].append(func_name)
 
     for func_name, func_data in OPTIMIZED_TOOLS.items():
-        if (func_data.get("type") == "tool_consolidation") and (func_data.get("read_only_hint") is True or READ_ONLY_HINT is False):
-            description = func_data.get("description", "")
-            tag = func_data.get("tags", [])[0]
-            enums_optim = []
-            request = "\n"
-            match_name = func_data.get("match_name", "object_type")
-            if func_data.get("match_name"):
-                request += f"    object_type = {func_data.get('match_name')}\n"
-            request += "    match object_type.value:\n"
-
-            for object_type, details in func_data.get("requests", {}).items():
-                enums_optim.append(object_type)
-                request += f"        case '{object_type}':\n"
-                if func_data.get("read_only_hint") is False:
-                    if details.get("update") and details.get("create"):
-                        request += (
-                            f"            if {func_data.get('if_filter', 'object_id')}:\n"
-                            f"                response = {details['update'].get('function', '')}\n"
-                            f"                await process_response(response)\n"
-                            f"                data = response.data\n"
-                            f"            else:\n"
-                        )
-                        processed_operation_ids.append(
-                            details["update"].get("operationId", "").lower()
-                        )
-                    elif details.get("update"):
-                        request += (
-                            f"            response = {details['update'].get('function', '')}\n"
-                            f"            await process_response(response)\n"
-                            f"            data = response.data\n"
-                        )
-                        processed_operation_ids.append(
-                            details["update"].get("operationId", "").lower()
-                        )
-                    if details.get("create"):
-                        request += (
-                            f"                response = {details['create'].get('function', '')}\n"
-                            f"                await process_response(response)\n"
-                            f"                data = response.data\n"
-                        )
-                        processed_operation_ids.append(
-                            details["create"].get("operationId", "").lower()
-                        )
-                else:
-                    if details.get("get") and details.get("list"):
-                        request += (
-                            f"            if {func_data.get('if_filter', 'object_id')}:\n"
-                            f"                response = {details['get'].get('function', '')}\n"
-                            f"                await process_response(response)\n"
-                            f"                data = response.data\n"
-                            f"            else:\n"
-                        )
-                        processed_operation_ids.append(
-                            details["get"].get("operationId", "").lower()
-                        )
-
-                    elif details.get("get"):
-                        request += (
-                            f"            response = {details['get'].get('function', '')}\n"
-                            f"            await process_response(response)\n"
-                            f"            data = response.data\n"
-                        )
-                        processed_operation_ids.append(
-                            details["get"].get("operationId", "").lower()
-                        )
-                    if details.get("list") and details.get("list", {}).get("reduce", False):
-                        reduce_attribute = details["list"].get(
-                            "reduce_attribute", "name")
-                        request += (
-                            f"                response = {details['list'].get('function', '')}\n"
-                            f"                await process_response(response)\n"
-                            f"                data = {{\n"
-                            f"                    item.get('{reduce_attribute}'): item.get('id')\n"
-                            f"                    for item in response.data\n"
-                            f"                    if item.get('{reduce_attribute}')\n"
-                            f"                }}\n"
-                        )
-                        processed_operation_ids.append(
-                            details["list"].get("operationId", "").lower()
-                        )
-                    elif details.get("list"):
-                        request += (
-                            f"                response = {details['list'].get('function', '')}\n"
-                            f"                await process_response(response)\n"
-                            f"                data = response.data\n"
-                        )
-                        processed_operation_ids.append(
-                            details["list"].get("operationId", "").lower()
-                        )
-            request += f"""
-        case _:
-            raise ToolError({{
-                "status_code": 400,
-                "message": f"Invalid object_type: {{object_type.value}}. Valid values are: {{[e.value for e in {match_name.capitalize()}]}}",
-            }})
-            """
-
-            for param in func_data.get("parameters", []):
-                if param.get("name") == match_name:
-                    param["schema"]["enum"] = enums_optim
-            imports, models, enums, parameters, mistapi_parameters = (
-                gen_endpoint_parameters(
-                    openapi_parameters,
-                    openapi_schemas,
-                    func_data.get("parameters", []),
-                    {},
-                    None,
-                )
-            )
-
-            folder_path_parts, file_name = _gen_folder_and_file_paths(
-                "/api/v1/orgs/{org_id}/consolidated"
-            )
-
-            if func_data.get("read_only_hint") is True:
-                tool_code = TOOL_TEMPLATE_READ.format(
-                    class_name=func_name.capitalize(),
-                    imports=imports,
-                    models=models,
-                    enums=enums,
-                    operationId=func_name,
-                    description=description.replace("\n", ""),
-                    tag=tag,
-                    readOnlyHint=func_data.get("read_only_hint", False),
-                    destructiveHint=func_data.get("destructive_hint", True),
-                    parameters=parameters,
-                    request=request,
-                )
-            else:
-                tool_code = TOOL_TEMPLATE_WRITE.format(
-                    class_name=func_name.capitalize(),
-                    imports=imports,
-                    models=models,
-                    enums=enums,
-                    operationId=func_name,
-                    description=description.replace("\n", ""),
-                    tag=tag,
-                    readOnlyHint=func_data.get("read_only_hint", True),
-                    destructiveHint=func_data.get("destructive_hint", True),
-                    parameters=parameters,
-                    request=request,
-                )
-
-            tag_dir = OUTPUT_DIR / snake_case(tag)
-            tag_dir.mkdir(parents=True, exist_ok=True)
-            init_file = tag_dir / "__init__.py"
-            init_file.write_text("", encoding="utf-8")
-            tool_file = tag_dir / f"{snake_case(func_name)}.py"
-            tool_file.write_text(tool_code, encoding="utf-8")
-            tag_to_tools.setdefault(tag, []).append(str(tool_file))
-
-            #  tool_tools_import
-            if not root_tools_import.get(snake_case(tag)):
-                root_tools_import[snake_case(tag)] = []
-            root_tools_import[snake_case(tag)].append(snake_case(func_name))
-            # root_enums
-            if (
-                f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
-                not in root_enums
-            ):
-                root_enums.append(
-                    f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
-                )
-            # root_functions
-            if not root_functions.get(snake_case(snake_case(tag))):
-                root_functions[snake_case(snake_case(tag))] = []
-            root_functions[snake_case(snake_case(tag))].append(
-                f"{snake_case(func_name)}.add_tool()"
-            )
-            root_functions[snake_case(snake_case(tag))].append(
-                f"TOOL_REMOVE_FCT.append({snake_case(func_name)}.remove_tool)"
-            )
-            # root_tag_defs
-            root_tag_defs[snake_case(snake_case(tag))
-                          ]["tools"].append(func_name)
+        _gen_tools_optim(
+            func_name,
+            func_data,
+            openapi_parameters,
+            openapi_schemas,
+            tag_to_tools,
+            root_tools_import,
+            root_enums,
+            root_functions,
+            root_tag_defs,
+            processed_operation_ids,)
 
     for path, methods in openapi_paths.items():
-        for method, details in methods.items():
-            if method.lower() == "get":
-                read_only_hint = True
-                destructive_hint = False
-            elif method.lower() == "delete":
-                destructive_hint = True
-                read_only_hint = False
-                continue
-            elif method.lower() in ["post", "put"]:
-                destructive_hint = True
-                read_only_hint = False
-                continue
-            else:
-                continue
+        _gen_tools_openapi(
+            methods,
+            path,
+            details=methods.get("get") or methods.get(
+                "post") or methods.get("put") or methods.get("delete") or {},
+            openapi_parameters=openapi_parameters,
+            openapi_schemas=openapi_schemas,
+            tag_to_tools=tag_to_tools,
+            root_tools_import=root_tools_import,
+            root_enums=root_enums,
+            root_functions=root_functions,
+            root_tag_defs=root_tag_defs,
+            processed_operation_ids=processed_operation_ids,
+        )
 
-            imports = ""
-            models = ""
-            enums = ""
-            parameters = ""
-            mistapi_parameters = ""
-            tag = ""
-            optimization_parameter_name = ""
-            optimization_request = ""
-            request = ""
-
-            tags = details.get("tags", ["Untagged"])
-            if len(tags) > 0 and tags[0] in EXCLUDED_TAGS:
-                continue
-
-            operation_id = details.get("operationId") or snake_case(
-                path.strip("/").replace("/", "_")
-            )
-            if operation_id in EXCLUDED_OPERATION_IDS:
-                continue
-            if operation_id.lower() in processed_operation_ids:
-                continue
-            if operation_id.startswith("count"):
-                continue
-            if OPTIMIZED_TOOLS.get(operation_id):
-                if OPTIMIZED_TOOLS[operation_id].get("skip", False):
-                    continue
-                for new_parameter in OPTIMIZED_TOOLS[operation_id].get(
-                    "add_parameters", []
-                ):
-                    parameter = {
-                        "name": new_parameter["name"],
-                        "description": new_parameter.get("description", ""),
-                        "in": "query",
-                        "schema": {
-                            "type": new_parameter["schema"]["type"],
-                        },
-                    }
-                    if new_parameter.get("format"):
-                        parameter["schema"]["format"] = new_parameter["format"]
-
-                    if not details.get("parameters"):
-                        details["parameters"] = []
-                    details["parameters"].append(parameter)
-
-                    optimization_parameter_name = new_parameter["name"]
-                    optimization_request = OPTIMIZED_TOOLS[operation_id].get(
-                        "custom_request"
-                    )
-            processed_operation_ids.append(operation_id.lower())
-            description = details.get("description", "")
-
-            tag = tags[0]
-            if CUSTOM_TAGS.get(tag.lower()):
-                tag = CUSTOM_TAGS[tag.lower()]
-
-            imports, models, enums, parameters, mistapi_parameters = (
-                gen_endpoint_parameters(
-                    openapi_parameters,
-                    openapi_schemas,
-                    methods.get("parameters", []),
-                    details,
-                    optimization_parameter_name,
-                )
-            )
-
-            folder_path_parts, file_name = _gen_folder_and_file_paths(path)
-            mistapi_request = f"""mistapi.{".".join(folder_path_parts)}.{file_name}.{operation_id}(
-            apisession,
-{mistapi_parameters}    )"""
-
-            if optimization_parameter_name:
-                request = REQ_OPTIMIZED_TEMPLATE.format(
-                    parameter=optimization_parameter_name,
-                    custom_request=optimization_request,
-                    request=mistapi_request,
-                )
-            else:
-                request = REQ_TEMPLATE.format(request=mistapi_request)
-
-            tool_code = TOOL_TEMPLATE_READ.format(
-                class_name=operation_id.capitalize(),
-                imports=imports,
-                models=models,
-                enums=enums,
-                operationId=operation_id,
-                description=description.replace("\n", ""),
-                tag=tag,
-                readOnlyHint=read_only_hint,
-                destructiveHint=destructive_hint,
-                parameters=parameters,
-                request=request,
-            )
-
-            tag_dir = OUTPUT_DIR / snake_case(tag)
-            tag_dir.mkdir(parents=True, exist_ok=True)
-            init_file = tag_dir / "__init__.py"
-            init_file.write_text("", encoding="utf-8")
-            tool_file = tag_dir / f"{snake_case(operation_id)}.py"
-            tool_file.write_text(tool_code)
-            tag_to_tools.setdefault(tag, []).append(str(tool_file))
-
-            #  tool_tools_import
-            if not root_tools_import.get(snake_case(tag)):
-                root_tools_import[snake_case(tag)] = []
-            root_tools_import[snake_case(tag)].append(snake_case(operation_id))
-            # root_enums
-            if (
-                f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
-                not in root_enums
-            ):
-                root_enums.append(
-                    f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
-                )
-            # root_functions
-            if not root_functions.get(snake_case(snake_case(tag))):
-                root_functions[snake_case(snake_case(tag))] = []
-            root_functions[snake_case(snake_case(tag))].append(
-                f"{snake_case(operation_id)}.add_tool()"
-            )
-            root_functions[snake_case(snake_case(tag))].append(
-                f"TOOL_REMOVE_FCT.append({snake_case(operation_id)}.remove_tool)"
-            )
-            # root_tag_defs
-            root_tag_defs[snake_case(snake_case(tag))
-                          ]["tools"].append(operation_id)
-
+    #######################################
+    ## SUMMARY AND FINAL FILE GENERATION ##
+    #######################################
     final_tag_tools = {}
     for tag_name, tag_data in root_tag_defs.items():
         if tag_data.get("tools"):

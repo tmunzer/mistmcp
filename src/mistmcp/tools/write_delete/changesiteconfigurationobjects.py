@@ -37,52 +37,82 @@ class Object_type(Enum):
     WXTAGS = "wxtags"
 
 
+class Action_type(Enum):
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+
+
 @mcp.tool(
-    name="updateSiteConfigurationObjects",
+    name="changeSiteConfigurationObjects",
     description="""Update or create configuration object for a specified site. IMPORTANT:To ensure that you are not missing any required attributes when updating the configuration object when updating the object, make sure to :* first retrieve the current configuration object using the tools `getSiteConfigurationObjects` to retrieve the object defined at the site level or `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site* modify the desired attributes * use this tool to update the configuration object with the modified attributesYou can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload.""",
-    tags={"write"},
+    tags={"write_delete"},
     annotations={
-        "title": "updateSiteConfigurationObjects",
+        "title": "changeSiteConfigurationObjects",
         "readOnlyHint": False,
-        "destructiveHint": False,
+        "destructiveHint": True,
         "openWorldHint": True,
     },
 )
-async def updateSiteConfigurationObjects(
+async def changeSiteConfigurationObjects(
+    action_type: Annotated[
+        Action_type,
+        Field(
+            description="Whether the action is creating a new object, updating an existing one, or deleting an existing one. When updating or deleting, the object_id parameter must be provided."
+        ),
+    ],
     site_id: Annotated[
         UUID,
         Field(
-            description="""ID of the site to create or update configuration objects for."""
+            description="""ID of the site to create/update/delete configuration objects for."""
         ),
     ],
     object_type: Annotated[
         Object_type,
-        Field(description="""Type of configuration object to create or update."""),
+        Field(
+            description="""Type of configuration object to create, update, or delete."""
+        ),
     ],
     payload: Annotated[
         dict,
         Field(
-            description="""JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getSiteConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes."""
+            description="""JSON payload of the configuration object to update or create. Required when action_type is 'create' or 'update'. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getSiteConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes."""
         ),
     ],
     object_id: Annotated[
         Optional[UUID | None],
         Field(
-            description="""ID of the specific configuration object to update. Optional, if not provided, a new configuration object will be created with the provided payload."""
+            description="""ID of the specific configuration object to update or delete. Required when action_type is 'update' or 'delete'."""
         ),
     ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Update or create configuration object for a specified site. IMPORTANT:To ensure that you are not missing any required attributes when updating the configuration object when updating the object, make sure to :* first retrieve the current configuration object using the tools `getSiteConfigurationObjects` to retrieve the object defined at the site level or `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site* modify the desired attributes * use this tool to update the configuration object with the modified attributesYou can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload."""
 
-    logger.debug("Tool updateSiteConfigurationObjects called")
+    logger.debug("Tool changeSiteConfigurationObjects called")
 
     apisession, response_format = get_apisession()
     data = {}
 
     action_wording = "create a new"
-    if object_id:
+    if action_type == Action_type.UPDATE:
+        if not object_id:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": "object_id parameter is required when action_type is 'update'.",
+                }
+            )
         action_wording = "update an existing"
+    elif action_type == Action_type.DELETE:
+        if not object_id:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": "object_id parameter is required when action_type is 'delete'.",
+                }
+            )
+        action_wording = "delete an existing"
 
     if ctx:
         try:
@@ -110,7 +140,7 @@ async def updateSiteConfigurationObjects(
 
     match object_type.value:
         case "devices":
-            if object_id:
+            if action_type.value == "update":
                 response = mistapi.api.v1.sites.devices.updateSiteDevice(
                     apisession,
                     site_id=str(site_id),
@@ -120,7 +150,7 @@ async def updateSiteConfigurationObjects(
                 await process_response(response)
                 data = response.data
         case "evpn_topologies":
-            if object_id:
+            if action_type.value == "update":
                 response = mistapi.api.v1.sites.evpn_topologies.updateSiteEvpnTopology(
                     apisession,
                     site_id=str(site_id),
@@ -129,14 +159,20 @@ async def updateSiteConfigurationObjects(
                 )
                 await process_response(response)
                 data = response.data
-            else:
+            elif action_type.value == "create":
                 response = mistapi.api.v1.sites.evpn_topologies.createSiteEvpnTopology(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
+            else:
+                response = mistapi.api.v1.sites.evpn_topologies.deleteSiteEvpnTopology(
+                    apisession, site_id=str(site_id), evpn_topology_id=str(object_id)
+                )
+                await process_response(response)
+                data = response.data
         case "psks":
-            if object_id:
+            if action_type.value == "update":
                 response = mistapi.api.v1.sites.psks.updateSitePsk(
                     apisession,
                     site_id=str(site_id),
@@ -145,14 +181,20 @@ async def updateSiteConfigurationObjects(
                 )
                 await process_response(response)
                 data = response.data
-            else:
+            elif action_type.value == "create":
                 response = mistapi.api.v1.sites.psks.createSitePsk(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
+            else:
+                response = mistapi.api.v1.sites.psks.deleteSitePsk(
+                    apisession, site_id=str(site_id), psk_id=str(object_id)
+                )
+                await process_response(response)
+                data = response.data
         case "webhooks":
-            if object_id:
+            if action_type.value == "update":
                 response = mistapi.api.v1.sites.webhooks.updateSiteWebhook(
                     apisession,
                     site_id=str(site_id),
@@ -161,14 +203,20 @@ async def updateSiteConfigurationObjects(
                 )
                 await process_response(response)
                 data = response.data
-            else:
+            elif action_type.value == "create":
                 response = mistapi.api.v1.sites.webhooks.createSiteWebhook(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
+            else:
+                response = mistapi.api.v1.sites.webhooks.deleteSiteWebhook(
+                    apisession, site_id=str(site_id), webhook_id=str(object_id)
+                )
+                await process_response(response)
+                data = response.data
         case "wlans":
-            if object_id:
+            if action_type.value == "update":
                 response = mistapi.api.v1.sites.wlans.updateSiteWlan(
                     apisession,
                     site_id=str(site_id),
@@ -177,14 +225,20 @@ async def updateSiteConfigurationObjects(
                 )
                 await process_response(response)
                 data = response.data
-            else:
+            elif action_type.value == "create":
                 response = mistapi.api.v1.sites.wlans.createSiteWlan(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
+            else:
+                response = mistapi.api.v1.sites.wlans.deleteSiteWlan(
+                    apisession, site_id=str(site_id), wlan_id=str(object_id)
+                )
+                await process_response(response)
+                data = response.data
         case "wxrules":
-            if object_id:
+            if action_type.value == "update":
                 response = mistapi.api.v1.sites.wxrules.updateSiteWxRule(
                     apisession,
                     site_id=str(site_id),
@@ -193,14 +247,20 @@ async def updateSiteConfigurationObjects(
                 )
                 await process_response(response)
                 data = response.data
-            else:
+            elif action_type.value == "create":
                 response = mistapi.api.v1.sites.wxrules.createSiteWxRule(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
                 data = response.data
+            else:
+                response = mistapi.api.v1.sites.wxrules.deleteSiteWxRule(
+                    apisession, site_id=str(site_id), wxrule_id=str(object_id)
+                )
+                await process_response(response)
+                data = response.data
         case "wxtags":
-            if object_id:
+            if action_type.value == "update":
                 response = mistapi.api.v1.sites.wxtags.updateSiteWxTag(
                     apisession,
                     site_id=str(site_id),
@@ -209,9 +269,15 @@ async def updateSiteConfigurationObjects(
                 )
                 await process_response(response)
                 data = response.data
-            else:
+            elif action_type.value == "create":
                 response = mistapi.api.v1.sites.wxtags.createSiteWxTag(
                     apisession, site_id=str(site_id), body=payload
+                )
+                await process_response(response)
+                data = response.data
+            else:
+                response = mistapi.api.v1.sites.wxtags.deleteSiteWxTag(
+                    apisession, site_id=str(site_id), wxtag_id=str(object_id)
                 )
                 await process_response(response)
                 data = response.data

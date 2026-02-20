@@ -82,7 +82,7 @@ async def getOrgSle(
     response = mistapi.api.v1.orgs.insights.getOrgSle(
         apisession,
         org_id=str(org_id),
-        metric=metric if metric else None,
+        metric=metric,
         sle=sle if sle else None,
         duration=duration if duration else None,
         interval=interval if interval else None,

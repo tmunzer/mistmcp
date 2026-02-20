@@ -74,3 +74,8 @@
 - getOrgCurrentMatchingClientsOfAWxTag
 - getOrgAosRegisterCmd
 - getOrgMxEdgeVmParams
+- getOrgOtherDeviceStats
+- getSiteSetting
+- searchOrgTunnelsStats
+- searchOrgWirelessClientSessions
+- searchOrgEvents

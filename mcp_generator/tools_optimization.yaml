@@ -708,57 +708,57 @@ getSiteSle:
     summary:
       get:
         operationId: getSiteSleSummary
-        function: mistapi.api.v1.sites.sle.getSiteSleSummary(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.getSiteSleSummary(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impact_summary:
       get:
         operationId: getSiteSleImpactSummary
-        function: mistapi.api.v1.sites.sle.getSiteSleImpactSummary(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.getSiteSleImpactSummary(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     summary_trend:
       get:
         operationId: getSiteSleSummaryTrend
-        function: mistapi.api.v1.sites.sle.getSiteSleSummaryTrend(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.getSiteSleSummaryTrend(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impacted_applications:
       get:
         operationId: listSiteSleImpactedApplications
-        function: mistapi.api.v1.sites.sle.listSiteSleImpactedApplications(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedApplications(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impacted_aps:
       get:
         operationId: listSiteSleImpactedAps
-        function: mistapi.api.v1.sites.sle.listSiteSleImpactedAps(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedAps(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impacted_gateways:
       get:
         operationId: listSiteSleImpactedGateways
-        function: mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impacted_interfaces:
       get:
         operationId: listSiteSleImpactedInterfaces
-        function: mistapi.api.v1.sites.sle.listSiteSleImpactedInterfaces(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedInterfaces(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impacted_switches:
       get:
         operationId: listSiteSleImpactedSwitches
-        function: mistapi.api.v1.sites.sle.listSiteSleImpactedSwitches(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedSwitches(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impacted_wireless_clients:
       get:
         operationId: listSiteSleImpactedWirelessClients
-        function: mistapi.api.v1.sites.sle.listSiteSleImpactedWirelessClients(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedWirelessClients(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impacted_wired_clients:
       get:
         operationId: listSiteSleImpactedWiredClients
-        function: mistapi.api.v1.sites.sle.listSiteSleImpactedWiredClients(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedWiredClients(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
     impacted_chassis:
       get:
         operationId: listSiteSleImpactedChassis
-        function: mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id if scope_id else None,metric=metric if metric else None,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
+        function: mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(apisession,site_id=str(site_id),scope=scope.value,scope_id=scope_id,metric=metric,start=start if start else None,end=end if end else None,duration=duration if duration else None,)
 
 updateSiteConfigurationObjects:
   type: tool_consolidation
@@ -779,12 +779,12 @@ updateSiteConfigurationObjects:
       schema:
         type: string
         format: uuid
-      description: ID of the site to update configuration objects for.
+      description: ID of the site to create or update configuration objects for.
       required: true
     - name: object_type
       schema:
         type: string
-      description: Type of configuration object to update.
+      description: Type of configuration object to create or update.
       required: true
     - name: payload
       schema:
@@ -862,7 +862,17 @@ updateSiteConfigurationObjects:
 updateOrgConfigurationObjects:
   type: tool_consolidation
   tags: [write]
-  description: Update or create configuration object for a specified org. When updating the object, make sure to first retrieve the current configuration object using the `getOrgConfigurationObjects` tool, modify the desired attributes and then use this tool to update the configuration object with the modified attributes. This is required to ensure that you are not missing any required attributes when updating the configuration object. You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload.
+  description: |-
+    Update, create or delete configuration object for a specified org. 
+    When updating the object, make sure to:
+    * first retrieve the current configuration object using the `getOrgConfigurationObjects` tool
+    * modify the desired attributes 
+    * then use this tool to update the configuration object with the modified attributes. 
+    This is required to ensure that you are not missing any required attributes when updating the configuration object. 
+    You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. 
+    When creating a new configuration object, make sure to include all required attributes in the payload.
+
+    When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload.
   read_only_hint: false
   destructive_hint: false
   parameters:
@@ -870,12 +880,12 @@ updateOrgConfigurationObjects:
       schema:
         type: string
         format: uuid
-      description: ID of the organization or site to update configuration objects for.
+      description: ID of the organization to create or update configuration objects for.
       required: true
     - name: object_type
       schema:
         type: string
-      description: Type of configuration object to update.
+      description: Type of configuration object to create or update.
       required: true
     - name: payload
       schema:
@@ -1111,3 +1121,908 @@ updateOrgConfigurationObjects:
       create:
         operationId: createOrgWxTag
         function: mistapi.api.v1.orgs.wxtags.createOrgWxTag(apisession, org_id=str(org_id), body=payload)
+
+changeSiteConfigurationObjects:
+  type: tool_consolidation
+  tags: [write_delete]
+  description: |-
+    Update or create configuration object for a specified site. 
+    IMPORTANT:
+    To ensure that you are not missing any required attributes when updating the configuration object when updating the object, make sure to :
+    * first retrieve the current configuration object using the tools `getSiteConfigurationObjects` to retrieve the object defined at the site level or `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site
+    * modify the desired attributes 
+    * use this tool to update the configuration object with the modified attributes
+
+    You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload.
+  read_only_hint: false
+  destructive_hint: true
+  parameters:
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to create/update/delete configuration objects for.
+      required: true
+    - name: object_type
+      schema:
+        type: string
+      description: Type of configuration object to create, update, or delete.
+      required: true
+    - name: payload
+      schema:
+        type: object
+      description: JSON payload of the configuration object to update or create. Required when action_type is 'create' or 'update'. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getSiteConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes.
+      required: true
+    - name: object_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the specific configuration object to update or delete. Required when action_type is 'update' or 'delete'.
+      required: false
+  requests:
+    devices:
+      update:
+        operationId: updateSiteDevice
+        function: mistapi.api.v1.sites.devices.updateSiteDevice(apisession, site_id=str(site_id), device_id=str(object_id), body=payload)
+
+    evpn_topologies:
+      update:
+        operationId: updateSiteEvpnTopologies
+        function: mistapi.api.v1.sites.evpn_topologies.updateSiteEvpnTopology(apisession, site_id=str(site_id), evpn_topology_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteEvpnTopology
+        function: mistapi.api.v1.sites.evpn_topologies.createSiteEvpnTopology(apisession, site_id=str(site_id), body=payload)
+      delete:
+        operationId: deleteSiteEvpnTopology
+        function: mistapi.api.v1.sites.evpn_topologies.deleteSiteEvpnTopology(apisession, site_id=str(site_id), evpn_topology_id=str(object_id))
+
+    # mxedges:
+    #   update:
+    #     operationId: updateSiteMxEdge
+    #     function: mistapi.api.v1.sites.mxedges.updateSiteMxEdge(apisession, site_id=str(site_id), mxedge_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createSiteMxEdge
+    #     function: mistapi.api.v1.sites.mxedges.createSiteMxEdge(apisession, site_id=str(site_id), body=payload)
+
+    psks:
+      update:
+        operationId: updateSitePsk
+        function: mistapi.api.v1.sites.psks.updateSitePsk(apisession, site_id=str(site_id), psk_id=str(object_id), body=payload)
+      create:
+        operationId: createSitePsk
+        function: mistapi.api.v1.sites.psks.createSitePsk(apisession, site_id=str(site_id), body=payload)
+      delete:
+        operationId: deleteSitePsk
+        function: mistapi.api.v1.sites.psks.deleteSitePsk(apisession, site_id=str(site_id), psk_id=str(object_id))
+
+    webhooks:
+      update:
+        operationId: updateSiteWebhook
+        function: mistapi.api.v1.sites.webhooks.updateSiteWebhook(apisession, site_id=str(site_id), webhook_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteWebhook
+        function: mistapi.api.v1.sites.webhooks.createSiteWebhook(apisession, site_id=str(site_id), body=payload)
+      delete:
+        operationId: deleteSiteWebhook
+        function: mistapi.api.v1.sites.webhooks.deleteSiteWebhook(apisession, site_id=str(site_id), webhook_id=str(object_id))
+
+    wlans:
+      update:
+        operationId: updateSiteWlan
+        function: mistapi.api.v1.sites.wlans.updateSiteWlan(apisession, site_id=str(site_id), wlan_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteWlan
+        function: mistapi.api.v1.sites.wlans.createSiteWlan(apisession, site_id=str(site_id), body=payload)
+      delete:
+        operationId: deleteSiteWlan
+        function: mistapi.api.v1.sites.wlans.deleteSiteWlan(apisession, site_id=str(site_id), wlan_id=str(object_id))
+
+    wxrules:
+      update:
+        operationId: updateSiteWxRule
+        function: mistapi.api.v1.sites.wxrules.updateSiteWxRule(apisession, site_id=str(site_id), wxrule_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteWxRule
+        function: mistapi.api.v1.sites.wxrules.createSiteWxRule(apisession, site_id=str(site_id), body=payload)
+      delete:
+        operationId: deleteSiteWxRule
+        function: mistapi.api.v1.sites.wxrules.deleteSiteWxRule(apisession, site_id=str(site_id), wxrule_id=str(object_id))
+
+    wxtags:
+      update:
+        operationId: updateSiteWxTag
+        function: mistapi.api.v1.sites.wxtags.updateSiteWxTag(apisession, site_id=str(site_id), wxtag_id=str(object_id), body=payload)
+      create:
+        operationId: createSiteWxTag
+        function: mistapi.api.v1.sites.wxtags.createSiteWxTag(apisession, site_id=str(site_id), body=payload)
+      delete:
+        operationId: deleteSiteWxTag
+        function: mistapi.api.v1.sites.wxtags.deleteSiteWxTag(apisession, site_id=str(site_id), wxtag_id=str(object_id))
+
+changeOrgConfigurationObjects:
+  type: tool_consolidation
+  tags: [write_delete]
+  description: |-
+    Update, create or delete configuration object for a specified org. 
+    When updating the object, make sure to:
+    * first retrieve the current configuration object using the `getOrgConfigurationObjects` tool
+    * modify the desired attributes 
+    * then use this tool to update the configuration object with the modified attributes. 
+    This is required to ensure that you are not missing any required attributes when updating the configuration object. 
+    You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. 
+    When creating a new configuration object, make sure to include all required attributes in the payload.
+
+    When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail.
+    When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload.
+  read_only_hint: false
+  destructive_hint: true
+  parameters:
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to create, update or delete configuration objects for.
+      required: true
+    - name: object_type
+      schema:
+        type: string
+      description: Type of configuration object to create, update, or delete.
+      required: true
+    - name: payload
+      schema:
+        type: object
+      description: JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getOrgConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes.
+      required: true
+    - name: object_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the specific configuration object to update. Required when action_type is 'update' or 'delete'.
+  requests:
+    alarmtemplates:
+      update:
+        operationId: updateOrgAlarmTemplate
+        function: mistapi.api.v1.orgs.alarmtemplates.updateOrgAlarmTemplate(apisession, org_id=str(org_id), alarmtemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgAlarmTemplate
+        function: mistapi.api.v1.orgs.alarmtemplates.createOrgAlarmTemplate(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgAlarmTemplate
+        function: mistapi.api.v1.orgs.alarmtemplates.deleteOrgAlarmTemplate(apisession, org_id=str(org_id), alarmtemplate_id=str(object_id))
+
+    wlans:
+      update:
+        operationId: updateOrgWlan
+        function: mistapi.api.v1.orgs.wlans.updateOrgWlan(apisession, org_id=str(org_id), wlan_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgWlan
+        function: mistapi.api.v1.orgs.wlans.createOrgWlan(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgWlan
+        function: mistapi.api.v1.orgs.wlans.deleteOrgWlan(apisession, org_id=str(org_id), wlan_id=str(object_id))
+
+    sitegroups:
+      update:
+        operationId: updateOrgSiteGroup
+        function: mistapi.api.v1.orgs.sitegroups.updateOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgSiteGroup
+        function: mistapi.api.v1.orgs.sitegroups.createOrgSiteGroup(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgSiteGroup
+        function: mistapi.api.v1.orgs.sitegroups.deleteOrgSiteGroup(apisession, org_id=str(org_id), sitegroup_id=str(object_id))
+
+    # aptemplates:
+    #   update:
+    #     operationId: updateOrgAptemplate
+    #     function: mistapi.api.v1.orgs.aptemplates.updateOrgAptemplate(apisession, org_id=str(org_id), aptemplate_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgAptemplate
+    #     function: mistapi.api.v1.orgs.aptemplates.createOrgAptemplate(apisession, org_id=str(org_id), body=payload)
+
+    avprofiles:
+      update:
+        operationId: updateOrgAntivirusProfile
+        function: mistapi.api.v1.orgs.avprofiles.updateOrgAntivirusProfile(apisession, org_id=str(org_id), avprofile_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgAntivirusProfile
+        function: mistapi.api.v1.orgs.avprofiles.createOrgAntivirusProfile(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgAntivirusProfile
+        function: mistapi.api.v1.orgs.avprofiles.deleteOrgAntivirusProfile(apisession, org_id=str(org_id), avprofile_id=str(object_id))
+
+    deviceprofiles:
+      update:
+        operationId: updateOrgDeviceProfile
+        function: mistapi.api.v1.orgs.deviceprofiles.updateOrgDeviceProfile(apisession, org_id=str(org_id), deviceprofile_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgDeviceProfile
+        function: mistapi.api.v1.orgs.deviceprofiles.createOrgDeviceProfile(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgDeviceProfile
+        function: mistapi.api.v1.orgs.deviceprofiles.deleteOrgDeviceProfile(apisession, org_id=str(org_id), deviceprofile_id=str(object_id))
+
+    # evpn_topologies:
+    #   update:
+    #     operationId: updateOrgEvpnTopologies
+    #     function: mistapi.api.v1.orgs.evpn_topologies.updateOrgEvpnTopologies(apisession, org_id=str(org_id), evpn_topology_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgEvpnTopology
+    #     function: mistapi.api.v1.orgs.evpn_topologies.createOrgEvpnTopology(apisession, org_id=str(org_id), body=payload)
+
+    gatewaytemplates:
+      update:
+        operationId: updateOrgGatewayTemplate
+        function: mistapi.api.v1.orgs.gatewaytemplates.updateOrgGatewayTemplate(apisession, org_id=str(org_id), gatewaytemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgGatewayTemplate
+        function: mistapi.api.v1.orgs.gatewaytemplates.createOrgGatewayTemplate(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgGatewayTemplate
+        function: mistapi.api.v1.orgs.gatewaytemplates.deleteOrgGatewayTemplate(apisession, org_id=str(org_id), gatewaytemplate_id=str(object_id))
+
+    idpprofiles:
+      update:
+        operationId: updateOrgIdpProfile
+        function: mistapi.api.v1.orgs.idpprofiles.updateOrgIdpProfile(apisession, org_id=str(org_id), idpprofile_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgIdpProfile
+        function: mistapi.api.v1.orgs.idpprofiles.createOrgIdpProfile(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgIdpProfile
+        function: mistapi.api.v1.orgs.idpprofiles.deleteOrgIdpProfile(apisession, org_id=str(org_id), idpprofile_id=str(object_id))
+
+    aamwprofiles:
+      update:
+        operationId: updateOrgAAMWProfile
+        function: mistapi.api.v1.orgs.aamwprofiles.updateOrgAAMWProfile(apisession, org_id=str(org_id), aamwprofile_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgAAMWProfile
+        function: mistapi.api.v1.orgs.aamwprofiles.createOrgAAMWProfile(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgAAMWProfile
+        function: mistapi.api.v1.orgs.aamwprofiles.deleteOrgAAMWProfile(apisession, org_id=str(org_id), aamwprofile_id=str(object_id))
+
+    # mxclusters:
+    #   update:
+    #     operationId: updateOrgMxEdgeClusters
+    #     function: mistapi.api.v1.orgs.mxclusters.updateOrgMxEdgeClusters(apisession, org_id=str(org_id), mxcluster_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgMxEdgeCluster
+    #     function: mistapi.api.v1.orgs.mxclusters.createOrgMxEdgeCluster(apisession, org_id=str(org_id), body=payload)
+
+    # mxedges:
+    #   update:
+    #     operationId: updateOrgMxEdges
+    #     function: mistapi.api.v1.orgs.mxedges.updateOrgMxEdges(apisession, org_id=str(org_id), mxedge_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgMxEdge
+    #     function: mistapi.api.v1.orgs.mxedges.createOrgMxEdge(apisession, org_id=str(org_id), body=payload)
+
+    # mxtunnels:
+    #   update:
+    #     operationId: updateOrgMxTunnels
+    #     function: mistapi.api.v1.orgs.mxtunnels.updateOrgMxTunnels(apisession, org_id=str(org_id), mxtunnel_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgMxTunnel
+    #     function: mistapi.api.v1.orgs.mxtunnels.createOrgMxTunnel(apisession, org_id=str(org_id), body=payload)
+
+    nactags:
+      update:
+        operationId: updateOrgNacTag
+        function: mistapi.api.v1.orgs.nactags.updateOrgNacTag(apisession, org_id=str(org_id), nactag_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgNacTag
+        function: mistapi.api.v1.orgs.nactags.createOrgNacTag(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgNacTag
+        function: mistapi.api.v1.orgs.nactags.deleteOrgNacTag(apisession, org_id=str(org_id), nactag_id=str(object_id))
+
+    nacrules:
+      update:
+        operationId: updateOrgNacRule
+        function: mistapi.api.v1.orgs.nacrules.updateOrgNacRule(apisession, org_id=str(org_id), nacrule_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgNacRule
+        function: mistapi.api.v1.orgs.nacrules.createOrgNacRule(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgNacRule
+        function: mistapi.api.v1.orgs.nacrules.deleteOrgNacRule(apisession, org_id=str(org_id), nacrule_id=str(object_id))
+
+    networktemplates:
+      update:
+        operationId: updateOrgNetworkTemplate
+        function: mistapi.api.v1.orgs.networktemplates.updateOrgNetworkTemplate(apisession, org_id=str(org_id), networktemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgNetworkTemplate
+        function: mistapi.api.v1.orgs.networktemplates.createOrgNetworkTemplate(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgNetworkTemplate
+        function: mistapi.api.v1.orgs.networktemplates.deleteOrgNetworkTemplate(apisession, org_id=str(org_id), networktemplate_id=str(object_id))
+
+    networks:
+      update:
+        operationId: updateOrgNetwork
+        function: mistapi.api.v1.orgs.networks.updateOrgNetwork(apisession, org_id=str(org_id), network_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgNetwork
+        function: mistapi.api.v1.orgs.networks.createOrgNetwork(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgNetwork
+        function: mistapi.api.v1.orgs.networks.deleteOrgNetwork(apisession, org_id=str(org_id), network_id=str(object_id))
+
+    psks:
+      update:
+        operationId: updateOrgPsk
+        function: mistapi.api.v1.orgs.psks.updateOrgPsk(apisession, org_id=str(org_id), psk_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgPsk
+        function: mistapi.api.v1.orgs.psks.createOrgPsk(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgPsk
+        function: mistapi.api.v1.orgs.psks.deleteOrgPsk(apisession, org_id=str(org_id), psk_id=str(object_id))
+
+    rftemplates:
+      update:
+        operationId: updateOrgRfTemplate
+        function: mistapi.api.v1.orgs.rftemplates.updateOrgRfTemplate(apisession, org_id=str(org_id), rftemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgRfTemplate
+        function: mistapi.api.v1.orgs.rftemplates.createOrgRfTemplate(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgRfTemplate
+        function: mistapi.api.v1.orgs.rftemplates.deleteOrgRfTemplate(apisession, org_id=str(org_id), rftemplate_id=str(object_id))
+
+    services:
+      update:
+        operationId: updateOrgService
+        function: mistapi.api.v1.orgs.services.updateOrgService(apisession, org_id=str(org_id), service_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgService
+        function: mistapi.api.v1.orgs.services.createOrgService(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgService
+        function: mistapi.api.v1.orgs.services.deleteOrgService(apisession, org_id=str(org_id), service_id=str(object_id))
+
+    servicepolicies:
+      update:
+        operationId: updateOrgServicePolicy
+        function: mistapi.api.v1.orgs.servicepolicies.updateOrgServicePolicy(apisession, org_id=str(org_id), servicepolicy_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgServicePolicy
+        function: mistapi.api.v1.orgs.servicepolicies.createOrgServicePolicy(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgServicePolicy
+        function: mistapi.api.v1.orgs.servicepolicies.deleteOrgServicePolicy(apisession, org_id=str(org_id), servicepolicy_id=str(object_id))
+
+    # sites:
+    #   update:
+    #     operationId: updateOrgSites
+    #     function: mistapi.api.v1.orgs.sites.updateOrgSites(apisession, org_id=str(org_id), site_id=str(object_id), body=payload)
+    #   create:
+    #     operationId: createOrgSite
+    #     function: mistapi.api.v1.orgs.sites.createOrgSite(apisession, org_id=str(org_id), body=payload)
+
+    sitetemplates:
+      update:
+        operationId: updateOrgSiteTemplate
+        function: mistapi.api.v1.orgs.sitetemplates.updateOrgSiteTemplate(apisession, org_id=str(org_id), sitetemplate_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgSiteTemplate
+        function: mistapi.api.v1.orgs.sitetemplates.createOrgSiteTemplate(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgSiteTemplate
+        function: mistapi.api.v1.orgs.sitetemplates.deleteOrgSiteTemplate(apisession, org_id=str(org_id), sitetemplate_id=str(object_id))
+
+    vpns:
+      update:
+        operationId: updateOrgVpn
+        function: mistapi.api.v1.orgs.vpns.updateOrgVpn(apisession, org_id=str(org_id), vpn_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgVpn
+        function: mistapi.api.v1.orgs.vpns.createOrgVpn(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgVpn
+        function: mistapi.api.v1.orgs.vpns.deleteOrgVpn(apisession, org_id=str(org_id), vpn_id=str(object_id))
+
+    webhooks:
+      update:
+        operationId: updateOrgWebhook
+        function: mistapi.api.v1.orgs.webhooks.updateOrgWebhook(apisession, org_id=str(org_id), webhook_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgWebhook
+        function: mistapi.api.v1.orgs.webhooks.createOrgWebhook(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgWebhook
+        function: mistapi.api.v1.orgs.webhooks.deleteOrgWebhook(apisession, org_id=str(org_id), webhook_id=str(object_id))
+
+    wlantemplates:
+      update:
+        operationId: updateOrgTemplate
+        function: mistapi.api.v1.orgs.templates.updateOrgTemplate(apisession, org_id=str(org_id), template_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgTemplate
+        function: mistapi.api.v1.orgs.templates.createOrgTemplate(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgTemplate
+        function: mistapi.api.v1.orgs.templates.deleteOrgTemplate(apisession, org_id=str(org_id), template_id=str(object_id))
+
+    wxrules:
+      update:
+        operationId: updateOrgWxRule
+        function: mistapi.api.v1.orgs.wxrules.updateOrgWxRule(apisession, org_id=str(org_id), wxrule_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgWxRule
+        function: mistapi.api.v1.orgs.wxrules.createOrgWxRule(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgWxRule
+        function: mistapi.api.v1.orgs.wxrules.deleteOrgWxRule(apisession, org_id=str(org_id), wxrule_id=str(object_id))
+
+    wxtags:
+      update:
+        operationId: updateOrgWxTag
+        function: mistapi.api.v1.orgs.wxtags.updateOrgWxTag(apisession, org_id=str(org_id), wxtag_id=str(object_id), body=payload)
+      create:
+        operationId: createOrgWxTag
+        function: mistapi.api.v1.orgs.wxtags.createOrgWxTag(apisession, org_id=str(org_id), body=payload)
+      delete:
+        operationId: deleteOrgWxTag
+        function: mistapi.api.v1.orgs.wxtags.deleteOrgWxTag(apisession, org_id=str(org_id), wxtag_id=str(object_id))
+
+getSelf:
+  type: tool_consolidation
+  tags: [self_account]
+  description: |-
+    This tool can be used to retrieve information about the current user and account.
+    The information provided will depend on the `action_type` attribute:
+    * `account_info`: will return information about the account including account ID, account name, and the list of orgs (and their respective `org_id`) the account has access to, with the permissions level (read or write) for each org.
+    * `api_usage`: will return information about the API usage of the account including the number of API calls made in the current hour cycle and the API call limit for the account.
+    * `login_failures`: will return information about the recent login failures for the account including the timestamp of the failure, the source IP address, and the reason for the failure.
+  read_only_hint: true
+  destructive_hint: false
+  match_name: action_type
+  parameters:
+    - name: action_type
+      schema:
+        type: string
+        enum: [account_info, api_usage, login_failures]
+      description: Type of information to retrieve about the current user and account. Possible values are `account_info`, `api_usage`, and `login_failures`.
+      required: true
+  requests:
+    account_info:
+      get:
+        operationId: getSelf
+        function: mistapi.api.v1.self.self.getSelf(apisession)
+    api_usage:
+      get:
+        operationId: getSelfApiUsage
+        function: mistapi.api.v1.self.usage.getSelfApiUsage(apisession)
+    login_failures:
+      get:
+        operationId: getSelfLoginFailures
+        function: mistapi.api.v1.self.login_failures.getSelfLoginFailures(apisession)
+
+getSiteRrmInfo:
+  type: tool_consolidation
+  tags: [sites_rrm]
+  description: |-
+    This tool can be used to retrieve information the site RRM (Radio Resource Management) status.
+  read_only_hint: true
+  destructive_hint: false
+  match_name: rrm_info_type
+  parameters:
+    - name: rrm_info_type
+      schema:
+        type: string
+        enum: [account_info, api_usage, login_failures]
+      description: Type of information to retrieve about the current user and account. Possible values are `account_info`, `api_usage`, and `login_failures`.
+      required: true
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to retrieve RRM information for.
+      required: true
+    - name: device_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the device to retrieve RRM information for. Required when `rrm_info_type` is `current_rrm_considerations`.
+      required: false
+      required_if:
+        rrm_info_type:
+          - current_rrm_considerations
+    - name: band
+      schema:
+        type: string
+        enum: ["24", "5", "6"]
+      description: 802.11 Band to retrieve RRM information for. Required when `rrm_info_type` is `current_rrm_considerations` or `current_rrm_neighbors`.
+      required: false
+      required_if:
+        rrm_info_type:
+          - current_rrm_considerations
+          - current_rrm_neighbors
+  requests:
+    current_channel_planning:
+      get:
+        operationId: getSiteCurrentChannelPlanning
+        function: mistapi.api.v1.sites.rrm.getSiteCurrentChannelPlanning(apisession, site_id=str(site_id))
+    current_rrm_considerations:
+      get:
+        operationId: getSiteCurrentRrmConsiderations
+        function: mistapi.api.v1.sites.rrm.getSiteCurrentRrmConsiderations(apisession, site_id=str(site_id), device_id=str(device_id), band=str(band))
+    current_rrm_neighbors:
+      get:
+        operationId: listSiteCurrentRrmNeighbors
+        function: mistapi.api.v1.sites.rrm.listSiteCurrentRrmNeighbors(apisession, site_id=str(site_id), band=str(band))
+
+getOrgLicenses:
+  type: tool_consolidation
+  tags: [orgs]
+  description: |-
+    This tool can be used to retrieve information about the licenses of an org.
+  read_only_hint: true
+  destructive_hint: false
+  parameters:
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to retrieve license information for.
+      required: true
+  match_name: response_type
+  requests:
+    claim_status:
+      get:
+        operationId: GetOrgLicenseAsyncClaimStatus
+        function: mistapi.api.v1.orgs.claim.GetOrgLicenseAsyncClaimStatus(apisession, org_id=str(org_id))
+    by_site:
+      get:
+        operationId: getOrgLicensesBySite
+        function: mistapi.api.v1.orgs.licenses.getOrgLicensesBySite(apisession, org_id=str(org_id))
+    summary:
+      get:
+        operationId: getOrgLicensesSummary
+        function: mistapi.api.v1.orgs.licenses.getOrgLicensesSummary(apisession, org_id=str(org_id))
+
+getSiteStats:
+  type: tool_consolidation
+  tags: [site_stats]
+  description: |-
+    This tool can be used to retrieve various statistics about a site. The type of statistics retrieved will depend on the `stats_type` parameter. 
+    When retrieving client stats, you can specify a time range for the stats using the `start_time` and `end_time` parameters. If not specified, the API will return stats for the last 24 hours.
+  read_only_hint: true
+  destructive_hint: false
+  match_name: stats_type
+  parameters:
+    - name: stats_type
+      schema:
+        type: string
+        enum: [site, mxedge, wireless_client, devices, bgp, ospf, port]
+      description: Type of statistics to retrieve about the site.
+      required: true
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to retrieve statistics for.
+      required: true
+    - name: start_time
+      schema:
+        type: string
+      description: Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')
+      required: false
+    - name: end_time
+      schema:
+        type: string
+      description: End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')
+      required: false
+    - name: object_id
+      schema:
+        type: string
+        format: uuid
+      description: |-
+        Optional, ID or MAC to filter on:
+        * When stats_type is `mxedge`, this is the ID of the MX Edge device to retrieve statistics for.
+        * When stats_type is `wireless_client`, this is the MAC address of the wireless client to retrieve statistics for.
+        * When stats_type is `devices`, this is the ID of the device to retrieve statistics for.
+        * When stats_type is `bgp`, this is the MAC address of the BGP peer to retrieve statistics for.
+        * When stats_type is `ospf`, this is the MAC address of the OSPF neighbor to retrieve statistics for.
+        * When stats_type is `port`, this is the MAC address of the switch or gateway port to retrieve statistics for.
+      required: false
+  requests:
+    site:
+      get:
+        operationId: getSiteStats
+        function: mistapi.api.v1.sites.stats.getSiteStats(apisession, site_id=str(site_id),)
+    mxedge:
+      list:
+        operationId: listSiteMxEdgesStats
+        function: mistapi.api.v1.sites.stats.listSiteMxEdgesStats(apisession, site_id=str(site_id), start=str(start_time), end=str(end_time))
+      get:
+        operationId: getSiteMxEdgeStats
+        function: mistapi.api.v1.sites.stats.getSiteMxEdgeStats(apisession, site_id=str(site_id), start=str(start_time), end=str(end_time), mxedge_id=str(object_id) )
+    wireless_client:
+      list:
+        operationId: listSiteWirelessClientsStats
+        function: mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(apisession, site_id=str(site_id), start=str(start_time), end=str(end_time))
+      get:
+        operationId: getSiteWirelessClientStats
+        function: mistapi.api.v1.sites.stats.getSiteWirelessClientStats(apisession, site_id=str(site_id),  client_mac=str(object_id)  )
+    devices:
+      list:
+        operationId: listSiteDevicesStats
+        function: mistapi.api.v1.sites.stats.listSiteDevicesStats(apisession, site_id=str(site_id), )
+      get:
+        operationId: getSiteDeviceStats
+        function: mistapi.api.v1.sites.stats.getSiteDeviceStats(apisession, site_id=str(site_id), device_id=str(object_id)  )
+    bgp:
+      list:
+        operationId: searchSiteBgpStats
+        function: mistapi.api.v1.sites.stats.searchSiteBgpStats(apisession, site_id=str(site_id), start=str(start_time), end=str(end_time), mac=str(object_id)  )
+    ospf:
+      list:
+        operationId: searchSiteOspfStats
+        function: mistapi.api.v1.sites.stats.searchSiteOspfStats(apisession, site_id=str(site_id), start=str(start_time), end=str(end_time), mac=str(object_id)  )
+    port:
+      list:
+        operationId: searchSiteSwOrGwPorts
+        function: mistapi.api.v1.sites.stats.searchSiteSwOrGwPorts(apisession, site_id=str(site_id), mac=str(object_id)  )
+
+getOrgStats:
+  type: tool_consolidation
+  tags: [org_stats]
+  description: |-
+    This tool can be used to retrieve various statistics about an organization. The type of statistics retrieved will depend on the `stats_type` parameter. 
+    When retrieving client stats, you can specify a time range for the stats using the `start_time` and `end_time` parameters. If not specified, the API will return stats for the last 24 hours.
+  read_only_hint: true
+  destructive_hint: false
+  match_name: stats_type
+  parameters:
+    - name: stats_type
+      schema:
+        type: string
+        enum:
+          [site, mxedge, wireless_client, devices, bgp, ospf, peer_paths, port]
+      description: Type of statistics to retrieve about the organization.
+      required: true
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to retrieve statistics for.
+      required: true
+    - name: start_time
+      schema:
+        type: string
+      description: Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')
+      required: false
+    - name: end_time
+      schema:
+        type: string
+      description: End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')
+      required: false
+    - name: object_id
+      schema:
+        type: string
+        format: uuid
+      description: |-
+        Optional, ID or MAC to filter on:
+        * When stats_type is `site`, this is not used as site stats do not require an object ID filter.
+        * When stats_type is `mxedge`, this is the ID of the MX Edge device to retrieve statistics for.
+        * When stats_type is `devices`, this is the ID of the device to retrieve statistics for.
+        * When stats_type is `bgp`, this is the MAC address of the BGP peer to retrieve statistics for.
+        * When stats_type is `ospf`, this is the MAC address of the OSPF neighbor to retrieve statistics for.
+        * When stats_type is `peer_paths`, this is the MAC address of the peer to retrieve path statistics for.
+        * When stats_type is `port`, this is the MAC address of the switch or gateway port to retrieve statistics for.
+      required: false
+  requests:
+    org:
+      get:
+        operationId: getOrgStats
+        function: mistapi.api.v1.orgs.stats.getOrgStats(apisession, org_id=str(org_id), start=str(start_time), end=str(end_time) )
+    site:
+      list:
+        operationId: listOrgSiteStats
+        function: mistapi.api.v1.orgs.stats.listOrgSiteStats(apisession, org_id=str(org_id), start=str(start_time), end=str(end_time) )
+      get:
+        operationId: getSiteStats
+        function: mistapi.api.v1.sites.stats.getSiteStats(apisession, site_id=str(object_id),)
+    mxedge:
+      list:
+        operationId: listOrgMxEdgesStats
+        function: mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(apisession, org_id=str(org_id), start=str(start_time), end=str(end_time))
+      get:
+        operationId: getOrgMxEdgeStats
+        function: mistapi.api.v1.orgs.stats.getOrgMxEdgeStats(apisession, org_id=str(org_id), mxedge_id=str(object_id) )
+    devices:
+      list:
+        operationId: listOrgDevicesStats
+        function: mistapi.api.v1.orgs.stats.listOrgDevicesStats(apisession, org_id=str(org_id), start=str(start_time), end=str(end_time), mac=str(object_id)  )
+    bgp:
+      list:
+        operationId: searchOrgBgpStats
+        function: mistapi.api.v1.orgs.stats.searchOrgBgpStats(apisession, org_id=str(org_id), start=str(start_time), end=str(end_time), mac=str(object_id)  )
+    ospf:
+      list:
+        operationId: searchOrgOspfStats
+        function: mistapi.api.v1.orgs.stats.searchOrgOspfStats(apisession, org_id=str(org_id), start=str(start_time), end=str(end_time), mac=str(object_id)  )
+    peer_paths:
+      list:
+        operationId: searchOrgPeerPathStats
+        function: mistapi.api.v1.orgs.stats.searchOrgPeerPathStats(apisession, org_id=str(org_id), start=str(start_time), end=str(end_time), mac=str(object_id)  )
+    port:
+      list:
+        operationId: searchOrgSwOrGwPorts
+        function: mistapi.api.v1.orgs.stats.searchOrgSwOrGwPorts(apisession, org_id=str(org_id), mac=str(object_id)  )
+
+searchEvents:
+  type: tool_consolidation
+  tags: [events]
+  description: |-
+    This tool can be used to search for events in an organization. You can specify a time range for the search using the `start_time` and `end_time` parameters, and you can also filter the search by event type using the `event_type` parameter.
+  read_only_hint: true
+  destructive_hint: false
+  match_name: event_source
+  parameters:
+    - name: event_source
+      schema:
+        type: string
+        enum: [device, mxedge, wan_client, wireless_client, nac_client, roaming]
+      description: |-
+        Source of events to search for. If not specified, events from all sources will be included in the search.
+        * `device`: events related to devices in the organization or site.
+        * `mxedge`: events related to MX Edge devices in the organization or site.
+        * `wan_client`: events related to WAN clients in the organization or site.
+        * `wireless_client`: events related to wireless clients in the organization or site.
+        * `nac_client`: events related to NAC clients in the organization or site.
+        * `roaming`: events related to wireless client roaming in the site. This required `site_id` parameter is required.
+      required: true
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to search for events in.
+      required: true
+    - name: start_time
+      schema:
+        type: string
+      description: Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')
+      required: false
+    - name: end_time
+      schema:
+        type: string
+      description: End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')
+      required: false
+    - name: event_type
+      schema:
+        type: string
+      description: Type of events to search for. If not specified, all event types will be included in the search. The list of possible event types can be obtained with the `getConstants` tool.
+      required: false
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to filter events by. If not specified, events from all sites in the organization will be included in the search.
+      required: false
+      required_if:
+        event_source:
+          - roaming
+    - name: mac
+      schema:
+        type: string
+        format: uuid
+      description: ID of the device to filter events by. If not specified, events from all devices in the organization will be included in the search. Not applicable when searching for wireless client events.
+      required: false
+    - name: text
+      schema:
+        type: string
+      description: Text to search for in the event details. If not specified, events will not be filtered by text. Only applicable when searching for device events or nac client events.
+      required: false
+    - name: ssid
+      schema:
+        type: string
+      description: SSID to filter wireless client events by. Only applicable when searching for wireless client events or nac client events.
+      required: false
+  requests:
+    device:
+      site_id:
+        operationId: searchSiteDeviceEvents
+        function: mistapi.api.v1.sites.devices.searchSiteDeviceEvents(apisession, site_id=str(site_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None,  mac=str(mac) if mac else None, text=str(text) if text else None  )
+      org_id:
+        operationId: searchOrgDeviceEvents
+        function: mistapi.api.v1.orgs.devices.searchOrgDeviceEvents(apisession, org_id=str(org_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, mac=str(mac) if mac else None, text=str(text) if text else None  )
+    mxedge:
+      site_id:
+        operationId: mxedges.searchSiteMistEdgeEvents
+        function: mistapi.api.v1.sites.mxedges.searchSiteMistEdgeEvents(apisession, site_id=str(site_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, mxedge_id=f"00000000-0000-0000-1000-{str(mac)}" if mac else None)
+      org_id:
+        operationId: searchOrgMistEdgeEvents
+        function: mistapi.api.v1.orgs.mxedges.searchOrgMistEdgeEvents(apisession, org_id=str(org_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, mxedge_id=f"00000000-0000-0000-1000-{str(mac)}" if mac else None)
+    wan_client:
+      site_id:
+        operationId: searchSiteWanClientEvents
+        function: mistapi.api.v1.sites.wan_clients.searchSiteWanClientEvents(apisession, site_id=str(site_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, mac=str(mac) if mac else None,  )
+      org_id:
+        operationId: searchOrgWanClientEvents
+        function: mistapi.api.v1.orgs.wan_clients.searchOrgWanClientEvents(apisession, org_id=str(org_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, mac=str(mac) if mac else None,   )
+    wireless_client:
+      site_id:
+        operationId: searchSiteWirelessClientEvents
+        function: mistapi.api.v1.sites.clients.searchSiteWirelessClientEvents(apisession, site_id=str(site_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, ssid=str(ssid) if ssid else None,  )
+      org_id:
+        operationId: searchOrgWirelessClientEvents
+        function: mistapi.api.v1.orgs.clients.searchOrgWirelessClientEvents(apisession, org_id=str(org_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, ssid=str(ssid) if ssid else None,  )
+    nac_client:
+      site_id:
+        operationId: searchSiteNacClientEvents
+        function: mistapi.api.v1.sites.nac_clients.searchSiteNacClientEvents(apisession, site_id=str(site_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, mac=str(mac) if mac else None, text=str(text) if text else None, ssid=str(ssid) if ssid else None  )
+      org_id:
+        operationId: searchOrgNacClientEvents
+        function: mistapi.api.v1.orgs.nac_clients.searchOrgNacClientEvents(apisession, org_id=str(org_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, mac=str(mac) if mac else None, text=str(text) if text else None, ssid=str(ssid) if ssid else None  )
+    roaming:
+      site_id:
+        operationId: listSiteRoamingEvents
+        function: mistapi.api.v1.sites.events.listSiteRoamingEvents(apisession, site_id=str(site_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, )
+
+searchDevices:
+  type: tool_consolidation
+  tags: [devices]
+  description: |-
+    This tool can be used to search for devices in an organization or site. 
+    You can filter the search by device type, device name, or MAC address using the `device_type`, `name`, and `mac` parameters, respectively.
+    IMPORTANT: this tool only returns devices that are currently connected to Mist.
+  read_only_hint: true
+  destructive_hint: false
+  parameters:
+    - name: scope
+      schema:
+        type: string
+        enum: [org, site]
+      description: Whether to search for devices in the entire organization or a specific site. If `site` is selected, the `site_id` parameter is required.
+      required: true
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to search for devices in.
+      required: true
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to search for devices in. If not specified, devices from all sites in the organization will be included in the search.
+      required: false
+      required_if:
+        scope:
+          - site
+    - name: device_type
+      schema:
+        type: string
+        enum: [ap, switch, gateway]
+      description: Type of device to search for. If not specified, all device types will be included in the search.
+      required: false
+    - name: hostname
+      schema:
+        type: string
+      description: Hostname of the device to search for. Supports partial matches. If not specified, devices will not be filtered by hostname.
+      required: false
+    - name: mac
+      schema:
+        type: string
+      description: MAC address of the device to search for. If not specified, devices will not be filtered by MAC address.
+      required: false
+    - name: model
+      schema:
+        type: string
+      description: Model of the device to search for. If not specified, devices will not be filtered by model.
+      required: false
+  match_name: scope
+  requests:
+    list:
+      org_id:
+        operationId: searchOrgDevices
+        function: mistapi.api.v1.orgs.devices.searchOrgDevices(apisession, org_id=str(org_id), type=str(device_type) if device_type else None, hostname=str(hostname) if hostname else None, mac=str(mac) if mac else None, model=str(model) if model else None )
+      site_id:
+        operationId: searchSiteDevices
+        function: mistapi.api.v1.sites.devices.searchSiteDevices(apisession, site_id=str(site_id), type=str(device_type) if device_type else None, hostname=str(hostname) if hostname else None, mac=str(mac) if mac else None, model=str(model) if model else None )
