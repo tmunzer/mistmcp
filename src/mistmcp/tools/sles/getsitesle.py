@@ -80,12 +80,6 @@ async def getSiteSle(
     object_type: Annotated[
         Object_type, Field(description="""Type of object to retrieve metrics for.""")
     ],
-    classifier: Annotated[
-        Optional[str | None],
-        Field(
-            description="""Classifier name. Required when object_type is 'classifier_summary_trend'."""
-        ),
-    ] = None,
     start: Annotated[
         Optional[str | None],
         Field(
@@ -96,6 +90,12 @@ async def getSiteSle(
         Optional[str | None],
         Field(
             description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
+        ),
+    ] = None,
+    classifier: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Classifier name. Required when object_type is 'classifier_summary_trend'."""
         ),
     ] = None,
     duration: Annotated[

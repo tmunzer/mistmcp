@@ -50,7 +50,6 @@ from .site_stats import getsitestats as getsitestats
 from .org_stats import getorgstats as getorgstats
 from .events import searchevents as searchevents
 from .devices import searchdevices as searchdevices
-from .devices import listorgdevicessummary as listorgdevicessummary
 from .devices import getorginventory as getorginventory
 from .devices import searchsitedeviceconfighistory as searchsitedeviceconfighistory
 from .devices import searchsitedevicelastconfigs as searchsitedevicelastconfigs
