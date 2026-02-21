@@ -86,7 +86,7 @@ async def getSiteRrmInfo(
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`device_id` parameter is required when `object_type` is "rrm_info_type".',
+                    "message": '`device_id` parameter is required when `object_type` is "current_rrm_considerations".',
                 }
             )
 
@@ -95,7 +95,7 @@ async def getSiteRrmInfo(
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`band` parameter is required when `object_type` is "rrm_info_type".',
+                    "message": '`band` parameter is required when `object_type` is "current_rrm_considerations".',
                 }
             )
 
@@ -104,7 +104,7 @@ async def getSiteRrmInfo(
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`band` parameter is required when `object_type` is "rrm_info_type".',
+                    "message": '`band` parameter is required when `object_type` is "current_rrm_neighbors".',
                 }
             )
 

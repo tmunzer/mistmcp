@@ -26,6 +26,7 @@ from enum import Enum
 
 
 class Object_type(Enum):
+    ORG = "org"
     ALARMTEMPLATES = "alarmtemplates"
     WLANS = "wlans"
     SITEGROUPS = "sitegroups"
@@ -93,6 +94,12 @@ async def getOrgConfigurationObjects(
     data = {}
 
     match object_type.value:
+        case "org":
+            response = mistapi.api.v1.orgs.setting.getOrgSettings(
+                apisession, org_id=str(org_id)
+            )
+            await process_response(response)
+            data = response.data
         case "alarmtemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.alarmtemplates.getOrgAlarmTemplate(

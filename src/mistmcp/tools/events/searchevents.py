@@ -32,6 +32,7 @@ class Event_source(Enum):
     WIRELESS_CLIENT = "wireless_client"
     NAC_CLIENT = "nac_client"
     ROAMING = "roaming"
+    ROGUE = "rogue"
 
 
 @mcp.tool(
@@ -49,7 +50,7 @@ async def searchEvents(
     event_source: Annotated[
         Event_source,
         Field(
-            description="""Source of events to search for. If not specified, events from all sources will be included in the search. * `device`: events related to devices in the organization or site. * `mxedge`: events related to MX Edge devices in the organization or site. * `wan_client`: events related to WAN clients in the organization or site. * `wireless_client`: events related to wireless clients in the organization or site. * `nac_client`: events related to NAC clients in the organization or site. * `roaming`: events related to wireless client roaming in the site. This required `site_id` parameter is required."""
+            description="""Source of events to search for. If not specified, events from all sources will be included in the search. * `device`: events related to devices in the organization or site. * `mxedge`: events related to MX Edge devices in the organization or site. * `wan_client`: events related to WAN clients in the organization or site. * `wireless_client`: events related to wireless clients in the organization or site. * `nac_client`: events related to NAC clients in the organization or site. * `roaming`: events related to wireless client roaming in the site. This required `site_id` parameter is required. * `rogue`: events related to rogue devices in the site. This required `site_id` parameter is required."""
         ),
     ],
     org_id: Annotated[
@@ -94,7 +95,7 @@ async def searchEvents(
     ssid: Annotated[
         Optional[str | None],
         Field(
-            description="""SSID to filter wireless client events by. Only applicable when searching for wireless client events or nac client events."""
+            description="""SSID to filter wireless client events by. Only applicable when searching for wireless client events, nac client events, or rogue events."""
         ),
     ] = None,
     ctx: Context | None = None,
@@ -113,7 +114,16 @@ async def searchEvents(
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`site_id` parameter is required when `object_type` is "event_source".',
+                    "message": '`site_id` parameter is required when `object_type` is "roaming".',
+                }
+            )
+
+    if object_type.value == "rogue":
+        if not site_id:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": '`site_id` parameter is required when `object_type` is "rogue".',
                 }
             )
 
@@ -246,6 +256,18 @@ async def searchEvents(
                 start=str(start_time) if start_time else None,
                 end=str(end_time) if end_time else None,
                 type=str(event_type) if event_type else None,
+            )
+            await process_response(response)
+            data = response.data
+        case "rogue":
+            response = mistapi.api.v1.sites.rogues.searchSiteRogueEvents(
+                apisession,
+                site_id=str(site_id),
+                start=str(start_time) if start_time else None,
+                end=str(end_time) if end_time else None,
+                type=str(event_type) if event_type else None,
+                ssid=str(ssid) if ssid else None,
+                ap_mac=str(mac) if mac else None,
             )
             await process_response(response)
             data = response.data

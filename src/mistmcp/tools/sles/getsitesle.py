@@ -110,6 +110,17 @@ async def getSiteSle(
     apisession, response_format = get_apisession()
     data = {}
 
+    object_type = object_type
+
+    if object_type.value == "classifier_summary_trend":
+        if not classifier:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": '`classifier` parameter is required when `object_type` is "classifier_summary_trend".',
+                }
+            )
+
     match object_type.value:
         case "summary":
             response = mistapi.api.v1.sites.sle.getSiteSleSummary(

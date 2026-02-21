@@ -26,33 +26,35 @@ from uuid import UUID
 
 
 class Stats_type(Enum):
+    ORG = "org"
     SITE = "site"
     MXEDGE = "mxedge"
-    WIRELESS_CLIENT = "wireless_client"
     DEVICES = "devices"
     BGP = "bgp"
     OSPF = "ospf"
+    PEER_PATHS = "peer_paths"
     PORT = "port"
 
 
 @mcp.tool(
-    name="getSiteStats",
-    description="""This tool can be used to retrieve various statistics about a site. The type of statistics retrieved will depend on the `stats_type` parameter. When retrieving client stats, you can specify a time range for the stats using the `start_time` and `end_time` parameters. If not specified, the API will return stats for the last 24 hours.""",
-    tags={"site_stats"},
+    name="getOrgStats",
+    description="""This tool can be used to retrieve various statistics about an organization. The type of statistics retrieved will depend on the `stats_type` parameter. When retrieving client stats, you can specify a time range for the stats using the `start_time` and `end_time` parameters. If not specified, the API will return stats for the last 24 hours.""",
+    tags={"stats"},
     annotations={
-        "title": "getSiteStats",
+        "title": "getOrgStats",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def getSiteStats(
+async def getOrgStats(
     stats_type: Annotated[
         Stats_type,
-        Field(description="""Type of statistics to retrieve about the site."""),
+        Field(description="""Type of statistics to retrieve about the organization."""),
     ],
-    site_id: Annotated[
-        UUID, Field(description="""ID of the site to retrieve statistics for.""")
+    org_id: Annotated[
+        UUID,
+        Field(description="""ID of the organization to retrieve statistics for."""),
     ],
     start_time: Annotated[
         Optional[str | None],
@@ -69,81 +71,73 @@ async def getSiteStats(
     object_id: Annotated[
         Optional[UUID | None],
         Field(
-            description="""Optional, ID or MAC to filter on: * When stats_type is `mxedge`, this is the ID of the MX Edge device to retrieve statistics for. * When stats_type is `wireless_client`, this is the MAC address of the wireless client to retrieve statistics for. * When stats_type is `devices`, this is the ID of the device to retrieve statistics for. * When stats_type is `bgp`, this is the MAC address of the BGP peer to retrieve statistics for. * When stats_type is `ospf`, this is the MAC address of the OSPF neighbor to retrieve statistics for. * When stats_type is `port`, this is the MAC address of the switch or gateway port to retrieve statistics for."""
+            description="""Optional, ID or MAC to filter on: * When stats_type is `site`, this is not used as site stats do not require an object ID filter. * When stats_type is `mxedge`, this is the ID of the MX Edge device to retrieve statistics for. * When stats_type is `devices`, this is the ID of the device to retrieve statistics for. * When stats_type is `bgp`, this is the MAC address of the BGP peer to retrieve statistics for. * When stats_type is `ospf`, this is the MAC address of the OSPF neighbor to retrieve statistics for. * When stats_type is `peer_paths`, this is the MAC address of the peer to retrieve path statistics for. * When stats_type is `port`, this is the MAC address of the switch or gateway port to retrieve statistics for."""
         ),
     ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to retrieve various statistics about a site. The type of statistics retrieved will depend on the `stats_type` parameter. When retrieving client stats, you can specify a time range for the stats using the `start_time` and `end_time` parameters. If not specified, the API will return stats for the last 24 hours."""
+    """This tool can be used to retrieve various statistics about an organization. The type of statistics retrieved will depend on the `stats_type` parameter. When retrieving client stats, you can specify a time range for the stats using the `start_time` and `end_time` parameters. If not specified, the API will return stats for the last 24 hours."""
 
-    logger.debug("Tool getSiteStats called")
+    logger.debug("Tool getOrgStats called")
 
     apisession, response_format = get_apisession()
     data = {}
 
     object_type = stats_type
     match object_type.value:
-        case "site":
-            response = mistapi.api.v1.sites.stats.getSiteStats(
-                apisession,
-                site_id=str(site_id),
+        case "org":
+            response = mistapi.api.v1.orgs.stats.getOrgStats(
+                apisession, org_id=str(org_id), start=str(start_time), end=str(end_time)
             )
             await process_response(response)
             data = response.data
+        case "site":
+            if object_id:
+                response = mistapi.api.v1.sites.stats.getSiteStats(
+                    apisession,
+                    site_id=str(object_id),
+                )
+                await process_response(response)
+                data = response.data
+            else:
+                response = mistapi.api.v1.orgs.stats.listOrgSiteStats(
+                    apisession,
+                    org_id=str(org_id),
+                    start=str(start_time),
+                    end=str(end_time),
+                )
+                await process_response(response)
+                data = response.data
         case "mxedge":
             if object_id:
-                response = mistapi.api.v1.sites.stats.getSiteMxEdgeStats(
-                    apisession,
-                    site_id=str(site_id),
-                    start=str(start_time),
-                    end=str(end_time),
-                    mxedge_id=str(object_id),
+                response = mistapi.api.v1.orgs.stats.getOrgMxEdgeStats(
+                    apisession, org_id=str(org_id), mxedge_id=str(object_id)
                 )
                 await process_response(response)
                 data = response.data
             else:
-                response = mistapi.api.v1.sites.stats.listSiteMxEdgesStats(
+                response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
                     apisession,
-                    site_id=str(site_id),
-                    start=str(start_time),
-                    end=str(end_time),
-                )
-                await process_response(response)
-                data = response.data
-        case "wireless_client":
-            if object_id:
-                response = mistapi.api.v1.sites.stats.getSiteWirelessClientStats(
-                    apisession, site_id=str(site_id), client_mac=str(object_id)
-                )
-                await process_response(response)
-                data = response.data
-            else:
-                response = mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(
-                    apisession,
-                    site_id=str(site_id),
+                    org_id=str(org_id),
                     start=str(start_time),
                     end=str(end_time),
                 )
                 await process_response(response)
                 data = response.data
         case "devices":
-            if object_id:
-                response = mistapi.api.v1.sites.stats.getSiteDeviceStats(
-                    apisession, site_id=str(site_id), device_id=str(object_id)
-                )
-                await process_response(response)
-                data = response.data
-            else:
-                response = mistapi.api.v1.sites.stats.listSiteDevicesStats(
-                    apisession,
-                    site_id=str(site_id),
-                )
-                await process_response(response)
-                data = response.data
-        case "bgp":
-            response = mistapi.api.v1.sites.stats.searchSiteBgpStats(
+            response = mistapi.api.v1.orgs.stats.listOrgDevicesStats(
                 apisession,
-                site_id=str(site_id),
+                org_id=str(org_id),
+                start=str(start_time),
+                end=str(end_time),
+                mac=str(object_id),
+            )
+            await process_response(response)
+            data = response.data
+        case "bgp":
+            response = mistapi.api.v1.orgs.stats.searchOrgBgpStats(
+                apisession,
+                org_id=str(org_id),
                 start=str(start_time),
                 end=str(end_time),
                 mac=str(object_id),
@@ -151,9 +145,19 @@ async def getSiteStats(
             await process_response(response)
             data = response.data
         case "ospf":
-            response = mistapi.api.v1.sites.stats.searchSiteOspfStats(
+            response = mistapi.api.v1.orgs.stats.searchOrgOspfStats(
                 apisession,
-                site_id=str(site_id),
+                org_id=str(org_id),
+                start=str(start_time),
+                end=str(end_time),
+                mac=str(object_id),
+            )
+            await process_response(response)
+            data = response.data
+        case "peer_paths":
+            response = mistapi.api.v1.orgs.stats.searchOrgPeerPathStats(
+                apisession,
+                org_id=str(org_id),
                 start=str(start_time),
                 end=str(end_time),
                 mac=str(object_id),
@@ -161,8 +165,8 @@ async def getSiteStats(
             await process_response(response)
             data = response.data
         case "port":
-            response = mistapi.api.v1.sites.stats.searchSiteSwOrGwPorts(
-                apisession, site_id=str(site_id), mac=str(object_id)
+            response = mistapi.api.v1.orgs.stats.searchOrgSwOrGwPorts(
+                apisession, org_id=str(org_id), mac=str(object_id)
             )
             await process_response(response)
             data = response.data

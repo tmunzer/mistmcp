@@ -22,54 +22,40 @@ from mistmcp.logger import logger
 from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
-from enum import Enum
-
-
-class Type(Enum):
-    HONEYPOT = "honeypot"
-    LAN = "lan"
-    OTHERS = "others"
-    SPOOF = "spoof"
-    NONE = None
 
 
 @mcp.tool(
-    name="searchSiteRogueEvents",
-    description="""Search Rogue Events""",
-    tags={"Sites Rogues"},
+    name="searchSiteWanUsage",
+    description="""Search Site WAN Usages""",
+    tags={"stats"},
     annotations={
-        "title": "searchSiteRogueEvents",
+        "title": "searchSiteWanUsage",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def searchSiteRogueEvents(
+async def searchSiteWanUsage(
     site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
-    type: Optional[Type | None] = Type.NONE,
-    ssid: Annotated[
+    mac: Annotated[Optional[str | None], Field(description="""MAC address""")] = None,
+    peer_mac: Annotated[
+        Optional[str | None], Field(description="""Peer MAC address""")
+    ] = None,
+    port_id: Annotated[
+        Optional[str | None], Field(description="""Port ID for the device""")
+    ] = None,
+    peer_port_id: Annotated[
+        Optional[str | None], Field(description="""Peer Port ID for the device""")
+    ] = None,
+    policy: Annotated[
+        Optional[str | None], Field(description="""Policy for the wan path""")
+    ] = None,
+    tenant: Annotated[
         Optional[str | None],
-        Field(description="""SSID of the network detected as threat"""),
+        Field(description="""Tenant network in which the packet is sent"""),
     ] = None,
-    bssid: Annotated[
-        Optional[str | None],
-        Field(description="""BSSID of the network detected as threat"""),
-    ] = None,
-    ap_mac: Annotated[
-        Optional[str | None],
-        Field(
-            description="""MAC of the device that had strongest signal strength for ssid/bssid pair"""
-        ),
-    ] = None,
-    channel: Annotated[
-        Optional[int | None],
-        Field(description="""Channel over which ap_mac heard ssid/bssid pair"""),
-    ] = None,
-    seen_on_lan: Annotated[
-        Optional[bool | None],
-        Field(
-            description="""Whether the reporting AP see a wireless client (on LAN) connecting to it"""
-        ),
+    path_type: Annotated[
+        Optional[str | None], Field(description="""path_type of the port""")
     ] = None,
     limit: Optional[int | None] = None,
     start: Annotated[
@@ -93,36 +79,30 @@ async def searchSiteRogueEvents(
             description="""On which field the list should be sorted, -prefix represents DESC order"""
         ),
     ] = None,
-    search_after: Annotated[
-        Optional[str | None],
-        Field(
-            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
-        ),
-    ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Search Rogue Events"""
+    """Search Site WAN Usages"""
 
-    logger.debug("Tool searchSiteRogueEvents called")
+    logger.debug("Tool searchSiteWanUsage called")
 
     apisession, response_format = get_apisession()
     data = {}
 
-    response = mistapi.api.v1.sites.rogues.searchSiteRogueEvents(
+    response = mistapi.api.v1.sites.wan_usages.searchSiteWanUsage(
         apisession,
         site_id=str(site_id),
-        type=type.value if type else None,
-        ssid=ssid if ssid else None,
-        bssid=bssid if bssid else None,
-        ap_mac=ap_mac if ap_mac else None,
-        channel=channel if channel else None,
-        seen_on_lan=seen_on_lan if seen_on_lan else None,
+        mac=mac if mac else None,
+        peer_mac=peer_mac if peer_mac else None,
+        port_id=port_id if port_id else None,
+        peer_port_id=peer_port_id if peer_port_id else None,
+        policy=policy if policy else None,
+        tenant=tenant if tenant else None,
+        path_type=path_type if path_type else None,
         limit=limit if limit else None,
         start=start if start else None,
         end=end if end else None,
         duration=duration if duration else None,
         sort=sort if sort else None,
-        search_after=search_after if search_after else None,
     )
     await process_response(response)
 

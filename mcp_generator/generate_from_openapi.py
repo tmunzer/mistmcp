@@ -508,9 +508,9 @@ def _gen_tools_custom(
                   ]["tools"].append(func_name)
 
 
-def _gen_tools_additional_required_parameters(parameter: list, match_name: str = "object_type") -> str:
+def _gen_tools_additional_required_parameters(parameters: list, match_name: str = "object_type") -> str:
     additional_parameters = ""
-    for param in parameter:
+    for param in parameters:
         param_name = param.get("name")
         for required_if_match_name, required_if_values in param.get("required_if", {}).items():
             for value in required_if_values:
@@ -519,7 +519,7 @@ def _gen_tools_additional_required_parameters(parameter: list, match_name: str =
                 additional_parameters += "            raise ToolError(\n"
                 additional_parameters += "                {\n"
                 additional_parameters += "                    'status_code': 400,\n"
-                additional_parameters += f"                    'message': '`{param_name}` parameter is required when `{match_name}` is \"{required_if_match_name}\".',\n"
+                additional_parameters += f"                    'message': '`{param_name}` parameter is required when `{match_name}` is \"{value}\".',\n"
                 additional_parameters += "            }\n"
                 additional_parameters += "        )\n\n"
     return additional_parameters

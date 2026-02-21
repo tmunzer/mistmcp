@@ -44,27 +44,27 @@ listSiteRogueAPs:
 getSiteRogueAP:
   skip: true
 
-searchOrgGuestAuthorization:
-  type: tool_optimization
-  add_parameters:
-    - name: guest_mac
-      schema:
-        type: string
-      description: MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed.
-  custom_request: mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(apisession, org_id=str(org_id), guest_mac=guest_mac)
-getOrgGuestAuthorization:
-  skip: true
+# searchOrgGuestAuthorization:
+#   type: tool_optimization
+#   add_parameters:
+#     - name: guest_mac
+#       schema:
+#         type: string
+#       description: MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed.
+#   custom_request: mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(apisession, org_id=str(org_id), guest_mac=guest_mac)
+# getOrgGuestAuthorization:
+#   skip: true
 
-searchSiteGuestAuthorization:
-  type: tool_optimization
-  add_parameters:
-    - name: guest_mac
-      schema:
-        type: string
-      description: MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed.
-  custom_request: mistapi.api.v1.sites.guests.getSiteGuestAuthorization(apisession, site_id=str(site_id), guest_mac=guest_mac)
-getSiteGuestAuthorization:
-  skip: true
+# searchSiteGuestAuthorization:
+#   type: tool_optimization
+#   add_parameters:
+#     - name: guest_mac
+#       schema:
+#         type: string
+#       description: MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed.
+#   custom_request: mistapi.api.v1.sites.guests.getSiteGuestAuthorization(apisession, site_id=str(site_id), guest_mac=guest_mac)
+# getSiteGuestAuthorization:
+#   skip: true
 
 listUpgrades:
   type: tool_consolidation
@@ -152,6 +152,10 @@ getOrgConfigurationObjects:
         format: uuid
       description: ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned.
   requests:
+    org:
+      get:
+        operationId: getOrgSettings
+        function: mistapi.api.v1.orgs.setting.getOrgSettings(apisession, org_id=str(org_id))
     alarmtemplates:
       list:
         operationId: listOrgAlarmTemplates
@@ -660,6 +664,7 @@ getSiteSle:
   description: Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs.
   read_only_hint: true
   destructive_hint: false
+  match_name: object_type
   parameters:
     - name: site_id
       schema:
@@ -704,7 +709,8 @@ getSiteSle:
       description: Classifier name. Required when object_type is 'classifier_summary_trend'.
       required: false
       required_if:
-        object_type: classifier_summary_trend
+        test:
+          - classifier_summary_trend
     - name: duration
       schema:
         type: string
@@ -1709,7 +1715,7 @@ getOrgLicenses:
 
 getSiteStats:
   type: tool_consolidation
-  tags: [site_stats]
+  tags: [stats]
   description: |-
     This tool can be used to retrieve various statistics about a site. The type of statistics retrieved will depend on the `stats_type` parameter. 
     When retrieving client stats, you can specify a time range for the stats using the `start_time` and `end_time` parameters. If not specified, the API will return stats for the last 24 hours.
@@ -1793,7 +1799,7 @@ getSiteStats:
 
 getOrgStats:
   type: tool_consolidation
-  tags: [org_stats]
+  tags: [stats]
   description: |-
     This tool can be used to retrieve various statistics about an organization. The type of statistics retrieved will depend on the `stats_type` parameter. 
     When retrieving client stats, you can specify a time range for the stats using the `start_time` and `end_time` parameters. If not specified, the API will return stats for the last 24 hours.
@@ -1890,7 +1896,16 @@ searchEvents:
     - name: event_source
       schema:
         type: string
-        enum: [device, mxedge, wan_client, wireless_client, nac_client, roaming]
+        enum:
+          [
+            device,
+            mxedge,
+            wan_client,
+            wireless_client,
+            nac_client,
+            roaming,
+            rogue,
+          ]
       description: |-
         Source of events to search for. If not specified, events from all sources will be included in the search.
         * `device`: events related to devices in the organization or site.
@@ -1899,6 +1914,7 @@ searchEvents:
         * `wireless_client`: events related to wireless clients in the organization or site.
         * `nac_client`: events related to NAC clients in the organization or site.
         * `roaming`: events related to wireless client roaming in the site. This required `site_id` parameter is required.
+        * `rogue`: events related to rogue devices in the site. This required `site_id` parameter is required.
       required: true
     - name: org_id
       schema:
@@ -1930,6 +1946,7 @@ searchEvents:
       required_if:
         event_source:
           - roaming
+          - rogue
     - name: mac
       schema:
         type: string
@@ -1944,7 +1961,7 @@ searchEvents:
     - name: ssid
       schema:
         type: string
-      description: SSID to filter wireless client events by. Only applicable when searching for wireless client events or nac client events.
+      description: SSID to filter wireless client events by. Only applicable when searching for wireless client events, nac client events, or rogue events.
       required: false
   requests:
     device:
@@ -1986,6 +2003,10 @@ searchEvents:
       site_id:
         operationId: listSiteRoamingEvents
         function: mistapi.api.v1.sites.events.listSiteRoamingEvents(apisession, site_id=str(site_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, )
+    rogue:
+      site_id:
+        operationId: searchSiteRogueEvents
+        function: mistapi.api.v1.sites.rogues.searchSiteRogueEvents(apisession, site_id=str(site_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, type=str(event_type) if event_type else None, ssid=str(ssid) if ssid else None, ap_mac=str(mac) if mac else None )
 
 searchDevices:
   type: tool_consolidation
@@ -2048,3 +2069,175 @@ searchDevices:
       site_id:
         operationId: searchSiteDevices
         function: mistapi.api.v1.sites.devices.searchSiteDevices(apisession, site_id=str(site_id), type=str(device_type) if device_type else None, hostname=str(hostname) if hostname else None, mac=str(mac) if mac else None, model=str(model) if model else None )
+
+searchGuestAuthorization:
+  type: tool_consolidation
+  tags: [clients]
+  description: |-
+    This tool can be used to search for guest authorization entries in an organization or site.
+  read_only_hint: true
+  destructive_hint: false
+  parameters:
+    - name: scope
+      schema:
+        type: string
+        enum: [org, site]
+      description: Whether to search in the entire organization or a specific site. If `site` is selected, the `site_id` parameter is required.
+      required: true
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to search for guest authorization entries in.
+      required: true
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to search for guest authorization entries in. If not specified, entries from all sites in the organization will be included in the search.
+      required: false
+      required_if:
+        scope:
+          - site
+    - name: guest_mac
+      schema:
+        type: string
+      description: MAC address of the guest to search for in the authorization entries. If not specified, entries will not be filtered by guest MAC address.
+      required: false
+    - name: wlan_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the WLAN to filter guest authorization entries by. If not specified, entries will not be filtered by WLAN.
+      required: false
+    - name: auth_method
+      schema:
+        type: string
+      description: Authentication method to filter guest authorization entries by. If not specified, entries will not be filtered by authentication method.
+      required: false
+    - name: ssid
+      schema:
+        type: string
+      description: SSID to filter guest authorization entries by. If not specified, entries will not be filtered by SSID.
+      required: false
+    - name: start
+      schema:
+        type: string
+      description: Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w') to filter guest authorization entries by. If not specified, entries will not be filtered by start time.
+      required: false
+    - name: end
+      schema:
+        type: string
+      description: End time (epoch timestamp in seconds, or relative string like '-1d', '-1w') to filter guest authorization entries by. If not specified, entries will not be filtered by end time.
+  match_name: scope
+  if_filter: guest_mac
+  requests:
+    org:
+      list:
+        operationId: searchOrgGuestAuthorization
+        function: mistapi.api.v1.orgs.guests.searchOrgGuestAuthorization(apisession,org_id=str(org_id),wlan_id=str(wlan_id) if wlan_id else None,auth_method=auth_method if auth_method else None,ssid=ssid if ssid else None,start=start if start else None,end=end if end else None,)
+      get:
+        operationId: getOrgGuestAuthorization
+        function: mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(apisession, org_id=str(org_id), guest_mac=str(guest_mac) )
+    site:
+      list:
+        operationId: searchSiteGuestAuthorization
+        function: mistapi.api.v1.sites.guests.searchSiteGuestAuthorization(apisession, site_id=str(site_id), wlan_id=str(wlan_id) if wlan_id else None, auth_method=auth_method if auth_method else None, ssid=ssid if ssid else None, start=start if start else None, end=end if end else None )
+      get:
+        operationId: getSiteGuestAuthorization
+        function: mistapi.api.v1.sites.guests.getSiteGuestAuthorization(apisession, site_id=str(site_id), guest_mac=str(guest_mac) )
+
+getInfo:
+  type: tool_consolidation
+  tags: [info]
+  description: |-
+    This tool can be used to search information about the organizations or sites.
+  read_only_hint: true
+  destructive_hint: false
+  parameters:
+    - name: info_type
+      schema:
+        type: string
+        enum: [org, site]
+      description: Type of information to search for. Possible values are `org` and `site`.
+      required: true
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to search for information in.
+      required: true
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to search for information in. Optional when `info_type` is `site`. If not specified, the search will include all sites in the organization.
+      required: false
+  match_name: info_type
+  if_filter: site_id
+  requests:
+    org:
+      get:
+        operationId: getOrg
+        function: mistapi.api.v1.orgs.orgs.getOrg(apisession, org_id=str(org_id))
+    site:
+      list:
+        operationId: listOrgSites
+        function: mistapi.api.v1.orgs.sites.listOrgSites(apisession, org_id=str(org_id))
+      get:
+        operationId: getSiteInfo
+        function: mistapi.api.v1.sites.sites.getSiteInfo(apisession, site_id=str(site_id) )
+
+listAuditLogs:
+  type: tool_consolidation
+  tags: [events]
+  description: |-
+    This tool can be used to retrieve audit logs for the current account or an organization.
+  read_only_hint: true
+  destructive_hint: false
+  match_name: scope
+  parameters:
+    - name: scope
+      schema:
+        type: string
+        enum: [self, org]
+      description: Whether to retrieve audit logs for the account or a specific organization. If `org` is selected, the `org_id` parameter is required.
+      required: true
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to retrieve audit logs for.
+      required: false
+      required_if:
+        scope:
+          - org
+    - name: start_time
+      schema:
+        type: string
+      description: Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')
+      required: false
+    - name: end_time
+      schema:
+        type: string
+      description: End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')
+      required: false
+    - name: limit
+      schema:
+        type: integer
+      description: Maximum number of audit entries to retrieve. If not specified, the API will return up to 100 entries (maximum allowed is 1000).
+      required: false
+    - name: message
+      schema:
+        type: string
+      description: Message to filter audit logs by (partial search). If not specified, logs will not be filtered by message.
+      required: false
+  requests:
+    self:
+      list:
+        operationId: listSelfAuditLogs
+        function: mistapi.api.v1.self.logs.listSelfAuditLogs(apisession, start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, message=str(message) if message else None, limit=limit if limit else None )
+    org:
+      list:
+        operationId: listOrgAuditLogs
+        function: mistapi.api.v1.orgs.logs.listOrgAuditLogs(apisession, org_id=str(org_id), start=str(start_time) if start_time else None, end=str(end_time) if end_time else None, message=str(message) if message else None, limit=limit if limit else None )

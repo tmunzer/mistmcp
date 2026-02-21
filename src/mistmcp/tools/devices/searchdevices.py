@@ -102,7 +102,7 @@ async def searchDevices(
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`site_id` parameter is required when `object_type` is "scope".',
+                    "message": '`site_id` parameter is required when `object_type` is "site".',
                 }
             )
 

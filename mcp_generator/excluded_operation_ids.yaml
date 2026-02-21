@@ -83,3 +83,6 @@
 - searchOrgWirelessClientSessions
 - searchOrgEvents
 - listOrgDevicesSummary
+- getSiteSettingDerived
+- getSiteApplicationList
+- getSiteWxRulesUsage
