@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -44,31 +45,29 @@ class Sle(Enum):
     },
 )
 async def getOrgSitesSle(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     sle: Optional[Sle | None] = Sle.NONE,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
     interval: Annotated[
         Optional[str | None],
-        Field(
-            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
-        ),
+        Field(description="""Aggregation interval (e.g. 1h, 1d)"""),
     ] = None,
-    limit: Optional[int | None] = None,
-    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
+    page: Annotated[
+        int, Field(description="""Page number for pagination""", ge=1, default=1)
+    ] = 1,
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Get Org Sites SLE"""
@@ -76,7 +75,6 @@ async def getOrgSitesSle(
     logger.debug("Tool getOrgSitesSle called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.orgs.insights.getOrgSitesSle(
         apisession,
@@ -86,14 +84,9 @@ async def getOrgSitesSle(
         end=end if end else None,
         duration=duration if duration else None,
         interval=interval if interval else None,
-        limit=limit if limit else None,
-        page=page if page else None,
+        limit=limit,
+        page=page,
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

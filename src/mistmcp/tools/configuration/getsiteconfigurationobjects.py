@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -39,7 +40,7 @@ class Object_type(Enum):
 
 @mcp.tool(
     name="getSiteConfigurationObjects",
-    description="""Retrieve configuration objects from a specified site. Use the tool `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site""",
+    description="""Retrieve configuration objects from a specified site. Use the tool `getSiteConfigurationDerived` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site""",
     tags={"configuration"},
     annotations={
         "title": "getSiteConfigurationObjects",
@@ -49,27 +50,24 @@ class Object_type(Enum):
     },
 )
 async def getSiteConfigurationObjects(
-    site_id: Annotated[
-        UUID,
-        Field(description="""ID of the site to retrieve configuration objects from."""),
-    ],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     object_type: Annotated[
-        Object_type, Field(description="""Type of configuration object to retrieve.""")
+        Object_type, Field(description="""Type of configuration object to retrieve""")
     ],
     object_id: Annotated[
         Optional[UUID | None],
-        Field(
-            description="""ID of the specific configuration object to retrieve. Optional, if not provided all objects of the specified type will be returned."""
-        ),
+        Field(description="""ID of the specific configuration object to retrieve"""),
     ] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=10)
+    ] = 10,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve configuration objects from a specified site. Use the tool `getSiteConfiguration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site"""
+    """Retrieve configuration objects from a specified site. Use the tool `getSiteConfigurationDerived` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site"""
 
     logger.debug("Tool getSiteConfigurationObjects called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     match object_type.value:
         case "devices":
@@ -78,23 +76,20 @@ async def getSiteConfigurationObjects(
                     apisession, site_id=str(site_id), device_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.devices.listSiteDevices(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = response.data
         case "evpn_topologies":
             if object_id:
                 response = mistapi.api.v1.sites.evpn_topologies.getSiteEvpnTopology(
                     apisession, site_id=str(site_id), evpn_topology_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.evpn_topologies.listSiteEvpnTopologies(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
                 data = {
@@ -102,16 +97,16 @@ async def getSiteConfigurationObjects(
                     for item in response.data
                     if item.get("name")
                 }
+                response.data = data
         case "maps":
             if object_id:
                 response = mistapi.api.v1.sites.maps.getSiteMap(
                     apisession, site_id=str(site_id), map_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.maps.listSiteMaps(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
                 data = {
@@ -119,42 +114,38 @@ async def getSiteConfigurationObjects(
                     for item in response.data
                     if item.get("name")
                 }
+                response.data = data
         case "mxedges":
             if object_id:
                 response = mistapi.api.v1.sites.mxedges.getSiteMxEdge(
                     apisession, site_id=str(site_id), mxedge_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.mxedges.listSiteMxEdges(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = response.data
         case "psks":
             if object_id:
                 response = mistapi.api.v1.sites.psks.getSitePsk(
                     apisession, site_id=str(site_id), psk_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.psks.listSitePsks(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = response.data
         case "webhooks":
             if object_id:
                 response = mistapi.api.v1.sites.webhooks.getSiteWebhook(
                     apisession, site_id=str(site_id), webhook_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.webhooks.listSiteWebhooks(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
                 data = {
@@ -162,16 +153,16 @@ async def getSiteConfigurationObjects(
                     for item in response.data
                     if item.get("name")
                 }
+                response.data = data
         case "wlans":
             if object_id:
                 response = mistapi.api.v1.sites.wlans.getSiteWlan(
                     apisession, site_id=str(site_id), wlan_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.wlans.listSiteWlans(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
                 data = {
@@ -179,32 +170,29 @@ async def getSiteConfigurationObjects(
                     for item in response.data
                     if item.get("ssid")
                 }
+                response.data = data
         case "wxrules":
             if object_id:
                 response = mistapi.api.v1.sites.wxrules.getSiteWxRule(
                     apisession, site_id=str(site_id), wxrule_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.wxrules.listSiteWxRules(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = response.data
         case "wxtags":
             if object_id:
                 response = mistapi.api.v1.sites.wxtags.getSiteWxTag(
                     apisession, site_id=str(site_id), wxtag_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.wxtags.listSiteWxTags(
-                    apisession, site_id=str(site_id), limit=1000
+                    apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = response.data
 
         case _:
             raise ToolError(
@@ -214,7 +202,4 @@ async def getSiteConfigurationObjects(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

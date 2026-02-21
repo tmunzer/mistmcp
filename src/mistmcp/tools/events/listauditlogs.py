@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -32,7 +33,7 @@ class Scope(Enum):
 
 @mcp.tool(
     name="listAuditLogs",
-    description="""This tool can be used to retrieve audit logs for the current account or an organization.""",
+    description="""This tool can be used to retrieve audit logs for the current account or an organization""",
     tags={"events"},
     annotations={
         "title": "listAuditLogs",
@@ -45,12 +46,11 @@ async def listAuditLogs(
     scope: Annotated[
         Scope,
         Field(
-            description="""Whether to retrieve audit logs for the account or a specific organization. If `org` is selected, the `org_id` parameter is required."""
+            description="""Whether to retrieve audit logs for the account or a specific organization. If `org` is selected, the `org_id` parameter is required"""
         ),
     ],
     org_id: Annotated[
-        Optional[UUID | None],
-        Field(description="""ID of the organization to retrieve audit logs for."""),
+        Optional[UUID | None], Field(description="""Organization ID""")
     ] = None,
     start_time: Annotated[
         Optional[str | None],
@@ -65,25 +65,19 @@ async def listAuditLogs(
         ),
     ] = None,
     limit: Annotated[
-        Optional[int | None],
-        Field(
-            description="""Maximum number of audit entries to retrieve. If not specified, the API will return up to 100 entries (maximum allowed is 1000)."""
-        ),
-    ] = None,
+        int, Field(description="""Max number of results per page""", default=10)
+    ] = 10,
     message: Annotated[
         Optional[str | None],
-        Field(
-            description="""Message to filter audit logs by (partial search). If not specified, logs will not be filtered by message."""
-        ),
+        Field(description="""Message to filter audit logs by (partial search)"""),
     ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to retrieve audit logs for the current account or an organization."""
+    """This tool can be used to retrieve audit logs for the current account or an organization"""
 
     logger.debug("Tool listAuditLogs called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     object_type = scope
 
@@ -103,10 +97,9 @@ async def listAuditLogs(
                 start=str(start_time) if start_time else None,
                 end=str(end_time) if end_time else None,
                 message=str(message) if message else None,
-                limit=limit if limit else None,
+                limit=limit,
             )
             await process_response(response)
-            data = response.data
         case "org":
             response = mistapi.api.v1.orgs.logs.listOrgAuditLogs(
                 apisession,
@@ -114,10 +107,9 @@ async def listAuditLogs(
                 start=str(start_time) if start_time else None,
                 end=str(end_time) if end_time else None,
                 message=str(message) if message else None,
-                limit=limit if limit else None,
+                limit=limit,
             )
             await process_response(response)
-            data = response.data
 
         case _:
             raise ToolError(
@@ -127,7 +119,4 @@ async def listAuditLogs(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

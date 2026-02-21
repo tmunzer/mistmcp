@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -35,7 +36,7 @@ class Device_type(Enum):
 
 @mcp.tool(
     name="listUpgrades",
-    description="""List all available upgrades for the organization.""",
+    description="""List all available upgrades for the organization""",
     tags={"utilities_upgrade"},
     annotations={
         "title": "listUpgrades",
@@ -45,29 +46,21 @@ class Device_type(Enum):
     },
 )
 async def listUpgrades(
-    org_id: Annotated[
-        UUID, Field(description="""ID of the organization to list upgrades for.""")
-    ],
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     device_type: Annotated[
-        Device_type,
-        Field(
-            description="""Type of device to filter upgrades by. Optional, if not provided all upgrades will be listed."""
-        ),
+        Device_type, Field(description="""Type of device to filter upgrades by""")
     ],
     upgrade_id: Annotated[
         Optional[UUID | None],
-        Field(
-            description="""ID of the specific upgrade to retrieve. Optional, if not provided all upgrades will be listed."""
-        ),
+        Field(description="""ID of the specific upgrade to retrieve"""),
     ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """List all available upgrades for the organization."""
+    """List all available upgrades for the organization"""
 
     logger.debug("Tool listUpgrades called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     object_type = device_type
     match object_type.value:
@@ -77,65 +70,55 @@ async def listUpgrades(
                     apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(
-                    apisession, org_id=str(org_id), limit=1000
+                    apisession, org_id=str(org_id)
                 )
                 await process_response(response)
-                data = response.data
         case "switch":
             if upgrade_id:
                 response = mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(
                     apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(
-                    apisession, org_id=str(org_id), limit=1000
+                    apisession, org_id=str(org_id)
                 )
                 await process_response(response)
-                data = response.data
         case "srx":
             if upgrade_id:
                 response = mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(
                     apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(
-                    apisession, org_id=str(org_id), limit=1000
+                    apisession, org_id=str(org_id)
                 )
                 await process_response(response)
-                data = response.data
         case "mxedge":
             if upgrade_id:
                 response = mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(
                     apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(
-                    apisession, org_id=str(org_id), limit=1000
+                    apisession, org_id=str(org_id)
                 )
                 await process_response(response)
-                data = response.data
         case "ssr":
             if upgrade_id:
                 response = mistapi.api.v1.orgs.ssr.getOrgSsrUpgrade(
                     apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.ssr.listOrgSsrUpgrades(
-                    apisession, org_id=str(org_id), limit=1000
+                    apisession, org_id=str(org_id)
                 )
                 await process_response(response)
-                data = response.data
 
         case _:
             raise ToolError(
@@ -145,7 +128,4 @@ async def listUpgrades(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

@@ -15,11 +15,12 @@ from .configuration import getdeviceconfiguration as getdeviceconfiguration
 from .configuration import getobjectschema as getobjectschema
 from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
+from .info import getnextpage as getnextpage
+from .info import getinfo as getinfo
 from .devices import getorginventory as getorginventory
 from .devices import searchdevices as searchdevices
 from .devices import searchsitedeviceconfighistory as searchsitedeviceconfighistory
 from .devices import searchsitedevicelastconfigs as searchsitedevicelastconfigs
-from .devices import searchsitemistedgeevents as searchsitemistedgeevents
 from .utilities_upgrade import listupgrades as listupgrades
 from .utilities_upgrade import (
     listorgavailabledeviceversions as listorgavailabledeviceversions,
@@ -47,17 +48,12 @@ from .orgs import getorglicenses as getorglicenses
 from .orgs import searchorgalarms as searchorgalarms
 from .orgs import listorgsuppressedalarms as listorgsuppressedalarms
 from .orgs import searchorgsites as searchorgsites
-from .stats import getsitestats as getsitestats
-from .stats import getorgstats as getorgstats
+from .stats import getstats as getstats
 from .stats import searchsitewanusage as searchsitewanusage
 from .events import searchevents as searchevents
 from .events import listauditlogs as listauditlogs
 from .clients import searchguestauthorization as searchguestauthorization
-from .clients import searchorgwirelessclients as searchorgwirelessclients
-from .clients import searchorgnacclients as searchorgnacclients
-from .clients import searchorgwanclients as searchorgwanclients
-from .clients import searchorgwiredclients as searchorgwiredclients
-from .info import getinfo as getinfo
+from .clients import searchorgclient as searchorgclient
 from .marvis import troubleshootorg as troubleshootorg
 from .marvis import getsitedevicesynthetictest as getsitedevicesynthetictest
 from .marvis import searchsitesynthetictest as searchsitesynthetictest

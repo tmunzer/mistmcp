@@ -15,13 +15,14 @@ from typing import Annotated
 from uuid import UUID
 
 import mistapi
+from fastmcp import Context
 from pydantic import Field
 
-from fastmcp import Context
+from mistmcp.logger import logger
 from mistmcp.request_processor import get_apisession
+from mistmcp.response_formatter import format_response
 from mistmcp.response_processor import process_response
 from mistmcp.server import mcp
-from mistmcp.logger import logger
 
 NETWORK_TEMPLATE_FIELDS = [
     "auto_upgrade_linecard",
@@ -54,7 +55,7 @@ NETWORK_TEMPLATE_FIELDS = [
 
 @mcp.tool(
     name="getDeviceConfiguration",
-    description="""Retrieve configuration applied to a specific device. The returned configuration is a merged view of the device configuration, site-level configuration (including any assigned network/gateway templates), and org-level configuration (including any assigned network templates). For APs, this includes the device details as well as the applied configuration. For switches, this includes the device details and port configuration, as well as any matching rules from assigned network templates based on the switch's name/model/role. For gateways, this includes the device details as well as the applied configuration from assigned gateway templates. Note that for switches and gateways, only fields that are defined at the device level or in matching rules will be included in the output, so if a field is defined at the template level but not applied to the specific device, it will not be included in the output.""",
+    description="""Retrieve configuration applied to a specific device. The returned configuration is a merged view of the device configuration, site-level configuration, and org-level configuration.""",
     tags={"configuration"},
     annotations={
         "title": "getDeviceConfiguration",
@@ -92,13 +93,13 @@ async def getDeviceConfiguration(
     data = {}
     match device_data.data.get("type"):
         case "ap":
-            data = device_data.data
+            data = device_data
 
         case "switch":
             switch_name = device_data.data.get("name", "")
             switch_model = device_data.data.get("model", "")
             switch_role = device_data.data.get("role", "")
-            data = {}
+            switch_data = {}
             site_data = mistapi.api.v1.sites.sites.getSiteInfo(
                 apisession, site_id=str(site_id)
             )
@@ -111,30 +112,36 @@ async def getDeviceConfiguration(
                     networktemplate_id=str(network_template_id),
                 )
                 await process_response(org_config)
-                data = process_switch_template(
-                    org_config.data, switch_name, switch_model, switch_role, data
+                switch_data = process_switch_template(
+                    org_config.data, switch_name, switch_model, switch_role, switch_data
                 )
 
             site_config = mistapi.api.v1.sites.setting.getSiteSetting(
                 apisession, site_id=str(site_id)
             )
             await process_response(site_config)
-            data = process_switch_template(
-                site_config.data, switch_name, switch_model, switch_role, data
+            switch_data = process_switch_template(
+                site_config.data, switch_name, switch_model, switch_role, switch_data
             )
 
             for key, value in device_data.data.items():
                 if key == "port_config":
                     port_config = process_switch_interface(value)
-                    data[key] = {**data.get(key, {}), **port_config}
-                elif isinstance(value, dict) and isinstance(data.get(key, {}), dict):
-                    data[key] = {**data.get(key, {}), **value}
-                elif isinstance(value, list) and isinstance(data.get(key, []), list):
-                    data[key] = data.get(key, []) + value
+                    switch_data[key] = {**data.get(key, {}), **port_config}
+                elif isinstance(value, dict) and isinstance(
+                    switch_data.get(key, {}), dict
+                ):
+                    switch_data[key] = {**switch_data.get(key, {}), **value}
+                elif isinstance(value, list) and isinstance(
+                    switch_data.get(key, []), list
+                ):
+                    switch_data[key] = switch_data.get(key, []) + value
                 else:
-                    data[key] = value
-
+                    switch_data[key] = value
+            device_data.data = switch_data
+            data = device_data
         case "gateway":
+            gateway_data = {}
             site_data = mistapi.api.v1.sites.sites.getSiteInfo(
                 apisession, site_id=str(site_id)
             )
@@ -147,26 +154,27 @@ async def getDeviceConfiguration(
                     gatewaytemplate_id=str(gateway_template_id),
                 )
                 await process_response(response)
-                data = response.data
+                gateway_data = response.data
 
             for key, value in device_data.data.items():
                 if key in NETWORK_TEMPLATE_FIELDS:
-                    if isinstance(value, dict) and isinstance(data.get(key, {}), dict):
-                        data[key] = {**data.get(key, {}), **value}
-                    elif isinstance(value, list) and isinstance(
-                        data.get(key, []), list
+                    if isinstance(value, dict) and isinstance(
+                        gateway_data.get(key, {}), dict
                     ):
-                        data[key] = data.get(key, []) + value
+                        gateway_data[key] = {**gateway_data.get(key, {}), **value}
+                    elif isinstance(value, list) and isinstance(
+                        gateway_data.get(key, []), list
+                    ):
+                        gateway_data[key] = gateway_data.get(key, []) + value
                     else:
-                        data[key] = value
+                        gateway_data[key] = value
+            device_data.data = gateway_data
+            data = device_data
 
         case _:
-            data = device_data.data
+            data = device_data
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(data, response_format)
 
 
 def process_switch_template(

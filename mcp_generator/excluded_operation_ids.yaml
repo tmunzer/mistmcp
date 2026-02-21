@@ -86,3 +86,4 @@
 - getSiteSettingDerived
 - getSiteApplicationList
 - getSiteWxRulesUsage
+- searchSiteMistEdgeEvents

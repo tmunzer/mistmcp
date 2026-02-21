@@ -15,6 +15,7 @@ from enum import Enum
 
 class McpToolsCategory(Enum):
     CONFIGURATION = "configuration"
+    INFO = "info"
     DEVICES = "devices"
     UTILITIES_UPGRADE = "utilities_upgrade"
     SITES_INSIGHTS = "sites_insights"
@@ -28,7 +29,6 @@ class McpToolsCategory(Enum):
     STATS = "stats"
     EVENTS = "events"
     CLIENTS = "clients"
-    INFO = "info"
     MARVIS = "marvis"
     ORGS_NAC = "orgs_nac"
     SITES_ROGUES = "sites_rogues"
@@ -37,13 +37,7 @@ class McpToolsCategory(Enum):
 TOOLS = {
     "clients": {
         "description": "Clients related objects for the sites and organizations. It provides access to clients, guests, and NAC clients. Defining the `site_id` parameter will return the clients for the specified site, while leaving it empty will return the clients for the whole organization.",
-        "tools": [
-            "searchGuestAuthorization",
-            "searchOrgWirelessClients",
-            "searchOrgNacClients",
-            "searchOrgWanClients",
-            "searchOrgWiredClients",
-        ],
+        "tools": ["searchGuestAuthorization", "searchOrgClient"],
     },
     "configuration": {
         "description": "Configuration related objects for the sites and organizations. It provides access to various configuration objects such as site settings, device profiles, and more. These objects can be used to configure the network in a consistent manner.",
@@ -66,7 +60,6 @@ TOOLS = {
             "searchDevices",
             "searchSiteDeviceConfigHistory",
             "searchSiteDeviceLastConfigs",
-            "searchSiteMistEdgeEvents",
         ],
     },
     "events": {
@@ -75,7 +68,7 @@ TOOLS = {
     },
     "info": {
         "description": "Tools that provide information about the sites and organizations.",
-        "tools": ["getInfo"],
+        "tools": ["getNextPage", "getInfo"],
     },
     "marvis": {
         "description": "Marvis is a virtual network assistant that provides insights and analytics for the Mist network. It can be used to analyze network performance, troubleshoot issues, and optimize network configurations.\n\nIt includes features such as synthetic tests, which allow users to simulate network traffic and measure performance metrics.",
@@ -126,7 +119,7 @@ TOOLS = {
     },
     "stats": {
         "description": "Tools that provide various statistics about the organizations, sites, devices, clients, ports and more.",
-        "tools": ["getSiteStats", "getOrgStats", "searchSiteWanUsage"],
+        "tools": ["getStats", "searchSiteWanUsage"],
     },
     "utilities_upgrade": {
         "description": "tools used to manage device upgrades for a single device, at the site level or at the organization level.",

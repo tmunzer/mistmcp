@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -43,7 +44,7 @@ class Channel(Enum):
     },
 )
 async def listOrgAvailableSsrVersions(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     channel: Annotated[
         Optional[Channel | None], Field(description="""SSR version channel""")
     ] = Channel.STABLE,
@@ -60,7 +61,6 @@ async def listOrgAvailableSsrVersions(
     logger.debug("Tool listOrgAvailableSsrVersions called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.orgs.ssr.listOrgAvailableSsrVersions(
         apisession,
@@ -70,9 +70,4 @@ async def listOrgAvailableSsrVersions(
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

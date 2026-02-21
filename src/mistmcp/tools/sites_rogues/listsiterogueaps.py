@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -45,35 +46,29 @@ class Type(Enum):
     },
 )
 async def listSiteRogueAPs(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     type: Optional[Type | None] = Type.NONE,
-    limit: Optional[int | None] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
     interval: Annotated[
         Optional[str | None],
-        Field(
-            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
-        ),
+        Field(description="""Aggregation interval (e.g. 1h, 1d)"""),
     ] = None,
     rogue_bssid: Annotated[
         Optional[str | None],
-        Field(
-            description="""BSSID of the rogue AP to filter stats by. Optional, if not provided all rogue APs will be listed."""
-        ),
+        Field(description="""BSSID of the rogue AP to filter stats by"""),
     ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
@@ -82,7 +77,6 @@ async def listSiteRogueAPs(
     logger.debug("Tool listSiteRogueAPs called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     if rogue_bssid:
         response = mistapi.api.v1.sites.rogues.getSiteRogueAP(
@@ -94,7 +88,7 @@ async def listSiteRogueAPs(
             apisession,
             site_id=str(site_id),
             type=type.value if type else None,
-            limit=limit if limit else None,
+            limit=limit,
             start=start if start else None,
             end=end if end else None,
             duration=duration if duration else None,
@@ -102,9 +96,4 @@ async def listSiteRogueAPs(
         )
         await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

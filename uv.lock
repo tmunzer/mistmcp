@@ -1954,7 +1954,7 @@ wheels = [
 
 [[package]]
 name = "mistapi"
-version = "0.60.1"
+version = "0.60.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "deprecation" },
@@ -1964,9 +1964,9 @@ dependencies = [
     { name = "requests" },
     { name = "tabulate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fe/e4/a2d602bc95a460713daebbd90b8fe0ad9a3a91eff1dd41bfa91a3b515880/mistapi-0.60.1.tar.gz", hash = "sha256:6fa9fa3bc4f71dc1c7c467701c7289611a7d21d81d704dd10aee5eaa1c51beb3", size = 5213163, upload-time = "2026-02-21T18:54:01.283Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/97/46/cf8d2ca6e2d92fd47c11fcc28bc7c452e5063c5c0fc073b556389759e70f/mistapi-0.60.3.tar.gz", hash = "sha256:59fc753706970bd84f72d8b017447a3bca5d1fbfc248d0fe038d50b6a84d46bf", size = 5201734, upload-time = "2026-02-21T22:00:14.13Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/09/b38bfa163d06d09fb35011bddd8602a4492bbe2733e11950e8b068fea74a/mistapi-0.60.1-py3-none-any.whl", hash = "sha256:d1ee654c3860862f08c31151875bda599d982d6d46ebd489c5009113daf9575f", size = 260894, upload-time = "2026-02-21T18:53:59.486Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/3b/00b9677622d6b89956d7a9c80a4393e691d2ffae984d50f9baa35bbca1c7/mistapi-0.60.3-py3-none-any.whl", hash = "sha256:145d6e35840fb55a94735df795255a4c3a2cf86268d61e3366c75913fa44a6ff", size = 260915, upload-time = "2026-02-21T22:00:12.289Z" },
 ]
 
 [[package]]
@@ -2000,7 +2000,7 @@ requires-dist = [
     { name = "fastmcp", specifier = ">=3.0.0" },
     { name = "marvin" },
     { name = "mcp", extras = ["cli"], specifier = ">=1.9.2" },
-    { name = "mistapi", specifier = ">=0.60.1" },
+    { name = "mistapi", specifier = ">=0.60.3" },
 ]
 
 [package.metadata.requires-dev]

@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 
 from mistmcp.elicitation_processor import config_elicitation_handler
 from mistmcp.server import mcp
@@ -45,7 +46,6 @@ async def {operationId}(
     logger.debug("Tool {operationId} called")
 
     apisession, response_format = get_apisession()
-    data = {{}}
     
     action_wording = "create a new"
     if object_id:
@@ -78,10 +78,7 @@ async def {operationId}(
 
     {request}
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)
 '''
 
 TOOL_TEMPLATE_WRITE_ELICITATION = '''

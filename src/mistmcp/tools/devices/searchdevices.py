@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -37,7 +38,7 @@ class Device_type(Enum):
 
 @mcp.tool(
     name="searchDevices",
-    description="""This tool can be used to search for devices in an organization or site. You can filter the search by device type, device name, or MAC address using the `device_type`, `name`, and `mac` parameters, respectively.IMPORTANT: this tool only returns devices that are currently connected to Mist.""",
+    description="""This tool can be used to search for devices in an organization or site. You can filter the search by device type, device name, or MAC address using the `device_type`, `name`, and `mac` parameters, respectivelyIMPORTANT: this tool only returns devices that are currently connected to Mist""",
     tags={"devices"},
     annotations={
         "title": "searchDevices",
@@ -50,50 +51,38 @@ async def searchDevices(
     scope: Annotated[
         Scope,
         Field(
-            description="""Whether to search for devices in the entire organization or a specific site. If `site` is selected, the `site_id` parameter is required."""
+            description="""Whether to search for devices in the entire organization or a specific site. If `site` is selected, the `site_id` parameter is required"""
         ),
     ],
-    org_id: Annotated[
-        UUID, Field(description="""ID of the organization to search for devices in.""")
-    ],
-    site_id: Annotated[
-        Optional[UUID | None],
-        Field(
-            description="""ID of the site to search for devices in. If not specified, devices from all sites in the organization will be included in the search."""
-        ),
-    ] = None,
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
+    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
     device_type: Annotated[
         Optional[Device_type | None],
-        Field(
-            description="""Type of device to search for. If not specified, all device types will be included in the search."""
-        ),
+        Field(description="""Type of device to search for"""),
     ] = None,
     hostname: Annotated[
         Optional[str | None],
         Field(
-            description="""Hostname of the device to search for. Supports partial matches. If not specified, devices will not be filtered by hostname."""
+            description="""Hostname of the device to search for. Supports partial matches"""
         ),
     ] = None,
     mac: Annotated[
         Optional[str | None],
-        Field(
-            description="""MAC address of the device to search for. If not specified, devices will not be filtered by MAC address."""
-        ),
+        Field(description="""MAC address of the device to search for"""),
     ] = None,
     model: Annotated[
-        Optional[str | None],
-        Field(
-            description="""Model of the device to search for. If not specified, devices will not be filtered by model."""
-        ),
+        Optional[str | None], Field(description="""Model of the device to search for""")
     ] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=10)
+    ] = 10,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to search for devices in an organization or site. You can filter the search by device type, device name, or MAC address using the `device_type`, `name`, and `mac` parameters, respectively.IMPORTANT: this tool only returns devices that are currently connected to Mist."""
+    """This tool can be used to search for devices in an organization or site. You can filter the search by device type, device name, or MAC address using the `device_type`, `name`, and `mac` parameters, respectivelyIMPORTANT: this tool only returns devices that are currently connected to Mist"""
 
     logger.debug("Tool searchDevices called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     object_type = scope
 
@@ -116,9 +105,9 @@ async def searchDevices(
                     hostname=str(hostname) if hostname else None,
                     mac=str(mac) if mac else None,
                     model=str(model) if model else None,
+                    limit=limit,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.devices.searchOrgDevices(
                     apisession,
@@ -127,9 +116,9 @@ async def searchDevices(
                     hostname=str(hostname) if hostname else None,
                     mac=str(mac) if mac else None,
                     model=str(model) if model else None,
+                    limit=limit,
                 )
                 await process_response(response)
-                data = response.data
 
         case _:
             raise ToolError(
@@ -139,7 +128,4 @@ async def searchDevices(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

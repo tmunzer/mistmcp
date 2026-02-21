@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -36,7 +37,7 @@ from uuid import UUID
     },
 )
 async def searchOrgUserMacs(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     mac: Annotated[
         Optional[str | None], Field(description="""Partial/full MAC address""")
     ] = None,
@@ -44,14 +45,13 @@ async def searchOrgUserMacs(
         Optional[List[str] | None],
         Field(description="""Optional, array of strings of labels"""),
     ] = None,
-    limit: Optional[int | None] = None,
-    page: Annotated[Optional[int | None], Field(ge=1)] = None,
-    sort: Annotated[
-        Optional[str | None],
-        Field(
-            description="""On which field the list should be sorted, -prefix represents DESC order"""
-        ),
-    ] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
+    page: Annotated[
+        int, Field(description="""Page number for pagination""", ge=1, default=1)
+    ] = 1,
+    sort: Annotated[Optional[str | None], Field(description="""Sort field""")] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Search Org User MACs"""
@@ -59,22 +59,16 @@ async def searchOrgUserMacs(
     logger.debug("Tool searchOrgUserMacs called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.orgs.usermacs.searchOrgUserMacs(
         apisession,
         org_id=str(org_id),
         mac=mac if mac else None,
         labels=labels if labels else None,
-        limit=limit if limit else None,
-        page=page if page else None,
+        limit=limit,
+        page=page,
         sort=sort if sort else None,
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

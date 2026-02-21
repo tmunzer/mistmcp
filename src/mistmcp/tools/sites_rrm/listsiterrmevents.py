@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -44,27 +45,27 @@ class Band(Enum):
     },
 )
 async def listSiteRrmEvents(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     band: Annotated[
         Optional[Band | None], Field(description="""802.11 Band""")
     ] = Band.NONE,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
-    limit: Optional[int | None] = None,
-    page: Annotated[Optional[int | None], Field(ge=1)] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
+    page: Annotated[
+        int, Field(description="""Page number for pagination""", ge=1, default=1)
+    ] = 1,
     ctx: Context | None = None,
 ) -> dict | list | str:
     """List Site RRM Events"""
@@ -72,7 +73,6 @@ async def listSiteRrmEvents(
     logger.debug("Tool listSiteRrmEvents called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.sites.rrm.listSiteRrmEvents(
         apisession,
@@ -81,14 +81,9 @@ async def listSiteRrmEvents(
         start=start if start else None,
         end=end if end else None,
         duration=duration if duration else None,
-        limit=limit if limit else None,
-        page=page if page else None,
+        limit=limit,
+        page=page,
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -46,53 +47,49 @@ class Object_type(Enum):
     },
 )
 async def getInsightMetrics(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     object_type: Annotated[
-        Object_type, Field(description="""Type of object to retrieve metrics for.""")
+        Object_type, Field(description="""Type of object to retrieve metrics for""")
     ],
     metric: Annotated[
         str,
         Field(
-            description="""Name of the metric to retrieve. Use the tool `listSiteInsightMetrics` to see available metrics."""
+            description="""Name of the metric to retrieve. Use the tool `listSiteInsightMetrics` to see available metrics"""
         ),
     ],
     mac: Annotated[
         Optional[str | None],
         Field(
-            description="""MAC address of the client or device to retrieve metrics for. Required if object_type is 'client', 'ap', 'mxedge' or 'switch'."""
+            description="""MAC address of the client or device to retrieve metrics for. Required if object_type is 'client', 'ap', 'mxedge' or 'switch'"""
         ),
     ] = None,
     device_id: Annotated[
         Optional[UUID | None],
         Field(
-            description="""ID of the gateway device to retrieve metrics for. Required if object_type is 'gateway'."""
+            description="""ID of the gateway device to retrieve metrics for. Required if object_type is 'gateway'"""
         ),
     ] = None,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
     interval: Annotated[
         Optional[str | None],
-        Field(
-            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
-        ),
+        Field(description="""Aggregation interval (e.g. 1h, 1d)"""),
     ] = None,
-    page: Annotated[Optional[int | None], Field(description="""Page number""")] = None,
+    page: Annotated[
+        Optional[int | None], Field(description="""Page number for pagination""")
+    ] = None,
     limit: Annotated[
-        Optional[int | None], Field(description="""Number of records per page""")
-    ] = None,
+        int, Field(description="""Max number of results per page""", default=10)
+    ] = 10,
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Get insight metrics for a given object"""
@@ -100,7 +97,6 @@ async def getInsightMetrics(
     logger.debug("Tool getInsightMetrics called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     match object_type.value:
         case "site":
@@ -116,7 +112,6 @@ async def getInsightMetrics(
                 page=page,
             )
             await process_response(response)
-            data = response.data
         case "client":
             response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForClient(
                 apisession,
@@ -131,7 +126,6 @@ async def getInsightMetrics(
                 page=page,
             )
             await process_response(response)
-            data = response.data
         case "ap":
             response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForDevice(
                 apisession,
@@ -146,7 +140,6 @@ async def getInsightMetrics(
                 page=page,
             )
             await process_response(response)
-            data = response.data
         case "gateway":
             response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForGateway(
                 apisession,
@@ -161,7 +154,6 @@ async def getInsightMetrics(
                 page=page,
             )
             await process_response(response)
-            data = response.data
         case "mxedge":
             response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForMxEdge(
                 apisession,
@@ -176,7 +168,6 @@ async def getInsightMetrics(
                 page=page,
             )
             await process_response(response)
-            data = response.data
         case "switch":
             response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForSwitch(
                 apisession,
@@ -191,7 +182,6 @@ async def getInsightMetrics(
                 page=page,
             )
             await process_response(response)
-            data = response.data
 
         case _:
             raise ToolError(
@@ -201,7 +191,4 @@ async def getInsightMetrics(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

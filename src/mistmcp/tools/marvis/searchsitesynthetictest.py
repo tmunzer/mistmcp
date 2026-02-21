@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -55,7 +56,7 @@ class Protocol(Enum):
     },
 )
 async def searchSiteSyntheticTest(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     mac: Annotated[
         Optional[str | None], Field(description="""Device MAC Address""")
     ] = None,
@@ -80,26 +81,24 @@ async def searchSiteSyntheticTest(
         Optional[str | None],
         Field(description="""Tenant network in which lan_connectivity test was run"""),
     ] = None,
-    limit: Optional[int | None] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
     search_after: Annotated[
         Optional[str | None],
         Field(
-            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+            description="""Pagination cursor from '_next' URL of previous response"""
         ),
     ] = None,
     ctx: Context | None = None,
@@ -109,7 +108,6 @@ async def searchSiteSyntheticTest(
     logger.debug("Tool searchSiteSyntheticTest called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.sites.synthetic_test.searchSiteSyntheticTest(
         apisession,
@@ -122,7 +120,7 @@ async def searchSiteSyntheticTest(
         type=type.value if type else None,
         protocol=protocol.value if protocol else None,
         tenant=tenant if tenant else None,
-        limit=limit if limit else None,
+        limit=limit,
         start=start if start else None,
         end=end if end else None,
         duration=duration if duration else None,
@@ -130,9 +128,4 @@ async def searchSiteSyntheticTest(
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

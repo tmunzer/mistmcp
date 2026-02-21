@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -53,7 +54,7 @@ class Object_type(Enum):
 
 @mcp.tool(
     name="getSiteSle",
-    description="""Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs.""",
+    description="""Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs""",
     tags={"sles"},
     annotations={
         "title": "getSiteSle",
@@ -63,52 +64,47 @@ class Object_type(Enum):
     },
 )
 async def getSiteSle(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     scope: Annotated[
         Scope,
         Field(
-            description="""Scope of the SLEs to retrieve. Can be 'client', 'ap', 'gateway', 'mxedge', 'switch' or 'site'."""
+            description="""Scope of the SLEs to retrieve. Can be 'client', 'ap', 'gateway', 'mxedge', 'switch' or 'site'"""
         ),
     ],
     scope_id: Annotated[str, Field(description="""ID of the Mist Scope""")],
     metric: Annotated[
         str,
         Field(
-            description="""Name of the metric to retrieve SLEs for. Use the tool `listSiteInsightMetrics` to see available metrics."""
+            description="""Name of the metric to retrieve SLEs for. Use the tool `listSiteInsightMetrics` to see available metrics"""
         ),
     ],
     object_type: Annotated[
-        Object_type, Field(description="""Type of object to retrieve metrics for.""")
+        Object_type, Field(description="""Type of object to retrieve metrics for""")
     ],
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w', 'now')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     classifier: Annotated[
         Optional[str | None],
         Field(
-            description="""Classifier name. Required when object_type is 'classifier_summary_trend'."""
+            description="""Classifier name. Required when object_type is 'classifier_summary_trend'"""
         ),
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs."""
+    """Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs"""
 
     logger.debug("Tool getSiteSle called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     object_type = object_type
 
@@ -134,7 +130,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impact_summary":
             response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
                 apisession,
@@ -147,7 +142,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "summary_trend":
             response = mistapi.api.v1.sites.sle.getSiteSleSummaryTrend(
                 apisession,
@@ -160,7 +154,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impacted_applications":
             response = mistapi.api.v1.sites.sle.listSiteSleImpactedApplications(
                 apisession,
@@ -173,7 +166,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impacted_aps":
             response = mistapi.api.v1.sites.sle.listSiteSleImpactedAps(
                 apisession,
@@ -186,7 +178,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impacted_gateways":
             response = mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(
                 apisession,
@@ -199,7 +190,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impacted_interfaces":
             response = mistapi.api.v1.sites.sle.listSiteSleImpactedInterfaces(
                 apisession,
@@ -212,7 +202,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impacted_switches":
             response = mistapi.api.v1.sites.sle.listSiteSleImpactedSwitches(
                 apisession,
@@ -225,7 +214,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impacted_wireless_clients":
             response = mistapi.api.v1.sites.sle.listSiteSleImpactedWirelessClients(
                 apisession,
@@ -238,7 +226,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impacted_wired_clients":
             response = mistapi.api.v1.sites.sle.listSiteSleImpactedWiredClients(
                 apisession,
@@ -251,7 +238,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "impacted_chassis":
             response = mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(
                 apisession,
@@ -264,7 +250,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "histogram":
             response = mistapi.api.v1.sites.sle.getSiteSleHistogram(
                 apisession,
@@ -277,7 +262,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "classifier_summary_trend":
             response = mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(
                 apisession,
@@ -291,7 +275,6 @@ async def getSiteSle(
                 duration=duration if duration else None,
             )
             await process_response(response)
-            data = response.data
         case "threshold":
             response = mistapi.api.v1.sites.sle.getSiteSleThreshold(
                 apisession,
@@ -301,7 +284,6 @@ async def getSiteSle(
                 metric=metric,
             )
             await process_response(response)
-            data = response.data
 
         case _:
             raise ToolError(
@@ -311,7 +293,4 @@ async def getSiteSle(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

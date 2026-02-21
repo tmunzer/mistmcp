@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -39,7 +40,7 @@ class Band(Enum):
 
 @mcp.tool(
     name="getSiteRrmInfo",
-    description="""This tool can be used to retrieve information the site RRM (Radio Resource Management) status.""",
+    description="""This tool can be used to retrieve information the site RRM (Radio Resource Management) status""",
     tags={"sites_rrm"},
     annotations={
         "title": "getSiteRrmInfo",
@@ -52,32 +53,29 @@ async def getSiteRrmInfo(
     rrm_info_type: Annotated[
         Rrm_info_type,
         Field(
-            description="""Type of information to retrieve about the current user and account. Possible values are `account_info`, `api_usage`, and `login_failures`."""
+            description="""Type of information to retrieve about the current user and account. Possible values are `account_info`, `api_usage`, and `login_failures`"""
         ),
     ],
-    site_id: Annotated[
-        UUID, Field(description="""ID of the site to retrieve RRM information for.""")
-    ],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     device_id: Annotated[
         Optional[UUID | None],
         Field(
-            description="""ID of the device to retrieve RRM information for. Required when `rrm_info_type` is `current_rrm_considerations`."""
+            description="""ID of the device to retrieve RRM information for. Required when `rrm_info_type` is `current_rrm_considerations`"""
         ),
     ] = None,
     band: Annotated[
         Optional[Band | None],
         Field(
-            description="""802.11 Band to retrieve RRM information for. Required when `rrm_info_type` is `current_rrm_considerations` or `current_rrm_neighbors`."""
+            description="""802.11 Band to retrieve RRM information for. Required when `rrm_info_type` is `current_rrm_considerations` or `current_rrm_neighbors`"""
         ),
     ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to retrieve information the site RRM (Radio Resource Management) status."""
+    """This tool can be used to retrieve information the site RRM (Radio Resource Management) status"""
 
     logger.debug("Tool getSiteRrmInfo called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     object_type = rrm_info_type
 
@@ -114,7 +112,6 @@ async def getSiteRrmInfo(
                 apisession, site_id=str(site_id)
             )
             await process_response(response)
-            data = response.data
         case "current_rrm_considerations":
             response = mistapi.api.v1.sites.rrm.getSiteCurrentRrmConsiderations(
                 apisession,
@@ -123,13 +120,11 @@ async def getSiteRrmInfo(
                 band=str(band),
             )
             await process_response(response)
-            data = response.data
         case "current_rrm_neighbors":
             response = mistapi.api.v1.sites.rrm.listSiteCurrentRrmNeighbors(
                 apisession, site_id=str(site_id), band=str(band)
             )
             await process_response(response)
-            data = response.data
 
         case _:
             raise ToolError(
@@ -139,7 +134,4 @@ async def getSiteRrmInfo(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

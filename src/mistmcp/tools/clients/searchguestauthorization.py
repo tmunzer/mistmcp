@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -32,7 +33,7 @@ class Scope(Enum):
 
 @mcp.tool(
     name="searchGuestAuthorization",
-    description="""This tool can be used to search for guest authorization entries in an organization or site.""",
+    description="""This tool can be used to search for guest authorization entries in an organization or site""",
     tags={"clients"},
     annotations={
         "title": "searchGuestAuthorization",
@@ -45,65 +46,50 @@ async def searchGuestAuthorization(
     scope: Annotated[
         Scope,
         Field(
-            description="""Whether to search in the entire organization or a specific site. If `site` is selected, the `site_id` parameter is required."""
+            description="""Whether to search in the entire organization or a specific site. If `site` is selected, the `site_id` parameter is required"""
         ),
     ],
-    org_id: Annotated[
-        UUID,
-        Field(
-            description="""ID of the organization to search for guest authorization entries in."""
-        ),
-    ],
-    site_id: Annotated[
-        Optional[UUID | None],
-        Field(
-            description="""ID of the site to search for guest authorization entries in. If not specified, entries from all sites in the organization will be included in the search."""
-        ),
-    ] = None,
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
+    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
     guest_mac: Annotated[
         Optional[str | None],
         Field(
-            description="""MAC address of the guest to search for in the authorization entries. If not specified, entries will not be filtered by guest MAC address."""
+            description="""MAC address of the guest to search for in the authorization entries"""
         ),
     ] = None,
     wlan_id: Annotated[
         Optional[UUID | None],
         Field(
-            description="""ID of the WLAN to filter guest authorization entries by. If not specified, entries will not be filtered by WLAN."""
+            description="""ID of the WLAN to filter guest authorization entries by"""
         ),
     ] = None,
     auth_method: Annotated[
         Optional[str | None],
         Field(
-            description="""Authentication method to filter guest authorization entries by. If not specified, entries will not be filtered by authentication method."""
+            description="""Authentication method to filter guest authorization entries by"""
         ),
     ] = None,
     ssid: Annotated[
         Optional[str | None],
-        Field(
-            description="""SSID to filter guest authorization entries by. If not specified, entries will not be filtered by SSID."""
-        ),
+        Field(description="""SSID to filter guest authorization entries by"""),
     ] = None,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w') to filter guest authorization entries by. If not specified, entries will not be filtered by start time."""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-1w') to filter guest authorization entries by. If not specified, entries will not be filtered by end time."""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=10)
+    ] = 10,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to search for guest authorization entries in an organization or site."""
+    """This tool can be used to search for guest authorization entries in an organization or site"""
 
     logger.debug("Tool searchGuestAuthorization called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     object_type = scope
 
@@ -123,7 +109,6 @@ async def searchGuestAuthorization(
                     apisession, org_id=str(org_id), guest_mac=str(guest_mac)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.guests.searchOrgGuestAuthorization(
                     apisession,
@@ -133,16 +118,15 @@ async def searchGuestAuthorization(
                     ssid=ssid if ssid else None,
                     start=start if start else None,
                     end=end if end else None,
+                    limit=limit,
                 )
                 await process_response(response)
-                data = response.data
         case "site":
             if guest_mac:
                 response = mistapi.api.v1.sites.guests.getSiteGuestAuthorization(
                     apisession, site_id=str(site_id), guest_mac=str(guest_mac)
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.guests.searchSiteGuestAuthorization(
                     apisession,
@@ -152,9 +136,9 @@ async def searchGuestAuthorization(
                     ssid=ssid if ssid else None,
                     start=start if start else None,
                     end=end if end else None,
+                    limit=limit,
                 )
                 await process_response(response)
-                data = response.data
 
         case _:
             raise ToolError(
@@ -164,7 +148,4 @@ async def searchGuestAuthorization(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

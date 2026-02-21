@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -51,12 +52,12 @@ class Severity(Enum):
     },
 )
 async def searchOrgAlarms(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
     group: Annotated[
         Optional[Group | None],
         Field(
-            description="""Alarm group. enum: `infrastructure`, `marvis`, `security`"""
+            description="""Alarm group. enum: `infrastructure`, `marvis`, `security`.  The `marvis` group is used to retrieve AI-driven network issue detections.  Known Marvis alarm types include: `bad_cable`, `bad_wan_uplink`, `dns_failure`,  `arp_failure`, `auth_failure`, `dhcp_failure`, `missing_vlan`,  `negotiation_mismatch`, `port_flap`. Results include resolution status  (`status`, `resolved_time`) and affected entity details.'"""
         ),
     ] = Group.NONE,
     severity: Annotated[
@@ -80,30 +81,23 @@ async def searchOrgAlarms(
     acked: Optional[bool | None] = None,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    limit: Optional[int | None] = None,
-    sort: Annotated[
         Optional[str | None],
-        Field(
-            description="""On which field the list should be sorted, -prefix represents DESC order"""
-        ),
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
+    sort: Annotated[Optional[str | None], Field(description="""Sort field""")] = None,
     search_after: Annotated[
         Optional[str | None],
         Field(
-            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+            description="""Pagination cursor from '_next' URL of previous response"""
         ),
     ] = None,
     ctx: Context | None = None,
@@ -113,7 +107,6 @@ async def searchOrgAlarms(
     logger.debug("Tool searchOrgAlarms called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.orgs.alarms.searchOrgAlarms(
         apisession,
@@ -127,15 +120,10 @@ async def searchOrgAlarms(
         start=start if start else None,
         end=end if end else None,
         duration=duration if duration else None,
-        limit=limit if limit else None,
+        limit=limit,
         sort=sort if sort else None,
         search_after=search_after if search_after else None,
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

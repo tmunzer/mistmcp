@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -45,7 +46,7 @@ class Scope(Enum):
     },
 )
 async def listSiteSlesMetrics(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     scope: Scope,
     scope_id: Annotated[
         str,
@@ -60,7 +61,6 @@ async def listSiteSlesMetrics(
     logger.debug("Tool listSiteSlesMetrics called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.sites.sle.listSiteSlesMetrics(
         apisession,
@@ -70,9 +70,4 @@ async def listSiteSlesMetrics(
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

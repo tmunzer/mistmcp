@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -36,7 +37,7 @@ from uuid import UUID
     },
 )
 async def searchOrgSites(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     analytic_enabled: Annotated[
         Optional[bool | None],
         Field(description="""If Advanced Analytic feature is enabled"""),
@@ -92,32 +93,25 @@ async def searchOrgSites(
     wifi_enabled: Annotated[
         Optional[bool | None], Field(description="""If Wi-Fi feature is enabled""")
     ] = None,
-    limit: Optional[int | None] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    sort: Annotated[
         Optional[str | None],
-        Field(
-            description="""On which field the list should be sorted, -prefix represents DESC order"""
-        ),
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
+    sort: Annotated[Optional[str | None], Field(description="""Sort field""")] = None,
     search_after: Annotated[
         Optional[str | None],
         Field(
-            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+            description="""Pagination cursor from '_next' URL of previous response"""
         ),
     ] = None,
     ctx: Context | None = None,
@@ -127,7 +121,6 @@ async def searchOrgSites(
     logger.debug("Tool searchOrgSites called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.orgs.sites.searchOrgSites(
         apisession,
@@ -148,7 +141,7 @@ async def searchOrgSites(
         rtsa_enabled=rtsa_enabled if rtsa_enabled else None,
         vna_enabled=vna_enabled if vna_enabled else None,
         wifi_enabled=wifi_enabled if wifi_enabled else None,
-        limit=limit if limit else None,
+        limit=limit,
         start=start if start else None,
         end=end if end else None,
         duration=duration if duration else None,
@@ -157,9 +150,4 @@ async def searchOrgSites(
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

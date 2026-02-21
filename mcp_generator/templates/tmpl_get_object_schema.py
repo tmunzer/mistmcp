@@ -20,6 +20,7 @@ from mistmcp.request_processor import get_apisession
 from mistmcp.tools.configuration import schemas_data as _schemas_data_module
 from mistmcp.server import mcp
 from mistmcp.logger import logger
+from mistmcp.response_formatter import format_response
 
 # Pre-resolved schemas keyed by schema_name (= schemas_config.yaml entry key).
 # Each entry: {"schema": <dict>, "_schema_name": <oas_schema_name>}
@@ -29,11 +30,54 @@ _SCHEMAS_DATA: dict = _schemas_data_module.SCHEMAS_DATA
 SchemaName = Enum("SchemaName", {name: name for name in _SCHEMAS_DATA})  # type: ignore[misc]
 
 
+def _compact_schema(schema: dict) -> dict:
+    """Return a token-efficient summary of a JSON schema.
+
+    Required fields are returned in full detail.  Optional fields are reduced
+    to name, type, and description only — nested sub-schemas and constraint
+    keywords are omitted.  A hint key tells the caller how to obtain the full
+    schema.
+    """
+    required_fields: set = set(schema.get("required", []))
+    properties: dict = schema.get("properties", {})
+
+    compact_required: dict = {}
+    compact_optional: dict = {}
+
+    for field_name, field_schema in properties.items():
+        if field_name in required_fields:
+            compact_required[field_name] = field_schema
+        else:
+            compact_entry: dict = {}
+            if field_schema.get("type"):
+                compact_entry["type"] = field_schema["type"]
+            if field_schema.get("description"):
+                compact_entry["description"] = field_schema["description"]
+            compact_optional[field_name] = compact_entry
+
+    result: dict = {}
+    for key, value in schema.items():
+        if key != "properties":
+            result[key] = value
+
+    result["properties"] = {**compact_required, **compact_optional}
+
+    optional_count = len(compact_optional)
+    if optional_count:
+        result["x-hint"] = (
+            f"{optional_count} optional field(s) shown in compact form "
+            "(name + type + description only). Pass verbose=True for full schema."
+        )
+
+    return result
+
+
 @mcp.tool(
     name="getObjectSchema",
     description="""Retrieve the JSON schema for a Mist configuration object type.
 The schema is derived from the Mist OpenAPI specification and includes all properties with their types, descriptions, defaults, and constraints.
-Use this tool to understand the structure of a configuration object before creating or updating it.""",
+Use this tool to understand the structure of a configuration object before creating or updating it.
+Pass verbose=True to get the full schema including all constraints and nested sub-schemas (default is compact summary).""",
     tags={"configuration"},
     annotations={
         "title": "getObjectSchema",
@@ -47,14 +91,20 @@ async def getObjectSchema(
         SchemaName,
         Field(description="Name of the configuration object schema to retrieve."),
     ],
-    ctx: Context,
+    verbose: Annotated[
+        bool,
+        Field(
+            description="Return the full schema with all constraints and nested sub-schemas. When False (default), returns a compact summary with required fields in full and optional fields as name+type+description only."
+        ),
+    ] = False,
+    ctx: Context | None = None,
 ) -> dict[str, Any] | str:
     """Retrieve the pre-resolved JSON schema for a Mist configuration object."""
 
-    logger.debug("Tool {operationId} called")
-    
+    logger.debug("Tool getObjectSchema called")
+
     _, response_format = get_apisession()
-    
+
     entry = _SCHEMAS_DATA.get(schema_name.value)
     if entry is None:
         raise ValueError(
@@ -71,10 +121,10 @@ async def getObjectSchema(
         )
 
     resolved["x-schema-name"] = entry["_schema_name"]
-    
-    if response_format == "string":
-        return json.dumps(resolved)
-    else:
-        return resolved
+
+    if not verbose:
+        resolved = _compact_schema(resolved)
+
+    return format_response(resolved, response_format)
 
 '''

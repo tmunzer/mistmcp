@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -33,7 +34,7 @@ class Device_type(Enum):
 
 @mcp.tool(
     name="getOrgInventory",
-    description="""Retrieve the inventory of devices for a specified organization and optionally filter by site. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory.""",
+    description="""Retrieve the inventory of devices. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory""",
     tags={"devices"},
     annotations={
         "title": "getOrgInventory",
@@ -43,32 +44,19 @@ class Device_type(Enum):
     },
 )
 async def getOrgInventory(
-    org_id: Annotated[
-        UUID, Field(description="""ID of the organization to filter inventory by.""")
-    ],
-    site_id: Annotated[
-        Optional[UUID | None],
-        Field(
-            description="""ID of the site to filter inventory by. Optional, if not provided inventory for all sites will be listed."""
-        ),
-    ] = None,
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
+    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
     serial: Annotated[
         Optional[str | None],
-        Field(
-            description="""Serial number of the device to filter inventory by. Optional, if not provided all devices will be listed."""
-        ),
+        Field(description="""Serial number of the device to filter inventory by"""),
     ] = None,
     model: Annotated[
         Optional[str | None],
-        Field(
-            description="""Model of the device to filter inventory by. Optional, if not provided all devices will be listed."""
-        ),
+        Field(description="""Model of the device to filter inventory by"""),
     ] = None,
     mac: Annotated[
         Optional[str | None],
-        Field(
-            description="""MAC address of the device to filter inventory by. Optional, if not provided all devices will be listed."""
-        ),
+        Field(description="""MAC address of the device to filter inventory by"""),
     ] = None,
     vc: Annotated[
         Optional[bool | None],
@@ -76,24 +64,18 @@ async def getOrgInventory(
     ] = None,
     device_type: Annotated[
         Optional[Device_type | None],
-        Field(
-            description="""Type of the device to filter inventory by. Optional, if not provided all devices will be listed."""
-        ),
+        Field(description="""Type of the device to filter inventory by"""),
     ] = None,
     limit: Annotated[
-        Optional[int | None],
-        Field(
-            description="""Maximum number of devices to retrieve. If not specified, the API will return up to 100 devices (maximum allowed is 1000)."""
-        ),
-    ] = None,
+        int, Field(description="""Max number of results per page""", default=10)
+    ] = 10,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve the inventory of devices for a specified organization and optionally filter by site. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory."""
+    """Retrieve the inventory of devices. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory"""
 
     logger.debug("Tool getOrgInventory called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.orgs.inventory.getOrgInventory(
         apisession,
@@ -104,12 +86,8 @@ async def getOrgInventory(
         mac=mac if mac else None,
         site_id=str(site_id) if site_id else None,
         vc=vc if vc else None,
-        limit=limit if limit else None,
+        limit=limit,
     )
     await process_response(response)
-    data = response.data
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

@@ -1,8 +1,7 @@
 REQ_TEMPLATE = """
     response = {request}
     await process_response(response)
-    
-    data = response.data
+
 """
 
 REQ_OPTIMIZED_TEMPLATE = """
@@ -12,6 +11,5 @@ REQ_OPTIMIZED_TEMPLATE = """
     else:
         response = {request}
         await process_response(response)
-        
-    data = response.data
+
 """

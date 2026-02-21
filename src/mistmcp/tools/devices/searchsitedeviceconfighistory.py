@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -43,37 +44,30 @@ class Type(Enum):
     },
 )
 async def searchSiteDeviceConfigHistory(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     type: Optional[Type | None] = Type.AP,
     mac: Annotated[
         Optional[str | None], Field(description="""Device MAC Address""")
     ] = None,
-    limit: Optional[int | None] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
-    ] = None,
-    sort: Annotated[
         Optional[str | None],
-        Field(
-            description="""On which field the list should be sorted, -prefix represents DESC order"""
-        ),
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
+    sort: Annotated[Optional[str | None], Field(description="""Sort field""")] = None,
     search_after: Annotated[
         Optional[str | None],
         Field(
-            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+            description="""Pagination cursor from '_next' URL of previous response"""
         ),
     ] = None,
     ctx: Context | None = None,
@@ -83,14 +77,13 @@ async def searchSiteDeviceConfigHistory(
     logger.debug("Tool searchSiteDeviceConfigHistory called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.sites.devices.searchSiteDeviceConfigHistory(
         apisession,
         site_id=str(site_id),
         type=type.value if type else Type.AP.value,
         mac=mac if mac else None,
-        limit=limit if limit else None,
+        limit=limit,
         start=start if start else None,
         end=end if end else None,
         duration=duration if duration else None,
@@ -99,9 +92,4 @@ async def searchSiteDeviceConfigHistory(
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

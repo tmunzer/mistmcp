@@ -41,6 +41,7 @@ import yaml
 # Import template strings for code generation
 from templates.tmpl_device_configuration import DEVICE_CONFIGURATION_TEMPLATE
 from templates.tmpl_get_object_schema import GET_OBJECT_SCHEMA_TEMPLATE
+from templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
 from templates.tmpl_helper import TOOLS_HELPER
 from templates.tmpl_init import INIT_TEMPLATE
 from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
@@ -84,6 +85,11 @@ CUSTOM_TOOLS = [
         "name": "getObjectSchema",
         "template": GET_OBJECT_SCHEMA_TEMPLATE,
         "tag": "configuration",
+    },
+    {
+        "name": "getNextPage",
+        "template": GET_NEXT_PAGE_TEMPLATE,
+        "tag": "info",
     },
 ]
 # Global read-only hint for tool generation
@@ -139,6 +145,24 @@ TRANSLATION = {
     "array": "list",  # OpenAPI array type maps to Python list
     "boolean": "bool",  # OpenAPI boolean type maps to Python bool
     "object": "dict",  # OpenAPI object type maps to Python dict
+}
+
+# ---------------------------------------------------------------------------
+# SHORT DESCRIPTIONS FOR COMMON PARAMETERS
+# Applied before the OpenAPI description to reduce token usage in tool schemas.
+# ---------------------------------------------------------------------------
+
+COMMON_PARAM_SHORT_DESCRIPTIONS = {
+    "org_id": "Organization ID",
+    "site_id": "Site ID",
+    "start": "Start of time range (epoch seconds)",
+    "end": "End of time range (epoch seconds)",
+    "duration": "Time range duration (e.g. 1d, 1h, 10m)",
+    "limit": "Max number of results per page",
+    "page": "Page number for pagination",
+    "sort": "Sort field",
+    "search_after": "Pagination cursor from '_next' URL of previous response",
+    "interval": "Aggregation interval (e.g. 1h, 1d)",
 }
 
 # ---------------------------------------------------------------------------
@@ -242,6 +266,10 @@ def _process_params(
         tmp_default = ""
         tmp_mistapi_parameters = ""
         annotations = []
+
+        # Apply short description for well-known common parameters
+        if tmp_param["name"] in COMMON_PARAM_SHORT_DESCRIPTIONS:
+            tmp_param["description"] = COMMON_PARAM_SHORT_DESCRIPTIONS[tmp_param["name"]]
 
         # Add description and validation annotations
         if tmp_param["description"]:
@@ -348,6 +376,12 @@ def _process_params(
         if not tmp_default:
             if tmp_param["required"]:
                 tmp_optional = ""
+            elif tmp_param["default"] is not None and tmp_param["type"] in ("integer", "number", "boolean"):
+                # Non-enum param with an explicit schema default (e.g. limit: 10)
+                # Use the default value directly; no Optional wrapper needed.
+                tmp_default = f" = {tmp_param['default']}"
+                if annotations:
+                    annotations.append(f"default={tmp_param['default']}")
             else:
                 _add_import(imports, "typing", "Optional")
                 tmp_type = f"Optional[{tmp_type} | None]"
@@ -365,6 +399,9 @@ def _process_params(
         # Build mistapi parameter assignment
         if not tmp_mistapi_parameters:
             if tmp_param["required"]:
+                tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']},\n"
+            elif tmp_param["default"] is not None and tmp_param["type"] in ("integer", "number", "boolean"):
+                # Param has an explicit default — always pass it through (never None)
                 tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']},\n"
             else:
                 tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']} if {tmp_param['name']} else None,\n"
@@ -552,7 +589,6 @@ def _gen_tool_replacement(details: dict, processed_operation_ids: list) -> str:
     request = (
         f"    response = {details.get('function', '')}\n"
         f"    await process_response(response)\n"
-        f"    data = response.data\n"
     )
     processed_operation_ids.append(
         details.get("operationId", "").lower()
@@ -569,7 +605,6 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
                 f"            if {func_data.get('if_filter', 'object_id')}:\n"
                 f"                response = {details['get'].get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
                 f"            else:\n"
             )
             processed_operation_ids.append(
@@ -580,12 +615,12 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
             request += (
                 f"            response = {details['get'].get('function', '')}\n"
                 f"            await process_response(response)\n"
-                f"            data = response.data\n"
             )
             processed_operation_ids.append(
                 details["get"].get("operationId", "").lower()
             )
         if details.get("list") and details.get("list", {}).get("reduce", False):
+            # Reduce case: build a name→id dict — pagination metadata not applicable
             reduce_attribute = details["list"].get(
                 "reduce_attribute", "name")
             request += (
@@ -596,6 +631,7 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
                 f"                    for item in response.data\n"
                 f"                    if item.get('{reduce_attribute}')\n"
                 f"                }}\n"
+                f"                response.data = data\n"
             )
             processed_operation_ids.append(
                 details["list"].get("operationId", "").lower()
@@ -604,7 +640,6 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
             request += (
                 f"                response = {details['list'].get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
             )
             processed_operation_ids.append(
                 details["list"].get("operationId", "").lower()
@@ -615,11 +650,9 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
                 f"            if site_id:\n"
                 f"                response = {details['site_id'].get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
                 f"            else:\n"
                 f"                response = {details['org_id'].get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
             )
             processed_operation_ids.append(
                 details["site_id"].get("operationId", "").lower()
@@ -631,7 +664,6 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
             request += (
                 f"            response = {details['site_id'].get('function', '')}\n"
                 f"            await process_response(response)\n"
-                f"            data = response.data\n"
             )
             processed_operation_ids.append(
                 details["site_id"].get("operationId", "").lower()
@@ -640,7 +672,6 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
             request += (
                 f"            response = {details['org_id'].get('function', '')}\n"
                 f"            await process_response(response)\n"
-                f"            data = response.data\n"
             )
             processed_operation_ids.append(
                 details["org_id"].get("operationId", "").lower()

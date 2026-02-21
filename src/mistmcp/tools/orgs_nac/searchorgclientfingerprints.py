@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -44,7 +45,7 @@ class Client_type(Enum):
     },
 )
 async def searchOrgClientFingerprints(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     family: Annotated[
         Optional[str | None],
         Field(description="""Device Category  of the client device"""),
@@ -71,38 +72,29 @@ async def searchOrgClientFingerprints(
     mac: Annotated[
         Optional[str | None], Field(description="""MAC address of the client device""")
     ] = None,
-    limit: Optional[int | None] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=100)
+    ] = 100,
     start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
-        Optional[str | None], Field(description="""Duration like 7d, 2w""")
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
     interval: Annotated[
         Optional[str | None],
-        Field(
-            description="""Aggregation works by giving a time range plus interval (e.g. 1d, 1h, 10m) where aggregation function would be applied to."""
-        ),
+        Field(description="""Aggregation interval (e.g. 1h, 1d)"""),
     ] = None,
-    sort: Annotated[
-        Optional[str | None],
-        Field(
-            description="""On which field the list should be sorted, -prefix represents DESC order."""
-        ),
-    ] = None,
+    sort: Annotated[Optional[str | None], Field(description="""Sort field""")] = None,
     search_after: Annotated[
         Optional[str | None],
         Field(
-            description="""Pagination cursor for retrieving subsequent pages of results. This value is automatically populated by Mist in the `next` URL from the previous response and should not be manually constructed."""
+            description="""Pagination cursor from '_next' URL of previous response"""
         ),
     ] = None,
     ctx: Context | None = None,
@@ -112,7 +104,6 @@ async def searchOrgClientFingerprints(
     logger.debug("Tool searchOrgClientFingerprints called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.sites.insights.searchOrgClientFingerprints(
         apisession,
@@ -124,7 +115,7 @@ async def searchOrgClientFingerprints(
         os=os if os else None,
         os_type=os_type if os_type else None,
         mac=mac if mac else None,
-        limit=limit if limit else None,
+        limit=limit,
         start=start if start else None,
         end=end if end else None,
         duration=duration if duration else None,
@@ -134,9 +125,4 @@ async def searchOrgClientFingerprints(
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

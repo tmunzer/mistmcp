@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 
 from mistmcp.elicitation_processor import config_elicitation_handler
 from mistmcp.server import mcp
@@ -60,7 +61,7 @@ class Action_type(Enum):
 
 @mcp.tool(
     name="changeOrgConfigurationObjects",
-    description="""Update, create or delete configuration object for a specified org. When updating the object, make sure to:* first retrieve the current configuration object using the `getOrgConfigurationObjects` tool* modify the desired attributes * then use this tool to update the configuration object with the modified attributes. This is required to ensure that you are not missing any required attributes when updating the configuration object. You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload.When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail.When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload.""",
+    description="""Update, create or delete configuration object for a specified org. IMPORTANT:To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :1. retrieve the current configuration object using the tools `getOrgConfigurationObjects` to retrieve the object defined at the site level2. Modify the desired attributes 3. Use this tool to update the configuration object with the modified attributesWhen creating a new configuration object, make sure to use the `getObjectsSchema` tool to discover the attributes of the configuration object and which of them are required. When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will failWhen creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload""",
     tags={"write_delete"},
     annotations={
         "title": "changeOrgConfigurationObjects",
@@ -76,38 +77,32 @@ async def changeOrgConfigurationObjects(
             description="Whether the action is creating a new object, updating an existing one, or deleting an existing one. When updating or deleting, the object_id parameter must be provided."
         ),
     ],
-    org_id: Annotated[
-        UUID,
-        Field(
-            description="""ID of the organization to create, update or delete configuration objects for."""
-        ),
-    ],
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     object_type: Annotated[
         Object_type,
         Field(
-            description="""Type of configuration object to create, update, or delete."""
+            description="""Type of configuration object to create, update, or delete"""
         ),
     ],
     payload: Annotated[
         dict,
         Field(
-            description="""JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getOrgConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes."""
+            description="""JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the `getOrgConfigurationObjects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes"""
         ),
     ],
     object_id: Annotated[
         Optional[UUID | None],
         Field(
-            description="""ID of the specific configuration object to update. Required when action_type is 'update' or 'delete'."""
+            description="""ID of the specific configuration object to update. Required when action_type is 'update' or 'delete'"""
         ),
     ] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Update, create or delete configuration object for a specified org. When updating the object, make sure to:* first retrieve the current configuration object using the `getOrgConfigurationObjects` tool* modify the desired attributes * then use this tool to update the configuration object with the modified attributes. This is required to ensure that you are not missing any required attributes when updating the configuration object. You can also use the `getObjectsSchema` tool to get discover the attributes of the configuration object and which of them are required. When creating a new configuration object, make sure to include all required attributes in the payload.When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail.When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload."""
+    """Update, create or delete configuration object for a specified org. IMPORTANT:To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :1. retrieve the current configuration object using the tools `getOrgConfigurationObjects` to retrieve the object defined at the site level2. Modify the desired attributes 3. Use this tool to update the configuration object with the modified attributesWhen creating a new configuration object, make sure to use the `getObjectsSchema` tool to discover the attributes of the configuration object and which of them are required. When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will failWhen creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload"""
 
     logger.debug("Tool changeOrgConfigurationObjects called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     action_wording = "create a new"
     if action_type == Action_type.UPDATE:
@@ -654,7 +649,4 @@ async def changeOrgConfigurationObjects(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

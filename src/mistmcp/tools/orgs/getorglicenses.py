@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -26,7 +27,7 @@ from uuid import UUID
 
 @mcp.tool(
     name="getOrgLicenses",
-    description="""This tool can be used to retrieve information about the licenses of an org.""",
+    description="""This tool can be used to retrieve information about the licenses of an org""",
     tags={"orgs"},
     annotations={
         "title": "getOrgLicenses",
@@ -36,20 +37,14 @@ from uuid import UUID
     },
 )
 async def getOrgLicenses(
-    org_id: Annotated[
-        UUID,
-        Field(
-            description="""ID of the organization to retrieve license information for."""
-        ),
-    ],
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to retrieve information about the licenses of an org."""
+    """This tool can be used to retrieve information about the licenses of an org"""
 
     logger.debug("Tool getOrgLicenses called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     object_type = response_type
     match object_type.value:
@@ -58,19 +53,16 @@ async def getOrgLicenses(
                 apisession, org_id=str(org_id)
             )
             await process_response(response)
-            data = response.data
         case "by_site":
             response = mistapi.api.v1.orgs.licenses.getOrgLicensesBySite(
                 apisession, org_id=str(org_id)
             )
             await process_response(response)
-            data = response.data
         case "summary":
             response = mistapi.api.v1.orgs.licenses.getOrgLicensesSummary(
                 apisession, org_id=str(org_id)
             )
             await process_response(response)
-            data = response.data
 
         case _:
             raise ToolError(
@@ -80,7 +72,4 @@ async def getOrgLicenses(
                 }
             )
 
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

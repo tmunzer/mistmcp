@@ -16,6 +16,7 @@ from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -36,7 +37,7 @@ from uuid import UUID
     },
 )
 async def getSiteDeviceSyntheticTest(
-    site_id: Annotated[UUID, Field(description="""ID of the Mist Site""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
     device_id: Annotated[UUID, Field(description="""ID of the Mist Device""")],
     ctx: Context | None = None,
 ) -> dict | list | str:
@@ -45,7 +46,6 @@ async def getSiteDeviceSyntheticTest(
     logger.debug("Tool getSiteDeviceSyntheticTest called")
 
     apisession, response_format = get_apisession()
-    data = {}
 
     response = mistapi.api.v1.sites.devices.getSiteDeviceSyntheticTest(
         apisession,
@@ -54,9 +54,4 @@ async def getSiteDeviceSyntheticTest(
     )
     await process_response(response)
 
-    data = response.data
-
-    if response_format == "string":
-        return json.dumps(data)
-    else:
-        return data
+    return format_response(response, response_format)

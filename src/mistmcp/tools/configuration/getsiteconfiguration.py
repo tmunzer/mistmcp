@@ -21,6 +21,7 @@ from pydantic import Field
 
 from mistmcp.request_processor import get_apisession
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
 
@@ -64,17 +65,17 @@ NETWORK_TEMPLATE_FIELDS = [
 
 
 @mcp.tool(
-    name="getSiteConfiguration",
-    description="""Retrieve configuration applied to a specific site.""",
+    name="getSiteDerivedConfiguration",
+    description="""Retrieve derived configuration (org + site configuration) for a specific site.""",
     tags={"configuration"},
     annotations={
-        "title": "getSiteConfiguration",
+        "title": "getSiteDerivedConfiguration",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
     },
 )
-async def getSiteConfiguration(
+async def getSiteDerivedConfiguration(
     org_id: Annotated[
         UUID,
         Field(description="""ID of the Mist Org"""),
@@ -88,7 +89,7 @@ async def getSiteConfiguration(
     ],
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve configuration applied to a specific site"""
+    """Retrieve derived configuration (org + site configuration) for a specific site"""
 
     logger.debug("Tool {operationId} called")
 
@@ -245,4 +246,4 @@ async def getSiteConfiguration(
                 }
             )
 
-    return data
+    return format_response(data, response_format)
