@@ -67,7 +67,7 @@ async def listAuditLogs(
     limit: Annotated[
         Optional[int | None],
         Field(
-            description="""Maximum number of audit log entries to retrieve. If not specified, the API will return up to 100 entries (maximum allowed is 1000)."""
+            description="""Maximum number of audit entries to retrieve. If not specified, the API will return up to 100 entries (maximum allowed is 1000)."""
         ),
     ] = None,
     message: Annotated[

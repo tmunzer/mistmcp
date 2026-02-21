@@ -1,3 +1,51 @@
+getOrgInventory:
+  type: tool_replacement
+  tags: [devices]
+  read_only_hint: true
+  destructive_hint: false
+  description: Retrieve the inventory of devices for a specified organization and optionally filter by site. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory.
+  parameters:
+    - name: org_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the organization to filter inventory by.
+      required: true
+    - name: site_id
+      schema:
+        type: string
+        format: uuid
+      description: ID of the site to filter inventory by. Optional, if not provided inventory for all sites will be listed.
+    - name: serial
+      schema:
+        type: string
+      description: Serial number of the device to filter inventory by. Optional, if not provided all devices will be listed.
+    - name: model
+      schema:
+        type: string
+      description: Model of the device to filter inventory by. Optional, if not provided all devices will be listed.
+    - name: mac
+      schema:
+        type: string
+      description: MAC address of the device to filter inventory by. Optional, if not provided all devices will be listed.
+    - name: vc
+      schema:
+        type: boolean
+      description: To display Virtual Chassis members
+    - name: device_type
+      schema:
+        type: string
+        enum: [ap, switch, gateway]
+      description: Type of the device to filter inventory by. Optional, if not provided all devices will be listed.
+    - name: limit
+      schema:
+        type: integer
+      description: Maximum number of devices to retrieve. If not specified, the API will return up to 100 devices (maximum allowed is 1000).
+      required: false
+  request:
+    operationId: getOrgInventory
+    function: mistapi.api.v1.orgs.inventory.getOrgInventory(apisession,org_id=str(org_id),serial=serial if serial else None,model=model if model else None,type=device_type.value if device_type else None,mac=mac if mac else None,site_id=str(site_id) if site_id else None,vc=vc if vc else None,limit=limit if limit else None,)
+
 listSiteWirelessClientsStats:
   type: tool_optimization
   add_parameters:
@@ -43,28 +91,6 @@ listSiteRogueAPs:
   custom_request: mistapi.api.v1.sites.rogues.getSiteRogueAP(apisession, site_id=str(site_id), rogue_bssid=rogue_bssid)
 getSiteRogueAP:
   skip: true
-
-# searchOrgGuestAuthorization:
-#   type: tool_optimization
-#   add_parameters:
-#     - name: guest_mac
-#       schema:
-#         type: string
-#       description: MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed.
-#   custom_request: mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(apisession, org_id=str(org_id), guest_mac=guest_mac)
-# getOrgGuestAuthorization:
-#   skip: true
-
-# searchSiteGuestAuthorization:
-#   type: tool_optimization
-#   add_parameters:
-#     - name: guest_mac
-#       schema:
-#         type: string
-#       description: MAC address of the guest to filter authorization by. Optional, if not provided all guest authorizations will be listed.
-#   custom_request: mistapi.api.v1.sites.guests.getSiteGuestAuthorization(apisession, site_id=str(site_id), guest_mac=guest_mac)
-# getSiteGuestAuthorization:
-#   skip: true
 
 listUpgrades:
   type: tool_consolidation

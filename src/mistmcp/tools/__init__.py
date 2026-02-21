@@ -15,6 +15,11 @@ from .configuration import getdeviceconfiguration as getdeviceconfiguration
 from .configuration import getobjectschema as getobjectschema
 from .configuration import getorgconfigurationobjects as getorgconfigurationobjects
 from .configuration import getsiteconfigurationobjects as getsiteconfigurationobjects
+from .devices import getorginventory as getorginventory
+from .devices import searchdevices as searchdevices
+from .devices import searchsitedeviceconfighistory as searchsitedeviceconfighistory
+from .devices import searchsitedevicelastconfigs as searchsitedevicelastconfigs
+from .devices import searchsitemistedgeevents as searchsitemistedgeevents
 from .utilities_upgrade import listupgrades as listupgrades
 from .utilities_upgrade import (
     listorgavailabledeviceversions as listorgavailabledeviceversions,
@@ -47,11 +52,6 @@ from .stats import getorgstats as getorgstats
 from .stats import searchsitewanusage as searchsitewanusage
 from .events import searchevents as searchevents
 from .events import listauditlogs as listauditlogs
-from .devices import searchdevices as searchdevices
-from .devices import getorginventory as getorginventory
-from .devices import searchsitedeviceconfighistory as searchsitedeviceconfighistory
-from .devices import searchsitedevicelastconfigs as searchsitedevicelastconfigs
-from .devices import searchsitemistedgeevents as searchsitemistedgeevents
 from .clients import searchguestauthorization as searchguestauthorization
 from .clients import searchorgwirelessclients as searchorgwirelessclients
 from .clients import searchorgnacclients as searchorgnacclients

@@ -23,6 +23,11 @@ Author: Thomas Munzer (tmunzer@juniper.net)
 License: MIT License
 """
 
+# ---------------------------------------------------------------------------
+# IMPORTS AND CONSTANTS
+# ---------------------------------------------------------------------------
+
+
 import argparse
 import json
 import os
@@ -32,6 +37,8 @@ from pathlib import Path
 from typing import Dict, List
 
 import yaml
+
+# Import template strings for code generation
 from templates.tmpl_device_configuration import DEVICE_CONFIGURATION_TEMPLATE
 from templates.tmpl_get_object_schema import GET_OBJECT_SCHEMA_TEMPLATE
 from templates.tmpl_helper import TOOLS_HELPER
@@ -42,7 +49,13 @@ from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
 from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
 from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
 
+# ---------------------------------------------------------------------------
+# CONFIGURATION CONSTANTS
+# ---------------------------------------------------------------------------
+
 # Configuration Constants
+
+# Paths and filenames for OpenAPI spec, output, and templates
 FILE_PATH = os.path.realpath(__file__)
 DIR_PATH = os.path.dirname(FILE_PATH)
 OPENAPI_PATH = (
@@ -55,6 +68,7 @@ SCHEMAS_DATA_OUTPUT_PATH = Path(
     os.path.join(
         DIR_PATH, "../src/mistmcp/tools/configuration/schemas_data.py")
 )
+# List of custom tools to generate (not directly from OpenAPI)
 CUSTOM_TOOLS = [
     {
         "name": "getSiteConfiguration",
@@ -72,28 +86,28 @@ CUSTOM_TOOLS = [
         "tag": "configuration",
     },
 ]
+# Global read-only hint for tool generation
 READ_ONLY_HINT = True
 
+# Output directory for generated tool files
 OUTPUT_DIR = Path(os.path.join(DIR_PATH, "../src/mistmcp/tools"))
-
-OUTPUT_DIR = Path(
-    os.path.join(DIR_PATH, "../src/mistmcp/tools")
-)  # Directory where generated tool files will be placed
 TOOLS_MODULE = "mistmcp.tools"  # Base module name for imports
 INIT_FILE = Path(
     os.path.join(
         DIR_PATH, "../src/mistmcp/tools/__init__.py"
     )  # Path to package __init__ file
 )
-# TOOLS_FILE = Path("../src/mistmcp/tools.json")  # File storing tool configuration
 TOOLS_HELPER_FILE = Path(
     # Helper file for tools
     os.path.join(DIR_PATH, "../src/mistmcp/tool_helper.py")
 )
-# List of API tags that should be excluded from tool generation
-# These tags represent endpoints that are either deprecated, internal,
-# or not relevant for general API usage
 
+# ---------------------------------------------------------------------------
+# LOAD EXCLUSION AND CUSTOMIZATION CONFIGS
+# ---------------------------------------------------------------------------
+
+
+# Load exclusion lists and custom tag definitions from YAML files
 with open(os.path.join(DIR_PATH, "excluded_tags.yaml"), "r", encoding="utf-8") as f:
     EXCLUDED_TAGS = yaml.safe_load(f)
 
@@ -114,9 +128,10 @@ with open(
     if not OPTIMIZED_TOOLS:
         OPTIMIZED_TOOLS = {}
 
-# Type translation mapping from OpenAPI types to Python types
-# This dictionary maps OpenAPI type definitions to their Python equivalents
-# Used during code generation to ensure correct parameter types in generated code
+# ---------------------------------------------------------------------------
+# TYPE TRANSLATION MAP
+# ---------------------------------------------------------------------------
+
 TRANSLATION = {
     "integer": "int",  # OpenAPI integer type maps to Python int
     "number": "float",  # OpenAPI number/float type maps to Python float
@@ -126,23 +141,32 @@ TRANSLATION = {
     "object": "dict",  # OpenAPI object type maps to Python dict
 }
 
+# ---------------------------------------------------------------------------
+# UTILITY FUNCTIONS
+# ---------------------------------------------------------------------------
 
+
+# Convert a string to snake_case format
 def snake_case(s: str) -> str:
-    """Convert a string to snake_case format."""
     return s.lower().replace(" ", "_").replace("-", "_")
+
+# Convert operation ID to PascalCase class name
 
 
 def class_name_from_operation_id(operation_id: str) -> str:
-    """Convert an operation ID to a proper class name in PascalCase."""
     return "".join(word.capitalize() for word in operation_id.split("_"))
+
+# ---------------------------------------------------------------------------
+# PARAMETER PROCESSING FUNCTIONS
+# ---------------------------------------------------------------------------
 
 
 ########
 # Parameter Processing Functions
 
 
+# Extract and normalize parameter information from OpenAPI spec
 def _extract_param(openapi_schemas: dict, data: dict):
-    """Extract and normalize parameter information from OpenAPI spec."""
     tmp = {}
     if data:
         if data["schema"].get("$ref"):
@@ -178,8 +202,8 @@ def _extract_param(openapi_schemas: dict, data: dict):
     return tmp
 
 
+# Add an import statement to the imports dictionary
 def _add_import(imports: dict, package: str, module: str = "") -> None:
-    """Add an import statement to the imports dictionary."""
     if not imports.get(package):
         if module:
             imports[package] = [module]
@@ -189,6 +213,7 @@ def _add_import(imports: dict, package: str, module: str = "") -> None:
         imports[package].append(module)
 
 
+# Process endpoint parameters and generate corresponding Python code
 def _process_params(
     openapi_schemas: dict,
     openapi_parameters: dict,
@@ -201,7 +226,7 @@ def _process_params(
     force_default: bool = False,
     optimization_parameter_name: str | None = None,
 ):
-    """Process endpoint parameters and generate corresponding Python code."""
+    # Loop through each parameter and build its Python representation
     for parameter in endpoint_params:
         if parameter.get("name") == "optimization_parameter_name":
             continue
@@ -218,6 +243,7 @@ def _process_params(
         tmp_mistapi_parameters = ""
         annotations = []
 
+        # Add description and validation annotations
         if tmp_param["description"]:
             _add_import(imports, "pydantic", "Field")
             _add_import(imports, "typing", "Annotated")
@@ -235,6 +261,7 @@ def _process_params(
             annotations.append(
                 f'description="""ID of the Mist {tmp_param["name"].replace("_id", "").capitalize()}"""'
             )
+        # Add length and range validation
         if tmp_param["minLength"]:
             _add_import(imports, "pydantic", "Field")
             _add_import(imports, "typing", "Annotated")
@@ -252,6 +279,7 @@ def _process_params(
             _add_import(imports, "typing", "Annotated")
             annotations.append(f"le={tmp_param['maximum']}")
 
+        # Handle string, enum, array types
         if tmp_param["type"] == "string":
             if tmp_param["format"] == "uuid":
                 _add_import(imports, "uuid", "UUID")
@@ -316,31 +344,25 @@ def _process_params(
                 )
                 tmp_type = f"List[{item_type}]"
 
+        # Handle optional/default values
         if not tmp_default:
             if tmp_param["required"]:
                 tmp_optional = ""
-            # elif tmp_param["default"]:
-            #     tmp_optional = ""
-            #     if tmp_param["type"] == "string":
-            #         tmp_default = f' = "{tmp_param["default"]}"'
-            #         annotations.append(f'default="{tmp_param["default"]}"')
-            #     else:
-            #         tmp_default = f" = {tmp_param['default']}"
-            #         annotations.append(f"default={tmp_param['default']}")
             else:
                 _add_import(imports, "typing", "Optional")
                 tmp_type = f"Optional[{tmp_type} | None]"
-                # tmp_optional = " | None"
                 tmp_default = " = None"
         elif not tmp_param["required"]:
             _add_import(imports, "typing", "Optional")
             tmp_type = f"Optional[{tmp_type} | None]"
 
+        # Add annotations to type
         if annotations:
             _add_import(imports, "typing", "Annotated")
             _add_import(imports, "pydantic", "Field")
             tmp_type = f"Annotated[{tmp_type}, Field({','.join(annotations)})]"
 
+        # Build mistapi parameter assignment
         if not tmp_mistapi_parameters:
             if tmp_param["required"]:
                 tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']},\n"
@@ -356,6 +378,7 @@ def _process_params(
     return imports, models, enums, parameters, mistapi_parameters
 
 
+# Generate complete parameter definitions for an endpoint
 def gen_endpoint_parameters(
     openapi_parameters: dict,
     openapi_schemas: dict,
@@ -363,13 +386,13 @@ def gen_endpoint_parameters(
     endpoint: dict,
     optimization_parameter_name: str | None = None,
 ):
-    """Generate complete parameter definitions for an endpoint."""
     imports = ""
     models = ""
     enums = ""
     parameters = ""
     mistapi_parameters = ""
     tmp_imports: dict = {}
+    # Process path and endpoint parameters
     tmp_imports, models, enums, parameters, mistapi_parameters = _process_params(
         openapi_schemas,
         openapi_parameters,
@@ -394,6 +417,7 @@ def gen_endpoint_parameters(
         True,
         optimization_parameter_name,
     )
+    # Build import statements
     for package, modules in tmp_imports.items():
         if modules:
             imports += f"from {package} import {', '.join(modules)}\n"
@@ -404,10 +428,10 @@ def gen_endpoint_parameters(
     return imports, models, enums, parameters, mistapi_parameters
 
 
+# Generate appropriate folder and file paths for an endpoint
 def _gen_folder_and_file_paths(endpoint: str):
-    """Generate appropriate folder and file paths for an endpoint."""
     endpoint_path = endpoint.split("/")
-    # remove vars from endpoint path
+    # Remove variable segments from endpoint path
     tmp = []
     installer = False
     for part in endpoint_path:
@@ -417,6 +441,7 @@ def _gen_folder_and_file_paths(endpoint: str):
             tmp.append(part)
     endpoint_path = tmp
 
+    # Determine folder and file name based on endpoint structure
     if installer and len(endpoint_path) > 4:
         folder_path_parts = endpoint_path[0:4]
         file_name = endpoint_path[4:5][0]
@@ -432,6 +457,7 @@ def _gen_folder_and_file_paths(endpoint: str):
     return folder_path_parts, file_name
 
 
+# Build tag definitions dictionary from OpenAPI tags and custom tags
 def _get_tag_defs(openapi_tags) -> dict:
     defs = {}
     for tag in openapi_tags:
@@ -452,16 +478,12 @@ def _get_tag_defs(openapi_tags) -> dict:
     return defs
 
 
+# Generate import statements for the __init__.py file
 def _gen_tools_init(tools_import: dict):
-    """Generate import statements for the __init__.py file."""
     tmp = []
     for tag, modules in tools_import.items():
         for module in modules:
-            # tmp.append(f"from {TOOLS_MODULE}.{tag}.{module} import {module}")
             tmp.append(f"from .{tag} import {module} as {module}")
-        # tmp.append(f"from {TOOLS_MODULE}.{tag} import {", ".join(modules)}")
-        # tmp.append(f"from .{tag} import {', '.join(modules)}")
-        # tmp.append(f"from .{tag} import *")
     return "\n".join(tmp)
 
 
@@ -523,6 +545,20 @@ def _gen_tools_additional_required_parameters(parameters: list, match_name: str 
                 additional_parameters += "            }\n"
                 additional_parameters += "        )\n\n"
     return additional_parameters
+
+
+def _gen_tool_replacement(details: dict, processed_operation_ids: list) -> str:
+
+    request = (
+        f"    response = {details.get('function', '')}\n"
+        f"    await process_response(response)\n"
+        f"    data = response.data\n"
+    )
+    processed_operation_ids.append(
+        details.get("operationId", "").lower()
+    )
+
+    return request
 
 
 def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: list) -> str:
@@ -691,22 +727,37 @@ def _gen_tools_optim(
         root_tag_defs: dict,
         processed_operation_ids: list
 ):
+    request = None
+    match_name = None
+    if (func_data.get("type") == "tool_replacement"):
+        description = func_data.get("description", "")  # Tool description
+        tag = func_data.get("tags", [])[0]  # Tool tag/category
+        enums_optim = []  # Will collect enum values for object_type
+        request = "\n"  # Start request code block
+        request += _gen_tool_replacement(func_data.get("request", {}),
+                                         processed_operation_ids)
+    # Only proceed if this is a tool consolidation and read_only_hint is True or global READ_ONLY_HINT is False
     if (func_data.get("type") == "tool_consolidation") and (func_data.get("read_only_hint") is True or READ_ONLY_HINT is False):
-        description = func_data.get("description", "")
-        tag = func_data.get("tags", [])[0]
-        enums_optim = []
-        request = "\n"
-        match_name = func_data.get("match_name", "object_type")
+        description = func_data.get("description", "")  # Tool description
+        tag = func_data.get("tags", [])[0]  # Tool tag/category
+        enums_optim = []  # Will collect enum values for object_type
+        request = "\n"  # Start request code block
+        match_name = func_data.get(
+            "match_name", "object_type")  # Parameter to match on
 
+        # If match_name is specified, set up object_type and required parameter checks
         if func_data.get("match_name"):
             request += f"    object_type = {func_data.get('match_name')}\n"
+            # Add code to check for additional required parameters
             request += _gen_tools_additional_required_parameters(
                 func_data.get("parameters", []))
 
+        # Start match-case block for object_type
         request += "    match object_type.value:\n"
 
+        # For each possible object_type, generate the case block
         for object_type, details in func_data.get("requests", {}).items():
-            enums_optim.append(object_type)
+            enums_optim.append(object_type)  # Collect enum value
             request += f"        case '{object_type}':\n"
             if func_data.get("read_only_hint") is True:
                 request += _gen_tools_read(details,
@@ -717,6 +768,8 @@ def _gen_tools_optim(
             elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is True:
                 request += _gen_tools_write_delete(details,
                                                    func_data, processed_operation_ids)
+
+        # Add default case for invalid object_type
         request += f"""
         case _:
             raise ToolError({{
@@ -724,10 +777,13 @@ def _gen_tools_optim(
                 "message": f"Invalid object_type: {{object_type.value}}. Valid values are: {{[e.value for e in {match_name.capitalize()}]}}",
             }})
             """
-
+    if request:
+        # Update enum values for the match parameter
         for param in func_data.get("parameters", []):
-            if param.get("name") == match_name:
+            if match_name and param.get("name") == match_name:
                 param["schema"]["enum"] = enums_optim
+
+        # Generate parameter and import code for the tool
         imports, models, enums, parameters, _ = (
             gen_endpoint_parameters(
                 openapi_parameters,
@@ -738,6 +794,7 @@ def _gen_tools_optim(
             )
         )
 
+        # Select the template based on hints
         if func_data.get("read_only_hint") is True:
             tool_code = TOOL_TEMPLATE_READ.format(
                 class_name=func_name.capitalize(),
@@ -781,6 +838,7 @@ def _gen_tools_optim(
                 request=request,
             )
 
+        # Create directory and files for the tool
         tag_dir = OUTPUT_DIR / snake_case(tag)
         tag_dir.mkdir(parents=True, exist_ok=True)
         init_file = tag_dir / "__init__.py"
@@ -789,11 +847,11 @@ def _gen_tools_optim(
         tool_file.write_text(tool_code, encoding="utf-8")
         tag_to_tools.setdefault(tag, []).append(str(tool_file))
 
-        #  tool_tools_import
+        # Register tool in import, enum, function, and tag definition lists
         if not root_tools_import.get(snake_case(tag)):
             root_tools_import[snake_case(tag)] = []
         root_tools_import[snake_case(tag)].append(snake_case(func_name))
-        # root_enums
+        # Add enum for tag if not present
         if (
             f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
             not in root_enums
@@ -801,7 +859,7 @@ def _gen_tools_optim(
             root_enums.append(
                 f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
             )
-        # root_functions
+        # Add tool add/remove functions
         if not root_functions.get(snake_case(snake_case(tag))):
             root_functions[snake_case(snake_case(tag))] = []
         root_functions[snake_case(snake_case(tag))].append(
@@ -810,7 +868,7 @@ def _gen_tools_optim(
         root_functions[snake_case(snake_case(tag))].append(
             f"TOOL_REMOVE_FCT.append({snake_case(func_name)}.remove_tool)"
         )
-        # root_tag_defs
+        # Add tool to tag definition
         root_tag_defs[snake_case(snake_case(tag))
                       ]["tools"].append(func_name)
 
@@ -970,15 +1028,12 @@ def _gen_tools_openapi(
                       ]["tools"].append(operation_id)
 
 
+# ---------------------------------------------------------------------------
+# MAIN GENERATION LOGIC
+# ---------------------------------------------------------------------------
+# This function processes the OpenAPI spec and generates tool files, directories,
+# and summary files for the Mist MCP server.
 def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> None:
-    """Main function to process the OpenAPI spec and generate tool files.
-
-    This function:
-    1. Processes each path in the OpenAPI specification
-    2. Generates appropriate Python code for each endpoint
-    3. Creates organized directory structure for tools
-    4. Generates necessary files with proper imports and configurations
-    """
     tag_to_tools: Dict[str, List[str]] = {}
     root_tag_defs = _get_tag_defs(openapi_tags)
     root_tools_import: dict = {}
@@ -986,6 +1041,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     root_functions: dict = {}
     processed_operation_ids = []
 
+    # Generate custom tools (not from OpenAPI)
     for func in CUSTOM_TOOLS:
         _gen_tools_custom(
             func,
@@ -996,6 +1052,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             root_tag_defs,
         )
 
+    # Generate optimized tools (consolidated or special-case tools)
     for func_name, func_data in OPTIMIZED_TOOLS.items():
         _gen_tools_optim(
             func_name,
@@ -1009,6 +1066,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             root_tag_defs,
             processed_operation_ids,)
 
+    # Generate tools for each OpenAPI endpoint
     for path, methods in openapi_paths.items():
         _gen_tools_openapi(
             methods,
@@ -1025,9 +1083,9 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             processed_operation_ids=processed_operation_ids,
         )
 
-    #######################################
-    ## SUMMARY AND FINAL FILE GENERATION ##
-    #######################################
+    # -------------------------------
+    # SUMMARY AND FINAL FILE GENERATION
+    # -------------------------------
     final_tag_tools = {}
     for tag_name, tag_data in root_tag_defs.items():
         if tag_data.get("tools"):
@@ -1035,6 +1093,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
         else:
             print(f"Warning: Tag '{tag_name}' has no tools defined, skipping.")
 
+    # Print summary of generated tools
     print("Generated tools grouped by tag:")
     for tag, files in tag_to_tools.items():
         print(f"{tag}:")
@@ -1045,12 +1104,14 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     for tag, files in tag_to_tools.items():
         print(f'{snake_case(tag).upper()} = "{snake_case(tag).lower()}"')
 
+    # Write __init__.py for tool package
     with open(INIT_FILE, "w", encoding="utf-8") as f_init:
         f_init.write(
             INIT_TEMPLATE.format(
                 tools_import=_gen_tools_init(root_tools_import))
         )
 
+    # Write tool_helper.py with enums and tag summary
     with open(TOOLS_HELPER_FILE, "w", encoding="utf-8") as f_tool:
         f_tool.write(
             TOOLS_HELPER.format(
@@ -1074,7 +1135,6 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
 # ---------------------------------------------------------------------------
 # Schema pre-resolution for getObjectSchema tool
 # ---------------------------------------------------------------------------
-
 _SCHEMAS_DATA_FILE_HEADER = '''\
 """
 --------------------------------------------------------------------------------
@@ -1210,7 +1270,11 @@ def generate_schemas_data(all_schemas: dict) -> None:
         f"schemas_data.py written: {len(schemas_data)} entries, ~{size_kb} KB")
 
 
+# ---------------------------------------------------------------------------
+# ENTRY POINT: Command-line interface
+# ---------------------------------------------------------------------------
 if __name__ == "__main__":
+    # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Generate tools from OpenAPI specification.")
     parser.add_argument("--openapi", type=str, default=OPENAPI_PATH,
@@ -1220,10 +1284,11 @@ if __name__ == "__main__":
     parser.add_argument("--version", action="version", version="%(prog)s 1.0")
     args = parser.parse_args()
 
+    # Set global read-only hint
     if str(args.read_only).lower() in ["false", "0", "no"]:
         READ_ONLY_HINT = False
 
-    # Clean up existing tools directory
+    # Clean up existing tools directory before regeneration
     if os.path.exists(OUTPUT_DIR):
         shutil.rmtree(OUTPUT_DIR)
 
@@ -1235,10 +1300,12 @@ if __name__ == "__main__":
     OPENAPI_PARAMETERS = openapi_json.get("components", {}).get("parameters")
     OPENAPI_SCHEMAS = openapi_json.get("components", {}).get("schemas")
 
+    # Run main generation logic
     main(OPENAPI_PATHS, OPENAPI_TAGS, OPENAPI_PARAMETERS, OPENAPI_SCHEMAS)
     print("Tool generation completed successfully. READ_ONLY_HINT is set to", READ_ONLY_HINT)
     print(args.read_only)
 
+    # Generate schemas_data.py for pre-resolved schemas
     print("\nGenerating schemas_data.py...")
     generate_schemas_data(OPENAPI_SCHEMAS)
     print("schemas_data.py generation completed successfully.")

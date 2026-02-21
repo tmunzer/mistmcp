@@ -25,16 +25,15 @@ from uuid import UUID
 from enum import Enum
 
 
-class Type(Enum):
+class Device_type(Enum):
     AP = "ap"
-    GATEWAY = "gateway"
     SWITCH = "switch"
-    NONE = None
+    GATEWAY = "gateway"
 
 
 @mcp.tool(
     name="getOrgInventory",
-    description="""Get Org Inventory### VC (Virtual-Chassis) Management Starting with the April release, Virtual Chassis devices in Mist will now usea cloud-assigned virtual MAC address as the device ID, instead of the physicalMAC address of the FPC0 member.**Retrieving the device ID or Site ID of a Virtual Chassis:**1. Use this API call with the query parameters `vc=true` and `mac` set to the MAC address of the VC member.2. In the response, check the `vc_mac` and `mac` fields:    - If `vc_mac` is empty or not present, the device is not part of a Virtual Chassis.    The `device_id` and `site_id` will be available in the device information.    - If `vc_mac` differs from the `mac` field, the device is part of a Virtual Chassis    but is not the device used to generate the Virtual Chassis ID. Use the `vc_mac` value with the [Get Org Inventory](/#operations/getOrgInventory)    API call to retrieve the `device_id` and `site_id`.    - If `vc_mac` matches the `mac` field, the device is the device used to generate the Virtual Chassis ID and he `device_id` and `site_id` will be available    in the device information.      This is the case if the device is the Virtual Chassis "virtual device" (MAC starting with `020003`) or if the device is the Virtual Chassis FPC0 and the Virtual Chassis is still using the FPC0 MAC address to generate the device ID.""",
+    description="""Retrieve the inventory of devices for a specified organization and optionally filter by site. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory.""",
     tags={"devices"},
     annotations={
         "title": "getOrgInventory",
@@ -44,38 +43,52 @@ class Type(Enum):
     },
 )
 async def getOrgInventory(
-    org_id: Annotated[UUID, Field(description="""ID of the Mist Org""")],
-    serial: Annotated[
-        Optional[str | None], Field(description="""Device serial""")
-    ] = None,
-    model: Annotated[
-        Optional[str | None], Field(description="""Device model""")
-    ] = None,
-    type: Optional[Type | None] = Type.NONE,
-    mac: Annotated[Optional[str | None], Field(description="""MAC address""")] = None,
+    org_id: Annotated[
+        UUID, Field(description="""ID of the organization to filter inventory by.""")
+    ],
     site_id: Annotated[
         Optional[UUID | None],
-        Field(description="""Site id if assigned, null if not assigned"""),
+        Field(
+            description="""ID of the site to filter inventory by. Optional, if not provided inventory for all sites will be listed."""
+        ),
     ] = None,
-    vc_mac: Annotated[
-        Optional[str | None], Field(description="""Virtual Chassis MAC Address""")
+    serial: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Serial number of the device to filter inventory by. Optional, if not provided all devices will be listed."""
+        ),
+    ] = None,
+    model: Annotated[
+        Optional[str | None],
+        Field(
+            description="""Model of the device to filter inventory by. Optional, if not provided all devices will be listed."""
+        ),
+    ] = None,
+    mac: Annotated[
+        Optional[str | None],
+        Field(
+            description="""MAC address of the device to filter inventory by. Optional, if not provided all devices will be listed."""
+        ),
     ] = None,
     vc: Annotated[
         Optional[bool | None],
         Field(description="""To display Virtual Chassis members"""),
     ] = None,
-    unassigned: Annotated[
-        Optional[bool | None], Field(description="""To display Unassigned devices""")
+    device_type: Annotated[
+        Optional[Device_type | None],
+        Field(
+            description="""Type of the device to filter inventory by. Optional, if not provided all devices will be listed."""
+        ),
     ] = None,
-    modified_after: Annotated[
+    limit: Annotated[
         Optional[int | None],
-        Field(description="""Filter on inventory last modified time, in epoch"""),
+        Field(
+            description="""Maximum number of devices to retrieve. If not specified, the API will return up to 100 devices (maximum allowed is 1000)."""
+        ),
     ] = None,
-    limit: Optional[int | None] = None,
-    page: Annotated[Optional[int | None], Field(ge=1)] = None,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Get Org Inventory### VC (Virtual-Chassis) Management Starting with the April release, Virtual Chassis devices in Mist will now usea cloud-assigned virtual MAC address as the device ID, instead of the physicalMAC address of the FPC0 member.**Retrieving the device ID or Site ID of a Virtual Chassis:**1. Use this API call with the query parameters `vc=true` and `mac` set to the MAC address of the VC member.2. In the response, check the `vc_mac` and `mac` fields:    - If `vc_mac` is empty or not present, the device is not part of a Virtual Chassis.    The `device_id` and `site_id` will be available in the device information.    - If `vc_mac` differs from the `mac` field, the device is part of a Virtual Chassis    but is not the device used to generate the Virtual Chassis ID. Use the `vc_mac` value with the [Get Org Inventory](/#operations/getOrgInventory)    API call to retrieve the `device_id` and `site_id`.    - If `vc_mac` matches the `mac` field, the device is the device used to generate the Virtual Chassis ID and he `device_id` and `site_id` will be available    in the device information.      This is the case if the device is the Virtual Chassis "virtual device" (MAC starting with `020003`) or if the device is the Virtual Chassis FPC0 and the Virtual Chassis is still using the FPC0 MAC address to generate the device ID."""
+    """Retrieve the inventory of devices for a specified organization and optionally filter by site. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory."""
 
     logger.debug("Tool getOrgInventory called")
 
@@ -87,18 +100,13 @@ async def getOrgInventory(
         org_id=str(org_id),
         serial=serial if serial else None,
         model=model if model else None,
-        type=type.value if type else None,
+        type=device_type.value if device_type else None,
         mac=mac if mac else None,
         site_id=str(site_id) if site_id else None,
-        vc_mac=vc_mac if vc_mac else None,
         vc=vc if vc else None,
-        unassigned=unassigned if unassigned else None,
-        modified_after=modified_after if modified_after else None,
         limit=limit if limit else None,
-        page=page if page else None,
     )
     await process_response(response)
-
     data = response.data
 
     if response_format == "string":

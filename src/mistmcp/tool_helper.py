@@ -15,6 +15,7 @@ from enum import Enum
 
 class McpToolsCategory(Enum):
     CONFIGURATION = "configuration"
+    DEVICES = "devices"
     UTILITIES_UPGRADE = "utilities_upgrade"
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
@@ -26,7 +27,6 @@ class McpToolsCategory(Enum):
     ORGS = "orgs"
     STATS = "stats"
     EVENTS = "events"
-    DEVICES = "devices"
     CLIENTS = "clients"
     INFO = "info"
     MARVIS = "marvis"
@@ -62,8 +62,8 @@ TOOLS = {
     "devices": {
         "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices. Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
         "tools": [
-            "searchDevices",
             "getOrgInventory",
+            "searchDevices",
             "searchSiteDeviceConfigHistory",
             "searchSiteDeviceLastConfigs",
             "searchSiteMistEdgeEvents",
