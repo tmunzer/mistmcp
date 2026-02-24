@@ -15,6 +15,31 @@ import json
 from mistapi.__api_response import APIResponse
 
 
+def _get_total(response: APIResponse) -> int | None:
+    """Extract total entries count from an API response if available.
+
+    The total count of entries in a paginated list response can be provided by
+    Mist in two ways:
+    - In the response body under the "total" key (common in list endpoints)
+    - In the "X-Page-Total" response header (common in search endpoints)
+
+    This function checks both places and returns the total count as an integer
+    if found, or None if not available.
+    """
+    total = None
+    if response.headers and "X-Page-Total" in response.headers:
+        try:
+            total = int(response.headers["X-Page-Total"])
+        except ValueError:
+            pass
+    elif isinstance(response.data, dict) and "total" in response.data:
+        try:
+            total = int(response.data["total"])
+        except (ValueError, TypeError):
+            pass
+    return total
+
+
 def format_response_data(response: APIResponse) -> dict | list:
     """Extract data from an API response and inject ``_next`` pagination URL if present.
 
@@ -27,13 +52,21 @@ def format_response_data(response: APIResponse) -> dict | list:
     return value is enriched with a ``"_next"`` key so the caller can pass
     that URL to ``getNextPage`` to fetch the subsequent page.
     """
+    total = _get_total(response)
+
     data = response.data
+
     if response.next:
         if isinstance(data, list):
-            return {"results": data, "_next": response.next}
+            data = {"results": data, "next": response.next}
+            if total is not None:
+                data["total"] = int(total)
         elif isinstance(data, dict):
             data = dict(data)
-            data["_next"] = response.next
+            data["next"] = response.next
+            if total is not None and "total" not in data:
+                data["total"] = int(total)
+
     return data
 
 
