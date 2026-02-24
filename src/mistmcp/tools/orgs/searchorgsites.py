@@ -10,24 +10,23 @@
 --------------------------------------------------------------------------------
 """
 
-import json
-import mistapi
-from fastmcp import Context
-from fastmcp.exceptions import ToolError
-from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
-from mistmcp.response_formatter import format_response
-from mistmcp.server import mcp
-from mistmcp.logger import logger
-
-from pydantic import Field
 from typing import Annotated, Optional
 from uuid import UUID
+
+import mistapi
+from fastmcp import Context
+from pydantic import Field
+
+from mistmcp.logger import logger
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_formatter import format_response
+from mistmcp.response_processor import process_response
+from mistmcp.server import mcp
 
 
 @mcp.tool(
     name="searchOrgSites",
-    description="""Search Sites""",
+    description="""Search Sites. IMPORTANT:  Use wildcard (`*`) before or after the value for partial search when applicable. E.g. `*Main*` will match `The Main Street`""",
     tags={"orgs"},
     annotations={
         "title": "searchOrgSites",
@@ -43,10 +42,12 @@ async def searchOrgSites(
         Field(description="""If Advanced Analytic feature is enabled"""),
     ] = None,
     app_waking: Annotated[
-        Optional[bool | None], Field(description="""If App Waking feature is enabled""")
+        Optional[bool | None], Field(
+            description="""If App Waking feature is enabled""")
     ] = None,
     asset_enabled: Annotated[
-        Optional[bool | None], Field(description="""If Asset Tracking is enabled""")
+        Optional[bool | None], Field(
+            description="""If Asset Tracking is enabled""")
     ] = None,
     auto_upgrade_enabled: Annotated[
         Optional[bool | None],
@@ -60,27 +61,32 @@ async def searchOrgSites(
         Optional[str | None], Field(description="""Site country code""")
     ] = None,
     honeypot_enabled: Annotated[
-        Optional[bool | None], Field(description="""If Honeypot detection is enabled""")
+        Optional[bool | None], Field(
+            description="""If Honeypot detection is enabled""")
     ] = None,
-    id: Annotated[Optional[str | None], Field(description="""Site id""")] = None,
+    id: Annotated[Optional[str | None], Field(
+        description="""Site id""")] = None,
     locate_unconnected: Annotated[
         Optional[bool | None],
         Field(description="""If unconnected client are located"""),
     ] = None,
     mesh_enabled: Annotated[
-        Optional[bool | None], Field(description="""If Mesh feature is enabled""")
+        Optional[bool | None], Field(
+            description="""If Mesh feature is enabled""")
     ] = None,
     name: Annotated[
         Optional[str | None],
         Field(
-            description="""Site name. Case insensitive. Add a wildcard (`*`) at the end for partial search"""
+            description="""Site name. Case insensitive.""",
         ),
     ] = None,
     rogue_enabled: Annotated[
-        Optional[bool | None], Field(description="""If Rogue detection is enabled""")
+        Optional[bool | None], Field(
+            description="""If Rogue detection is enabled""")
     ] = None,
     remote_syslog_enabled: Annotated[
-        Optional[bool | None], Field(description="""If Remote Syslog is enabled""")
+        Optional[bool | None], Field(
+            description="""If Remote Syslog is enabled""")
     ] = None,
     rtsa_enabled: Annotated[
         Optional[bool | None],
@@ -91,7 +97,8 @@ async def searchOrgSites(
         Field(description="""If Virtual Network Assistant is enabled"""),
     ] = None,
     wifi_enabled: Annotated[
-        Optional[bool | None], Field(description="""If Wi-Fi feature is enabled""")
+        Optional[bool | None], Field(
+            description="""If Wi-Fi feature is enabled""")
     ] = None,
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=100)
@@ -101,13 +108,15 @@ async def searchOrgSites(
         Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
+        Optional[str | None], Field(
+            description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
         Optional[str | None],
         Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
     ] = None,
-    sort: Annotated[Optional[str | None], Field(description="""Sort field""")] = None,
+    sort: Annotated[Optional[str | None], Field(
+        description="""Sort field""")] = None,
     search_after: Annotated[
         Optional[str | None],
         Field(
@@ -135,7 +144,7 @@ async def searchOrgSites(
         id=id if id else None,
         locate_unconnected=locate_unconnected if locate_unconnected else None,
         mesh_enabled=mesh_enabled if mesh_enabled else None,
-        name=name if name else None,
+        name=name.replace("#", "") if name else None,
         rogue_enabled=rogue_enabled if rogue_enabled else None,
         remote_syslog_enabled=remote_syslog_enabled if remote_syslog_enabled else None,
         rtsa_enabled=rtsa_enabled if rtsa_enabled else None,

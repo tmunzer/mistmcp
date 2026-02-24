@@ -10,20 +10,20 @@
 --------------------------------------------------------------------------------
 """
 
-import json
+from enum import Enum
+from typing import Annotated, Optional
+from uuid import UUID
+
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
-from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
-from mistmcp.response_formatter import format_response
-from mistmcp.server import mcp
-from mistmcp.logger import logger
-
 from pydantic import Field
-from typing import Annotated, Optional
-from enum import Enum
-from uuid import UUID
+
+from mistmcp.logger import logger
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_formatter import format_response
+from mistmcp.response_processor import process_response
+from mistmcp.server import mcp
 
 
 class Client_type(Enum):
@@ -41,7 +41,7 @@ class Band(Enum):
 
 @mcp.tool(
     name="searchOrgClient",
-    description="""This tool can be used to search for clients in an organization or site. You can filter the search by client type, client name, or MAC address using the `client_type`, `name`, and `mac` parameters, respectivelyIMPORTANT: this tool only returns clients that are currently connected to Mist""",
+    description="""This tool can be used to search for clients in an organization or site. You can filter the search by client type, client name, or MAC address using the `client_type`, `name`, and `mac` parameters, respectively. IMPORTANT:  Use wildcard (`*`) for partial search when applicable.""",
     tags={"clients"},
     annotations={
         "title": "searchOrgClient",
@@ -55,7 +55,8 @@ async def searchOrgClient(
         Client_type, Field(description="""Type of client to search for""")
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
+    site_id: Annotated[Optional[UUID | None],
+                       Field(description="""Site ID""")] = None,
     device_mac: Annotated[
         Optional[str | None],
         Field(
@@ -75,7 +76,8 @@ async def searchOrgClient(
         ),
     ] = None,
     mac: Annotated[
-        Optional[str | None], Field(description="""Partial / full MAC address""")
+        Optional[str | None], Field(
+            description="""Partial / full MAC address""")
     ] = None,
     hostname: Annotated[
         Optional[str | None],
@@ -100,7 +102,8 @@ async def searchOrgClient(
         Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
+        Optional[str | None], Field(
+            description="""End of time range (epoch seconds)""")
     ] = None,
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=10)

@@ -2289,8 +2289,8 @@ searchOrgClient:
   tags: [clients]
   description: |-
     This tool can be used to search for clients in an organization or site. 
-    You can filter the search by client type, client name, or MAC address using the `client_type`, `name`, and `mac` parameters, respectively
-    IMPORTANT: this tool only returns clients that are currently connected to Mist
+    You can filter the search by client type, client name, or MAC address using the `client_type`, `name`, and `mac` parameters, respectively. 
+    IMPORTANT:  Use wildcard (`*`) before or after the value for partial search when applicable.
   read_only_hint: true
   destructive_hint: false
   match_name: client_type
