@@ -11,12 +11,13 @@ class TestMcpToolsCategory:
     def test_enum_values_exist(self) -> None:
         """Test that key enum values exist"""
         assert McpToolsCategory.ORGS.value == "orgs"
-        assert McpToolsCategory.SITES.value == "sites"
+        assert McpToolsCategory.SITES_INSIGHTS.value == "sites_insights"
 
     def test_enum_from_string(self) -> None:
         """Test creating enum from string values"""
         assert McpToolsCategory("orgs") == McpToolsCategory.ORGS
-        assert McpToolsCategory("sites") == McpToolsCategory.SITES
+        assert McpToolsCategory(
+            "sites_insights") == McpToolsCategory.SITES_INSIGHTS
 
     def test_enum_invalid_value(self) -> None:
         """Test that invalid enum values raise ValueError"""
@@ -33,7 +34,7 @@ class TestMcpToolsCategory:
         categories = list(McpToolsCategory)
         assert len(categories) > 0
         assert McpToolsCategory.ORGS in categories
-        assert McpToolsCategory.SITES in categories
+        assert McpToolsCategory.SITES_INSIGHTS in categories
 
     def test_enum_membership(self) -> None:
         """Test enum membership operations"""
@@ -42,7 +43,7 @@ class TestMcpToolsCategory:
         # Test value membership
         values = [cat.value for cat in McpToolsCategory]
         assert "orgs" in values
-        assert "sites" in values
+        assert "sites_insights" in values
         assert "invalid" not in values
 
 
@@ -56,7 +57,7 @@ class TestToolsData:
     def test_tools_has_expected_categories(self) -> None:
         """Test that TOOLS contains expected categories"""
         # These should exist based on the enum
-        expected_categories = ["orgs", "sites", "constants_events"]
+        expected_categories = ["orgs", "sites_insights", "events"]
 
         for category in expected_categories:
             if category in [cat.value for cat in McpToolsCategory]:
@@ -110,7 +111,7 @@ class TestToolsData:
                     assert len(tool_name) > 0, (
                         f"Tool name in {category_name} should not be empty"
                     )
-                    ## Not applicable for now
+                    # Not applicable for now
                     # # Tool names should follow a pattern (usually category_action)
                     # assert "_" in tool_name or tool_name in [
                     #     "getSelf",
