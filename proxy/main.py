@@ -16,7 +16,7 @@ def start(
 
     # Create authenticated client
     client = Client(
-        f"http://mcp.mist-lab.fr/mcp/?cloud={mist_host}",
+        f"http://mcp.mist-lab.fr/mcp?cloud={mist_host}",
         auth=BearerAuth(token=mist_apitoken),
     )
     # Create proxy using the authenticated client
