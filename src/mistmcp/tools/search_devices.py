@@ -27,7 +27,8 @@ from uuid import UUID
 
 
 class Scope(Enum):
-    LIST = "list"
+    ORG = "org"
+    SITE = "site"
 
 
 class Device_type(Enum):
@@ -97,29 +98,28 @@ async def search_devices(
             )
 
     match object_type.value:
-        case "list":
-            if site_id:
-                response = mistapi.api.v1.sites.devices.searchSiteDevices(
-                    apisession,
-                    site_id=str(site_id),
-                    type=str(device_type) if device_type else None,
-                    hostname=str(hostname) if hostname else None,
-                    mac=str(mac) if mac else None,
-                    model=str(model) if model else None,
-                    limit=limit,
-                )
-                await process_response(response)
-            else:
-                response = mistapi.api.v1.orgs.devices.searchOrgDevices(
-                    apisession,
-                    org_id=str(org_id),
-                    type=str(device_type) if device_type else None,
-                    hostname=str(hostname) if hostname else None,
-                    mac=str(mac) if mac else None,
-                    model=str(model) if model else None,
-                    limit=limit,
-                )
-                await process_response(response)
+        case "org":
+            response = mistapi.api.v1.orgs.devices.searchOrgDevices(
+                apisession,
+                org_id=str(org_id),
+                type=str(device_type) if device_type else None,
+                hostname=str(hostname) if hostname else None,
+                mac=str(mac) if mac else None,
+                model=str(model) if model else None,
+                limit=limit,
+            )
+            await process_response(response)
+        case "site":
+            response = mistapi.api.v1.sites.devices.searchSiteDevices(
+                apisession,
+                site_id=str(site_id),
+                type=str(device_type) if device_type else None,
+                hostname=str(hostname) if hostname else None,
+                mac=str(mac) if mac else None,
+                model=str(model) if model else None,
+                limit=limit,
+            )
+            await process_response(response)
 
         case _:
             raise ToolError(
