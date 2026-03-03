@@ -10,6 +10,7 @@
 --------------------------------------------------------------------------------
 """
 
+import mistmcp.tools
 from mistmcp.__version import __author__ as __author__
 from mistmcp.__version import __version__ as __version__
 

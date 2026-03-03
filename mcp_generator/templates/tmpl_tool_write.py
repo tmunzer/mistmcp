@@ -28,14 +28,15 @@ from mistmcp.logger import logger
 
 
 @mcp.tool(
-    name = "{operationId}",
+    name = "mist_{operationId}",
     description = """{description}""",
     tags = {{"{tag}"}},
     annotations = {{
-        "title": "{operationId}",
+        "title": "{title}",
         "readOnlyHint": {readOnlyHint},
         "destructiveHint": {destructiveHint},
         "openWorldHint": True,
+        "idempotentHint": True,
     }},
 )
 async def {operationId}(

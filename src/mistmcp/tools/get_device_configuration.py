@@ -1,4 +1,4 @@
-DEVICE_CONFIGURATION_TEMPLATE = '''"""
+"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -129,9 +129,13 @@ async def get_device_configuration(
                 if key == "port_config":
                     port_config = process_switch_interface(value)
                     switch_data[key] = {**data.get(key, {}), **port_config}
-                elif isinstance(value, dict) and isinstance(switch_data.get(key, {}), dict):
+                elif isinstance(value, dict) and isinstance(
+                    switch_data.get(key, {}), dict
+                ):
                     switch_data[key] = {**switch_data.get(key, {}), **value}
-                elif isinstance(value, list) and isinstance(switch_data.get(key, []), list):
+                elif isinstance(value, list) and isinstance(
+                    switch_data.get(key, []), list
+                ):
                     switch_data[key] = switch_data.get(key, []) + value
                 else:
                     switch_data[key] = value
@@ -155,9 +159,10 @@ async def get_device_configuration(
 
             for key, value in device_data.data.items():
                 if key in NETWORK_TEMPLATE_FIELDS:
-                    if isinstance(value, dict) and isinstance(gateway_data.get(key, {}), dict):
-                        gateway_data[key] = {
-                            **gateway_data.get(key, {}), **value}
+                    if isinstance(value, dict) and isinstance(
+                        gateway_data.get(key, {}), dict
+                    ):
+                        gateway_data[key] = {**gateway_data.get(key, {}), **value}
                     elif isinstance(value, list) and isinstance(
                         gateway_data.get(key, []), list
                     ):
@@ -171,7 +176,6 @@ async def get_device_configuration(
             data = device_data
 
     return format_response(data, response_format)
-
 
 
 def process_switch_template(
@@ -228,8 +232,7 @@ def process_switch_rule(
             elif k.startswith("match_model"):
                 match_model_enabled = True
                 del rule_cleansed[k]
-                match_model_true = process_switch_rule_match(
-                    switch_model, k, v)
+                match_model_true = process_switch_rule_match(switch_model, k, v)
             elif k == "match_role":
                 match_role_enabled = True
                 match_role_true = process_switch_rule_match(switch_role, k, v)
@@ -256,12 +259,11 @@ def process_switch_rule_match(
     switch_value: str, match_key: str, match_value: str
 ) -> bool:
     if ":" in match_key:
-        match_start, match_stop = match_key.replace(
-            "]", "").split("[")[1].split(":")
+        match_start, match_stop = match_key.replace("]", "").split("[")[1].split(":")
         try:
             if (
                 len(switch_value) > int(match_stop)
-                and switch_value[int(match_start): int(match_stop)].lower()
+                and switch_value[int(match_start) : int(match_stop)].lower()
                 == match_value.lower()
             ):
                 return True
@@ -303,5 +305,3 @@ def process_switch_interface(port_config: dict) -> dict:
             port_config_cleansed[key] = value
 
     return port_config_cleansed
-
-'''

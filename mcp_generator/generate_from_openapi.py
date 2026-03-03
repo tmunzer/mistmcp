@@ -45,7 +45,7 @@ from templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
 from templates.tmpl_helper import TOOLS_HELPER
 from templates.tmpl_init import INIT_TEMPLATE
 from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
-from templates.tmpl_site_configuration import SITE_CONFIGURATION_TEMPLATE
+from templates.tmpl_site_configuration import SITE_DERIVED_CONFIGURATION_TEMPLATE
 from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
 from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
 from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
@@ -67,27 +67,27 @@ OPENAPI_PATH = (
 SCHEMAS_CONFIG_PATH = Path(os.path.join(DIR_PATH, "schemas_config.yaml"))
 SCHEMAS_DATA_OUTPUT_PATH = Path(
     os.path.join(
-        DIR_PATH, "../src/mistmcp/tools/configuration/schemas_data.py")
+        DIR_PATH, "../src/mistmcp/tools/schemas_data.py")
 )
 # List of custom tools to generate (not directly from OpenAPI)
 CUSTOM_TOOLS = [
     {
-        "name": "getSiteConfiguration",
-        "template": SITE_CONFIGURATION_TEMPLATE,
+        "name": "get_site_derived_configuration",
+        "template": SITE_DERIVED_CONFIGURATION_TEMPLATE,
         "tag": "configuration",
     },
     {
-        "name": "getDeviceConfiguration",
+        "name": "get_device_configuration",
         "template": DEVICE_CONFIGURATION_TEMPLATE,
         "tag": "configuration",
     },
     {
-        "name": "getObjectSchema",
+        "name": "get_object_schema",
         "template": GET_OBJECT_SCHEMA_TEMPLATE,
         "tag": "configuration",
     },
     {
-        "name": "getNextPage",
+        "name": "get_next_page",
         "template": GET_NEXT_PAGE_TEMPLATE,
         "tag": "info",
     },
@@ -185,6 +185,9 @@ def class_name_from_operation_id(operation_id: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+def camel_to_snake(name):
+    s1 = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 ########
 # Parameter Processing Functions
 
@@ -536,11 +539,12 @@ def _gen_tools_custom(
     func_tmpl = func_data["template"]
     func_tag = func_data.get("tag", "untagged")
 
-    tag_dir = OUTPUT_DIR / snake_case(func_tag)
-    tag_dir.mkdir(parents=True, exist_ok=True)
-    init_file = tag_dir / "__init__.py"
-    init_file.write_text("", encoding="utf-8")
-    tool_file = tag_dir / f"{snake_case(func_name)}.py"
+    # tag_dir = OUTPUT_DIR / snake_case(func_tag)
+    # tag_dir.mkdir(parents=True, exist_ok=True)
+    # init_file = tag_dir / "__init__.py"
+    # init_file.write_text("", encoding="utf-8")
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    tool_file = OUTPUT_DIR / f"{snake_case(func_name)}.py"
     tool_file.write_text(func_tmpl, encoding="utf-8")
     tag_to_tools.setdefault(func_tag, []).append(str(tool_file))
 
@@ -564,7 +568,7 @@ def _gen_tools_custom(
     )
     # root_tag_defs
     root_tag_defs[snake_case(snake_case(func_tag))
-                  ]["tools"].append(func_name)
+                  ]["tools"].append(f"mist_{func_name}")
 
 
 def _gen_tools_additional_required_parameters(parameters: list, match_name: str = "object_type") -> str:
@@ -832,7 +836,8 @@ def _gen_tools_optim(
                 imports=imports,
                 models=models,
                 enums=enums,
-                operationId=func_name,
+                operationId=camel_to_snake(func_name),
+                title=camel_to_snake(func_name).replace("_", " ").capitalize(),
                 description=description.replace("\n", ""),
                 tag=tag,
                 readOnlyHint=func_data.get("read_only_hint", False),
@@ -846,7 +851,8 @@ def _gen_tools_optim(
                 imports=imports,
                 models=models,
                 enums=enums,
-                operationId=func_name,
+                operationId=camel_to_snake(func_name),
+                title=camel_to_snake(func_name).replace("_", " ").capitalize(),
                 description=description.replace("\n", ""),
                 tag=tag,
                 readOnlyHint=func_data.get("read_only_hint", True),
@@ -860,7 +866,8 @@ def _gen_tools_optim(
                 imports=imports,
                 models=models,
                 enums=enums,
-                operationId=func_name,
+                operationId=camel_to_snake(func_name),
+                title=camel_to_snake(func_name).replace("_", " ").capitalize(),
                 description=description.replace("\n", ""),
                 tag=tag,
                 readOnlyHint=func_data.get("read_only_hint", True),
@@ -870,11 +877,12 @@ def _gen_tools_optim(
             )
 
         # Create directory and files for the tool
-        tag_dir = OUTPUT_DIR / snake_case(tag)
-        tag_dir.mkdir(parents=True, exist_ok=True)
-        init_file = tag_dir / "__init__.py"
-        init_file.write_text("", encoding="utf-8")
-        tool_file = tag_dir / f"{snake_case(func_name)}.py"
+        # tag_dir = OUTPUT_DIR / snake_case(tag)
+        # tag_dir.mkdir(parents=True, exist_ok=True)
+        # init_file = tag_dir / "__init__.py"
+        # init_file.write_text("", encoding="utf-8")
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        tool_file = OUTPUT_DIR / f"{snake_case(func_name)}.py"
         tool_file.write_text(tool_code, encoding="utf-8")
         tag_to_tools.setdefault(tag, []).append(str(tool_file))
 
@@ -901,7 +909,7 @@ def _gen_tools_optim(
         )
         # Add tool to tag definition
         root_tag_defs[snake_case(snake_case(tag))
-                      ]["tools"].append(func_name)
+                      ]["tools"].append(f"mist_{func_name}")
 
 
 def _gen_tools_openapi(
@@ -1012,11 +1020,11 @@ def _gen_tools_openapi(
             request = REQ_TEMPLATE.format(request=mistapi_request)
 
         tool_code = TOOL_TEMPLATE_READ.format(
-            class_name=operation_id.capitalize(),
             imports=imports,
             models=models,
             enums=enums,
-            operationId=operation_id,
+            operationId=camel_to_snake(operation_id),
+            title=camel_to_snake(operation_id).replace("_", " ").capitalize(),
             description=description.replace("\n", ""),
             tag=tag,
             readOnlyHint=read_only_hint,
@@ -1025,11 +1033,12 @@ def _gen_tools_openapi(
             request=request,
         )
 
-        tag_dir = OUTPUT_DIR / snake_case(tag)
-        tag_dir.mkdir(parents=True, exist_ok=True)
-        init_file = tag_dir / "__init__.py"
-        init_file.write_text("", encoding="utf-8")
-        tool_file = tag_dir / f"{snake_case(operation_id)}.py"
+        # tag_dir = OUTPUT_DIR / snake_case(tag)
+        # tag_dir.mkdir(parents=True, exist_ok=True)
+        # init_file = tag_dir / "__init__.py"
+        # init_file.write_text("", encoding="utf-8")
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        tool_file = OUTPUT_DIR / f"{camel_to_snake(operation_id)}.py"
         tool_file.write_text(tool_code)
         tag_to_tools.setdefault(tag, []).append(str(tool_file))
 
@@ -1055,8 +1064,8 @@ def _gen_tools_openapi(
             f"TOOL_REMOVE_FCT.append({snake_case(operation_id)}.remove_tool)"
         )
         # root_tag_defs
-        root_tag_defs[snake_case(snake_case(tag))
-                      ]["tools"].append(operation_id)
+        root_tag_defs[snake_case(tag)]["tools"].append(
+            f"mist_{camel_to_snake(operation_id)}")
 
 
 # ---------------------------------------------------------------------------
@@ -1086,7 +1095,7 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     # Generate optimized tools (consolidated or special-case tools)
     for func_name, func_data in OPTIMIZED_TOOLS.items():
         _gen_tools_optim(
-            func_name,
+            camel_to_snake(func_name),
             func_data,
             openapi_parameters,
             openapi_schemas,
@@ -1139,7 +1148,8 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     with open(INIT_FILE, "w", encoding="utf-8") as f_init:
         f_init.write(
             INIT_TEMPLATE.format(
-                tools_import=_gen_tools_init(root_tools_import))
+                # tools_import=_gen_tools_init(root_tools_import))
+                tools_import="")
         )
 
     # Write tool_helper.py with enums and tag summary

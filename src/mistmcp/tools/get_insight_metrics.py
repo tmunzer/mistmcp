@@ -1,0 +1,195 @@
+"""
+--------------------------------------------------------------------------------
+-------------------------------- Mist MCP SERVER -------------------------------
+
+    Written by: Thomas Munzer (tmunzer@juniper.net)
+    Github    : https://github.com/tmunzer/mistmcp
+
+    This package is licensed under the MIT License.
+
+--------------------------------------------------------------------------------
+"""
+
+import json
+import mistapi
+from fastmcp import Context
+from fastmcp.exceptions import ToolError
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
+from mistmcp.server import mcp
+from mistmcp.logger import logger
+
+from pydantic import Field
+from typing import Annotated, Optional
+from uuid import UUID
+from enum import Enum
+
+
+class Object_type(Enum):
+    SITE = "site"
+    CLIENT = "client"
+    AP = "ap"
+    GATEWAY = "gateway"
+    MXEDGE = "mxedge"
+    SWITCH = "switch"
+
+
+@mcp.tool(
+    name="mist_get_insight_metrics",
+    description="""Get insight metrics for a given object""",
+    tags={"sites_insights"},
+    annotations={
+        "title": "Get insight metrics",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+        "idempotentHint": True,
+    },
+)
+async def get_insight_metrics(
+    site_id: Annotated[UUID, Field(description="""Site ID""")],
+    object_type: Annotated[
+        Object_type, Field(description="""Type of object to retrieve metrics for""")
+    ],
+    metric: Annotated[
+        str,
+        Field(
+            description="""Name of the metric to retrieve. Use the tool`mist_get_constants` to see available metrics"""
+        ),
+    ],
+    mac: Annotated[
+        Optional[str | None],
+        Field(
+            description="""MAC address of the client or device to retrieve metrics for. Required if object_type is 'client', 'ap', 'mxedge' or 'switch'"""
+        ),
+    ] = None,
+    device_id: Annotated[
+        Optional[UUID | None],
+        Field(
+            description="""ID of the gateway device to retrieve metrics for. Required if object_type is 'gateway'"""
+        ),
+    ] = None,
+    start: Annotated[
+        Optional[str | None],
+        Field(description="""Start of time range (epoch seconds)"""),
+    ] = None,
+    end: Annotated[
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
+    ] = None,
+    duration: Annotated[
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
+    ] = None,
+    interval: Annotated[
+        Optional[str | None],
+        Field(description="""Aggregation interval (e.g. 1h, 1d)"""),
+    ] = None,
+    page: Annotated[
+        Optional[int | None], Field(description="""Page number for pagination""")
+    ] = None,
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=10)
+    ] = 10,
+    ctx: Context | None = None,
+) -> dict | list | str:
+    """Get insight metrics for a given object"""
+
+    logger.debug("Tool get_insight_metrics called")
+
+    apisession, response_format = get_apisession()
+
+    match object_type.value:
+        case "site":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetrics(
+                apisession,
+                site_id=str(site_id),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+            await process_response(response)
+        case "client":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForClient(
+                apisession,
+                site_id=str(site_id),
+                client_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+            await process_response(response)
+        case "ap":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForDevice(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+            await process_response(response)
+        case "gateway":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForGateway(
+                apisession,
+                site_id=str(site_id),
+                device_id=str(device_id),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+            await process_response(response)
+        case "mxedge":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForMxEdge(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+            await process_response(response)
+        case "switch":
+            response = mistapi.api.v1.sites.insights.getSiteInsightMetricsForSwitch(
+                apisession,
+                site_id=str(site_id),
+                device_mac=str(mac),
+                metric=str(metric),
+                start=str(start),
+                end=str(end),
+                duration=str(duration),
+                interval=str(interval),
+                limit=limit,
+                page=page,
+            )
+            await process_response(response)
+
+        case _:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}",
+                }
+            )
+
+    return format_response(response, response_format)

@@ -14,6 +14,8 @@ import json
 
 from mistapi.__api_response import APIResponse
 
+from mistmcp.logger import logger
+
 
 def _get_total(response: APIResponse) -> int | None:
     """Extract total entries count from an API response if available.
@@ -79,9 +81,12 @@ def format_response(
     ``response_format`` preference coming from :func:`get_apisession`.
     """
     if isinstance(response, APIResponse):
+        logger.debug("Formatting API response with pagination metadata")
         data = format_response_data(response)
     else:
         data = response
     if response_format == "string":
+        logger.debug("Serializing response data to JSON string")
         return json.dumps(data)
+    logger.debug("Returning response data as dict/list")
     return data

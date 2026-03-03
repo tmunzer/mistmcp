@@ -33,8 +33,8 @@ Parameters:
 
 IMPORTANT:
 * do not assume the id used by the tools (org_id, site_id, device_id, ...). Make sure to first retrieve the relevant objects and their ids with the provided tools before trying to use them in other tools.
-* If a tool requires the `org_id`, use the `getSelf` tool to get it
-* If a tool requires the `site_id`, use the `searchOrgSites` tool to find it
+* If a tool requires the `org_id`, use the `mist_get_self` tool to get it
+* If a tool requires the `site_id`, use the `mist_search_org_sites` tool to find it
 
 CONFIGURATION OBJECTS:
 - aamwprofiles: Sky ATP Advanced Anti-Malware profiles
@@ -70,7 +70,7 @@ CONFIGURATION OBJECTS:
 
 # Module-level MCP instance — imported directly by tool modules
 mcp = FastMCP(
-    name="Mist MCP Server",
+    name="mist_mcp",
     instructions=_instructions,
     on_duplicate="replace",
     mask_error_details=False,
@@ -96,8 +96,8 @@ def _load_tools(config: ServerConfig) -> list[str]:
                 continue
 
             try:
-                snake_name = tool_name.lower().replace(" ", "_").replace("-", "_")
-                module_path = f"mistmcp.tools.{category}.{snake_name}"
+                # snake_name = tool_name.lower().replace(" ", "_").replace("-", "_")
+                module_path = f"mistmcp.tools.{tool_name.replace('mist_', '')}"
                 importlib.import_module(module_path)
                 loaded_tools.append(tool_name)
                 logger.debug("  Loaded: %s", tool_name)

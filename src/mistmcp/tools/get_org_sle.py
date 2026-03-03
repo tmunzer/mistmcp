@@ -1,0 +1,89 @@
+"""
+--------------------------------------------------------------------------------
+-------------------------------- Mist MCP SERVER -------------------------------
+
+    Written by: Thomas Munzer (tmunzer@juniper.net)
+    Github    : https://github.com/tmunzer/mistmcp
+
+    This package is licensed under the MIT License.
+
+--------------------------------------------------------------------------------
+"""
+
+import json
+import mistapi
+from fastmcp import Context
+from fastmcp.exceptions import ToolError
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
+from mistmcp.server import mcp
+from mistmcp.logger import logger
+
+from pydantic import Field
+from typing import Annotated, Optional
+from uuid import UUID
+
+
+@mcp.tool(
+    name="mist_get_org_sle",
+    description="""Get Org SLEs (all/worst sites, Mx Edges, ...)""",
+    tags={"sles"},
+    annotations={
+        "title": "Get org sle",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+        "idempotentHint": True,
+    },
+)
+async def get_org_sle(
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
+    metric: Annotated[
+        str,
+        Field(
+            description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics"""
+        ),
+    ],
+    sle: Annotated[
+        Optional[str | None],
+        Field(
+            description="""See [List Insight Metrics](/#operations/listInsightMetrics) for more details"""
+        ),
+    ] = None,
+    duration: Annotated[
+        Optional[str | None],
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
+    ] = None,
+    interval: Annotated[
+        Optional[str | None],
+        Field(description="""Aggregation interval (e.g. 1h, 1d)"""),
+    ] = None,
+    start: Annotated[
+        Optional[str | None],
+        Field(description="""Start of time range (epoch seconds)"""),
+    ] = None,
+    end: Annotated[
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
+    ] = None,
+    ctx: Context | None = None,
+) -> dict | list | str:
+    """Get Org SLEs (all/worst sites, Mx Edges, ...)"""
+
+    logger.debug("Tool get_org_sle called")
+
+    apisession, response_format = get_apisession()
+
+    response = mistapi.api.v1.orgs.insights.getOrgSle(
+        apisession,
+        org_id=str(org_id),
+        metric=metric,
+        sle=sle if sle else None,
+        duration=duration if duration else None,
+        interval=interval if interval else None,
+        start=start if start else None,
+        end=end if end else None,
+    )
+    await process_response(response)
+
+    return format_response(response, response_format)

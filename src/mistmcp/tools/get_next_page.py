@@ -1,4 +1,4 @@
-GET_NEXT_PAGE_TEMPLATE = '''"""
+"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -24,7 +24,7 @@ from mistmcp.logger import logger
 
 @mcp.tool(
     name="mist_get_next_page",
-    description="Retrieve the next page of results using the \'_next\' URL returned by a previous tool call.",
+    description="Retrieve the next page of results using the '_next' URL returned by a previous tool call.",
     tags={"info"},
     annotations={
         "title": "Get Next Page",
@@ -37,11 +37,11 @@ from mistmcp.logger import logger
 async def get_next_page(
     url: Annotated[
         str,
-        Field(description="The \'_next\' URL from a previous response"),
+        Field(description="The '_next' URL from a previous response"),
     ],
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve the next page of results using the \'_next\' URL returned by a previous tool call."""
+    """Retrieve the next page of results using the '_next' URL returned by a previous tool call."""
 
     logger.debug("Tool get_next_page called")
 
@@ -49,5 +49,3 @@ async def get_next_page(
     response = apisession.mist_get(url)
     await process_response(response)
     return format_response(response, response_format)
-
-'''

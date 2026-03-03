@@ -1,4 +1,4 @@
-SITE_DERIVED_CONFIGURATION_TEMPLATE = '''"""
+"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -88,12 +88,12 @@ async def get_site_derived_configuration(
     object_type: Annotated[
         Object_type, Field(description="""Type of configuration object to retrieve.""")
     ],
-    ctx: Context|None = None,
+    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve derived configuration (org + site configuration) for a specific site"""
 
     logger.debug("Tool get_site_derived_configuration called")
-    
+
     apisession, response_format = get_apisession()
 
     site_data = mistapi.api.v1.sites.sites.getSiteInfo(apisession, site_id=str(site_id))
@@ -248,5 +248,3 @@ async def get_site_derived_configuration(
             )
 
     return format_response(data, response_format)
-
-'''

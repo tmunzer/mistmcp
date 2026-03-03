@@ -32,14 +32,15 @@ class Action_type(Enum):
     DELETE = "delete"
 
 @mcp.tool(
-    name = "{operationId}",
+    name = "mist_{operationId}",
     description = """{description}""",
     tags = {{"{tag}"}},
     annotations = {{
-        "title": "{operationId}",
+        "title": "{title}",
         "readOnlyHint": {readOnlyHint},
         "destructiveHint": {destructiveHint},
         "openWorldHint": True,
+        "idempotentHint": False,
     }},
 )
 async def {operationId}(

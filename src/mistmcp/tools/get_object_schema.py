@@ -1,4 +1,4 @@
-GET_OBJECT_SCHEMA_TEMPLATE = '''"""
+"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -9,6 +9,7 @@ GET_OBJECT_SCHEMA_TEMPLATE = '''"""
 
 --------------------------------------------------------------------------------
 """
+
 from enum import Enum
 from typing import Annotated, Any
 
@@ -107,7 +108,7 @@ async def get_object_schema(
     entry = _SCHEMAS_DATA.get(schema_name.value)
     if entry is None:
         raise ValueError(
-            f"Schema \'{schema_name.value}\' not found. "
+            f"Schema '{schema_name.value}' not found. "
             "Re-run the generator to rebuild schemas_data.py."
         )
 
@@ -115,7 +116,7 @@ async def get_object_schema(
 
     if not resolved:
         raise ValueError(
-            f"No schema found for \'{schema_name.value}\'. "
+            f"No schema found for '{schema_name.value}'. "
             "Re-run the generator to rebuild schemas_data.py."
         )
 
@@ -125,5 +126,3 @@ async def get_object_schema(
         resolved = _compact_schema(resolved)
 
     return resolved
-
-'''
