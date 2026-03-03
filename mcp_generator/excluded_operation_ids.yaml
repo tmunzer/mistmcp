@@ -87,3 +87,4 @@
 - getSiteApplicationList
 - getSiteWxRulesUsage
 - searchSiteMistEdgeEvents
+- listSiteMapStacks
