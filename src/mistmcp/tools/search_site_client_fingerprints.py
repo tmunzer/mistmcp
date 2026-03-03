@@ -34,18 +34,18 @@ class Client_type(Enum):
 
 
 @mcp.tool(
-    name="mist_search_org_client_fingerprints",
+    name="mist_search_site_client_fingerprints",
     description="""Search Client Fingerprints""",
-    tags={"orgs_nac"},
+    tags={"Sites NAC Fingerprints"},
     annotations={
-        "title": "Search org client fingerprints",
+        "title": "Search site client fingerprints",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
         "idempotentHint": True,
     },
 )
-async def search_org_client_fingerprints(
+async def search_site_client_fingerprints(
     site_id: Annotated[UUID, Field(description="""Site ID""")],
     family: Annotated[
         Optional[str | None],
@@ -102,11 +102,11 @@ async def search_org_client_fingerprints(
 ) -> dict | list | str:
     """Search Client Fingerprints"""
 
-    logger.debug("Tool search_org_client_fingerprints called")
+    logger.debug("Tool search_site_client_fingerprints called")
 
     apisession, response_format = get_apisession()
 
-    response = mistapi.api.v1.sites.insights.searchOrgClientFingerprints(
+    response = mistapi.api.v1.sites.insights.searchSiteClientFingerprints(
         apisession,
         site_id=str(site_id),
         family=family if family else None,
