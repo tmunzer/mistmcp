@@ -159,38 +159,32 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.alarmtemplates.createOrgAlarmTemplate(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.alarmtemplates.deleteOrgAlarmTemplate(
                     apisession, org_id=str(org_id), alarmtemplate_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "wlans":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.wlans.updateOrgWlan(
                     apisession, org_id=str(org_id), wlan_id=str(object_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.wlans.createOrgWlan(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wlans.deleteOrgWlan(
                     apisession, org_id=str(org_id), wlan_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "sitegroups":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.sitegroups.updateOrgSiteGroup(
@@ -200,19 +194,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.sitegroups.createOrgSiteGroup(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.sitegroups.deleteOrgSiteGroup(
                     apisession, org_id=str(org_id), sitegroup_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "avprofiles":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.avprofiles.updateOrgAntivirusProfile(
@@ -222,19 +213,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.avprofiles.createOrgAntivirusProfile(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.avprofiles.deleteOrgAntivirusProfile(
                     apisession, org_id=str(org_id), avprofile_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "deviceprofiles":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.deviceprofiles.updateOrgDeviceProfile(
@@ -244,19 +232,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.deviceprofiles.createOrgDeviceProfile(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.deviceprofiles.deleteOrgDeviceProfile(
                     apisession, org_id=str(org_id), deviceprofile_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "gatewaytemplates":
             if action_type.value == "update":
                 response = (
@@ -268,7 +253,6 @@ async def change_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = (
                     mistapi.api.v1.orgs.gatewaytemplates.createOrgGatewayTemplate(
@@ -276,7 +260,6 @@ async def change_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = (
                     mistapi.api.v1.orgs.gatewaytemplates.deleteOrgGatewayTemplate(
@@ -286,7 +269,6 @@ async def change_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
         case "idpprofiles":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.idpprofiles.updateOrgIdpProfile(
@@ -296,19 +278,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.idpprofiles.createOrgIdpProfile(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.idpprofiles.deleteOrgIdpProfile(
                     apisession, org_id=str(org_id), idpprofile_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "aamwprofiles":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.aamwprofiles.updateOrgAAMWProfile(
@@ -318,19 +297,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.aamwprofiles.createOrgAAMWProfile(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.aamwprofiles.deleteOrgAAMWProfile(
                     apisession, org_id=str(org_id), aamwprofile_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "nactags":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.nactags.updateOrgNacTag(
@@ -340,19 +316,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.nactags.createOrgNacTag(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.nactags.deleteOrgNacTag(
                     apisession, org_id=str(org_id), nactag_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "nacrules":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.nacrules.updateOrgNacRule(
@@ -362,19 +335,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.nacrules.createOrgNacRule(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.nacrules.deleteOrgNacRule(
                     apisession, org_id=str(org_id), nacrule_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "networktemplates":
             if action_type.value == "update":
                 response = (
@@ -386,7 +356,6 @@ async def change_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = (
                     mistapi.api.v1.orgs.networktemplates.createOrgNetworkTemplate(
@@ -394,7 +363,6 @@ async def change_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = (
                     mistapi.api.v1.orgs.networktemplates.deleteOrgNetworkTemplate(
@@ -404,7 +372,6 @@ async def change_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
         case "networks":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.networks.updateOrgNetwork(
@@ -414,38 +381,32 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.networks.createOrgNetwork(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.networks.deleteOrgNetwork(
                     apisession, org_id=str(org_id), network_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "psks":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.psks.updateOrgPsk(
                     apisession, org_id=str(org_id), psk_id=str(object_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.psks.createOrgPsk(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.psks.deleteOrgPsk(
                     apisession, org_id=str(org_id), psk_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "rftemplates":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.rftemplates.updateOrgRfTemplate(
@@ -455,19 +416,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.rftemplates.createOrgRfTemplate(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.rftemplates.deleteOrgRfTemplate(
                     apisession, org_id=str(org_id), rftemplate_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "services":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.services.updateOrgService(
@@ -477,19 +435,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.services.createOrgService(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.services.deleteOrgService(
                     apisession, org_id=str(org_id), service_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "servicepolicies":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.servicepolicies.updateOrgServicePolicy(
@@ -499,19 +454,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.servicepolicies.createOrgServicePolicy(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.servicepolicies.deleteOrgServicePolicy(
                     apisession, org_id=str(org_id), servicepolicy_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "sitetemplates":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.sitetemplates.updateOrgSiteTemplate(
@@ -521,38 +473,32 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.sitetemplates.createOrgSiteTemplate(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.sitetemplates.deleteOrgSiteTemplate(
                     apisession, org_id=str(org_id), sitetemplate_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "vpns":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.vpns.updateOrgVpn(
                     apisession, org_id=str(org_id), vpn_id=str(object_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.vpns.createOrgVpn(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.vpns.deleteOrgVpn(
                     apisession, org_id=str(org_id), vpn_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "webhooks":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.webhooks.updateOrgWebhook(
@@ -562,19 +508,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.webhooks.createOrgWebhook(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.webhooks.deleteOrgWebhook(
                     apisession, org_id=str(org_id), webhook_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "wlantemplates":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.templates.updateOrgTemplate(
@@ -584,19 +527,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.templates.createOrgTemplate(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.templates.deleteOrgTemplate(
                     apisession, org_id=str(org_id), template_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "wxrules":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.wxrules.updateOrgWxRule(
@@ -606,19 +546,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.wxrules.createOrgWxRule(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wxrules.deleteOrgWxRule(
                     apisession, org_id=str(org_id), wxrule_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
         case "wxtags":
             if action_type.value == "update":
                 response = mistapi.api.v1.orgs.wxtags.updateOrgWxTag(
@@ -628,19 +565,16 @@ async def change_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             elif action_type.value == "create":
                 response = mistapi.api.v1.orgs.wxtags.createOrgWxTag(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wxtags.deleteOrgWxTag(
                     apisession, org_id=str(org_id), wxtag_id=str(object_id)
                 )
                 await process_response(response)
-                data = response.data
 
         case _:
             raise ToolError(
