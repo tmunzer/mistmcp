@@ -74,7 +74,7 @@ async def search_org_sites(
     name: Annotated[
         Optional[str | None],
         Field(
-            description="""Site name. Case insensitive. Add a wildcard (`*`) at the end for partial search"""
+            description="""Site name. Case insensitive. Add a wildcard (`*`) before or after the string for partial match"""
         ),
     ] = None,
     rogue_enabled: Annotated[

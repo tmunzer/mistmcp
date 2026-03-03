@@ -58,7 +58,7 @@ async def search_org_alarms(
     group: Annotated[
         Optional[Group | None],
         Field(
-            description="""Alarm group. enum: `infrastructure`, `marvis`, `security`"""
+            description="""Alarm group. enum: `infrastructure`, `marvis`, `security`.  The `marvis` group is used to retrieve AI-driven network issue detections.  Known Marvis alarm types include: `bad_cable`, `bad_wan_uplink`, `dns_failure`,  `arp_failure`, `auth_failure`, `dhcp_failure`, `missing_vlan`,  `negotiation_mismatch`, `port_flap`. Results include resolution status  (`status`, `resolved_time`) and affected entity details.'"""
         ),
     ] = Group.NONE,
     severity: Annotated[

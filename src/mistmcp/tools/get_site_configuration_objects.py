@@ -93,11 +93,11 @@ async def get_site_configuration_objects(
                     apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "maps":
             if object_id:
@@ -110,11 +110,11 @@ async def get_site_configuration_objects(
                     apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "mxedges":
             if object_id:
@@ -149,11 +149,11 @@ async def get_site_configuration_objects(
                     apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "wlans":
             if object_id:
@@ -166,11 +166,11 @@ async def get_site_configuration_objects(
                     apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("ssid"): item.get("id")
+                data = [
+                    {"ssid": item.get("ssid"), "id": item.get("id")}
                     for item in response.data
                     if item.get("ssid")
-                }
+                ]
                 response.data = data
         case "wxrules":
             if object_id:

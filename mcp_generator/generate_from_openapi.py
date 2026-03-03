@@ -630,11 +630,10 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
             request += (
                 f"                response = {details['list'].get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = {{\n"
-                f"                    item.get('{reduce_attribute}'): item.get('id')\n"
-                f"                    for item in response.data\n"
-                f"                    if item.get('{reduce_attribute}')\n"
-                f"                }}\n"
+                f"                data = [\n"
+                f"                  {{'{reduce_attribute}': item.get('{reduce_attribute}'), 'id': item.get('id')}}\n"
+                f"                  for item in response.data if item.get('{reduce_attribute}')\n"
+                f"                ]\n"
                 f"                response.data = data\n"
             )
             processed_operation_ids.append(
@@ -693,7 +692,6 @@ def _gen_tools_write(details: dict, func_data: dict, processed_operation_ids: li
                 f"            if {func_data.get('if_filter', 'object_id')}:\n"
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
             )
             processed_operation_ids.append(
                 value.get("operationId", "").lower()
@@ -703,7 +701,6 @@ def _gen_tools_write(details: dict, func_data: dict, processed_operation_ids: li
                 f"            else:\n"
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
             )
             processed_operation_ids.append(
                 value.get("operationId", "").lower()
@@ -721,7 +718,6 @@ def _gen_tools_write_delete(details: dict, func_data: dict, processed_operation_
                 f"            if {func_data.get('if_filter', 'action_type')}.value == \"{key}\":\n"
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
             )
             processed_operation_ids.append(
                 value.get("operationId", "").lower()
@@ -731,7 +727,6 @@ def _gen_tools_write_delete(details: dict, func_data: dict, processed_operation_
                 f"            else:\n"
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
             )
             processed_operation_ids.append(
                 value.get("operationId", "").lower()
@@ -741,7 +736,6 @@ def _gen_tools_write_delete(details: dict, func_data: dict, processed_operation_
                 f"            elif {func_data.get('if_filter', 'action_type')}.value == \"{key}\":\n"
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
-                f"                data = response.data\n"
             )
             processed_operation_ids.append(
                 value.get("operationId", "").lower()

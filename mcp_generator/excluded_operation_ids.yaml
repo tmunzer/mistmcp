@@ -33,7 +33,7 @@
 - listSiteDeviceUpgrades
 - getSiteDeviceUpgrade
 - getSiteSsrUpgrade
-- searchOrgInventory
+- getOrgInventory
 - getOrgJuniperDevicesCommand
 - getOrgUserMac
 # not working

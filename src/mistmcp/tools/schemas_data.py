@@ -830,6 +830,11 @@ SCHEMAS_DATA: dict = _json.loads(
           "description": "To disable ht or vht rates",
           "type": "boolean"
         },
+        "disable_message_authenticator_check": {
+          "default": false,
+          "description": "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
+          "type": "boolean"
+        },
         "disable_uapsd": {
           "default": false,
           "description": "Whether to disable U-APSD",
@@ -3322,6 +3327,11 @@ SCHEMAS_DATA: dict = _json.loads(
         "disable_ht_vht_rates": {
           "default": false,
           "description": "To disable ht or vht rates",
+          "type": "boolean"
+        },
+        "disable_message_authenticator_check": {
+          "default": false,
+          "description": "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
           "type": "boolean"
         },
         "disable_uapsd": {
@@ -6386,11 +6396,25 @@ SCHEMAS_DATA: dict = _json.loads(
                 ]
               },
               "via": {
-                "description": "Next-hop IP Address",
+                "description": "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
                 "examples": [
-                  "10.2.1.1"
+                  "10.2.1.1",
+                  [
+                    "10.2.1.1",
+                    "10.2.1.2"
+                  ]
                 ],
-                "type": "string"
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -6470,11 +6494,25 @@ SCHEMAS_DATA: dict = _json.loads(
                 ]
               },
               "via": {
-                "description": "Next-hop IP Address",
+                "description": "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
                 "examples": [
-                  "2a02:1234:200a::100"
+                  "10.2.1.1",
+                  [
+                    "10.2.1.1",
+                    "10.2.1.2"
+                  ]
                 ],
-                "type": "string"
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -14693,11 +14731,25 @@ SCHEMAS_DATA: dict = _json.loads(
                 ]
               },
               "via": {
-                "description": "Next-hop IP Address",
+                "description": "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
                 "examples": [
-                  "10.2.1.1"
+                  "10.2.1.1",
+                  [
+                    "10.2.1.1",
+                    "10.2.1.2"
+                  ]
                 ],
-                "type": "string"
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -14777,11 +14829,25 @@ SCHEMAS_DATA: dict = _json.loads(
                 ]
               },
               "via": {
-                "description": "Next-hop IP Address",
+                "description": "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
                 "examples": [
-                  "2a02:1234:200a::100"
+                  "10.2.1.1",
+                  [
+                    "10.2.1.1",
+                    "10.2.1.2"
+                  ]
                 ],
-                "type": "string"
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -18464,7 +18530,7 @@ SCHEMAS_DATA: dict = _json.loads(
           "type": "string"
         },
         "mist_configured": {
-          "description": "whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)",
+          "description": "whether the device can be configured by Mist or not. This deprecates `managed` for adopted devices.",
           "type": "boolean"
         },
         "model": {
@@ -23380,11 +23446,25 @@ SCHEMAS_DATA: dict = _json.loads(
                 ]
               },
               "via": {
-                "description": "Next-hop IP Address",
+                "description": "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
                 "examples": [
-                  "10.2.1.1"
+                  "10.2.1.1",
+                  [
+                    "10.2.1.1",
+                    "10.2.1.2"
+                  ]
                 ],
-                "type": "string"
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -23464,11 +23544,25 @@ SCHEMAS_DATA: dict = _json.loads(
                 ]
               },
               "via": {
-                "description": "Next-hop IP Address",
+                "description": "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
                 "examples": [
-                  "2a02:1234:200a::100"
+                  "10.2.1.1",
+                  [
+                    "10.2.1.1",
+                    "10.2.1.2"
+                  ]
                 ],
-                "type": "string"
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -32449,6 +32543,17 @@ SCHEMAS_DATA: dict = _json.loads(
             "null"
           ]
         },
+        "routertemplate_id": {
+          "description": "Router Template ID, used by gateways",
+          "examples": [
+            "6f9b2e75-9b2f-b5ae-81e3-e14c76f1a90f"
+          ],
+          "format": "uuid",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "secpolicy_id": {
           "description": "SecPolicy ID",
           "examples": [
@@ -33626,6 +33731,11 @@ SCHEMAS_DATA: dict = _json.loads(
     "schema": {
       "description": "Org Settings",
       "properties": {
+        "allow_mist": {
+          "default": false,
+          "description": "whether to allow Mist to look at this org",
+          "type": "boolean"
+        },
         "ap_updown_threshold": {
           "default": 0,
           "description": "Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
@@ -34182,6 +34292,17 @@ SCHEMAS_DATA: dict = _json.loads(
             }
           },
           "type": "object"
+        },
+        "gateway_tunnel_updown_threshold": {
+          "description": "enable threshold-based gateway tunnel (secure edge tunnels) up-down delivery.",
+          "examples": [
+            null
+          ],
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "gateway_updown_threshold": {
           "default": 0,
@@ -35403,6 +35524,11 @@ SCHEMAS_DATA: dict = _json.loads(
           },
           "type": "array"
         },
+        "allow_mist": {
+          "default": false,
+          "description": "whether to allow Mist to look at this org",
+          "type": "boolean"
+        },
         "analytic": {
           "additionalProperties": false,
           "properties": {
@@ -35868,6 +35994,36 @@ SCHEMAS_DATA: dict = _json.loads(
                 }
               ],
               "type": "object"
+            }
+          },
+          "type": "object"
+        },
+        "ap_synthetic_test": {
+          "additionalProperties": false,
+          "description": "AP Synthetic Test configuration",
+          "properties": {
+            "additional_vlan_ids": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "maximum": 4094,
+                        "minimum": 1,
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "type": "array"
+                }
+              ],
+              "description": "List or Comma separated list of additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses"
             }
           },
           "type": "object"
@@ -36851,11 +37007,25 @@ SCHEMAS_DATA: dict = _json.loads(
                 ]
               },
               "via": {
-                "description": "Next-hop IP Address",
+                "description": "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
                 "examples": [
-                  "10.2.1.1"
+                  "10.2.1.1",
+                  [
+                    "10.2.1.1",
+                    "10.2.1.2"
+                  ]
                 ],
-                "type": "string"
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -36935,11 +37105,25 @@ SCHEMAS_DATA: dict = _json.loads(
                 ]
               },
               "via": {
-                "description": "Next-hop IP Address",
+                "description": "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
                 "examples": [
-                  "2a02:1234:200a::100"
+                  "10.2.1.1",
+                  [
+                    "10.2.1.1",
+                    "10.2.1.2"
+                  ]
                 ],
-                "type": "string"
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                ]
               }
             },
             "type": "object"
@@ -39443,6 +39627,17 @@ SCHEMAS_DATA: dict = _json.loads(
             }
           },
           "type": "object"
+        },
+        "gateway_tunnel_updown_threshold": {
+          "description": "enable threshold-based gateway tunnel (secure edge tunnels) up-down delivery.",
+          "examples": [
+            null
+          ],
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "gateway_updown_threshold": {
           "default": 0,
@@ -43154,11 +43349,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         ]
                       },
                       "via": {
-                        "description": "Next-hop IP Address",
-                        "examples": [
-                          "10.2.1.1"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"
@@ -43223,11 +43414,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         ]
                       },
                       "via": {
-                        "description": "Next-hop IP Address",
-                        "examples": [
-                          "2a02:1234:200a::100"
-                        ],
-                        "type": "string"
+                        "$comment": "max depth reached"
                       }
                     },
                     "type": "object"

@@ -114,7 +114,6 @@ async def update_site_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
         case "evpn_topologies":
             if object_id:
                 response = mistapi.api.v1.sites.evpn_topologies.updateSiteEvpnTopology(
@@ -124,13 +123,11 @@ async def update_site_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.evpn_topologies.createSiteEvpnTopology(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "psks":
             if object_id:
                 response = mistapi.api.v1.sites.psks.updateSitePsk(
@@ -140,13 +137,11 @@ async def update_site_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.psks.createSitePsk(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "webhooks":
             if object_id:
                 response = mistapi.api.v1.sites.webhooks.updateSiteWebhook(
@@ -156,13 +151,11 @@ async def update_site_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.webhooks.createSiteWebhook(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "wlans":
             if object_id:
                 response = mistapi.api.v1.sites.wlans.updateSiteWlan(
@@ -172,13 +165,11 @@ async def update_site_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.wlans.createSiteWlan(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "wxrules":
             if object_id:
                 response = mistapi.api.v1.sites.wxrules.updateSiteWxRule(
@@ -188,13 +179,11 @@ async def update_site_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.wxrules.createSiteWxRule(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "wxtags":
             if object_id:
                 response = mistapi.api.v1.sites.wxtags.updateSiteWxTag(
@@ -204,13 +193,11 @@ async def update_site_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.sites.wxtags.createSiteWxTag(
                     apisession, site_id=str(site_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
 
         case _:
             raise ToolError(

@@ -53,17 +53,12 @@ async def list_audit_logs(
     org_id: Annotated[
         Optional[UUID | None], Field(description="""Organization ID""")
     ] = None,
-    start_time: Annotated[
+    start: Annotated[
         Optional[str | None],
-        Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
-    end_time: Annotated[
-        Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+    end: Annotated[
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=10)
@@ -95,8 +90,8 @@ async def list_audit_logs(
         case "self":
             response = mistapi.api.v1.self.logs.listSelfAuditLogs(
                 apisession,
-                start=str(start_time) if start_time else None,
-                end=str(end_time) if end_time else None,
+                start=str(start) if start else None,
+                end=str(end) if end else None,
                 message=str(message) if message else None,
                 limit=limit,
             )
@@ -105,8 +100,8 @@ async def list_audit_logs(
             response = mistapi.api.v1.orgs.logs.listOrgAuditLogs(
                 apisession,
                 org_id=str(org_id),
-                start=str(start_time) if start_time else None,
-                end=str(end_time) if end_time else None,
+                start=str(start) if start else None,
+                end=str(end) if end else None,
                 message=str(message) if message else None,
                 limit=limit,
             )

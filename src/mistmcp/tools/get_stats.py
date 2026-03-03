@@ -43,6 +43,12 @@ class Stats_type(Enum):
     SITE_PORTS = "site_ports"
 
 
+class Device_type(Enum):
+    AP = "ap"
+    SWITCH = "switch"
+    GATEWAY = "gateway"
+
+
 @mcp.tool(
     name="mist_get_stats",
     description="""This tool can be used to retrieve various statistics""",
@@ -61,17 +67,18 @@ async def get_stats(
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
-    start_time: Annotated[
-        Optional[str | None],
+    device_type: Annotated[
+        Optional[Device_type | None],
         Field(
-            description="""Start time (epoch timestamp in seconds, or relative string like '-1d', '-1w')"""
+            description="""Optional, Only used when stats_type is org_devices or site_devices. Type of device to filter on (e.g. ap, switch, gateway)."""
         ),
     ] = None,
-    end_time: Annotated[
+    start: Annotated[
         Optional[str | None],
-        Field(
-            description="""End time (epoch timestamp in seconds, or relative string like '-1d', '-2h', 'now')"""
-        ),
+        Field(description="""Start of time range (epoch seconds)"""),
+    ] = None,
+    end: Annotated[
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     object_id: Annotated[
         Optional[UUID | None],
@@ -149,7 +156,7 @@ async def get_stats(
     match object_type.value:
         case "org":
             response = mistapi.api.v1.orgs.stats.getOrgStats(
-                apisession, org_id=str(org_id), start=str(start_time), end=str(end_time)
+                apisession, org_id=str(org_id), start=str(start), end=str(end)
             )
             await process_response(response)
         case "sites":
@@ -163,8 +170,8 @@ async def get_stats(
                 response = mistapi.api.v1.orgs.stats.listOrgSiteStats(
                     apisession,
                     org_id=str(org_id),
-                    start=str(start_time),
-                    end=str(end_time),
+                    start=str(start),
+                    end=str(end),
                     limit=limit,
                 )
                 await process_response(response)
@@ -178,8 +185,8 @@ async def get_stats(
                 response = mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(
                     apisession,
                     org_id=str(org_id),
-                    start=str(start_time),
-                    end=str(end_time),
+                    start=str(start),
+                    end=str(end),
                     limit=limit,
                 )
                 await process_response(response)
@@ -187,8 +194,9 @@ async def get_stats(
             response = mistapi.api.v1.orgs.stats.listOrgDevicesStats(
                 apisession,
                 org_id=str(org_id),
-                start=str(start_time),
-                end=str(end_time),
+                type=device_type.value if device_type else None,
+                start=str(start),
+                end=str(end),
                 mac=str(object_id),
                 limit=limit,
             )
@@ -197,8 +205,8 @@ async def get_stats(
             response = mistapi.api.v1.orgs.stats.searchOrgBgpStats(
                 apisession,
                 org_id=str(org_id),
-                start=str(start_time),
-                end=str(end_time),
+                start=str(start),
+                end=str(end),
                 mac=str(object_id),
                 limit=limit,
             )
@@ -207,8 +215,8 @@ async def get_stats(
             response = mistapi.api.v1.orgs.stats.searchOrgOspfStats(
                 apisession,
                 org_id=str(org_id),
-                start=str(start_time),
-                end=str(end_time),
+                start=str(start),
+                end=str(end),
                 mac=str(object_id),
             )
             await process_response(response)
@@ -216,8 +224,8 @@ async def get_stats(
             response = mistapi.api.v1.orgs.stats.searchOrgPeerPathStats(
                 apisession,
                 org_id=str(org_id),
-                start=str(start_time),
-                end=str(end_time),
+                start=str(start),
+                end=str(end),
                 mac=str(object_id),
                 limit=limit,
             )
@@ -232,8 +240,8 @@ async def get_stats(
                 response = mistapi.api.v1.sites.stats.getSiteMxEdgeStats(
                     apisession,
                     site_id=str(site_id),
-                    start=str(start_time),
-                    end=str(end_time),
+                    start=str(start),
+                    end=str(end),
                     mxedge_id=str(object_id),
                 )
                 await process_response(response)
@@ -241,8 +249,8 @@ async def get_stats(
                 response = mistapi.api.v1.sites.stats.listSiteMxEdgesStats(
                     apisession,
                     site_id=str(site_id),
-                    start=str(start_time),
-                    end=str(end_time),
+                    start=str(start),
+                    end=str(end),
                     limit=limit,
                 )
                 await process_response(response)
@@ -256,8 +264,8 @@ async def get_stats(
                 response = mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(
                     apisession,
                     site_id=str(site_id),
-                    start=str(start_time),
-                    end=str(end_time),
+                    start=str(start),
+                    end=str(end),
                     limit=limit,
                 )
                 await process_response(response)
@@ -269,15 +277,18 @@ async def get_stats(
                 await process_response(response)
             else:
                 response = mistapi.api.v1.sites.stats.listSiteDevicesStats(
-                    apisession, site_id=str(site_id), limit=limit
+                    apisession,
+                    site_id=str(site_id),
+                    type=device_type.value if device_type else None,
+                    limit=limit,
                 )
                 await process_response(response)
         case "site_bgp":
             response = mistapi.api.v1.sites.stats.searchSiteBgpStats(
                 apisession,
                 site_id=str(site_id),
-                start=str(start_time),
-                end=str(end_time),
+                start=str(start),
+                end=str(end),
                 mac=str(object_id),
                 limit=limit,
             )
@@ -286,8 +297,8 @@ async def get_stats(
             response = mistapi.api.v1.sites.stats.searchSiteOspfStats(
                 apisession,
                 site_id=str(site_id),
-                start=str(start_time),
-                end=str(end_time),
+                start=str(start),
+                end=str(end),
                 mac=str(object_id),
                 limit=limit,
             )

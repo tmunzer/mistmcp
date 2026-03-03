@@ -107,11 +107,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "wlans":
             if object_id:
@@ -124,11 +124,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("ssid"): item.get("id")
+                data = [
+                    {"ssid": item.get("ssid"), "id": item.get("id")}
                     for item in response.data
                     if item.get("ssid")
-                }
+                ]
                 response.data = data
         case "sitegroups":
             if object_id:
@@ -152,11 +152,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "devices":
             response = mistapi.api.v1.orgs.devices.listOrgDevices(
@@ -174,11 +174,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "evpn_topologies":
             if object_id:
@@ -191,11 +191,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "gatewaytemplates":
             if object_id:
@@ -208,11 +208,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "idpprofiles":
             if object_id:
@@ -225,11 +225,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "aamwprofiles":
             if object_id:
@@ -242,11 +242,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id)
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "mxclusters":
             if object_id:
@@ -314,11 +314,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "networks":
             if object_id:
@@ -353,11 +353,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "services":
             if object_id:
@@ -370,11 +370,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "servicepolicies":
             if object_id:
@@ -387,11 +387,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "sites":
             response = mistapi.api.v1.orgs.sites.listOrgSites(
@@ -409,11 +409,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "vpns":
             if object_id:
@@ -448,11 +448,11 @@ async def get_org_configuration_objects(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-                data = {
-                    item.get("name"): item.get("id")
+                data = [
+                    {"name": item.get("name"), "id": item.get("id")}
                     for item in response.data
                     if item.get("name")
-                }
+                ]
                 response.data = data
         case "wxrules":
             if object_id:

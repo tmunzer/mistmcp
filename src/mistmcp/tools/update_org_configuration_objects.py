@@ -129,26 +129,22 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.alarmtemplates.createOrgAlarmTemplate(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "wlans":
             if object_id:
                 response = mistapi.api.v1.orgs.wlans.updateOrgWlan(
                     apisession, org_id=str(org_id), wlan_id=str(object_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wlans.createOrgWlan(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "sitegroups":
             if object_id:
                 response = mistapi.api.v1.orgs.sitegroups.updateOrgSiteGroup(
@@ -158,13 +154,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.sitegroups.createOrgSiteGroup(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "avprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.avprofiles.updateOrgAntivirusProfile(
@@ -174,13 +168,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.avprofiles.createOrgAntivirusProfile(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "deviceprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.deviceprofiles.updateOrgDeviceProfile(
@@ -190,13 +182,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.deviceprofiles.createOrgDeviceProfile(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "gatewaytemplates":
             if object_id:
                 response = (
@@ -208,7 +198,6 @@ async def update_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = (
                     mistapi.api.v1.orgs.gatewaytemplates.createOrgGatewayTemplate(
@@ -216,7 +205,6 @@ async def update_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
         case "idpprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.idpprofiles.updateOrgIdpProfile(
@@ -226,13 +214,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.idpprofiles.createOrgIdpProfile(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "aamwprofiles":
             if object_id:
                 response = mistapi.api.v1.orgs.aamwprofiles.updateOrgAAMWProfile(
@@ -242,13 +228,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.aamwprofiles.createOrgAAMWProfile(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "nactags":
             if object_id:
                 response = mistapi.api.v1.orgs.nactags.updateOrgNacTag(
@@ -258,13 +242,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.nactags.createOrgNacTag(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "nacrules":
             if object_id:
                 response = mistapi.api.v1.orgs.nacrules.updateOrgNacRule(
@@ -274,13 +256,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.nacrules.createOrgNacRule(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "networktemplates":
             if object_id:
                 response = (
@@ -292,7 +272,6 @@ async def update_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = (
                     mistapi.api.v1.orgs.networktemplates.createOrgNetworkTemplate(
@@ -300,7 +279,6 @@ async def update_org_configuration_objects(
                     )
                 )
                 await process_response(response)
-                data = response.data
         case "networks":
             if object_id:
                 response = mistapi.api.v1.orgs.networks.updateOrgNetwork(
@@ -310,26 +288,22 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.networks.createOrgNetwork(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "psks":
             if object_id:
                 response = mistapi.api.v1.orgs.psks.updateOrgPsk(
                     apisession, org_id=str(org_id), psk_id=str(object_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.psks.createOrgPsk(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "rftemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.rftemplates.updateOrgRfTemplate(
@@ -339,13 +313,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.rftemplates.createOrgRfTemplate(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "services":
             if object_id:
                 response = mistapi.api.v1.orgs.services.updateOrgService(
@@ -355,13 +327,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.services.createOrgService(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "servicepolicies":
             if object_id:
                 response = mistapi.api.v1.orgs.servicepolicies.updateOrgServicePolicy(
@@ -371,13 +341,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.servicepolicies.createOrgServicePolicy(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "sitetemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.sitetemplates.updateOrgSiteTemplate(
@@ -387,26 +355,22 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.sitetemplates.createOrgSiteTemplate(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "vpns":
             if object_id:
                 response = mistapi.api.v1.orgs.vpns.updateOrgVpn(
                     apisession, org_id=str(org_id), vpn_id=str(object_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.vpns.createOrgVpn(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "webhooks":
             if object_id:
                 response = mistapi.api.v1.orgs.webhooks.updateOrgWebhook(
@@ -416,13 +380,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.webhooks.createOrgWebhook(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "wlantemplates":
             if object_id:
                 response = mistapi.api.v1.orgs.templates.updateOrgTemplate(
@@ -432,13 +394,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.templates.createOrgTemplate(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "wxrules":
             if object_id:
                 response = mistapi.api.v1.orgs.wxrules.updateOrgWxRule(
@@ -448,13 +408,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wxrules.createOrgWxRule(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
         case "wxtags":
             if object_id:
                 response = mistapi.api.v1.orgs.wxtags.updateOrgWxTag(
@@ -464,13 +422,11 @@ async def update_org_configuration_objects(
                     body=payload,
                 )
                 await process_response(response)
-                data = response.data
             else:
                 response = mistapi.api.v1.orgs.wxtags.createOrgWxTag(
                     apisession, org_id=str(org_id), body=payload
                 )
                 await process_response(response)
-                data = response.data
 
         case _:
             raise ToolError(
