@@ -32,18 +32,18 @@ class Info_type(Enum):
 
 
 @mcp.tool(
-    name="mist_get_info",
+    name="mist_get_org_or_site_info",
     description="""This tool can be used to search information about the organizations or sites""",
     tags={"info"},
     annotations={
-        "title": "Get info",
+        "title": "Get org or site info",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
         "idempotentHint": True,
     },
 )
-async def get_info(
+async def get_org_or_site_info(
     info_type: Annotated[
         Info_type,
         Field(
@@ -56,7 +56,7 @@ async def get_info(
 ) -> dict | list | str:
     """This tool can be used to search information about the organizations or sites"""
 
-    logger.debug("Tool get_info called")
+    logger.debug("Tool get_org_or_site_info called")
 
     apisession, response_format = get_apisession()
 
