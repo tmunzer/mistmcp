@@ -10,20 +10,20 @@
 --------------------------------------------------------------------------------
 """
 
-from enum import Enum
-from typing import Annotated, Optional
-from uuid import UUID
-
+import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
-from pydantic import Field
-
-from mistmcp.logger import logger
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_formatter import format_response
 from mistmcp.response_processor import process_response
+from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
+from mistmcp.logger import logger
+
+from pydantic import Field
+from typing import Annotated, Optional
+from uuid import UUID
+from enum import Enum
 
 
 class Rrm_info_type(Enum):
@@ -76,8 +76,7 @@ async def get_site_rrm_info(
         Field(description="""Start of time range (epoch seconds)"""),
     ] = None,
     end: Annotated[
-        Optional[str | None], Field(
-            description="""End of time range (epoch seconds)""")
+        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
     ] = None,
     duration: Annotated[
         Optional[str | None],

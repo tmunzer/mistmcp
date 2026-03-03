@@ -9,10 +9,10 @@
 ## Executive Summary
 
 **mistmcp** is a Python FastMCP server that exposes the Juniper Mist cloud-networking
-platform (Wi-Fi, LAN, WAN, NAC) to LLM agents.  The server is well-architected, with
-strong security defaults, auto-generated tooling from the Mist OpenAPI spec, and good
-agent-guidance through server-level instructions.  The current build is in excellent shape
-with no remaining issues — all flagged items have been resolved.
+platform (Wi-Fi, LAN, WAN, NAC) to LLM agents. The server is well-architected with strong
+security defaults, OpenAPI-driven code generation, robust pagination support, and clean
+tool aggregations that minimize agent token overhead. The current build is in excellent shape
+with no remaining issues.
 
 **Overall rating: ★★★★★ (5.0/5)**
 
@@ -30,7 +30,7 @@ with no remaining issues — all flagged items have been resolved.
 
 ---
 
-## Tool Inventory (44 tools across 18 categories)
+## Tool Inventory (40 tools across 18 categories)
 
 All tools follow the `mist_{action}_{resource}` naming convention with snake_case.
 
@@ -48,10 +48,10 @@ All tools follow the `mist_{action}_{resource}` naming convention with snake_cas
 | self_account | mist_get_self |
 | sites_insights | mist_get_insight_metrics |
 | sites_rogues | mist_list_rogue_devices |
-| sites_rrm | mist_get_site_rrm_info, mist_list_site_rrm_events |
-| sles | mist_get_site_sle, mist_get_org_sites_sle, mist_get_org_sle, mist_list_site_sle_metric_classifiers, mist_list_site_sles_metrics |
+| sites_rrm | mist_get_site_rrm_info |
+| sles | mist_get_site_sle, mist_get_org_sites_sle, mist_get_org_sle, mist_list_site_sle_info |
 | stats | mist_get_stats, mist_search_site_wan_usage |
-| utilities_upgrade | mist_list_upgrades, mist_list_org_available_device_versions, mist_list_org_available_ssr_versions |
+| utilities_upgrade | mist_list_upgrades |
 | write | mist_update_site_configuration_objects, mist_update_org_configuration_objects |
 | write_delete | mist_change_site_configuration_objects, mist_change_org_configuration_objects |
 
@@ -70,19 +70,31 @@ All tools follow the `mist_{action}_{resource}` naming convention with snake_cas
 - **Token masking in logs** — `mask_token()` prevents credential leakage in log output
 
 ### Tool Design
-- **`mist_` prefix on all 44 tools** — no collision risk when used alongside other MCP servers
+- **`mist_` prefix on all 40 tools** — no collision risk when used alongside other MCP servers
 - **Consistent snake_case naming** — tool names, file names, and TOOLS dict all aligned
-- **`idempotentHint: True`** on all read-only tools
+- **Full annotation coverage** — every tool has `readOnlyHint`, `destructiveHint`,
+  `idempotentHint`, `openWorldHint`, and `"title"` set correctly
+- **`idempotentHint: True`** on all read-only tools; `False` on destructive operations
 - **`mist_get_object_schema`** — compact/verbose modes reduce token usage when agents only
   need required fields
-- **`mist_list_rogue_devices`** — unified rogue device tool (replaces the problematic
-  split `listSiteRogueAPs` / `listSiteRogueClients` with a clean `rogue_type` Enum dispatch);
-  description and annotations are accurate and complete
+- **`mist_list_rogue_devices`** — unified rogue AP+client tool with accurate description
+  and correct annotations
+
+### Tool Aggregations (reduced from 44 → 40 tools)
+- **`mist_get_site_rrm_info`** — absorbs `mist_list_site_rrm_events`; `rrm_info_type` enum
+  now covers `current_channel_planning`, `current_rrm_considerations`, `current_rrm_neighbors`,
+  and `events` in a single tool
+- **`mist_list_upgrades`** — absorbs `mist_list_org_available_device_versions` and
+  `mist_list_org_available_ssr_versions`; `device_type` enum extended with
+  `available_device_versions` and `available_ssr_versions` values
+- **`mist_list_site_sle_info`** — absorbs `mist_list_site_sles_metrics` and
+  `mist_list_site_sle_metric_classifiers`; `query_type` enum (`metrics` | `classifiers`)
+  with conditional `metric` requirement for the classifiers case
 
 ### Infrastructure
-- **Flat tool module structure** — all 44 tool files live directly under `src/mistmcp/tools/`
-  with no category subdirectories; `_load_tools` uses `tool_name.replace('mist_', '')` to
-  derive the module filename, keeping the loading logic simple and robust
+- **Flat tool module structure** — all 40 tool files live directly under `src/mistmcp/tools/`;
+  `_load_tools` uses `tool_name.replace('mist_', '')` to derive the module filename,
+  keeping loading logic simple and robust
 - **Transparent pagination** — `format_response_data()` injects `_next` URL into responses;
   `mist_get_next_page` handles both cursor-based and header-based pagination styles
 - **OpenAPI-driven code generation** — tools auto-generated from the Mist OAS spec via
@@ -90,7 +102,8 @@ All tools follow the `mist_{action}_{resource}` naming convention with snake_cas
 - **Centralized error handling** — `process_response()` maps HTTP status codes to actionable
   messages and raises `ToolError` with structured `{status_code, message}` payloads
 - **Agent instructions** — server-level instructions correctly reference `mist_get_self` and
-  `mist_search_org_sites`, guide agents on ID-lookup workflow, and document all config object types
+  `mist_search_org_sites`, guide agents on ID-lookup workflow, and document all config object
+  types
 - **Dual transport** — stdio reads from env vars; HTTP extracts per-request credentials from
   `Authorization`/`X-Authorization` header and `cloud` query param
 
@@ -98,7 +111,7 @@ All tools follow the `mist_{action}_{resource}` naming convention with snake_cas
 
 ## Issues
 
-No outstanding issues. All previously flagged items have been resolved.
+No outstanding issues.
 
 ---
 
@@ -106,9 +119,9 @@ No outstanding issues. All previously flagged items have been resolved.
 
 | Issue | Notes |
 |-------|-------|
-| Function docstrings duplicate `description=` | Tool functions repeat their description verbatim as docstring; no Args/Returns added |
-| No per-tool Markdown response format | All tools return JSON/dict only; no `response_format` parameter for human-readable output |
-| `mask_error_details=False` | Intentionally exposes Mist API error details to agents — reasonable but worth documenting explicitly |
+| `version = "0.0.0"` in pyproject.toml | Version not set; fine for local dev but should be bumped before publishing to PyPI |
+| Function docstrings duplicate `description=` | Tool functions repeat their description verbatim as a docstring with no Args/Returns — no runtime impact |
+| `mask_error_details=False` | Intentionally exposes Mist API error details to agents — reasonable but worth noting explicitly in README |
 
 ---
 
@@ -119,12 +132,11 @@ No outstanding issues. All previously flagged items have been resolved.
 | Server name convention (`{service}_mcp`) | ✅ |
 | Tool naming (`mist_` prefix + snake_case) | ✅ |
 | TOOLS dict tools lists use `mist_` prefix | ✅ |
+| TOOLS dict key ↔ file name ↔ registered name — all consistent | ✅ |
 | File names snake_case (flat structure) | ✅ |
 | `idempotentHint` on read tools | ✅ |
 | `readOnlyHint` / `destructiveHint` annotations | ✅ |
 | `"title"` annotation on all tools | ✅ |
-| `mist_list_rogue_devices` description accuracy | ✅ |
-| Write tool description formatting | ✅ |
 | Server instructions reference correct tool names | ✅ |
 | No unused runtime dependencies | ✅ |
 | Credentials via env vars / headers only | ✅ |
@@ -133,6 +145,7 @@ No outstanding issues. All previously flagged items have been resolved.
 | Write tools disabled by default | ✅ |
 | Elicitation gate on write tools | ✅ |
 | Dual transport (stdio + HTTP) | ✅ |
-| TOOLS dict key / registered tool name consistency | ✅ |
+| Tool aggregations (RRM, upgrades/versions, SLE metadata) | ✅ |
+| `mist_get_site_configuration_objects` description accuracy | ✅ |
 | Tool docstring quality | ℹ️ low priority |
-| Markdown response format option | ℹ️ low priority |
+| Package version | ℹ️ low priority |

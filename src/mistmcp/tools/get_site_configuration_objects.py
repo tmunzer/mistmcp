@@ -40,7 +40,7 @@ class Object_type(Enum):
 
 @mcp.tool(
     name="mist_get_site_configuration_objects",
-    description="""Retrieve configuration objects from a specified site. Use the tool`mist_mist_get_site_derived_configuration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site""",
+    description="""Retrieve configuration objects from a specified site. Use the tool`mist_get_site_derived_configuration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site""",
     tags={"configuration"},
     annotations={
         "title": "Get site configuration objects",
@@ -64,7 +64,7 @@ async def get_site_configuration_objects(
     ] = 10,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve configuration objects from a specified site. Use the tool`mist_mist_get_site_derived_configuration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site"""
+    """Retrieve configuration objects from a specified site. Use the tool`mist_get_site_derived_configuration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site"""
 
     logger.debug("Tool get_site_configuration_objects called")
 

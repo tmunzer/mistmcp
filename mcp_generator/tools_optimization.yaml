@@ -111,7 +111,16 @@ listUpgrades:
     - name: device_type
       schema:
         type: string
-        enum: [ap, switch, srx, mxedge, ssr, available_device_versions, available_ssr_versions]
+        enum:
+          [
+            ap,
+            switch,
+            srx,
+            mxedge,
+            ssr,
+            available_device_versions,
+            available_ssr_versions,
+          ]
       required: true
       description: "Type of query: use ap/switch/srx/mxedge/ssr to list upgrade jobs for that device type; use available_device_versions to list available firmware versions for AP/switch/gateway devices; use available_ssr_versions to list available SSR firmware versions"
     - name: upgrade_id
@@ -460,7 +469,7 @@ getOrgConfigurationObjects:
 getSiteConfigurationObjects:
   type: tool_consolidation
   tags: [configuration]
-  description: Retrieve configuration objects from a specified site. Use the tool`mist_mist_get_site_derived_configuration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site
+  description: Retrieve configuration objects from a specified site. Use the tool`mist_get_site_derived_configuration` to retrieve the full site configuration including all configuration objects defined at the org level and assigned to the site
   read_only_hint: true
   destructive_hint: false
   parameters:
@@ -1713,7 +1722,13 @@ getSiteRrmInfo:
     - name: rrm_info_type
       schema:
         type: string
-        enum: [current_channel_planning, current_rrm_considerations, current_rrm_neighbors, events]
+        enum:
+          [
+            current_channel_planning,
+            current_rrm_considerations,
+            current_rrm_neighbors,
+            events,
+          ]
       description: "Type of RRM information to retrieve: current_channel_planning returns the current channel plan for the site; current_rrm_considerations returns per-AP RRM considerations (requires device_id and band); current_rrm_neighbors lists current RRM neighbor APs for a band (requires band); events lists RRM change events over a time range"
       required: true
     - name: device_id
