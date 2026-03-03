@@ -40,18 +40,18 @@ class Band(Enum):
 
 
 @mcp.tool(
-    name="mist_search_org_client",
+    name="mist_search_client",
     description="""This tool can be used to search for clients in an organization or site. You can filter the search by client type, client name, or MAC address using the `client_type`, `name`, and `mac` parameters, respectively. IMPORTANT:  Use wildcard (`*`) before or after the value for partial search when applicable.""",
     tags={"clients"},
     annotations={
-        "title": "Search org client",
+        "title": "Search client",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
         "idempotentHint": True,
     },
 )
-async def search_org_client(
+async def search_client(
     client_type: Annotated[
         Client_type, Field(description="""Type of client to search for""")
     ],
@@ -110,7 +110,7 @@ async def search_org_client(
 ) -> dict | list | str:
     """This tool can be used to search for clients in an organization or site. You can filter the search by client type, client name, or MAC address using the `client_type`, `name`, and `mac` parameters, respectively. IMPORTANT:  Use wildcard (`*`) before or after the value for partial search when applicable."""
 
-    logger.debug("Tool search_org_client called")
+    logger.debug("Tool search_client called")
 
     apisession, response_format = get_apisession()
 
