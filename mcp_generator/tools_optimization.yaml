@@ -1542,14 +1542,14 @@ getStats:
         type: string
         format: uuid
       description: |-
-        Optional, ID or MAC to filter on:
-        * When stats_type is `sites`, this is not used as site stats do not require an object ID filter
-        * When stats_type is `org_mxedges` or `site_mxedges`, this is the ID of the MX Edge device to retrieve statistics for
-        * When stats_type is `org_devices` or `site_devices`, this is the ID of the device to retrieve statistics for
-        * When stats_type is `org_bgp` or `site_bgp`, this is the MAC address of the BGP peer to retrieve statistics for
-        * When stats_type is `org_ospf` or `site_ospf`, this is the MAC address of the OSPF neighbor to retrieve statistics for
-        * When stats_type is `org_peer_paths` or `site_peer_paths`, this is the MAC address of the peer to retrieve path statistics for
-        * When stats_type is `org_ports` or `site_ports`, this is the MAC address of the switch or gateway port to retrieve statistics for
+        Always optional, this can be used to filter the response based on ID or MAC Address depending on the stats_type:
+        * When stats_type is `sites`: not used.
+        * When stats_type is `org_mxedges` or `site_mxedges`: can be used to filter the response on a specific Mist Edge based on its ID.
+        * When stats_type is `org_devices` or `site_devices`: can be used to filter the response on a specific device based on its ID.
+        * When stats_type is `org_bgp` or `site_bgp`: can be used to filter the response on a specific BGP peer based on the device MAC address.
+        * When stats_type is `org_ospf` or `site_ospf`: can be used to filter the response on a specific OSPF neighbor based on the device MAC address.
+        * When stats_type is `org_peer_paths` or `site_peer_paths`: can be used to filter the response on a specific peer based on the device MAC address.
+        * When stats_type is `org_ports` or `site_ports`: can be used to filter the response on a specific switch or gateway port based on the device MAC address.
       required: false
     - name: limit
       schema:
