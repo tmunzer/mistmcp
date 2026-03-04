@@ -60,14 +60,19 @@ def format_response_data(response: APIResponse) -> dict | list:
 
     if response.next:
         if isinstance(data, list):
-            data = {"results": data, "next": response.next}
+            data = {"results": data, "next": response.next, "has_more": True}
             if total is not None:
                 data["total"] = int(total)
         elif isinstance(data, dict):
             data = dict(data)
             data["next"] = response.next
+            data["has_more"] = True
             if total is not None and "total" not in data:
                 data["total"] = int(total)
+    else:
+        if isinstance(data, dict):
+            data = dict(data)
+            data["has_more"] = False
 
     return data
 

@@ -27,6 +27,13 @@ STATUS_MESSAGES = {
 
 
 async def process_response(response: APIResponse):
+    if response.status_code is None:
+        raise ToolError(
+            {
+                "status_code": 503,
+                "message": "No response received from Mist API. Check network connectivity and host configuration.",
+            }
+        )
     if response.status_code == 200:
         return
     ctx = get_context()
@@ -39,3 +46,13 @@ async def process_response(response: APIResponse):
         await ctx.error(f"Got HTTP{response.status_code}")
         api_error["message"] = json.dumps(message)
     raise ToolError(api_error)
+
+
+async def handle_network_error(exc: Exception) -> None:
+    """Convert network-level exceptions to clean ToolError messages."""
+    raise ToolError(
+        {
+            "status_code": 503,
+            "message": f"API call failed: {type(exc).__name__}: {exc}",
+        }
+    ) from exc

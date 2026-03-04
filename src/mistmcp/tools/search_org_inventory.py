@@ -10,12 +10,11 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -39,7 +38,7 @@ class Status(Enum):
 
 @mcp.tool(
     name="mist_search_org_inventory",
-    description="""Retrieve the inventory of devices. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory""",
+    description="""Retrieve the inventory of devices. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately.""",
     tags={"devices"},
     annotations={
         "title": "Search org inventory",
@@ -51,68 +50,73 @@ class Status(Enum):
 )
 async def search_org_inventory(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     serial: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(description="""Serial number of the device to filter inventory by"""),
-    ] = None,
+    ],
     model: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(description="""Model of the device to filter inventory by"""),
-    ] = None,
+    ],
     mac: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(description="""MAC address of the device to filter inventory by"""),
-    ] = None,
+    ],
     version: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(description="""Firmware version of the device to filter inventory by"""),
-    ] = None,
+    ],
     vc_mac: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(
             description="""MAC address of the virtual chassis (switch stack) to filter inventory by"""
         ),
-    ] = None,
+    ],
     device_type: Annotated[
-        Optional[Device_type | None],
+        Optional[Device_type],
         Field(description="""Type of the device to filter inventory by"""),
-    ] = None,
+    ],
     status: Annotated[
-        Optional[Status | None],
+        Optional[Status],
         Field(description="""Connection status of the device to filter inventory by"""),
-    ] = None,
+    ],
     text: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(
             description="""Text to search for in device attributes (name, serial, MAC). Use the wildcard `*` for partial matches (e.g. `AP*` to match all devices with names starting with 'AP')"""
         ),
-    ] = None,
+    ],
     limit: Annotated[
-        int, Field(description="""Max number of results per page""", default=10)
-    ] = 10,
+        int, Field(description="""Max number of results per page""", default=20)
+    ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve the inventory of devices. This tool provides a consolidated view of all devices within an organization, allowing users to easily access and manage their network inventory"""
+    """Retrieve the inventory of devices. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately."""
 
     logger.debug("Tool search_org_inventory called")
 
-    apisession, response_format = get_apisession()
+    apisession, response_format = await get_apisession()
 
-    response = mistapi.api.v1.orgs.inventory.searchOrgInventory(
-        apisession,
-        org_id=str(org_id),
-        serial=serial if serial else None,
-        model=model if model else None,
-        type=device_type.value if device_type else None,
-        mac=mac if mac else None,
-        site_id=str(site_id) if site_id else None,
-        vc_mac=vc_mac if vc_mac else None,
-        version=version if version else None,
-        text=text if text else None,
-        status=status.value if status else None,
-        limit=limit,
-    )
-    await process_response(response)
+    try:
+        response = mistapi.api.v1.orgs.inventory.searchOrgInventory(
+            apisession,
+            org_id=str(org_id),
+            serial=serial if serial else None,
+            model=model if model else None,
+            type=device_type.value if device_type else None,
+            mac=mac if mac else None,
+            site_id=str(site_id) if site_id else None,
+            vc_mac=vc_mac if vc_mac else None,
+            version=version if version else None,
+            text=text if text else None,
+            status=status.value if status else None,
+            limit=limit,
+        )
+        await process_response(response)
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
 
     return format_response(response, response_format)

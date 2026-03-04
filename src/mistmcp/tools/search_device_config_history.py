@@ -25,40 +25,44 @@ from uuid import UUID
 from enum import Enum
 
 
-class Rogue_type(Enum):
+class Query_type(Enum):
+    HISTORY = "history"
+    LAST_CONFIGS = "last_configs"
+
+
+class Device_type(Enum):
     AP = "ap"
-    CLIENT = "client"
-
-
-class Rogue_ap_type(Enum):
-    HONEYPOT = "honeypot"
-    LAN = "lan"
-    OTHERS = "others"
-    SPOOF = "spoof"
+    SWITCH = "switch"
+    GATEWAY = "gateway"
 
 
 @mcp.tool(
-    name="mist_list_rogue_devices",
-    description="""Retrieve a list of rogue devices (APs or clients) for a site, with optional filters for rogue AP type and time range""",
-    tags={"sites_rogues"},
+    name="mist_search_device_config_history",
+    description="""Search for entries in device config history""",
+    tags={"configuration"},
     annotations={
-        "title": "List rogue devices",
+        "title": "Search device config history",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
         "idempotentHint": True,
     },
 )
-async def list_rogue_devices(
+async def search_device_config_history(
     site_id: Annotated[UUID, Field(description="""Site ID""")],
-    rogue_type: Annotated[
-        Rogue_type, Field(description="""Type of rogue device to filter by""")
-    ],
-    rogue_ap_type: Annotated[
-        Optional[Rogue_ap_type],
+    query_type: Annotated[
+        Query_type,
         Field(
-            description="""Type of rogue AP to filter by. Only applicable when filtering for rogue APs"""
+            description="""Whether to search for config history entries or just retrieve the last config entry for each device"""
         ),
+    ],
+    device_type: Annotated[
+        Device_type,
+        Field(description="""Type of device to search config history for"""),
+    ],
+    device_mac: Annotated[
+        Optional[str],
+        Field(description="""MAC address of the device to search config history for"""),
     ],
     start: Annotated[
         Optional[int], Field(description="""Start of time range (epoch seconds)""")
@@ -71,41 +75,35 @@ async def list_rogue_devices(
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve a list of rogue devices (APs or clients) for a site, with optional filters for rogue AP type and time range"""
+    """Search for entries in device config history"""
 
-    logger.debug("Tool list_rogue_devices called")
+    logger.debug("Tool search_device_config_history called")
 
     apisession, response_format = await get_apisession()
 
     try:
-        object_type = rogue_type
-
-        if rogue_ap_type and rogue_type.value not in ["ap"]:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": '`rogue_ap_type` parameter can only be used when `rogue_type` is "ap".',
-                }
-            )
-
+        object_type = query_type
         match object_type.value:
-            case "ap":
-                response = mistapi.api.v1.sites.insights.listSiteRogueAPs(
+            case "history":
+                response = mistapi.api.v1.sites.devices.searchSiteDeviceConfigHistory(
                     apisession,
                     site_id=str(site_id),
-                    type=rogue_ap_type.value if rogue_ap_type else None,
-                    limit=limit,
+                    type=device_type.value if device_type else None,
+                    mac=str(device_mac) if device_mac else None,
                     start=str(start) if start else None,
                     end=str(end) if end else None,
+                    limit=limit,
                 )
                 await process_response(response)
-            case "client":
-                response = mistapi.api.v1.sites.insights.listSiteRogueClients(
+            case "last_configs":
+                response = mistapi.api.v1.sites.devices.searchSiteDeviceLastConfigs(
                     apisession,
                     site_id=str(site_id),
-                    limit=limit,
+                    device_type=device_type.value if device_type else None,
+                    mac=str(device_mac) if device_mac else None,
                     start=str(start) if start else None,
                     end=str(end) if end else None,
+                    limit=limit,
                 )
                 await process_response(response)
 
@@ -113,7 +111,7 @@ async def list_rogue_devices(
                 raise ToolError(
                     {
                         "status_code": 400,
-                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Rogue_type]}",
+                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Query_type]}",
                     }
                 )
 

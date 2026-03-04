@@ -39,13 +39,17 @@ from typing import Dict, List
 import yaml
 
 # Import template strings for code generation
-from templates.tmpl_device_configuration import DEVICE_CONFIGURATION_TEMPLATE
-from templates.tmpl_get_object_schema import GET_OBJECT_SCHEMA_TEMPLATE
+from templates.tmpl_get_configuration_object_schema import (
+    GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
+)
+from templates.tmpl_get_configuration_objets import (
+    GET_CONFIGURATION_OBJECTS_OPERATION_IDS,
+    GET_CONFIGURATION_OBJECTS_TEMPLATE,
+)
 from templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
 from templates.tmpl_helper import TOOLS_HELPER
 from templates.tmpl_init import INIT_TEMPLATE
 from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
-from templates.tmpl_site_configuration import SITE_DERIVED_CONFIGURATION_TEMPLATE
 from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
 from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
 from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
@@ -72,24 +76,22 @@ SCHEMAS_DATA_OUTPUT_PATH = Path(
 # List of custom tools to generate (not directly from OpenAPI)
 CUSTOM_TOOLS = [
     {
-        "name": "get_site_derived_configuration",
-        "template": SITE_DERIVED_CONFIGURATION_TEMPLATE,
+        "name": "get_configuration_objects",
+        "template": GET_CONFIGURATION_OBJECTS_TEMPLATE,
         "tag": "configuration",
+        "operation_ids": GET_CONFIGURATION_OBJECTS_OPERATION_IDS
     },
     {
-        "name": "get_device_configuration",
-        "template": DEVICE_CONFIGURATION_TEMPLATE,
+        "name": "get_configuration_object_schema",
+        "template": GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
         "tag": "configuration",
-    },
-    {
-        "name": "get_object_schema",
-        "template": GET_OBJECT_SCHEMA_TEMPLATE,
-        "tag": "configuration",
+        "operation_ids": []
     },
     {
         "name": "get_next_page",
         "template": GET_NEXT_PAGE_TEMPLATE,
         "tag": "info",
+        "operation_ids": []
     },
 ]
 # Global read-only hint for tool generation
@@ -173,12 +175,6 @@ COMMON_PARAM_SHORT_DESCRIPTIONS = {
 # Convert a string to snake_case format
 def snake_case(s: str) -> str:
     return s.lower().replace(" ", "_").replace("-", "_")
-
-# Convert operation ID to PascalCase class name
-
-
-def class_name_from_operation_id(operation_id: str) -> str:
-    return "".join(word.capitalize() for word in operation_id.split("_"))
 
 # ---------------------------------------------------------------------------
 # PARAMETER PROCESSING FUNCTIONS
@@ -349,7 +345,7 @@ def _process_params(
                     tmp_default = f" = {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}.value,\n"
                 elif force_default:
-                    tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
+                    # tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else None,\n"
                 else:
                     tmp_mistapi_parameters = (
@@ -387,11 +383,13 @@ def _process_params(
                     annotations.append(f"default={tmp_param['default']}")
             else:
                 _add_import(imports, "typing", "Optional")
-                tmp_type = f"Optional[{tmp_type} | None]"
-                tmp_default = " = None"
+                # tmp_type = f"Optional[{tmp_type} | None]"
+                tmp_type = f"Optional[{tmp_type}]"
+               # tmp_default = " = None"
         elif not tmp_param["required"]:
             _add_import(imports, "typing", "Optional")
-            tmp_type = f"Optional[{tmp_type} | None]"
+            #  tmp_type = f"Optional[{tmp_type} | None]"
+            tmp_type = f"Optional[{tmp_type}]"
 
         # Add annotations to type
         if annotations:
@@ -582,9 +580,24 @@ def _gen_tools_additional_required_parameters(parameters: list, match_name: str 
                 additional_parameters += "            raise ToolError(\n"
                 additional_parameters += "                {\n"
                 additional_parameters += "                    'status_code': 400,\n"
-                additional_parameters += f"                    'message': '`{param_name}` parameter is required when `{match_name}` is \"{value}\".',\n"
+                additional_parameters += f"                    'message': '`{param_name}` parameter is required when `{required_if_match_name}` is \"{value}\".',\n"
                 additional_parameters += "            }\n"
                 additional_parameters += "        )\n\n"
+        for only_if_match_name, only_if_values in param.get("only_if", {}).items():
+            only_if_values_str = ""
+            if isinstance(only_if_values, list):
+                if len(only_if_values) == 1:
+                    only_if_values_str = f"is \"{only_if_values[0]}\""
+                else:
+                    only_if_values_str = "is in " + \
+                        ", ".join([f'"{v}"' for v in only_if_values])
+            additional_parameters += f"\n    if {param_name} and {only_if_match_name}.value not in {only_if_values}:\n"
+            additional_parameters += "        raise ToolError(\n"
+            additional_parameters += "            {\n"
+            additional_parameters += "                'status_code': 400,\n"
+            additional_parameters += f"                'message': '`{param_name}` parameter can only be used when `{only_if_match_name}` {only_if_values_str}.',\n"
+            additional_parameters += "            }\n"
+            additional_parameters += "        )\n\n"
     return additional_parameters
 
 
@@ -776,41 +789,69 @@ def _gen_tools_optim(
 
         # If match_name is specified, set up object_type and required parameter checks
         if func_data.get("match_name"):
-            request += f"    object_type = {func_data.get('match_name')}\n"
+            if func_data.get("match_name") != "object_type":
+                request += f"    object_type = {func_data.get('match_name')}\n"
             # Add code to check for additional required parameters
             request += _gen_tools_additional_required_parameters(
                 func_data.get("parameters", []))
-
-        # Start match-case block for object_type
-        request += "    match object_type.value:\n"
-
-        # For each possible object_type, generate the case block
-        for object_type, details in func_data.get("requests", {}).items():
-            enums_optim.append(object_type)  # Collect enum value
-            request += f"        case '{object_type}':\n"
+        if len(func_data.get("requests", {}).keys()) == 1:
+            # Single case optimization: no need for match-case, just execute the single request
+            single_request_details = next(
+                iter(func_data.get("requests", {}).values()))
             if func_data.get("read_only_hint") is True:
-                request += _gen_tools_read(details,
+                request += _gen_tools_read(single_request_details,
                                            func_data, processed_operation_ids)
             elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is False:
-                request += _gen_tools_write(details,
+                request += _gen_tools_write(single_request_details,
                                             func_data, processed_operation_ids)
             elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is True:
-                request += _gen_tools_write_delete(details,
+                request += _gen_tools_write_delete(single_request_details,
                                                    func_data, processed_operation_ids)
+        else:
+            # Start match-case block for object_type
+            request += "    match object_type.value:\n"
 
-        # Add default case for invalid object_type
-        request += f"""
+            # For each possible object_type, generate the case block
+            for object_type, details in func_data.get("requests", {}).items():
+                enums_optim.append(object_type)  # Collect enum value
+                request += f"        case '{object_type}':\n"
+                if func_data.get("read_only_hint") is True:
+                    request += _gen_tools_read(details,
+                                               func_data, processed_operation_ids)
+                elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is False:
+                    request += _gen_tools_write(details,
+                                                func_data, processed_operation_ids)
+                elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is True:
+                    request += _gen_tools_write_delete(details,
+                                                       func_data, processed_operation_ids)
+
+            # Add default case for invalid object_type
+            request += f"""
         case _:
             raise ToolError({{
                 "status_code": 400,
                 "message": f"Invalid object_type: {{object_type.value}}. Valid values are: {{[e.value for e in {match_name.capitalize()}]}}",
             }})
-            """
+                """
     if request:
         # Update enum values for the match parameter
         for param in func_data.get("parameters", []):
             if match_name and param.get("name") == match_name:
                 param["schema"]["enum"] = enums_optim
+
+        # Wrap consolidation request in try-except for network error handling
+        indented = "\n".join(
+            "    " + line if line.strip() else ""
+            for line in request.lstrip("\n").splitlines()
+        )
+        request = (
+            "\n    try:\n"
+            + indented + "\n"
+            + "    except ToolError:\n"
+            + "        raise\n"
+            + "    except Exception as _exc:\n"
+            + "        await handle_network_error(_exc)\n"
+        )
 
         # Generate parameter and import code for the tool
         imports, models, enums, parameters, _ = (
@@ -826,7 +867,6 @@ def _gen_tools_optim(
         # Select the template based on hints
         if func_data.get("read_only_hint") is True:
             tool_code = TOOL_TEMPLATE_READ.format(
-                class_name=func_name.capitalize(),
                 imports=imports,
                 models=models,
                 enums=enums,
@@ -841,7 +881,6 @@ def _gen_tools_optim(
             )
         elif func_data.get("destructive_hint") is False:
             tool_code = TOOL_TEMPLATE_WRITE.format(
-                class_name=func_name.capitalize(),
                 imports=imports,
                 models=models,
                 enums=enums,
@@ -856,7 +895,6 @@ def _gen_tools_optim(
             )
         else:
             tool_code = TOOL_TEMPLATE_WRITE_DELETE.format(
-                class_name=func_name.capitalize(),
                 imports=imports,
                 models=models,
                 enums=enums,
@@ -1077,6 +1115,8 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
 
     # Generate custom tools (not from OpenAPI)
     for func in CUSTOM_TOOLS:
+        processed_operation_ids.extend(
+            [op_id.lower() for op_id in func["operation_ids"]])
         _gen_tools_custom(
             func,
             tag_to_tools,

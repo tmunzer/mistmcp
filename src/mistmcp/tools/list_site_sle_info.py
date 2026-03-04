@@ -10,12 +10,11 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -72,52 +71,61 @@ async def list_site_sle_info(
         ),
     ],
     metric: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(
             description="""SLE metric name to retrieve classifiers for. Required when query_type is classifiers. Use query_type=metrics first to discover available metric names"""
         ),
-    ] = None,
+    ],
     ctx: Context | None = None,
 ) -> dict | list | str:
     """List SLE metadata for a site scope. Use metrics to list available SLE metrics for a given scope, or classifiers to list the classifiers available for a specific metric."""
 
     logger.debug("Tool list_site_sle_info called")
 
-    apisession, response_format = get_apisession()
+    apisession, response_format = await get_apisession()
 
-    object_type = query_type
+    try:
+        object_type = query_type
 
-    if object_type.value == "classifiers":
-        if not metric:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": '`metric` parameter is required when `object_type` is "classifiers".',
-                }
-            )
+        if object_type.value == "classifiers":
+            if not metric:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": '`metric` parameter is required when `test` is "classifiers".',
+                    }
+                )
 
-    match object_type.value:
-        case "metrics":
-            response = mistapi.api.v1.sites.sle.listSiteSlesMetrics(
-                apisession, site_id=str(site_id), scope=scope.value, scope_id=scope_id
-            )
-            await process_response(response)
-        case "classifiers":
-            response = mistapi.api.v1.sites.sle.listSiteSleMetricClassifiers(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-            )
-            await process_response(response)
+        match object_type.value:
+            case "metrics":
+                response = mistapi.api.v1.sites.sle.listSiteSlesMetrics(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                )
+                await process_response(response)
+            case "classifiers":
+                response = mistapi.api.v1.sites.sle.listSiteSleMetricClassifiers(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                )
+                await process_response(response)
 
-        case _:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Query_type]}",
-                }
-            )
+            case _:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Query_type]}",
+                    }
+                )
+
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
 
     return format_response(response, response_format)

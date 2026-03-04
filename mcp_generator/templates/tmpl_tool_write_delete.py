@@ -10,12 +10,11 @@ TOOL_TEMPLATE_WRITE_DELETE = '''"""
 
 --------------------------------------------------------------------------------
 """
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 
 from mistmcp.elicitation_processor import config_elicitation_handler
@@ -51,8 +50,8 @@ async def {operationId}(
 
     logger.debug("Tool {operationId} called")
 
-    apisession, response_format = get_apisession()
-    
+    apisession, response_format = await get_apisession()
+
     action_wording = "create a new"
     if action_type == Action_type.UPDATE:
         if not object_id:
@@ -61,7 +60,7 @@ async def {operationId}(
                     "status_code": 400,
                     "message": "object_id parameter is required when action_type is 'update'."
                 }}
-            )  
+            )
         action_wording = "update an existing"
     elif action_type == Action_type.DELETE:
         if not object_id:
@@ -72,7 +71,7 @@ async def {operationId}(
                 }}
             )
         action_wording = "delete an existing"
-    
+
     if ctx:
         try:
             elicitation_response = await config_elicitation_handler(
@@ -91,8 +90,8 @@ async def {operationId}(
                     ),
                 }}
             ) from exc
-        
-        
+
+
         if elicitation_response.action == "decline":
             return {{"message": "Action declined by user."}}
         elif elicitation_response.action == "cancel":

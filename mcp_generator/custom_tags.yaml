@@ -1,6 +1,5 @@
 "self audit logs": "self_account"
 "sites setting": "sites"
-"orgs sitegroups": "orgs_sites"
 # orgs
 "orgs alarm templates": "orgs"
 "orgs alarms": "orgs"
@@ -28,10 +27,6 @@
 "orgs nac tags": "orgs_nac"
 "orgs nac rules": "orgs_nac"
 "orgs user macs": "orgs_nac"
-
-# webhooks
-"orgs webhooks": "webhooks_deliveries"
-"sites webhooks": "webhooks_deliveries"
 
 # marvis
 "sites synthetic tests": marvis

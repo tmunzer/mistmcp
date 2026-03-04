@@ -10,12 +10,11 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -60,31 +59,29 @@ async def get_site_rrm_info(
         ),
     ],
     device_id: Annotated[
-        Optional[UUID | None],
+        Optional[UUID],
         Field(
             description="""ID of the AP to retrieve RRM considerations for. Required when rrm_info_type is current_rrm_considerations"""
         ),
-    ] = None,
+    ],
     band: Annotated[
-        Optional[Band | None],
+        Optional[Band],
         Field(
             description="""802.11 band. Required when rrm_info_type is current_rrm_considerations or current_rrm_neighbors"""
         ),
-    ] = None,
+    ],
     start: Annotated[
-        Optional[str | None],
-        Field(description="""Start of time range (epoch seconds)"""),
-    ] = None,
+        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+    ],
     end: Annotated[
-        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
-    ] = None,
+        Optional[int], Field(description="""End of time range (epoch seconds)""")
+    ],
     duration: Annotated[
-        Optional[str | None],
-        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
-    ] = None,
+        Optional[str], Field(description="""Time range duration (e.g. 1d, 1h, 10m)""")
+    ],
     limit: Annotated[
-        int, Field(description="""Max number of results per page""", default=100)
-    ] = 100,
+        int, Field(description="""Max number of results per page""", default=200)
+    ] = 200,
     page: Annotated[
         int, Field(description="""Page number for pagination""", default=1)
     ] = 1,
@@ -94,75 +91,105 @@ async def get_site_rrm_info(
 
     logger.debug("Tool get_site_rrm_info called")
 
-    apisession, response_format = get_apisession()
+    apisession, response_format = await get_apisession()
 
-    object_type = rrm_info_type
+    try:
+        object_type = rrm_info_type
 
-    if object_type.value == "current_rrm_considerations":
-        if not device_id:
+        if object_type.value == "current_rrm_considerations":
+            if not device_id:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": '`device_id` parameter is required when `rrm_info_type` is "current_rrm_considerations".',
+                    }
+                )
+
+        if object_type.value == "current_rrm_considerations":
+            if not band:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": '`band` parameter is required when `rrm_info_type` is "current_rrm_considerations".',
+                    }
+                )
+
+        if object_type.value == "current_rrm_neighbors":
+            if not band:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": '`band` parameter is required when `rrm_info_type` is "current_rrm_neighbors".',
+                    }
+                )
+
+        if duration and rrm_info_type.value not in ["events"]:
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`device_id` parameter is required when `object_type` is "current_rrm_considerations".',
+                    "message": '`duration` parameter can only be used when `rrm_info_type` is "events".',
                 }
             )
 
-    if object_type.value == "current_rrm_considerations":
-        if not band:
+        if limit and rrm_info_type.value not in ["events"]:
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`band` parameter is required when `object_type` is "current_rrm_considerations".',
+                    "message": '`limit` parameter can only be used when `rrm_info_type` is "events".',
                 }
             )
 
-    if object_type.value == "current_rrm_neighbors":
-        if not band:
+        if page and rrm_info_type.value not in ["events"]:
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`band` parameter is required when `object_type` is "current_rrm_neighbors".',
+                    "message": '`page` parameter can only be used when `rrm_info_type` is "events".',
                 }
             )
 
-    match object_type.value:
-        case "current_channel_planning":
-            response = mistapi.api.v1.sites.rrm.getSiteCurrentChannelPlanning(
-                apisession, site_id=str(site_id)
-            )
-            await process_response(response)
-        case "current_rrm_considerations":
-            response = mistapi.api.v1.sites.rrm.getSiteCurrentRrmConsiderations(
-                apisession,
-                site_id=str(site_id),
-                device_id=str(device_id),
-                band=str(band.value),
-            )
-            await process_response(response)
-        case "current_rrm_neighbors":
-            response = mistapi.api.v1.sites.rrm.listSiteCurrentRrmNeighbors(
-                apisession, site_id=str(site_id), band=str(band.value)
-            )
-            await process_response(response)
-        case "events":
-            response = mistapi.api.v1.sites.rrm.listSiteRrmEvents(
-                apisession,
-                site_id=str(site_id),
-                band=band.value if band else None,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-                limit=limit,
-                page=page,
-            )
-            await process_response(response)
+        match object_type.value:
+            case "current_channel_planning":
+                response = mistapi.api.v1.sites.rrm.getSiteCurrentChannelPlanning(
+                    apisession, site_id=str(site_id)
+                )
+                await process_response(response)
+            case "current_rrm_considerations":
+                response = mistapi.api.v1.sites.rrm.getSiteCurrentRrmConsiderations(
+                    apisession,
+                    site_id=str(site_id),
+                    device_id=str(device_id),
+                    band=str(band.value),
+                )
+                await process_response(response)
+            case "current_rrm_neighbors":
+                response = mistapi.api.v1.sites.rrm.listSiteCurrentRrmNeighbors(
+                    apisession, site_id=str(site_id), band=str(band.value)
+                )
+                await process_response(response)
+            case "events":
+                response = mistapi.api.v1.sites.rrm.listSiteRrmEvents(
+                    apisession,
+                    site_id=str(site_id),
+                    band=band.value if band else None,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                    limit=limit,
+                    page=page,
+                )
+                await process_response(response)
 
-        case _:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Rrm_info_type]}",
-                }
-            )
+            case _:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Rrm_info_type]}",
+                    }
+                )
+
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
 
     return format_response(response, response_format)

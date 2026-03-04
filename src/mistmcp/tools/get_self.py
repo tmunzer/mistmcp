@@ -10,12 +10,11 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -56,28 +55,34 @@ async def get_self(
 
     logger.debug("Tool get_self called")
 
-    apisession, response_format = get_apisession()
+    apisession, response_format = await get_apisession()
 
-    object_type = action_type
-    match object_type.value:
-        case "account_info":
-            response = mistapi.api.v1.self.self.getSelf(apisession)
-            await process_response(response)
-        case "api_usage":
-            response = mistapi.api.v1.self.usage.getSelfApiUsage(apisession)
-            await process_response(response)
-        case "login_failures":
-            response = mistapi.api.v1.self.login_failures.getSelfLoginFailures(
-                apisession
-            )
-            await process_response(response)
+    try:
+        object_type = action_type
+        match object_type.value:
+            case "account_info":
+                response = mistapi.api.v1.self.self.getSelf(apisession)
+                await process_response(response)
+            case "api_usage":
+                response = mistapi.api.v1.self.usage.getSelfApiUsage(apisession)
+                await process_response(response)
+            case "login_failures":
+                response = mistapi.api.v1.self.login_failures.getSelfLoginFailures(
+                    apisession
+                )
+                await process_response(response)
 
-        case _:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Action_type]}",
-                }
-            )
+            case _:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Action_type]}",
+                    }
+                )
+
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
 
     return format_response(response, response_format)

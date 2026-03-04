@@ -10,12 +10,11 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -83,215 +82,217 @@ async def get_site_sle(
         Object_type, Field(description="""Type of object to retrieve metrics for""")
     ],
     start: Annotated[
-        Optional[str | None],
-        Field(description="""Start of time range (epoch seconds)"""),
-    ] = None,
+        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+    ],
     end: Annotated[
-        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
-    ] = None,
+        Optional[int], Field(description="""End of time range (epoch seconds)""")
+    ],
     classifier: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(
             description="""Classifier name. Required when object_type is 'classifier_summary_trend'"""
         ),
-    ] = None,
+    ],
     duration: Annotated[
-        Optional[str | None],
-        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
-    ] = None,
+        Optional[str], Field(description="""Time range duration (e.g. 1d, 1h, 10m)""")
+    ],
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs"""
 
     logger.debug("Tool get_site_sle called")
 
-    apisession, response_format = get_apisession()
+    apisession, response_format = await get_apisession()
 
-    object_type = object_type
+    try:
+        if object_type.value == "classifier_summary_trend":
+            if not classifier:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": '`classifier` parameter is required when `test` is "classifier_summary_trend".',
+                    }
+                )
 
-    if object_type.value == "classifier_summary_trend":
-        if not classifier:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": '`classifier` parameter is required when `object_type` is "classifier_summary_trend".',
-                }
-            )
+        match object_type.value:
+            case "summary":
+                response = mistapi.api.v1.sites.sle.getSiteSleSummary(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impact_summary":
+                response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "summary_trend":
+                response = mistapi.api.v1.sites.sle.getSiteSleSummaryTrend(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impacted_applications":
+                response = mistapi.api.v1.sites.sle.listSiteSleImpactedApplications(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impacted_aps":
+                response = mistapi.api.v1.sites.sle.listSiteSleImpactedAps(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impacted_gateways":
+                response = mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impacted_interfaces":
+                response = mistapi.api.v1.sites.sle.listSiteSleImpactedInterfaces(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impacted_switches":
+                response = mistapi.api.v1.sites.sle.listSiteSleImpactedSwitches(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impacted_wireless_clients":
+                response = mistapi.api.v1.sites.sle.listSiteSleImpactedWirelessClients(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impacted_wired_clients":
+                response = mistapi.api.v1.sites.sle.listSiteSleImpactedWiredClients(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "impacted_chassis":
+                response = mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "histogram":
+                response = mistapi.api.v1.sites.sle.getSiteSleHistogram(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "classifier_summary_trend":
+                response = mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                    classifier=classifier,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=duration if duration else None,
+                )
+                await process_response(response)
+            case "threshold":
+                response = mistapi.api.v1.sites.sle.getSiteSleThreshold(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                )
+                await process_response(response)
 
-    match object_type.value:
-        case "summary":
-            response = mistapi.api.v1.sites.sle.getSiteSleSummary(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impact_summary":
-            response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "summary_trend":
-            response = mistapi.api.v1.sites.sle.getSiteSleSummaryTrend(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impacted_applications":
-            response = mistapi.api.v1.sites.sle.listSiteSleImpactedApplications(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impacted_aps":
-            response = mistapi.api.v1.sites.sle.listSiteSleImpactedAps(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impacted_gateways":
-            response = mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impacted_interfaces":
-            response = mistapi.api.v1.sites.sle.listSiteSleImpactedInterfaces(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impacted_switches":
-            response = mistapi.api.v1.sites.sle.listSiteSleImpactedSwitches(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impacted_wireless_clients":
-            response = mistapi.api.v1.sites.sle.listSiteSleImpactedWirelessClients(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impacted_wired_clients":
-            response = mistapi.api.v1.sites.sle.listSiteSleImpactedWiredClients(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "impacted_chassis":
-            response = mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "histogram":
-            response = mistapi.api.v1.sites.sle.getSiteSleHistogram(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "classifier_summary_trend":
-            response = mistapi.api.v1.sites.sle.getSiteSleClassifierSummaryTrend(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-                classifier=classifier,
-                start=start if start else None,
-                end=end if end else None,
-                duration=duration if duration else None,
-            )
-            await process_response(response)
-        case "threshold":
-            response = mistapi.api.v1.sites.sle.getSiteSleThreshold(
-                apisession,
-                site_id=str(site_id),
-                scope=scope.value,
-                scope_id=scope_id,
-                metric=metric,
-            )
-            await process_response(response)
+            case _:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}",
+                    }
+                )
 
-        case _:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Object_type]}",
-                }
-            )
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
 
     return format_response(response, response_format)

@@ -10,12 +10,11 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -27,7 +26,7 @@ from uuid import UUID
 
 @mcp.tool(
     name="mist_get_org_sle",
-    description="""Get Org SLEs (all/worst sites, Mx Edges, ...)""",
+    description="""Get Org SLEs (all/worst sites, Mx Edges, ...). Use the `mist_get_insight_metrics` tool to get the list of available SLE metrics""",
     tags={"sles"},
     annotations={
         "title": "Get org sle",
@@ -42,48 +41,46 @@ async def get_org_sle(
     metric: Annotated[
         str,
         Field(
-            description="""See [List Insight Metrics](/#operations/listInsightMetrics) for available metrics"""
+            description="""Metric to look at. Use the `mist_get_insight_metrics` tool to get the list of available SLE metrics"""
         ),
     ],
     sle: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(
-            description="""See [List Insight Metrics](/#operations/listInsightMetrics) for more details"""
+            description="""Type of SLE data to retrieve for the organization sites. Use the `mist_get_insight_metrics` tool to get the list of available SLE metrics"""
         ),
-    ] = None,
-    duration: Annotated[
-        Optional[str | None],
-        Field(description="""Time range duration (e.g. 1d, 1h, 10m)"""),
-    ] = None,
-    interval: Annotated[
-        Optional[str | None],
-        Field(description="""Aggregation interval (e.g. 1h, 1d)"""),
-    ] = None,
+    ],
     start: Annotated[
-        Optional[str | None],
-        Field(description="""Start of time range (epoch seconds)"""),
-    ] = None,
+        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+    ],
     end: Annotated[
-        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
-    ] = None,
+        Optional[int], Field(description="""End of time range (epoch seconds)""")
+    ],
+    limit: Annotated[
+        int, Field(description="""Max number of results per page""", default=20)
+    ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Get Org SLEs (all/worst sites, Mx Edges, ...)"""
+    """Get Org SLEs (all/worst sites, Mx Edges, ...). Use the `mist_get_insight_metrics` tool to get the list of available SLE metrics"""
 
     logger.debug("Tool get_org_sle called")
 
-    apisession, response_format = get_apisession()
+    apisession, response_format = await get_apisession()
 
-    response = mistapi.api.v1.orgs.insights.getOrgSle(
-        apisession,
-        org_id=str(org_id),
-        metric=metric,
-        sle=sle if sle else None,
-        duration=duration if duration else None,
-        interval=interval if interval else None,
-        start=start if start else None,
-        end=end if end else None,
-    )
-    await process_response(response)
+    try:
+        response = mistapi.api.v1.orgs.insights.getOrgSle(
+            apisession,
+            org_id=str(org_id),
+            metric=str(metric),
+            sle=str(sle) if sle else None,
+            start=str(start) if start else None,
+            end=str(end) if end else None,
+            limit=limit,
+        )
+        await process_response(response)
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
 
     return format_response(response, response_format)

@@ -15,8 +15,9 @@ from typing import Annotated
 from pydantic import Field
 
 from fastmcp import Context
+from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -45,9 +46,16 @@ async def get_next_page(
 
     logger.debug("Tool get_next_page called")
 
-    apisession, response_format = get_apisession()
-    response = apisession.mist_get(url)
-    await process_response(response)
+    apisession, response_format = await get_apisession()
+
+    try:
+        response = apisession.mist_get(url)
+        await process_response(response)
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
+
     return format_response(response, response_format)
 
 '''

@@ -1,4 +1,4 @@
-GET_OBJECT_SCHEMA_TEMPLATE = '''"""
+GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE = '''"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -71,21 +71,21 @@ def _compact_schema(schema: dict) -> dict:
 
 
 @mcp.tool(
-    name="mist_get_object_schema",
+    name="mist_get_configuration_object_schema",
     description="""Retrieve the JSON schema for a Mist configuration object type.
 The schema is derived from the Mist OpenAPI specification and includes all properties with their types, descriptions, defaults, and constraints.
 Use this tool to understand the structure of a configuration object before creating or updating it.
 Pass verbose=True to get the full schema including all constraints and nested sub-schemas (default is compact summary).""",
     tags={"configuration"},
     annotations={
-        "title": "Get Object Schema",
+        "title": "Get Configuration Object Schema",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": False,
         "idempotentHint": True,
     },
 )
-async def get_object_schema(
+async def get_configuration_object_schema(
     schema_name: Annotated[
         SchemaName,
         Field(description="Name of the configuration object schema to retrieve."),
@@ -100,9 +100,9 @@ async def get_object_schema(
 ) -> dict[str, Any] | str:
     """Retrieve the pre-resolved JSON schema for a Mist configuration object."""
 
-    logger.debug("Tool get_object_schema called")
+    logger.debug("Tool get_configuration_object_schema called")
 
-    _, response_format = get_apisession()
+    _, response_format = await get_apisession()
 
     entry = _SCHEMAS_DATA.get(schema_name.value)
     if entry is None:

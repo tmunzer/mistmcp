@@ -19,7 +19,7 @@ from mistmcp.config import config
 from mistmcp.logger import logger, mask_token
 
 
-def get_apisession() -> tuple[mistapi.APISession, str]:
+async def get_apisession() -> tuple[mistapi.APISession, str]:
     response_format = "json"
 
     if config.transport_mode == "http":

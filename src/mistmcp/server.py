@@ -73,7 +73,7 @@ mcp = FastMCP(
     name="mist_mcp",
     instructions=_instructions,
     on_duplicate="replace",
-    mask_error_details=False,
+    mask_error_details=True,
     middleware=[ElicitationMiddleware()],
 )
 

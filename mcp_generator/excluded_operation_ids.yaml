@@ -88,3 +88,9 @@
 - getSiteWxRulesUsage
 - searchSiteMistEdgeEvents
 - listSiteMapStacks
+- getSiteMapStack
+- searchSiteClientFingerprints
+- searchSiteSyntheticTest
+- searchSiteWanUsage
+- searchOrgDevices
+- searchSiteDevices

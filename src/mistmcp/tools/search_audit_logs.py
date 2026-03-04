@@ -21,91 +21,86 @@ from mistmcp.logger import logger
 
 from pydantic import Field
 from typing import Annotated, Optional
-from uuid import UUID
 from enum import Enum
+from uuid import UUID
 
 
-class Rogue_type(Enum):
-    AP = "ap"
-    CLIENT = "client"
-
-
-class Rogue_ap_type(Enum):
-    HONEYPOT = "honeypot"
-    LAN = "lan"
-    OTHERS = "others"
-    SPOOF = "spoof"
+class Scope(Enum):
+    SELF = "self"
+    ORG = "org"
 
 
 @mcp.tool(
-    name="mist_list_rogue_devices",
-    description="""Retrieve a list of rogue devices (APs or clients) for a site, with optional filters for rogue AP type and time range""",
-    tags={"sites_rogues"},
+    name="mist_search_audit_logs",
+    description="""This tool can be used to retrieve audit logs for the current account or an organization""",
+    tags={"events"},
     annotations={
-        "title": "List rogue devices",
+        "title": "Search audit logs",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
         "idempotentHint": True,
     },
 )
-async def list_rogue_devices(
-    site_id: Annotated[UUID, Field(description="""Site ID""")],
-    rogue_type: Annotated[
-        Rogue_type, Field(description="""Type of rogue device to filter by""")
-    ],
-    rogue_ap_type: Annotated[
-        Optional[Rogue_ap_type],
+async def search_audit_logs(
+    scope: Annotated[
+        Scope,
         Field(
-            description="""Type of rogue AP to filter by. Only applicable when filtering for rogue APs"""
+            description="""Whether to retrieve audit logs for the account or a specific organization. If `org` is selected, the `org_id` parameter is required"""
         ),
     ],
+    org_id: Annotated[Optional[UUID], Field(description="""Organization ID""")],
     start: Annotated[
         Optional[int], Field(description="""Start of time range (epoch seconds)""")
     ],
     end: Annotated[
         Optional[int], Field(description="""End of time range (epoch seconds)""")
     ],
+    message: Annotated[
+        Optional[str],
+        Field(description="""Message to filter audit logs by (partial search)"""),
+    ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve a list of rogue devices (APs or clients) for a site, with optional filters for rogue AP type and time range"""
+    """This tool can be used to retrieve audit logs for the current account or an organization"""
 
-    logger.debug("Tool list_rogue_devices called")
+    logger.debug("Tool search_audit_logs called")
 
     apisession, response_format = await get_apisession()
 
     try:
-        object_type = rogue_type
+        object_type = scope
 
-        if rogue_ap_type and rogue_type.value not in ["ap"]:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": '`rogue_ap_type` parameter can only be used when `rogue_type` is "ap".',
-                }
-            )
+        if object_type.value == "org":
+            if not org_id:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": '`org_id` parameter is required when `scope` is "org".',
+                    }
+                )
 
         match object_type.value:
-            case "ap":
-                response = mistapi.api.v1.sites.insights.listSiteRogueAPs(
+            case "self":
+                response = mistapi.api.v1.self.logs.listSelfAuditLogs(
                     apisession,
-                    site_id=str(site_id),
-                    type=rogue_ap_type.value if rogue_ap_type else None,
-                    limit=limit,
                     start=str(start) if start else None,
                     end=str(end) if end else None,
+                    message=str(message) if message else None,
+                    limit=limit,
                 )
                 await process_response(response)
-            case "client":
-                response = mistapi.api.v1.sites.insights.listSiteRogueClients(
+            case "org":
+                response = mistapi.api.v1.orgs.logs.listOrgAuditLogs(
                     apisession,
-                    site_id=str(site_id),
-                    limit=limit,
+                    org_id=str(org_id),
                     start=str(start) if start else None,
                     end=str(end) if end else None,
+                    message=str(message) if message else None,
+                    limit=limit,
                 )
                 await process_response(response)
 
@@ -113,7 +108,7 @@ async def list_rogue_devices(
                 raise ToolError(
                     {
                         "status_code": 400,
-                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Rogue_type]}",
+                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Scope]}",
                     }
                 )
 

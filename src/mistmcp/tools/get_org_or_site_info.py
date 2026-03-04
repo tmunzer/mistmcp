@@ -10,12 +10,11 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -51,38 +50,46 @@ async def get_org_or_site_info(
         ),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
+    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     ctx: Context | None = None,
 ) -> dict | list | str:
     """This tool can be used to search information about the organizations or sites"""
 
     logger.debug("Tool get_org_or_site_info called")
 
-    apisession, response_format = get_apisession()
+    apisession, response_format = await get_apisession()
 
-    object_type = info_type
-    match object_type.value:
-        case "org":
-            response = mistapi.api.v1.orgs.orgs.getOrg(apisession, org_id=str(org_id))
-            await process_response(response)
-        case "site":
-            if site_id:
-                response = mistapi.api.v1.sites.sites.getSiteInfo(
-                    apisession, site_id=str(site_id)
-                )
-                await process_response(response)
-            else:
-                response = mistapi.api.v1.orgs.sites.listOrgSites(
+    try:
+        object_type = info_type
+        match object_type.value:
+            case "org":
+                response = mistapi.api.v1.orgs.orgs.getOrg(
                     apisession, org_id=str(org_id)
                 )
                 await process_response(response)
+            case "site":
+                if site_id:
+                    response = mistapi.api.v1.sites.sites.getSiteInfo(
+                        apisession, site_id=str(site_id)
+                    )
+                    await process_response(response)
+                else:
+                    response = mistapi.api.v1.orgs.sites.listOrgSites(
+                        apisession, org_id=str(org_id)
+                    )
+                    await process_response(response)
 
-        case _:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Info_type]}",
-                }
-            )
+            case _:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Info_type]}",
+                    }
+                )
+
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
 
     return format_response(response, response_format)

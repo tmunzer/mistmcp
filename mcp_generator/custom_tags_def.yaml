@@ -1,5 +1,3 @@
-sites_stats: "Statistics for the sites. It provides access to various statistics related to the site, such as application statistics, call statistics, client statistics, and more."
-orgs_stats: "Statistics for the organizations. It provides access to various statistics related to the organization, such as BGP peers, devices, MX edges, other devices, ports, sites, tunnels, and VPN peers."
 clients: "Clients related objects for the sites and organizations. It provides access to clients, guests, and NAC clients. Defining the `site_id` parameter will return the clients for the specified site, while leaving it empty will return the clients for the whole organization."
 orgs_nac: "NAC related objects for the organizations. It provides access to NAC Endpoints, NAC fingerprints, tags, and rules."
 marvis: "Marvis is a virtual network assistant that provides insights and analytics for the Mist network. It can be used to analyze network performance, troubleshoot issues, and optimize network configurations.\n\nIt includes features such as synthetic tests, which allow users to simulate network traffic and measure performance metrics."

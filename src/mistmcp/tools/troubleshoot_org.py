@@ -10,12 +10,11 @@
 --------------------------------------------------------------------------------
 """
 
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 from mistmcp.server import mcp
 from mistmcp.logger import logger
@@ -48,40 +47,44 @@ class Type(Enum):
 async def troubleshoot_org(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     mac: Annotated[
-        Optional[str | None],
+        Optional[str],
         Field(description="""**required** when troubleshooting device or a client"""),
-    ] = None,
-    site_id: Annotated[Optional[UUID | None], Field(description="""Site ID""")] = None,
+    ],
+    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     start: Annotated[
-        Optional[str | None],
-        Field(description="""Start of time range (epoch seconds)"""),
-    ] = None,
+        Optional[str], Field(description="""Start of time range (epoch seconds)""")
+    ],
     end: Annotated[
-        Optional[str | None], Field(description="""End of time range (epoch seconds)""")
-    ] = None,
+        Optional[str], Field(description="""End of time range (epoch seconds)""")
+    ],
     type: Annotated[
-        Optional[Type | None],
+        Optional[Type],
         Field(
             description="""When troubleshooting site, type of network to troubleshoot"""
         ),
-    ] = Type.NONE,
+    ],
     ctx: Context | None = None,
 ) -> dict | list | str:
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. See search APIs for device information:- [search Device](/#operations/searchOrgDevices)- [search Wireless Client](/#operations/searchOrgWirelessClients)- [search Wired Client](/#operations/searchOrgWiredClients)- [search Wan Client](/#operations/searchOrgWanClients)**NOTE**: requires Marvis subscription license"""
 
     logger.debug("Tool troubleshoot_org called")
 
-    apisession, response_format = get_apisession()
+    apisession, response_format = await get_apisession()
 
-    response = mistapi.api.v1.orgs.troubleshoot.troubleshootOrg(
-        apisession,
-        org_id=str(org_id),
-        mac=mac if mac else None,
-        site_id=str(site_id) if site_id else None,
-        start=start if start else None,
-        end=end if end else None,
-        type=type.value if type else None,
-    )
-    await process_response(response)
+    try:
+        response = mistapi.api.v1.orgs.troubleshoot.troubleshootOrg(
+            apisession,
+            org_id=str(org_id),
+            mac=mac if mac else None,
+            site_id=str(site_id) if site_id else None,
+            start=start if start else None,
+            end=end if end else None,
+            type=type.value if type else None,
+        )
+        await process_response(response)
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
 
     return format_response(response, response_format)

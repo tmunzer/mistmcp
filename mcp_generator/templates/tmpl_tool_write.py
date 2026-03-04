@@ -10,12 +10,11 @@ TOOL_TEMPLATE_WRITE = '''"""
 
 --------------------------------------------------------------------------------
 """
-import json
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response
+from mistmcp.response_processor import process_response, handle_network_error
 from mistmcp.response_formatter import format_response
 
 from mistmcp.elicitation_processor import config_elicitation_handler
@@ -46,12 +45,12 @@ async def {operationId}(
 
     logger.debug("Tool {operationId} called")
 
-    apisession, response_format = get_apisession()
-    
+    apisession, response_format = await get_apisession()
+
     action_wording = "create a new"
     if object_id:
         action_wording = "update an existing"
-    
+
     if ctx:
         try:
             elicitation_response = await config_elicitation_handler(
@@ -70,8 +69,8 @@ async def {operationId}(
                     ),
                 }}
             ) from exc
-        
-        
+
+
         if elicitation_response.action == "decline":
             return {{"message": "Action declined by user."}}
         elif elicitation_response.action == "cancel":
