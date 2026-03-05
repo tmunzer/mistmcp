@@ -39,7 +39,7 @@ from mistmcp.logger import logger
     }},
 )
 async def {operationId}(
-    {parameters}
+    {parameters}    ctx: Context,
     ) -> dict | list | str:
     \"\"\"{description}\"\"\"
 

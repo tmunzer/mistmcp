@@ -93,6 +93,7 @@ async def update_org_configuration_objects(
             default=None,
         ),
     ],
+    ctx: Context,
 ) -> dict | list | str:
     """Update or create configuration object for a specified org.\n
     IMPORTANT:\n

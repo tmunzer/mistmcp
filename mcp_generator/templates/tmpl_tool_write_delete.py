@@ -44,7 +44,7 @@ class Action_type(Enum):
 )
 async def {operationId}(
     action_type: Annotated[Action_type, Field(description="Whether the action is creating a new object, updating an existing one, or deleting an existing one. When updating or deleting, the object_id parameter must be provided.")],
-    {parameters}
+    {parameters}    ctx: Context,
     ) -> dict | list | str:
     \"\"\"{description}\"\"\"
 

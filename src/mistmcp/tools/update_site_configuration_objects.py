@@ -75,6 +75,7 @@ async def update_site_configuration_objects(
             default=None,
         ),
     ],
+    ctx: Context,
 ) -> dict | list | str:
     """Update or create configuration object for a specified site.\n
     IMPORTANT:\n
