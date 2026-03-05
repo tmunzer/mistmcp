@@ -157,7 +157,7 @@ async def get_configuration_objects(
         bool,
         Field(
             default=None,
-            description="""Whether to retrieve the computed configuration object with all inherited settings applied. Only applicable when object_type is `org_sites` and `site_devices` when a single object is returned, or when object_type id `site_wlans`""",
+            description="""Whether to retrieve the computed configuration object with all inherited settings applied. Only considered when object_type is `org_sites` and `site_devices` when a single object is returned, or when object_type is `site_wlans`""",
         ),
     ],
     limit: Annotated[
