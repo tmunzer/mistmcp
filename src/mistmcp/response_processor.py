@@ -16,7 +16,6 @@ from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import get_context
 from mistapi.__api_response import APIResponse
 
-
 STATUS_MESSAGES = {
     400: "Bad Request. The API endpoint exists but its syntax/payload is incorrect, detail may be given",
     401: "Unauthorized",
@@ -38,7 +37,15 @@ async def process_response(response: APIResponse):
         return
     ctx = get_context()
     api_error = {"status_code": response.status_code, "message": ""}
-    if response.data:
+    if response.status_code == 403:
+        await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
+        raise ToolError(
+            {
+                "status_code": 403,
+                "message": "Permission Denied. This usually means the you are trying to use a tool with an invalid id (e.g. `org_id`, `site_id`, ...). Do not assume the ids, make sure to retrieve them from another tool (e.g. use the `mist_get_self` tool to retrieve the correct `org_id`)",
+            }
+        )
+    elif response.data:
         await ctx.error(f"Got HTTP{response.status_code} with details {response.data}")
         api_error["message"] = json.dumps(response.data)
     else:
