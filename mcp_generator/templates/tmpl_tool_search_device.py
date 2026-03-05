@@ -134,8 +134,8 @@ async def search_device(
         await process_response(response)
         if isinstance(response.data, dict):
             for device in response.data.get("results", []):
-                if device.get("master_mac"):
-                    device["device_id"] = f"00000000-0000-0000-1000-{device['master_mac']}"
+                if device.get("vc_mac"):
+                    device["device_id"] = f"00000000-0000-0000-1000-{device['vc_mac']}"
                 else:
                     device["device_id"] = f"00000000-0000-0000-1000-{device['mac']}"
     except ToolError:
