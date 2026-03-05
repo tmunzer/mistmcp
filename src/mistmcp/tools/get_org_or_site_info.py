@@ -32,7 +32,7 @@ class Info_type(Enum):
 
 @mcp.tool(
     name="mist_get_org_or_site_info",
-    description="""This tool can be used to search information about the organizations or sites""",
+    description="""Search information about the organizations or sites""",
     tags={"info"},
     annotations={
         "title": "Get org or site info",
@@ -53,7 +53,7 @@ async def get_org_or_site_info(
     site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to search information about the organizations or sites"""
+    """Search information about the organizations or sites"""
 
     logger.debug("Tool get_org_or_site_info called")
 

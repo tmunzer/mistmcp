@@ -54,7 +54,7 @@ async def get_insight_metrics(
     metric: Annotated[
         str,
         Field(
-            description="""Name of the metric to retrieve. Use the tool`mist_get_constants` to see available metrics"""
+            description="""Name of the metric to retrieve. Use the tool`mist_get_constants` with `object_type=insight_metrics` to see available metrics"""
         ),
     ],
     mac: Annotated[

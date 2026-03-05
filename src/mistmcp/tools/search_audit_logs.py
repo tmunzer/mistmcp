@@ -32,7 +32,7 @@ class Scope(Enum):
 
 @mcp.tool(
     name="mist_search_audit_logs",
-    description="""This tool can be used to retrieve audit logs for the current account or an organization""",
+    description="""Search audit logs for the current account or an organization""",
     tags={"events"},
     annotations={
         "title": "Search audit logs",
@@ -65,7 +65,7 @@ async def search_audit_logs(
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to retrieve audit logs for the current account or an organization"""
+    """Search audit logs for the current account or an organization"""
 
     logger.debug("Tool search_audit_logs called")
 

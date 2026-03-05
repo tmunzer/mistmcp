@@ -40,7 +40,10 @@ class Band(Enum):
 
 @mcp.tool(
     name="mist_search_client",
-    description="""This tool can be used to search for clients in an organization or site. You can filter the search by client type, client name, or MAC address using the `client_type`, `name`, and `mac` parameters, respectively. IMPORTANT:  Use wildcard (`*`) before or after the value for partial search when applicable.""",
+    description="""Search for clients across an organization or specific site. 
+Supports searching by client type (WAN, wired, wireless, NAC), MAC address, hostname, IP address, and more.
+Use wildcards (*) for partial matches on MAC address, hostname, IP, and text fields.
+Different client types support different filter parameters - the tool will validate compatibility.""",
     tags={"clients"},
     annotations={
         "title": "Search client",
@@ -52,45 +55,46 @@ class Band(Enum):
 )
 async def search_client(
     client_type: Annotated[
-        Client_type, Field(description="""Type of client to search for""")
+        Client_type,
+        Field(description="""Type of client: WAN, wired, wireless, or NAC"""),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     device_mac: Annotated[
         Optional[str],
         Field(
-            description="""MAC address of the device the client is connected to. Not applicable when searching for wan or nac clients"""
+            description="""MAC address of the access point or switch. Not applicable for WAN or NAC clients"""
         ),
     ],
     band: Annotated[
         Optional[Band],
-        Field(
-            description="""802.11 Band the client is connected on. Only applicable when searching for wireless clients"""
-        ),
+        Field(description="""802.11 band (24 or 5 or 6 GHz). Wireless clients only"""),
     ],
     ssid: Annotated[
+        Optional[str], Field(description="""SSID name. Wireless or NAC clients only""")
+    ],
+    mac: Annotated[
         Optional[str],
         Field(
-            description="""SSID the client is connected to. Only applicable when searching for wireless or nac clients"""
+            description="""Client MAC address (supports * wildcard for partial match)"""
         ),
     ],
-    mac: Annotated[Optional[str], Field(description="""Partial / full MAC address""")],
     hostname: Annotated[
         Optional[str],
         Field(
-            description="""Partial / full hostname. Not applicable when searching for wan and wired clients"""
+            description="""Client hostname (supports * wildcard). Not applicable for WAN or wired clients"""
         ),
     ],
     ip: Annotated[
         Optional[str],
         Field(
-            description="""IP address. Not applicable when searching for nac clients"""
+            description="""Client IP address (supports * wildcard). Not applicable for NAC clients"""
         ),
     ],
     text: Annotated[
         Optional[str],
         Field(
-            description="""Text to search for in the client details. Not applicable when searching for wan clients"""
+            description="""Free text search in client details (supports * wildcard). Not applicable for WAN clients"""
         ),
     ],
     start: Annotated[
@@ -104,7 +108,10 @@ async def search_client(
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to search for clients in an organization or site. You can filter the search by client type, client name, or MAC address using the `client_type`, `name`, and `mac` parameters, respectively. IMPORTANT:  Use wildcard (`*`) before or after the value for partial search when applicable."""
+    """Search for clients across an organization or specific site.
+    Supports searching by client type (WAN, wired, wireless, NAC), MAC address, hostname, IP address, and more.
+    Use wildcards (*) for partial matches on MAC address, hostname, IP, and text fields.
+    Different client types support different filter parameters - the tool will validate compatibility."""
 
     logger.debug("Tool search_client called")
 

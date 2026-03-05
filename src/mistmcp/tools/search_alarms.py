@@ -28,11 +28,23 @@ from enum import Enum
 class Scope(Enum):
     ORG = "org"
     SITE = "site"
+    SUPPRESSED = "suppressed"
 
 
 @mcp.tool(
     name="mist_search_alarms",
-    description="""Search Alarms in an organization or site, with optional filters for alarm type, severity, and time range""",
+    description="""Search for raised alarms in an organization or site with optional filtering. 
+  
+Scopes:
+- `org`: Search all alarms across the organization
+- `site`: Search alarms in a specific site (requires `site_id`)
+- `suppressed`: View temporarily disabled alarms across the organization
+
+Alarm groups: `infrastructure` (network device/connectivity issues), `marvis` (AI-driven network detections), `security` (security events)
+
+Common Marvis alarm types: `bad_cable`, `bad_wan_uplink`, `dns_failure`, `arp_failure`, `auth_failure`, `dhcp_failure`, `missing_vlan`, `negotiation_mismatch`, `port_flap`
+
+For a complete list of alarm types, use `mist_get_constants` with `object_type=alarm_definitions`.""",
     tags={"events"},
     annotations={
         "title": "Search alarms",
@@ -47,32 +59,32 @@ async def search_alarms(
     scope: Annotated[
         Scope,
         Field(
-            description="""Whether to search for alarms in the entire organization or a specific site. If `site` is selected, the `site_id` parameter is required"""
+            description="""Search scope: `org` (organization-wide), `site` (specific site, requires site_id), or `suppressed` (disabled alarms)"""
         ),
     ],
     site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     group: Annotated[
         Optional[str],
         Field(
-            description="""Alarm group. enum: `infrastructure`, `marvis`, `security`.  The `marvis` group is used to retrieve AI-driven network issue detections.  Known Marvis alarm types include: `bad_cable`, `bad_wan_uplink`, `dns_failure`,  `arp_failure`, `auth_failure`, `dhcp_failure`, `missing_vlan`,  `negotiation_mismatch`, `port_flap`. Results include resolution status  (`status`, `resolved_time`) and affected entity details.'"""
+            description="""Only for org/site scope. Alarm group. enum: `infrastructure`, `marvis`, `security`.  The `marvis` group is used to retrieve AI-driven network issue detections."""
         ),
     ],
     severity: Annotated[
         Optional[str],
         Field(
-            description="""Severity of the alarm. enum: `critical`, `major`, `minor`, `warn`, `info`"""
+            description="""Only for org/site scope.Severity of the alarm. enum: `critical`, `major`, `minor`, `warn`, `info`"""
         ),
     ],
     alarm_type: Annotated[
         Optional[str],
         Field(
-            description="""Comma separated list of types of the alarm. IMPORTANT: use the `mist_get_constants` tool to get the list of possible alarm types"""
+            description="""Only for org/site scope. Comma separated list of types of the alarm (e.g., 'bad_cable,auth_failure'). IMPORTANT: use the `mist_get_constants` tool with `object_type=alarm_definitions`to get the list of possible alarm types"""
         ),
     ],
     acked: Annotated[
         Optional[bool],
         Field(
-            description="""Whether to filter for acknowledged (true) or unacknowledged (false) alarms"""
+            description="""Only for org/site scope. Whether to filter for acknowledged (true) or unacknowledged (false) alarms"""
         ),
     ],
     start: Annotated[
@@ -86,7 +98,18 @@ async def search_alarms(
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Search Alarms in an organization or site, with optional filters for alarm type, severity, and time range"""
+    """Search for raised alarms in an organization or site with optional filtering.
+
+    Scopes:
+    - `org`: Search all alarms across the organization
+    - `site`: Search alarms in a specific site (requires `site_id`)
+    - `suppressed`: View temporarily disabled alarms across the organization
+
+    Alarm groups: `infrastructure` (network device/connectivity issues), `marvis` (AI-driven network detections), `security` (security events)
+
+    Common Marvis alarm types: `bad_cable`, `bad_wan_uplink`, `dns_failure`, `arp_failure`, `auth_failure`, `dhcp_failure`, `missing_vlan`, `negotiation_mismatch`, `port_flap`
+
+    For a complete list of alarm types, use `mist_get_constants` with `object_type=alarm_definitions`."""
 
     logger.debug("Tool search_alarms called")
 
@@ -103,6 +126,38 @@ async def search_alarms(
                         "message": '`site_id` parameter is required when `scope` is "site".',
                     }
                 )
+
+        if group and scope.value not in ["org", "site"]:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": '`group` parameter can only be used when `scope` is in "org", "site".',
+                }
+            )
+
+        if severity and scope.value not in ["org", "site"]:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": '`severity` parameter can only be used when `scope` is in "org", "site".',
+                }
+            )
+
+        if alarm_type and scope.value not in ["org", "site"]:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": '`alarm_type` parameter can only be used when `scope` is in "org", "site".',
+                }
+            )
+
+        if acked and scope.value not in ["org", "site"]:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": '`acked` parameter can only be used when `scope` is in "org", "site".',
+                }
+            )
 
         match object_type.value:
             case "org":
@@ -129,6 +184,11 @@ async def search_alarms(
                     start=str(start) if start else None,
                     end=str(end) if end else None,
                     limit=limit,
+                )
+                await process_response(response)
+            case "suppressed":
+                response = mistapi.api.v1.orgs.alarmtemplates.listOrgSuppressedAlarms(
+                    apisession, org_id=str(org_id)
                 )
                 await process_response(response)
 

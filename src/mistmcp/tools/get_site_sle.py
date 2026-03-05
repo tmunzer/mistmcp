@@ -75,7 +75,7 @@ async def get_site_sle(
     metric: Annotated[
         str,
         Field(
-            description="""Name of the metric to retrieve SLEs for. Use the tool`mist_get_constants` to see available metrics"""
+            description="""Name of the metric to retrieve SLEs for. Use the tool`mist_get_constants` with `object_type=insight_metrics` to see available metrics"""
         ),
     ],
     object_type: Annotated[

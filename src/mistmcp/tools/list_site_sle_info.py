@@ -67,7 +67,7 @@ async def list_site_sle_info(
     scope_id: Annotated[
         str,
         Field(
-            description="""ID of the scoped object: site_id if scope==site; device_id if scope==ap, switch, or gateway; MAC address if scope==client"""
+            description="""ID of the scoped object: `site_id` if `scope=site`; `device_id` if `scope=ap`, `switch`, or `gateway`; `MAC address` if `scope=client`"""
         ),
     ],
     metric: Annotated[

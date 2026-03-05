@@ -50,7 +50,7 @@ class Device_type(Enum):
 
 @mcp.tool(
     name="mist_get_stats",
-    description="""This tool can be used to retrieve various statistics""",
+    description="""Use this tool to retrieve various statistics from Mist infrastructure including organization and site-level data. Supports stats for MxEdges, devices, BGP, OSPF, peer paths, ports, and wireless clients. Use object_id to filter results by device ID or MAC address (format varies by stats_type).""",
     tags={"stats"},
     annotations={
         "title": "Get stats",
@@ -62,14 +62,17 @@ class Device_type(Enum):
 )
 async def get_stats(
     stats_type: Annotated[
-        Stats_type, Field(description="""Type of statistics to retrieve""")
+        Stats_type,
+        Field(
+            description="""Type of statistics to retrieve: org, sites, org_mxedges, org_wireless_clients, org_devices, org_bgp, org_ospf, org_peer_paths, org_ports, site_mxedges, site_wireless_clients, site_devices, site_bgp, site_ospf, or site_ports"""
+        ),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     device_type: Annotated[
         Optional[Device_type],
         Field(
-            description="""Optional, Only used when stats_type is org_devices or site_devices. Type of device to filter on (e.g. ap, switch, gateway)."""
+            description="""Device type filter (ap, switch, gateway). Only applicable when stats_type is org_devices or site_devices"""
         ),
     ],
     start: Annotated[
@@ -81,7 +84,7 @@ async def get_stats(
     object_id: Annotated[
         Optional[UUID],
         Field(
-            description="""Always optional, this can be used to filter the response based on ID or MAC Address depending on the stats_type: * When stats_type is `sites`: not used. * When stats_type is `org_mxedges` or `site_mxedges`: can be used to filter the response on a specific Mist Edge based on its ID. * When stats_type is `org_devices` or `site_devices`: can be used to filter the response on a specific device based on its ID. * When stats_type is `org_bgp` or `site_bgp`: can be used to filter the response on a specific BGP peer based on the device MAC address. * When stats_type is `org_ospf` or `site_ospf`: can be used to filter the response on a specific OSPF neighbor based on the device MAC address. * When stats_type is `org_peer_paths` or `site_peer_paths`: can be used to filter the response on a specific peer based on the device MAC address. * When stats_type is `org_ports` or `site_ports`: can be used to filter the response on a specific switch or gateway port based on the device MAC address."""
+            description="""Filter by specific object ID or MAC address (format depends on stats_type): Mist Edge ID for mxedges, device ID for devices, MAC address for BGP/OSPF/peer_paths/ports, client MAC for wireless_clients, site ID for sites"""
         ),
     ],
     limit: Annotated[
@@ -89,7 +92,7 @@ async def get_stats(
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to retrieve various statistics"""
+    """Use this tool to retrieve various statistics from Mist infrastructure including organization and site-level data. Supports stats for MxEdges, devices, BGP, OSPF, peer paths, ports, and wireless clients. Use object_id to filter results by device ID or MAC address (format varies by stats_type)."""
 
     logger.debug("Tool get_stats called")
 

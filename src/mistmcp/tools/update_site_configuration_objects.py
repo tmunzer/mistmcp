@@ -39,7 +39,14 @@ class Object_type(Enum):
 
 @mcp.tool(
     name="mist_update_site_configuration_objects",
-    description="""Update or create configuration object for a specified site.\nIMPORTANT:\nTo ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n2. Modify the desired attributes \n3. Use this tool to update the configuration object with the modified attributes\n\nWhen creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required""",
+    description="""Update or create configuration object for a specified site.\n
+IMPORTANT:\n
+To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n
+1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n
+2. Modify the desired attributes \n
+3. Use this tool to update the configuration object with the modified attributes\n
+\n
+When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required""",
     tags={"write"},
     annotations={
         "title": "Update site configuration objects",
@@ -69,7 +76,14 @@ async def update_site_configuration_objects(
     ],
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Update or create configuration object for a specified site.\nIMPORTANT:\nTo ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n2. Modify the desired attributes \n3. Use this tool to update the configuration object with the modified attributes\n\nWhen creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required"""
+    """Update or create configuration object for a specified site.\n
+    IMPORTANT:\n
+    To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n
+    1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n
+    2. Modify the desired attributes \n
+    3. Use this tool to update the configuration object with the modified attributes\n
+    \n
+    When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required"""
 
     logger.debug("Tool update_site_configuration_objects called")
 

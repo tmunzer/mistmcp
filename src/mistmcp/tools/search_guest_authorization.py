@@ -32,7 +32,7 @@ class Scope(Enum):
 
 @mcp.tool(
     name="mist_search_guest_authorization",
-    description="""This tool can be used to search for guest authorization entries in an organization or site""",
+    description="""Search for guest authorization entries in an organization or site""",
     tags={"clients"},
     annotations={
         "title": "Search guest authorization",
@@ -84,7 +84,7 @@ async def search_guest_authorization(
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to search for guest authorization entries in an organization or site"""
+    """Search for guest authorization entries in an organization or site"""
 
     logger.debug("Tool search_guest_authorization called")
 

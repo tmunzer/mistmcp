@@ -37,7 +37,18 @@ class Event_source(Enum):
 
 @mcp.tool(
     name="mist_search_events",
-    description="""This tool can be used to search for events in an organization. You can specify a time range for the search using the `start` and `end` parameters, and you can also filter the search by event type using the `event_type` parameter. IMPORTANT: when searching for specific events, make sure to first use the `mist_get_constants` tool to get the list of possible event types for the specified `event_source`, and use one of those event types in the `event_type` parameter to ensure you are searching for the correct events. If you do not specify an `event_type`, the search will return all events for the specified `event_source` and time range, which may result in a large number of events being returned.""",
+    description="""Search for events across an organization or site with flexible filtering options.
+
+This tool queries events from various sources including devices, MX Edge instances, and clients. You can:
+- Filter by time range using `start` and `end` (epoch seconds)
+- Filter by event type (use `mist_get_constants` tool first to discover available event types)
+- Apply source-specific filters (MAC address, text search, SSID, etc.)
+
+IMPORTANT: Always specify an `event_type` to limit results. Use `mist_get_constants` with:
+- `object_type=device_events` for device events
+- `object_type=mxedge_events` for MX Edge events  
+- `object_type=client_events` for WAN/wireless client events
+- `object_type=nac_events` for NAC client events""",
     tags={"events"},
     annotations={
         "title": "Search events",
@@ -51,47 +62,58 @@ async def search_events(
     event_source: Annotated[
         Event_source,
         Field(
-            description="""Source of events to search for.  * `device`: events related to devices in the organization or site * `mxedge`: events related to MX Edge devices in the organization or site * `wan_client`: events related to WAN clients in the organization or site * `wireless_client`: events related to wireless clients in the organization or site * `nac_client`: events related to NAC clients in the organization or site * `roaming`: events related to wireless client roaming in the site. This required `site_id` parameter is required * `rogue`: events related to rogue devices in the site. This required `site_id` parameter is required"""
+            description="""Event source type: device, mxedge, wan_client, wireless_client, nac_client, roaming (requires site_id), or rogue (requires site_id)"""
         ),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
-    ],
-    end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
-    ],
     event_type: Annotated[
         Optional[str],
         Field(
-            description="""Type of events to search for. The list of possible event types can be obtained with the `mist_get_constants` tool"""
+            description="""Comma-separated event types to filter by. The list of possible event types can be obtained with the `mist_get_constants` tool with `object_type=device_events` when `event_source` is `device`, `object_type=mxedge_events` when `event_source` is `mxedge`, `object_type=client_events` when `event_source` is `wan_client` or `wireless_client`, `object_type=nac_events` when `event_source` is `nac_client`"""
         ),
     ],
     site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     mac: Annotated[
         Optional[str],
         Field(
-            description="""MAC Address of the device to filter events by. Not applicable when searching for wireless client events"""
+            description="""MAC address to filter by (device/WAN client/NAC client/rogue events only)"""
         ),
     ],
     text: Annotated[
         Optional[str],
         Field(
-            description="""Text to search for in the event details. Only applicable when searching for device events or nac client events"""
+            description="""Text search in event details (device/NAC client events only)"""
         ),
     ],
     ssid: Annotated[
         Optional[str],
         Field(
-            description="""SSID to filter wireless client events by. Only applicable when searching for wireless client events, nac client events, or rogue events"""
+            description="""SSID filter (wireless_client/nac_client/rogue events only)"""
         ),
+    ],
+    start: Annotated[
+        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+    ],
+    end: Annotated[
+        Optional[int], Field(description="""End of time range (epoch seconds)""")
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to search for events in an organization. You can specify a time range for the search using the `start` and `end` parameters, and you can also filter the search by event type using the `event_type` parameter. IMPORTANT: when searching for specific events, make sure to first use the `mist_get_constants` tool to get the list of possible event types for the specified `event_source`, and use one of those event types in the `event_type` parameter to ensure you are searching for the correct events. If you do not specify an `event_type`, the search will return all events for the specified `event_source` and time range, which may result in a large number of events being returned."""
+    """Search for events across an organization or site with flexible filtering options.
+
+    This tool queries events from various sources including devices, MX Edge instances, and clients. You can:
+    - Filter by time range using `start` and `end` (epoch seconds)
+    - Filter by event type (use `mist_get_constants` tool first to discover available event types)
+    - Apply source-specific filters (MAC address, text search, SSID, etc.)
+
+    IMPORTANT: Always specify an `event_type` to limit results. Use `mist_get_constants` with:
+    - `object_type=device_events` for device events
+    - `object_type=mxedge_events` for MX Edge events
+    - `object_type=client_events` for WAN/wireless client events
+    - `object_type=nac_events` for NAC client events"""
 
     logger.debug("Tool search_events called")
 

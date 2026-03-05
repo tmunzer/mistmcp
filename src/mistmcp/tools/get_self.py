@@ -32,7 +32,11 @@ class Action_type(Enum):
 
 @mcp.tool(
     name="mist_get_self",
-    description="""This tool can be used to retrieve information about the current user and accountThe information provided will depend on the `action_type` attribute:* `account_info`: will return information about the account including account ID, account name, and the list of orgs (and their respective `org_id`) the account has access to, with the permissions level (read or write) for each org* `api_usage`: will return information about the API usage of the account including the number of API calls made in the current hour cycle and the API call limit for the account* `login_failures`: will return information about the recent login failures for the account including the timestamp of the failure, the source IP address, and the reason for the failure""",
+    description="""This tool can be used to retrieve information about the current user and account
+The information provided will depend on the `action_type` attribute:
+* `account_info`: will return information about the account including account ID, account name, and the list of orgs (and their respective `org_id`) the account has access to, with the permissions level (read or write) for each org
+* `api_usage`: will return information about the API usage of the account including the number of API calls made in the current hour cycle and the API call limit for the account
+* `login_failures`: will return information about the recent login failures for the account including the timestamp of the failure, the source IP address, and the reason for the failure""",
     tags={"self_account"},
     annotations={
         "title": "Get self",
@@ -51,7 +55,11 @@ async def get_self(
     ],
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to retrieve information about the current user and accountThe information provided will depend on the `action_type` attribute:* `account_info`: will return information about the account including account ID, account name, and the list of orgs (and their respective `org_id`) the account has access to, with the permissions level (read or write) for each org* `api_usage`: will return information about the API usage of the account including the number of API calls made in the current hour cycle and the API call limit for the account* `login_failures`: will return information about the recent login failures for the account including the timestamp of the failure, the source IP address, and the reason for the failure"""
+    """This tool can be used to retrieve information about the current user and account
+    The information provided will depend on the `action_type` attribute:
+    * `account_info`: will return information about the account including account ID, account name, and the list of orgs (and their respective `org_id`) the account has access to, with the permissions level (read or write) for each org
+    * `api_usage`: will return information about the API usage of the account including the number of API calls made in the current hour cycle and the API call limit for the account
+    * `login_failures`: will return information about the recent login failures for the account including the timestamp of the failure, the source IP address, and the reason for the failure"""
 
     logger.debug("Tool get_self called")
 

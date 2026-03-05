@@ -1,0 +1,91 @@
+"""
+--------------------------------------------------------------------------------
+-------------------------------- Mist MCP SERVER -------------------------------
+
+    Written by: Thomas Munzer (tmunzer@juniper.net)
+    Github    : https://github.com/tmunzer/mistmcp
+
+    This package is licensed under the MIT License.
+
+--------------------------------------------------------------------------------
+"""
+
+import mistapi
+from fastmcp import Context
+from fastmcp.exceptions import ToolError
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_processor import process_response, handle_network_error
+from mistmcp.response_formatter import format_response
+from mistmcp.server import mcp
+from mistmcp.logger import logger
+
+from pydantic import Field
+from typing import Annotated, Optional
+from uuid import UUID
+from enum import Enum
+
+
+class Troubleshoot_type(Enum):
+    WAN = "wan"
+    WIRED = "wired"
+    WIRELESS = "wireless"
+
+
+@mcp.tool(
+    name="mist_troubleshoot",
+    description="""Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. Use the `mist_search_client` tool to find a client MAC Address. Use the `mist_search_device` tool to find device MAC Address. **NOTE**: requires Marvis subscription license""",
+    tags={"marvis"},
+    annotations={
+        "title": "Troubleshoot",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+        "idempotentHint": True,
+    },
+)
+async def troubleshoot(
+    org_id: Annotated[UUID, Field(description="""Organization ID""")],
+    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    mac: Annotated[
+        Optional[str],
+        Field(
+            description="""Used to troubleshoot a specific client or device. MAC address of the client or device to run the troubleshooting query for. Not required if troubleshooting a whole site with `site_id`"""
+        ),
+    ],
+    troubleshoot_type: Annotated[
+        Troubleshoot_type,
+        Field(
+            description="""Type of troubleshooting query to run. Possible values are `wan`, `wired`, and `wireless`. If `wan` is selected, the query will troubleshoot the WAN. If `wired` is selected, the query will troubleshoot the wired network. If `wireless` is selected, the query will troubleshoot the wireless network."""
+        ),
+    ],
+    start: Annotated[
+        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+    ],
+    end: Annotated[
+        Optional[int], Field(description="""End of time range (epoch seconds)""")
+    ],
+    ctx: Context | None = None,
+) -> dict | list | str:
+    """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. Use the `mist_search_client` tool to find a client MAC Address. Use the `mist_search_device` tool to find device MAC Address. **NOTE**: requires Marvis subscription license"""
+
+    logger.debug("Tool troubleshoot called")
+
+    apisession, response_format = await get_apisession()
+
+    try:
+        response = mistapi.api.v1.orgs.troubleshoot.troubleshootOrg(
+            apisession,
+            org_id=str(org_id),
+            site_id=str(site_id) if site_id else None,
+            type=troubleshoot_type.value,
+            mac=str(mac) if mac else None,
+            start=str(start) if start else None,
+            end=str(end) if end else None,
+        )
+        await process_response(response)
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
+
+    return format_response(response, response_format)

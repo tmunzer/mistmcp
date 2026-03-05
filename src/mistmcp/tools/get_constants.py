@@ -30,6 +30,7 @@ class Object_type(Enum):
     LICENSE_TYPES = "license_types"
     WEBHOOK_TOPICS = "webhook_topics"
     DEVICE_MODELS = "device_models"
+    DEVICE_EVENTS = "device_events"
     MXEDGE_MODELS = "mxedge_models"
     ALARM_DEFINITIONS = "alarm_definitions"
     CLIENT_EVENTS = "client_events"
@@ -39,7 +40,7 @@ class Object_type(Enum):
 
 @mcp.tool(
     name="mist_get_constants",
-    description="""Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)""",
+    description="""Retrieve Mist platform constants including insight metrics, webhook topics, alarm definitions, device models, events definitions, and license types. Use this to understand available options and configurations for the Mist API.""",
     tags={"constants"},
     annotations={
         "title": "Get constants",
@@ -51,11 +52,14 @@ class Object_type(Enum):
 )
 async def get_constants(
     object_type: Annotated[
-        Object_type, Field(description="""Type of object to retrieve metrics for""")
+        Object_type,
+        Field(
+            description="""Type of constant to retrieve: fingerprint_types, insight_metrics, license_types, webhook_topics, device_models, device_events, mxedge_models, alarm_definitions, client_events, mxedge_events, or nac_events"""
+        ),
     ],
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Get Mist Constants (insight metrics, webhook topics, alarm definitions, ...)"""
+    """Retrieve Mist platform constants including insight metrics, webhook topics, alarm definitions, device models, events definitions, and license types. Use this to understand available options and configurations for the Mist API."""
 
     logger.debug("Tool get_constants called")
 
@@ -86,6 +90,13 @@ async def get_constants(
             case "device_models":
                 response = mistapi.api.v1.const.device_models.listDeviceModels(
                     apisession
+                )
+                await process_response(response)
+            case "device_events":
+                response = (
+                    mistapi.api.v1.const.device_events.listDeviceEventsDefinitions(
+                        apisession
+                    )
                 )
                 await process_response(response)
             case "mxedge_models":

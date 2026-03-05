@@ -60,7 +60,17 @@ class Action_type(Enum):
 
 @mcp.tool(
     name="mist_change_org_configuration_objects",
-    description="""Update, create or delete configuration object for a specified org.\nIMPORTANT:\nTo ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n2. Modify the desired attributes\n3. Use this tool to update the configuration object with the modified attributes\n\nWhen creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.\n\nWhen deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail\nWhen creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload\n""",
+    description="""Update, create or delete configuration object for a specified org.\n
+IMPORTANT:\n
+To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n
+1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n
+2. Modify the desired attributes\n
+3. Use this tool to update the configuration object with the modified attributes\n
+\n
+When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.\n
+\n
+When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail\n
+When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload\n""",
     tags={"write_delete"},
     annotations={
         "title": "Change org configuration objects",
@@ -98,7 +108,17 @@ async def change_org_configuration_objects(
     ],
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Update, create or delete configuration object for a specified org.\nIMPORTANT:\nTo ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n2. Modify the desired attributes\n3. Use this tool to update the configuration object with the modified attributes\n\nWhen creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.\n\nWhen deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail\nWhen creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload\n"""
+    """Update, create or delete configuration object for a specified org.\n
+    IMPORTANT:\n
+    To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n
+    1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n
+    2. Modify the desired attributes\n
+    3. Use this tool to update the configuration object with the modified attributes\n
+    \n
+    When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.\n
+    \n
+    When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail\n
+    When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload\n"""
 
     logger.debug("Tool change_org_configuration_objects called")
 

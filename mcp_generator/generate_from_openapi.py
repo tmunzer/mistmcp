@@ -280,7 +280,7 @@ def _process_params(
             if r_tmp:
                 description = re.sub(r, f"`{r_tmp[0]}`", description)
             cleaned_description = description.replace(
-                '"', "'").replace("\n", " ")
+                '"', "'")  # .replace("\n", " ")
             annotations.append(f'description="""{cleaned_description}"""')
         elif tmp_param["name"].endswith("_id"):
             _add_import(imports, "pydantic", "Field")
@@ -872,7 +872,7 @@ def _gen_tools_optim(
                 enums=enums,
                 operationId=camel_to_snake(func_name),
                 title=camel_to_snake(func_name).replace("_", " ").capitalize(),
-                description=description.replace("\n", ""),
+                description=description,
                 tag=tag,
                 readOnlyHint=func_data.get("read_only_hint", False),
                 destructiveHint=func_data.get("destructive_hint", True),
@@ -886,7 +886,7 @@ def _gen_tools_optim(
                 enums=enums,
                 operationId=camel_to_snake(func_name),
                 title=camel_to_snake(func_name).replace("_", " ").capitalize(),
-                description=description.replace("\n", ""),
+                description=description,
                 tag=tag,
                 readOnlyHint=func_data.get("read_only_hint", True),
                 destructiveHint=func_data.get("destructive_hint", True),
@@ -900,7 +900,7 @@ def _gen_tools_optim(
                 enums=enums,
                 operationId=camel_to_snake(func_name),
                 title=camel_to_snake(func_name).replace("_", " ").capitalize(),
-                description=description.replace("\n", ""),
+                description=description,
                 tag=tag,
                 readOnlyHint=func_data.get("read_only_hint", True),
                 destructiveHint=func_data.get("destructive_hint", False),

@@ -37,18 +37,18 @@ class Status(Enum):
 
 
 @mcp.tool(
-    name="mist_search_org_inventory",
-    description="""Retrieve the inventory of devices. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately.""",
+    name="mist_search_org_device",
+    description="""Search a network device in the Organization Inventory. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately.""",
     tags={"devices"},
     annotations={
-        "title": "Search org inventory",
+        "title": "Search org device",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
         "idempotentHint": True,
     },
 )
-async def search_org_inventory(
+async def search_org_device(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
     serial: Annotated[
@@ -92,9 +92,9 @@ async def search_org_inventory(
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """Retrieve the inventory of devices. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately."""
+    """Search a network device in the Organization Inventory. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately."""
 
-    logger.debug("Tool search_org_inventory called")
+    logger.debug("Tool search_org_device called")
 
     apisession, response_format = await get_apisession()
 

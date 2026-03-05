@@ -174,7 +174,26 @@ NETWORK_TEMPLATE_FIELDS = [
 
 @mcp.tool(
     name="mist_get_configuration_objects",
-    description="""Retrieve configuration objects from a specified organization or site. For the site configuration objects, set the attribute `computed` to `true` to retrieve the computed configuration including all configuration objects defined at the org level and assigned to the site. This tool allows you to retrieve a list of configuration objects (e.g. wlans, device profiles, network templates) or to filter them providing their ID or their name. IMPORTANT: This tool doesn't support pagination when the attribute `name` is not provided.""",
+    description="""Use this tool to retrieve configuration objects from a specified organization or site.
+
+This tool fetches configuration objects such as WLANs, device profiles, network templates and device configurations.
+For site-level configuration objects, set `computed=true` to retrieve the computed configuration,
+which includes all configuration objects defined at the organization level and inherited by the site.
+
+You can retrieve all objects of a specified type, or filter results by:
+- `object_id`: Retrieve a single object by its ID
+- `name`: Retrieve objects by name (case-insensitive, supports wildcard matching with `*`)
+
+**Pagination Note:** Pagination is not supported when `name` is provided. Results are limited
+to the first entries up to the `limit` value (default: 20, maximum: 1000).
+
+
+Returns:
+    A dictionary, list, or string containing the retrieved configuration objects or a formatted response.
+
+Raises:
+    ToolError: If `site_id` is not provided when required, or if the API call fails.
+    """,
     tags={"configuration"},
     annotations={
         "title": "Get configuration objects",

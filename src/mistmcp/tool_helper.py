@@ -53,7 +53,7 @@ TOOLS = {
     },
     "devices": {
         "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices. Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
-        "tools": ["mist_search_org_inventory"],
+        "tools": ["mist_search_org_device"],
     },
     "events": {
         "description": "Events related to the sites and organizations. It provides access to various events such as device events, client events, and more. These events can be used for monitoring and troubleshooting purposes.",
@@ -65,11 +65,11 @@ TOOLS = {
     },
     "marvis": {
         "description": "Marvis is a virtual network assistant that provides insights and analytics for the Mist network. It can be used to analyze network performance, troubleshoot issues, and optimize network configurations.\n\nIt includes features such as synthetic tests, which allow users to simulate network traffic and measure performance metrics.",
-        "tools": ["mist_troubleshoot_org", "mist_get_site_device_synthetic_test"],
+        "tools": ["mist_troubleshoot"],
     },
     "orgs": {
         "description": "An organization usually represents a customer - which has inventories, licenses. An Organization can contain multiple sites. A site usually represents a deployment at the same location (a campus, an office).",
-        "tools": ["mist_get_org_licenses", "mist_list_org_suppressed_alarms"],
+        "tools": ["mist_get_org_licenses"],
     },
     "orgs_nac": {
         "description": "NAC related objects for the organizations. It provides access to NAC Endpoints, NAC fingerprints, tags, and rules.",

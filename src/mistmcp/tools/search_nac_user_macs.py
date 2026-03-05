@@ -26,7 +26,7 @@ from uuid import UUID
 
 @mcp.tool(
     name="mist_search_nac_user_macs",
-    description="""This tool can be used to search for NAC user MAC addresses in an organization or site, with optional filters for associated SSID and time range. User MACs are used to perform MAC Authentication with Juniper Mist NAC.""",
+    description="""Search for NAC user MAC addresses in an organization or site, with optional filters for associated SSID and time range. User MACs are used to perform MAC Authentication with Juniper Mist NAC.""",
     tags={"orgs_nac"},
     annotations={
         "title": "Search nac user macs",
@@ -61,7 +61,7 @@ async def search_nac_user_macs(
     ] = 20,
     ctx: Context | None = None,
 ) -> dict | list | str:
-    """This tool can be used to search for NAC user MAC addresses in an organization or site, with optional filters for associated SSID and time range. User MACs are used to perform MAC Authentication with Juniper Mist NAC."""
+    """Search for NAC user MAC addresses in an organization or site, with optional filters for associated SSID and time range. User MACs are used to perform MAC Authentication with Juniper Mist NAC."""
 
     logger.debug("Tool search_nac_user_macs called")
 
