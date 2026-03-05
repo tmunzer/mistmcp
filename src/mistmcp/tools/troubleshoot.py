@@ -45,18 +45,18 @@ class Troubleshoot_type(Enum):
 )
 async def troubleshoot(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
+    troubleshoot_type: Annotated[
+        Troubleshoot_type,
+        Field(
+            description="""Type of troubleshooting query to run. Possible values are `wan`, `wired`, and `wireless`. If `wan` is selected, the query will troubleshoot the WAN. If `wired` is selected, the query will troubleshoot the wired network. If `wireless` is selected, the query will troubleshoot the wireless network."""
+        ),
+    ],
     site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     mac: Annotated[
         str,
         Field(
             description="""Used to troubleshoot a specific client or device. MAC address of the client or device to run the troubleshooting query for. Not required if troubleshooting a whole site with `site_id`""",
             default=None,
-        ),
-    ],
-    troubleshoot_type: Annotated[
-        Troubleshoot_type,
-        Field(
-            description="""Type of troubleshooting query to run. Possible values are `wan`, `wired`, and `wireless`. If `wan` is selected, the query will troubleshoot the WAN. If `wired` is selected, the query will troubleshoot the wired network. If `wireless` is selected, the query will troubleshoot the wireless network."""
         ),
     ],
     start: Annotated[
