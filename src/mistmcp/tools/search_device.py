@@ -61,7 +61,8 @@ async def search_device(
     model: Annotated[
         str,
         Field(
-            description="""Device model. Partial match allowed with wildcard * (e.g. `AP*` will match `AP43` and `AP41`)""", default=None
+            description="""Device model. Partial match allowed with wildcard * (e.g. `AP*` will match `AP43` and `AP41`)""",
+            default=None,
         ),
     ],
     mac: Annotated[
@@ -134,7 +135,9 @@ async def search_device(
         if isinstance(response.data, dict):
             for device in response.data.get("results", []):
                 if device.get("master_mac"):
-                    device["device_id"] = f"00000000-0000-0000-1000-{device['master_mac']}"
+                    device["device_id"] = (
+                        f"00000000-0000-0000-1000-{device['master_mac']}"
+                    )
                 else:
                     device["device_id"] = f"00000000-0000-0000-1000-{device['mac']}"
     except ToolError:

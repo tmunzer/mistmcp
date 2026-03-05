@@ -14,9 +14,9 @@ from enum import Enum
 
 
 class McpToolsCategory(Enum):
+    DEVICES = "devices"
     CONFIGURATION = "configuration"
     INFO = "info"
-    DEVICES = "devices"
     UTILITIES_UPGRADE = "utilities_upgrade"
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
