@@ -1,64 +1,64 @@
-searchOrgDevice:
-  type: tool_replacement
-  tags: [devices]
-  read_only_hint: true
-  destructive_hint: false
-  description: Search a network device in the Organization Inventory. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately.
-  parameters:
-    - name: org_id
-      schema:
-        type: string
-        format: uuid
-      description: ID of the organization to filter inventory by
-      required: true
-    - name: site_id
-      schema:
-        type: string
-        format: uuid
-      description: ID of the site to filter inventory by
-    - name: serial
-      schema:
-        type: string
-      description: Serial number of the device to filter inventory by
-    - name: model
-      schema:
-        type: string
-      description: Model of the device to filter inventory by
-    - name: mac
-      schema:
-        type: string
-      description: MAC address of the device to filter inventory by
-    - name: version
-      schema:
-        type: string
-      description: Firmware version of the device to filter inventory by
-    - name: vc_mac
-      schema:
-        type: string
-      description: MAC address of the virtual chassis (switch stack) to filter inventory by
-    - name: device_type
-      schema:
-        type: string
-        enum: [ap, switch, gateway]
-      description: Type of the device to filter inventory by
-    - name: status
-      schema:
-        type: string
-        enum: [connected, disconnected]
-      description: Connection status of the device to filter inventory by
-    - name: text
-      schema:
-        type: string
-      description: Text to search for in device attributes (name, serial, MAC). Use the wildcard `*` for partial matches (e.g. `AP*` to match all devices with names starting with "AP")
-    - name: limit
-      schema:
-        type: integer
-        default: 20
-      description: Max number of results to return (max 1000)
-      required: false
-  request:
-    operationId: searchOrgInventory
-    function: mistapi.api.v1.orgs.inventory.searchOrgInventory(apisession,org_id=str(org_id),serial=serial if serial else None,model=model if model else None,type=device_type.value if device_type else None,mac=mac if mac else None,site_id=str(site_id) if site_id else None,vc_mac=vc_mac if vc_mac else None,version=version if version else None, text=text if text else None, status=status.value if status else None,limit=limit,)
+# searchDevice:
+#   type: tool_replacement
+#   tags: [devices]
+#   read_only_hint: true
+#   destructive_hint: false
+#   description: Search a network device in the Organization Inventory. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately.
+#   parameters:
+#     - name: org_id
+#       schema:
+#         type: string
+#         format: uuid
+#       description: ID of the organization to filter inventory by
+#       required: true
+#     - name: site_id
+#       schema:
+#         type: string
+#         format: uuid
+#       description: ID of the site to filter inventory by
+#     - name: serial
+#       schema:
+#         type: string
+#       description: Serial number of the device to filter inventory by
+#     - name: model
+#       schema:
+#         type: string
+#       description: Model of the device to filter inventory by
+#     - name: mac
+#       schema:
+#         type: string
+#       description: MAC address of the device to filter inventory by
+#     - name: version
+#       schema:
+#         type: string
+#       description: Firmware version of the device to filter inventory by
+#     - name: vc_mac
+#       schema:
+#         type: string
+#       description: MAC address of the virtual chassis (switch stack) to filter inventory by
+#     - name: device_type
+#       schema:
+#         type: string
+#         enum: [ap, switch, gateway]
+#       description: Type of the device to filter inventory by
+#     - name: status
+#       schema:
+#         type: string
+#         enum: [connected, disconnected]
+#       description: Connection status of the device to filter inventory by
+#     - name: text
+#       schema:
+#         type: string
+#       description: Text to search for in device attributes (name, serial, MAC). Use the wildcard `*` for partial matches (e.g. `AP*` to match all devices with names starting with "AP")
+#     - name: limit
+#       schema:
+#         type: integer
+#         default: 20
+#       description: Max number of results to return (max 1000)
+#       required: false
+#   request:
+#     operationId: searchOrgInventory
+#     function: mistapi.api.v1.orgs.inventory.searchOrgInventory(apisession,org_id=str(org_id),serial=serial if serial else None,model=model if model else None,type=device_type.value if device_type else None,mac=mac if mac else None,site_id=str(site_id) if site_id else None,vc_mac=vc_mac if vc_mac else None,version=version if version else None, text=text if text else None, status=status.value if status else None,limit=limit,)
 
 listSiteWirelessClientsStats:
   type: tool_optimization

@@ -90,7 +90,6 @@ from typing import Annotated, Optional
 from uuid import UUID
 
 import mistapi
-from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from mistapi.__api_response import APIResponse as _APIResponse
 from pydantic import Field
@@ -213,28 +212,28 @@ async def get_configuration_objects(
         UUID,
         Field(
             default=None,
-            description="""ID of the site to retrieve configuration objects from. Required when object_type is starting with `site_`, optional if object_type is 'org_sites' to retrieve a single site"""
+            description="""ID of the site to retrieve configuration objects from. Required when object_type is starting with `site_`, optional if object_type is 'org_sites' to retrieve a single site""",
         ),
     ],
     object_id: Annotated[
         UUID,
         Field(
             default=None,
-            description="""ID of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved"""
+            description="""ID of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved""",
         ),
     ],
     name: Annotated[
         str,
         Field(
             default=None,
-            description="""Name of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved. Case insensitive. Add a wildcard (`*`) before and/or after the string for partial match"""
+            description="""Name of the specific configuration object to retrieve. Not supported when `object_type` is `site_devices` (use the `mist_search_device` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Add a wildcard (`*`) before and/or after the string for partial match""",
         ),
     ],
     computed: Annotated[
         bool,
         Field(
             default=None,
-            description="""Whether to retrieve the computed configuration object with all inherited settings applied. Only applicable when object_type is `org_sites`, `site_devices` or  `site_wlans`"""
+            description="""Whether to retrieve the computed configuration object with all inherited settings applied. Only applicable when object_type is `org_sites` and `site_devices` when a single object is returned, or when object_type id `site_wlans`""",
         ),
     ],
     limit: Annotated[
@@ -1051,7 +1050,7 @@ async def _site_configuration_objects_getter(
                 response.data = data
         case "site_wlans":
             return await _get_site_wlans(
-                apisession, org_id, site_id, object_id, name, computed,  limit
+                apisession, org_id, site_id, object_id, name, computed, limit
             )
         case "site_wxrules":
             if object_id:
@@ -1112,21 +1111,33 @@ async def _get_site_devices(
                 device_id=str(object_id),
             )
             return response
-        elif name:
-            response = mistapi.api.v1.sites.devices.searchSiteDevices(
-                apisession, site_id=str(site_id), hostname=name, limit=1000
-            )
-            await process_response(response)
-            return response
         else:
             response = mistapi.api.v1.sites.devices.getSiteDevice(
                 apisession, site_id=str(site_id), device_id=str(object_id)
             )
             await process_response(response)
             return response
+    elif name:
+        response = mistapi.api.v1.sites.devices.searchSiteDevices(
+            apisession, site_id=str(site_id), hostname=name, limit=1000, type="all"
+        )
+        await process_response(response)
+        if (
+            isinstance(response.data, dict)
+            and len(response.data.get("results", [])) == 1
+            and computed
+        ):
+            response.data = response.data["results"][0]
+            response = await _get_computed_device_configuration(
+                apisession=apisession,
+                org_id=str(org_id),
+                site_id=str(site_id),
+                device_data=response,
+            )
+        return response
     else:
         response = mistapi.api.v1.sites.devices.listSiteDevices(
-            apisession, site_id=str(site_id), limit=limit
+            apisession, site_id=str(site_id), limit=limit, type="all"
         )
         await process_response(response)
         return response
@@ -1136,16 +1147,24 @@ async def _get_computed_device_configuration(
     apisession: mistapi.APISession,
     org_id: str,
     site_id: str,
-    device_id: str,
+    device_id: str | None = None,
+    device_data: _APIResponse | None = None,
 ) -> _APIResponse:
 
     logger.debug("func _get_device_configuration called")
 
-    device_data = mistapi.api.v1.sites.devices.getSiteDevice(
-        apisession, site_id=str(site_id), device_id=str(device_id)
-    )
-    await process_response(device_data)
-
+    if device_id:
+        device_data = mistapi.api.v1.sites.devices.getSiteDevice(
+            apisession, site_id=str(site_id), device_id=str(device_id)
+        )
+        await process_response(device_data)
+    elif not device_data:
+        raise ToolError(
+            {
+                "status_code": 400,
+                "message": "Either device_id or device_data must be provided",
+            }
+        )
     data = {}
     if isinstance(device_data.data, dict):
         match device_data.data.get("type"):
@@ -1327,7 +1346,9 @@ def _process_switch_rule_match(
     return False
 
 
-def _process_switch_interface(port_config: dict) -> dict:
+def _process_switch_interface(
+    port_config: dict,
+) -> dict:
     port_config_tmp = {}
     for key, value in port_config.items():
         if "," in key:
@@ -1358,6 +1379,7 @@ def _process_switch_interface(port_config: dict) -> dict:
             port_config_cleansed[key] = value
 
     return port_config_cleansed
+
 
 #############################################
 ########### SITE WLANS FUNCTIONS ############
@@ -1443,7 +1465,12 @@ async def _get_site_wlans(
     return response
 
 
-def _search_object(data_in: list, name: str, attribute: str = "name", limit: int = 20) -> _APIResponse:
+def _search_object(
+    data_in: list,
+    name: str,
+    attribute: str = "name",
+    limit: int = 20,
+) -> _APIResponse:
     data_out = []
     for entry in data_in:
         if name.startswith("*") and name.endswith("*"):
@@ -1462,7 +1489,8 @@ def _search_object(data_in: list, name: str, attribute: str = "name", limit: int
     response.data = data_out[:limit]
     response.status_code = 200
     response.headers = CaseInsensitiveDict(
-        {"X-Page-Total": str(len(data_out)), "X-Page-Limit": str(limit)})
+        {"X-Page-Total": str(len(data_out)), "X-Page-Limit": str(limit)}
+    )
     return response
 
 '''

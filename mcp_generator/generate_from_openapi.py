@@ -51,6 +51,7 @@ from templates.tmpl_helper import TOOLS_HELPER
 from templates.tmpl_init import INIT_TEMPLATE
 from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
 from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
+from templates.tmpl_tool_search_device import TOOL_TEMPLATE_SEARCH_DEVICE
 from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
 from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
 
@@ -75,6 +76,12 @@ SCHEMAS_DATA_OUTPUT_PATH = Path(
 )
 # List of custom tools to generate (not directly from OpenAPI)
 CUSTOM_TOOLS = [
+    {
+        "name": "search_device",
+        "template": TOOL_TEMPLATE_SEARCH_DEVICE,
+        "tag": "devices",
+        "operation_ids": ["searchOrgInventory"]
+    },
     {
         "name": "get_configuration_objects",
         "template": GET_CONFIGURATION_OBJECTS_TEMPLATE,

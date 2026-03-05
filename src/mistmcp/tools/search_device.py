@@ -10,19 +10,19 @@
 --------------------------------------------------------------------------------
 """
 
-import mistapi
-from fastmcp import Context
-from fastmcp.exceptions import ToolError
-from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response, handle_network_error
-from mistmcp.response_formatter import format_response
-from mistmcp.server import mcp
-from mistmcp.logger import logger
-
-from pydantic import Field
+from enum import Enum
 from typing import Annotated
 from uuid import UUID
-from enum import Enum
+
+import mistapi
+from fastmcp.exceptions import ToolError
+from pydantic import Field
+
+from mistmcp.logger import logger
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_formatter import format_response
+from mistmcp.response_processor import handle_network_error, process_response
+from mistmcp.server import mcp
 
 
 class Device_type(Enum):
@@ -37,18 +37,18 @@ class Status(Enum):
 
 
 @mcp.tool(
-    name="mist_search_org_device",
+    name="mist_search_device",
     description="""Search a network device in the Organization Inventory. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately.""",
     tags={"devices"},
     annotations={
-        "title": "Search org device",
+        "title": "Search device",
         "readOnlyHint": True,
         "destructiveHint": False,
         "openWorldHint": True,
         "idempotentHint": True,
     },
 )
-async def search_org_device(
+async def search_device(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     serial: Annotated[
@@ -61,13 +61,13 @@ async def search_org_device(
     model: Annotated[
         str,
         Field(
-            description="""Model of the device to filter inventory by""", default=None
+            description="""Device model. Partial match allowed with wildcard * (e.g. `AP*` will match `AP43` and `AP41`)""", default=None
         ),
     ],
     mac: Annotated[
         str,
         Field(
-            description="""MAC address of the device to filter inventory by""",
+            description="""MAC address. Partial match allowed with wildcard * (e.g. `*5b35*` will match `5c5b350e0001` and `5c5b35000301`)""",
             default=None,
         ),
     ],
@@ -101,7 +101,7 @@ async def search_org_device(
     text: Annotated[
         str,
         Field(
-            description="""Text to search for in device attributes (name, serial, MAC). Use the wildcard `*` for partial matches (e.g. `AP*` to match all devices with names starting with 'AP')""",
+            description="""Text to search for in device attributes (name, serial number, MAC). Use the wildcard `*` for partial matches (e.g. `london` will match `london-1`, `london-2`, `my-london-device`...)""",
             default=None,
         ),
     ],
@@ -111,7 +111,7 @@ async def search_org_device(
 ) -> dict | list | str:
     """Search a network device in the Organization Inventory. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately."""
 
-    logger.debug("Tool search_org_device called")
+    logger.debug("Tool search_device called")
 
     apisession, response_format = await get_apisession()
 
@@ -131,6 +131,12 @@ async def search_org_device(
             limit=limit,
         )
         await process_response(response)
+        if isinstance(response.data, dict):
+            for device in response.data.get("results", []):
+                if device.get("master_mac"):
+                    device["device_id"] = f"00000000-0000-0000-1000-{device['master_mac']}"
+                else:
+                    device["device_id"] = f"00000000-0000-0000-1000-{device['mac']}"
     except ToolError:
         raise
     except Exception as _exc:
