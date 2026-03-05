@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -50,41 +50,59 @@ class Status(Enum):
 )
 async def search_org_device(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     serial: Annotated[
-        Optional[str],
-        Field(description="""Serial number of the device to filter inventory by"""),
+        str,
+        Field(
+            description="""Serial number of the device to filter inventory by""",
+            default=None,
+        ),
     ],
     model: Annotated[
-        Optional[str],
-        Field(description="""Model of the device to filter inventory by"""),
+        str,
+        Field(
+            description="""Model of the device to filter inventory by""", default=None
+        ),
     ],
     mac: Annotated[
-        Optional[str],
-        Field(description="""MAC address of the device to filter inventory by"""),
+        str,
+        Field(
+            description="""MAC address of the device to filter inventory by""",
+            default=None,
+        ),
     ],
     version: Annotated[
-        Optional[str],
-        Field(description="""Firmware version of the device to filter inventory by"""),
+        str,
+        Field(
+            description="""Firmware version of the device to filter inventory by""",
+            default=None,
+        ),
     ],
     vc_mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""MAC address of the virtual chassis (switch stack) to filter inventory by"""
+            description="""MAC address of the virtual chassis (switch stack) to filter inventory by""",
+            default=None,
         ),
     ],
     device_type: Annotated[
-        Optional[Device_type],
-        Field(description="""Type of the device to filter inventory by"""),
+        Device_type,
+        Field(
+            description="""Type of the device to filter inventory by""", default=None
+        ),
     ],
     status: Annotated[
-        Optional[Status],
-        Field(description="""Connection status of the device to filter inventory by"""),
+        Status,
+        Field(
+            description="""Connection status of the device to filter inventory by""",
+            default=None,
+        ),
     ],
     text: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Text to search for in device attributes (name, serial, MAC). Use the wildcard `*` for partial matches (e.g. `AP*` to match all devices with names starting with 'AP')"""
+            description="""Text to search for in device attributes (name, serial, MAC). Use the wildcard `*` for partial matches (e.g. `AP*` to match all devices with names starting with 'AP')""",
+            default=None,
         ),
     ],
     limit: Annotated[

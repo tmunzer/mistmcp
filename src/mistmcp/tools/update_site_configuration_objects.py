@@ -22,7 +22,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -69,9 +69,10 @@ async def update_site_configuration_objects(
         ),
     ],
     object_id: Annotated[
-        Optional[UUID],
+        UUID,
         Field(
-            description="""ID of the specific configuration object to update. Optional, if not provided, a new configuration object will be created with the provided payload"""
+            description="""ID of the specific configuration object to update. Optional, if not provided, a new configuration object will be created with the provided payload""",
+            default=None,
         ),
     ],
 ) -> dict | list | str:

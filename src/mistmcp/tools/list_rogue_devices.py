@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -55,16 +55,17 @@ async def list_rogue_devices(
         Rogue_type, Field(description="""Type of rogue device to filter by""")
     ],
     rogue_ap_type: Annotated[
-        Optional[Rogue_ap_type],
+        Rogue_ap_type,
         Field(
-            description="""Type of rogue AP to filter by. Only applicable when filtering for rogue APs"""
+            description="""Type of rogue AP to filter by. Only applicable when filtering for rogue APs""",
+            default=None,
         ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)

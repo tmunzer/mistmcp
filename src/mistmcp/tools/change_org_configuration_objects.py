@@ -22,7 +22,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -101,9 +101,10 @@ async def change_org_configuration_objects(
         ),
     ],
     object_id: Annotated[
-        Optional[UUID],
+        UUID,
         Field(
-            description="""ID of the specific configuration object to update. Required when action_type is 'update' or 'delete'"""
+            description="""ID of the specific configuration object to update. Required when action_type is 'update' or 'delete'""",
+            default=None,
         ),
     ],
 ) -> dict | list | str:

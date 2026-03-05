@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from enum import Enum
 from uuid import UUID
 
@@ -67,35 +67,39 @@ async def search_events(
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     event_type: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Comma-separated event types to filter by. The list of possible event types can be obtained with the `mist_get_constants` tool with `object_type=device_events` when `event_source` is `device`, `object_type=mxedge_events` when `event_source` is `mxedge`, `object_type=client_events` when `event_source` is `wan_client` or `wireless_client`, `object_type=nac_events` when `event_source` is `nac_client`"""
+            description="""Comma-separated event types to filter by. The list of possible event types can be obtained with the `mist_get_constants` tool with `object_type=device_events` when `event_source` is `device`, `object_type=mxedge_events` when `event_source` is `mxedge`, `object_type=client_events` when `event_source` is `wan_client` or `wireless_client`, `object_type=nac_events` when `event_source` is `nac_client`""",
+            default=None,
         ),
     ],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""MAC address to filter by (device/WAN client/NAC client/rogue events only)"""
+            description="""MAC address to filter by (device/WAN client/NAC client/rogue events only)""",
+            default=None,
         ),
     ],
     text: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Text search in event details (device/NAC client events only)"""
+            description="""Text search in event details (device/NAC client events only)""",
+            default=None,
         ),
     ],
     ssid: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""SSID filter (wireless_client/nac_client/rogue events only)"""
+            description="""SSID filter (wireless_client/nac_client/rogue events only)""",
+            default=None,
         ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)

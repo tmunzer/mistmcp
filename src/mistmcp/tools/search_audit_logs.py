@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from enum import Enum
 from uuid import UUID
 
@@ -49,16 +49,19 @@ async def search_audit_logs(
             description="""Whether to retrieve audit logs for the account or a specific organization. If `org` is selected, the `org_id` parameter is required"""
         ),
     ],
-    org_id: Annotated[Optional[UUID], Field(description="""Organization ID""")],
+    org_id: Annotated[UUID, Field(description="""Organization ID""", default=None)],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     message: Annotated[
-        Optional[str],
-        Field(description="""Message to filter audit logs by (partial search)"""),
+        str,
+        Field(
+            description="""Message to filter audit logs by (partial search)""",
+            default=None,
+        ),
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)

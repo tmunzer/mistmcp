@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional, List
+from typing import Annotated, List
 from uuid import UUID
 
 
@@ -39,21 +39,24 @@ from uuid import UUID
 async def search_nac_user_macs(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     usermac_id: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""ID of the User MAC address to return details for. If specified, other filters are ignored and details for the specified User MAC address is returned if it exists"""
+            description="""ID of the User MAC address to return details for. If specified, other filters are ignored and details for the specified User MAC address is returned if it exists""",
+            default=None,
         ),
     ],
     mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Partial/full MAC address of the NAC endpoint to search for"""
+            description="""Partial/full MAC address of the NAC endpoint to search for""",
+            default=None,
         ),
     ],
     labels: Annotated[
-        Optional[List[str]],
+        List[str],
         Field(
-            description="""Comma separated list of labels to filter NAC endpoints by. A NAC endpoint must have all the specified labels to be included in the results"""
+            description="""Comma separated list of labels to filter NAC endpoints by. A NAC endpoint must have all the specified labels to be included in the results""",
+            default=None,
         ),
     ],
     limit: Annotated[

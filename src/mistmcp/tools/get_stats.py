@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from enum import Enum
 from uuid import UUID
 
@@ -68,24 +68,26 @@ async def get_stats(
         ),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     device_type: Annotated[
-        Optional[Device_type],
+        Device_type,
         Field(
-            description="""Device type filter (ap, switch, gateway). Only applicable when stats_type is org_devices or site_devices"""
+            description="""Device type filter (ap, switch, gateway). Only applicable when stats_type is org_devices or site_devices""",
+            default=None,
         ),
     ],
     object_id: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Filter by specific object ID or MAC address (format depends on stats_type): Mist Edge ID for mxedges, device ID for devices, MAC address for BGP/OSPF/peer_paths/ports, client MAC for wireless_clients, site ID for sites"""
+            description="""Filter by specific object ID or MAC address (format depends on stats_type): Mist Edge ID for mxedges, device ID for devices, MAC address for BGP/OSPF/peer_paths/ports, client MAC for wireless_clients, site ID for sites""",
+            default=None,
         ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)

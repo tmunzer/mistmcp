@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -68,33 +68,38 @@ async def list_upgrades(
         ),
     ],
     upgrade_id: Annotated[
-        Optional[UUID],
+        UUID,
         Field(
-            description="""ID of a specific upgrade job to retrieve. Only applicable when device_type is ap, switch, srx, mxedge, or ssr"""
+            description="""ID of a specific upgrade job to retrieve. Only applicable when device_type is ap, switch, srx, mxedge, or ssr""",
+            default=None,
         ),
     ],
     firmware_type: Annotated[
-        Optional[Firmware_type],
+        Firmware_type,
         Field(
-            description="""Device model type to filter available firmware versions by. Only applicable when device_type is available_device_versions"""
+            description="""Device model type to filter available firmware versions by. Only applicable when device_type is available_device_versions""",
+            default=None,
         ),
     ],
     model: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Device model to filter available firmware versions by. Only applicable when device_type is available_device_versions"""
+            description="""Device model to filter available firmware versions by. Only applicable when device_type is available_device_versions""",
+            default=None,
         ),
     ],
     channel: Annotated[
-        Optional[Channel],
+        Channel,
         Field(
-            description="""SSR firmware release channel to filter by. Only applicable when device_type is available_ssr_versions. Defaults to stable"""
+            description="""SSR firmware release channel to filter by. Only applicable when device_type is available_ssr_versions. Defaults to stable""",
+            default=None,
         ),
     ],
     mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""MAC address (or comma-separated list) of SSR device(s) to retrieve available versions for. Only applicable when device_type is available_ssr_versions"""
+            description="""MAC address (or comma-separated list) of SSR device(s) to retrieve available versions for. Only applicable when device_type is available_ssr_versions""",
+            default=None,
         ),
     ],
 ) -> dict | list | str:

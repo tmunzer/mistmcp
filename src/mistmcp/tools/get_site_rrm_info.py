@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -59,25 +59,28 @@ async def get_site_rrm_info(
         ),
     ],
     device_id: Annotated[
-        Optional[UUID],
+        UUID,
         Field(
-            description="""ID of the AP to retrieve RRM considerations for. Required when rrm_info_type is current_rrm_considerations"""
+            description="""ID of the AP to retrieve RRM considerations for. Required when rrm_info_type is current_rrm_considerations""",
+            default=None,
         ),
     ],
     band: Annotated[
-        Optional[Band],
+        Band,
         Field(
-            description="""802.11 band. Required when rrm_info_type is current_rrm_considerations or current_rrm_neighbors"""
+            description="""802.11 band. Required when rrm_info_type is current_rrm_considerations or current_rrm_neighbors""",
+            default=None,
         ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     duration: Annotated[
-        Optional[str], Field(description="""Time range duration (e.g. 1d, 1h, 10m)""")
+        str,
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)""", default=None),
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=200)

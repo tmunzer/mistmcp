@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from enum import Enum
 from uuid import UUID
 
@@ -59,49 +59,58 @@ async def search_client(
         Field(description="""Type of client: WAN, wired, wireless, or NAC"""),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     device_mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""MAC address of the access point or switch. Not applicable for WAN or NAC clients"""
+            description="""MAC address of the access point or switch. Not applicable for WAN or NAC clients""",
+            default=None,
         ),
     ],
     band: Annotated[
-        Optional[Band],
-        Field(description="""802.11 band (24 or 5 or 6 GHz). Wireless clients only"""),
+        Band,
+        Field(
+            description="""802.11 band (24 or 5 or 6 GHz). Wireless clients only""",
+            default=None,
+        ),
     ],
     ssid: Annotated[
-        Optional[str], Field(description="""SSID name. Wireless or NAC clients only""")
+        str,
+        Field(description="""SSID name. Wireless or NAC clients only""", default=None),
     ],
     mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Client MAC address (supports * wildcard for partial match)"""
+            description="""Client MAC address (supports * wildcard for partial match)""",
+            default=None,
         ),
     ],
     hostname: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Client hostname (supports * wildcard). Not applicable for WAN or wired clients"""
+            description="""Client hostname (supports * wildcard). Not applicable for WAN or wired clients""",
+            default=None,
         ),
     ],
     ip: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Client IP address (supports * wildcard). Not applicable for NAC clients"""
+            description="""Client IP address (supports * wildcard). Not applicable for NAC clients""",
+            default=None,
         ),
     ],
     text: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Free text search in client details (supports * wildcard). Not applicable for WAN clients"""
+            description="""Free text search in client details (supports * wildcard). Not applicable for WAN clients""",
+            default=None,
         ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)

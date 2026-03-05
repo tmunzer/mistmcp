@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -62,36 +62,40 @@ async def search_alarms(
             description="""Search scope: `org` (organization-wide), `site` (specific site, requires site_id), or `suppressed` (disabled alarms)"""
         ),
     ],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     group: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Only for org/site scope. Alarm group. enum: `infrastructure`, `marvis`, `security`.  The `marvis` group is used to retrieve AI-driven network issue detections."""
+            description="""Only for org/site scope. Alarm group. enum: `infrastructure`, `marvis`, `security`.  The `marvis` group is used to retrieve AI-driven network issue detections.""",
+            default=None,
         ),
     ],
     severity: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Only for org/site scope.Severity of the alarm. enum: `critical`, `major`, `minor`, `warn`, `info`"""
+            description="""Only for org/site scope.Severity of the alarm. enum: `critical`, `major`, `minor`, `warn`, `info`""",
+            default=None,
         ),
     ],
     alarm_type: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Only for org/site scope. Comma separated list of types of the alarm (e.g., 'bad_cable,auth_failure'). IMPORTANT: use the `mist_get_constants` tool with `object_type=alarm_definitions`to get the list of possible alarm types"""
+            description="""Only for org/site scope. Comma separated list of types of the alarm (e.g., 'bad_cable,auth_failure'). IMPORTANT: use the `mist_get_constants` tool with `object_type=alarm_definitions`to get the list of possible alarm types""",
+            default=None,
         ),
     ],
     acked: Annotated[
-        Optional[bool],
+        bool,
         Field(
-            description="""Only for org/site scope. Whether to filter for acknowledged (true) or unacknowledged (false) alarms"""
+            description="""Only for org/site scope. Whether to filter for acknowledged (true) or unacknowledged (false) alarms""",
+            default=None,
         ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)

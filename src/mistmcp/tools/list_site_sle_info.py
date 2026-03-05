@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -71,9 +71,10 @@ async def list_site_sle_info(
         ),
     ],
     metric: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""SLE metric name to retrieve classifiers for. Required when query_type is classifiers. Use query_type=metrics first to discover available metric names"""
+            description="""SLE metric name to retrieve classifiers for. Required when query_type is classifiers. Use query_type=metrics first to discover available metric names""",
+            default=None,
         ),
     ],
 ) -> dict | list | str:

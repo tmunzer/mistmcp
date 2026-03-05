@@ -134,34 +134,38 @@ async def get_configuration_objects(
         Object_type, Field(description="""Type of configuration object to retrieve""")
     ],
     site_id: Annotated[
-        Optional[UUID],
+        UUID,
         Field(
-            description="""ID of the site to retrieve configuration objects from. Required when object_type is starting with `site_`, optional if object_type is 'org_sites' to retrieve a single site"""
+            default=None,
+            description="""ID of the site to retrieve configuration objects from. Required when object_type is starting with `site_`, optional if object_type is 'org_sites' to retrieve a single site""",
         ),
     ],
     object_id: Annotated[
-        Optional[UUID],
+        UUID,
         Field(
-            description="""ID of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved"""
+            default=None,
+            description="""ID of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved""",
         ),
     ],
     name: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Name of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved. Case insensitive. Add a wildcard (`*`) before and/or after the string for partial match"""
+            default=None,
+            description="""Name of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved. Case insensitive. Add a wildcard (`*`) before and/or after the string for partial match""",
         ),
     ],
     computed: Annotated[
-        Optional[bool],
+        bool,
         Field(
-            description="""Whether to retrieve the computed configuration object with all inherited settings applied. Only applicable when object_type is `org_sites`, `site_devices` or  `site_wlans`"""
+            default=None,
+            description="""Whether to retrieve the computed configuration object with all inherited settings applied. Only applicable when object_type is `org_sites`, `site_devices` or  `site_wlans`""",
         ),
     ],
     limit: Annotated[
-        Optional[int],
+        int,
         Field(
-            description="""Max number of results per page. Default is 20, Max is 1000""",
             default=20,
+            description="""Max number of results per page. Default is 20, Max is 1000""",
         ),
     ] = 20,
 ) -> dict | list | str:

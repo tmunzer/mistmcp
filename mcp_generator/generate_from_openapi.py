@@ -382,14 +382,14 @@ def _process_params(
                 if annotations:
                     annotations.append(f"default={tmp_param['default']}")
             else:
-                _add_import(imports, "typing", "Optional")
-                # tmp_type = f"Optional[{tmp_type} | None]"
-                tmp_type = f"Optional[{tmp_type}]"
-               # tmp_default = " = None"
-        elif not tmp_param["required"]:
-            _add_import(imports, "typing", "Optional")
-            #  tmp_type = f"Optional[{tmp_type} | None]"
-            tmp_type = f"Optional[{tmp_type}]"
+                # Optional param without a default: inject default=None into Field
+                # instead of wrapping in Optional[X] to avoid anyOf in the JSON schema.
+                # Pydantic v2 does not validate defaults, so None flows through safely.
+                _add_import(imports, "pydantic", "Field")
+                _add_import(imports, "typing", "Annotated")
+                annotations.append("default=None")
+        # When tmp_default is already set (e.g. enum with default), no Optional
+        # wrapper is needed — the existing default already makes the param optional.
 
         # Add annotations to type
         if annotations:

@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from enum import Enum
 from uuid import UUID
 
@@ -50,7 +50,7 @@ async def get_org_or_site_info(
         ),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
 ) -> dict | list | str:
     """Search information about the organizations or sites"""
 

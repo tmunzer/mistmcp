@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -82,19 +82,21 @@ async def get_site_sle(
         Object_type, Field(description="""Type of object to retrieve metrics for""")
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     classifier: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Classifier name. Required when object_type is 'classifier_summary_trend'"""
+            description="""Classifier name. Required when object_type is 'classifier_summary_trend'""",
+            default=None,
         ),
     ],
     duration: Annotated[
-        Optional[str], Field(description="""Time range duration (e.g. 1d, 1h, 10m)""")
+        str,
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)""", default=None),
     ],
 ) -> dict | list | str:
     """Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs"""

@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -58,30 +58,35 @@ async def get_insight_metrics(
         ),
     ],
     mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""MAC address of the client or device to retrieve metrics for. Required if object_type is 'client', 'ap', 'mxedge' or 'switch'"""
+            description="""MAC address of the client or device to retrieve metrics for. Required if object_type is 'client', 'ap', 'mxedge' or 'switch'""",
+            default=None,
         ),
     ],
     device_id: Annotated[
-        Optional[UUID],
+        UUID,
         Field(
-            description="""ID of the gateway device to retrieve metrics for. Required if object_type is 'gateway'"""
+            description="""ID of the gateway device to retrieve metrics for. Required if object_type is 'gateway'""",
+            default=None,
         ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     duration: Annotated[
-        Optional[str], Field(description="""Time range duration (e.g. 1d, 1h, 10m)""")
+        str,
+        Field(description="""Time range duration (e.g. 1d, 1h, 10m)""", default=None),
     ],
     interval: Annotated[
-        Optional[str], Field(description="""Aggregation interval (e.g. 1h, 1d)""")
+        str, Field(description="""Aggregation interval (e.g. 1h, 1d)""", default=None)
     ],
-    page: Annotated[Optional[int], Field(description="""Page number for pagination""")],
+    page: Annotated[
+        int, Field(description="""Page number for pagination""", default=None)
+    ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,

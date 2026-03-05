@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 from enum import Enum
 
@@ -45,11 +45,12 @@ class Troubleshoot_type(Enum):
 )
 async def troubleshoot(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Used to troubleshoot a specific client or device. MAC address of the client or device to run the troubleshooting query for. Not required if troubleshooting a whole site with `site_id`"""
+            description="""Used to troubleshoot a specific client or device. MAC address of the client or device to run the troubleshooting query for. Not required if troubleshooting a whole site with `site_id`""",
+            default=None,
         ),
     ],
     troubleshoot_type: Annotated[
@@ -59,10 +60,10 @@ async def troubleshoot(
         ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
 ) -> dict | list | str:
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. Use the `mist_search_client` tool to find a client MAC Address. Use the `mist_search_device` tool to find device MAC Address. **NOTE**: requires Marvis subscription license"""

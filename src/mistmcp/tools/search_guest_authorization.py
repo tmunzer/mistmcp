@@ -20,7 +20,7 @@ from mistmcp.server import mcp
 from mistmcp.logger import logger
 
 from pydantic import Field
-from typing import Annotated, Optional
+from typing import Annotated
 from enum import Enum
 from uuid import UUID
 
@@ -50,34 +50,40 @@ async def search_guest_authorization(
         ),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     guest_mac: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""MAC address of the guest to search for in the authorization entries"""
+            description="""MAC address of the guest to search for in the authorization entries""",
+            default=None,
         ),
     ],
     wlan_id: Annotated[
-        Optional[UUID],
+        UUID,
         Field(
-            description="""ID of the WLAN to filter guest authorization entries by"""
+            description="""ID of the WLAN to filter guest authorization entries by""",
+            default=None,
         ),
     ],
     auth_method: Annotated[
-        Optional[str],
+        str,
         Field(
-            description="""Authentication method to filter guest authorization entries by"""
+            description="""Authentication method to filter guest authorization entries by""",
+            default=None,
         ),
     ],
     ssid: Annotated[
-        Optional[str],
-        Field(description="""SSID to filter guest authorization entries by"""),
+        str,
+        Field(
+            description="""SSID to filter guest authorization entries by""",
+            default=None,
+        ),
     ],
     start: Annotated[
-        Optional[int], Field(description="""Start of time range (epoch seconds)""")
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        Optional[int], Field(description="""End of time range (epoch seconds)""")
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
