@@ -51,7 +51,6 @@ async def get_org_licenses(
             description="""Type of license information to retrieve. `claim_status` returns the status of an asynchronous license claim operation, `by_site` returns the list of licenses for each site in the org, and `summary` returns a summary of the licenses in the org including total count and count by license type"""
         ),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """This tool can be used to retrieve information about the licenses of an org"""
 

@@ -85,7 +85,6 @@ async def get_site_rrm_info(
     page: Annotated[
         int, Field(description="""Page number for pagination""", default=1)
     ] = 1,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve Radio Resource Management (RRM) information for a site. Use current_channel_planning to get the current channel plan, current_rrm_considerations to get RRM considerations for a specific device and band, current_rrm_neighbors to list current RRM neighbor APs for a band, or events to list RRM change events over a time range."""
 

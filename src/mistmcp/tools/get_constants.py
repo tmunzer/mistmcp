@@ -57,7 +57,6 @@ async def get_constants(
             description="""Type of constant to retrieve: fingerprint_types, insight_metrics, license_types, webhook_topics, device_models, device_events, mxedge_models, alarm_definitions, client_events, mxedge_events, or nac_events"""
         ),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve Mist platform constants including insight metrics, webhook topics, alarm definitions, device models, events definitions, and license types. Use this to understand available options and configurations for the Mist API."""
 

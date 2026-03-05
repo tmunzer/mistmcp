@@ -51,7 +51,6 @@ async def get_org_or_site_info(
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     site_id: Annotated[Optional[UUID], Field(description="""Site ID""")],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search information about the organizations or sites"""
 

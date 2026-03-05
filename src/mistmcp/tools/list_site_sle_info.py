@@ -76,7 +76,6 @@ async def list_site_sle_info(
             description="""SLE metric name to retrieve classifiers for. Required when query_type is classifiers. Use query_type=metrics first to discover available metric names"""
         ),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """List SLE metadata for a site scope. Use metrics to list available SLE metrics for a given scope, or classifiers to list the classifiers available for a specific metric."""
 

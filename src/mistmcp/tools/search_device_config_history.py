@@ -74,7 +74,6 @@ async def search_device_config_history(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search for entries in device config history.
     This tool can be used to track configuration changes over time, useful for troubleshooting issues that started after a config change."""

@@ -96,7 +96,6 @@ async def get_site_sle(
     duration: Annotated[
         Optional[str], Field(description="""Time range duration (e.g. 1d, 1h, 10m)""")
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs"""
 

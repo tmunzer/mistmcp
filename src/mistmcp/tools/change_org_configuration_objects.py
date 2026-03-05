@@ -106,7 +106,6 @@ async def change_org_configuration_objects(
             description="""ID of the specific configuration object to update. Required when action_type is 'update' or 'delete'"""
         ),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Update, create or delete configuration object for a specified org.\n
     IMPORTANT:\n

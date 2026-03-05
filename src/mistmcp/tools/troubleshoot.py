@@ -64,7 +64,6 @@ async def troubleshoot(
     end: Annotated[
         Optional[int], Field(description="""End of time range (epoch seconds)""")
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. Use the `mist_search_client` tool to find a client MAC Address. Use the `mist_search_device` tool to find device MAC Address. **NOTE**: requires Marvis subscription license"""
 

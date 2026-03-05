@@ -240,7 +240,6 @@ async def get_configuration_objects(
             default=20,
         ),
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve configuration objects from a specified organization or site. For the site configuration objects, set the attribute `computed` to `true` to retrieve the computed configuration including all configuration objects defined at the org level and assigned to the site. This tool allows you to retrieve a list of configuration objects (e.g. wlans, device profiles, network templates) or to filter them providing their ID."""
 

@@ -90,7 +90,6 @@ async def search_org_device(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search a network device in the Organization Inventory. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately."""
 

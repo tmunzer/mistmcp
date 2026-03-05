@@ -88,7 +88,6 @@ async def change_site_configuration_objects(
             description="""ID of the specific configuration object to update or delete. Required when action_type is 'update' or 'delete'"""
         ),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Update, create or delete a configuration object for a specified site.\n
     IMPORTANT:\n

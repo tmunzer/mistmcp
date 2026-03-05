@@ -100,7 +100,6 @@ async def search_events(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search for events across an organization or site with flexible filtering options.
 

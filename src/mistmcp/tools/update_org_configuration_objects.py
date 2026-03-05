@@ -92,7 +92,6 @@ async def update_org_configuration_objects(
             description="""ID of the specific configuration object to update. Optional, if not provided, a new configuration object will be created with the provided payload"""
         ),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Update or create configuration object for a specified org.\n
     IMPORTANT:\n

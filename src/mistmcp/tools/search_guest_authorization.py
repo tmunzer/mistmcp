@@ -82,7 +82,6 @@ async def search_guest_authorization(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search for guest authorization entries in an organization or site"""
 

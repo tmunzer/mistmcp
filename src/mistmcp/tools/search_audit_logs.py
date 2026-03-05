@@ -63,7 +63,6 @@ async def search_audit_logs(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search audit logs for the current account or an organization"""
 

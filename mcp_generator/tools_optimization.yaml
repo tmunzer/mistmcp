@@ -1531,6 +1531,11 @@ getStats:
         stats_type:
           - org_devices
           - site_devices
+    - name: object_id
+      schema:
+        type: string
+      description: "Filter by specific object ID or MAC address (format depends on stats_type): Mist Edge ID for mxedges, device ID for devices, MAC address for BGP/OSPF/peer_paths/ports, client MAC for wireless_clients, site ID for sites"
+      required: false
     - name: start
       schema:
         type: integer
@@ -1540,12 +1545,6 @@ getStats:
       schema:
         type: integer
       description: End time (epoch timestamp in seconds)
-      required: false
-    - name: object_id
-      schema:
-        type: string
-        format: uuid
-      description: "Filter by specific object ID or MAC address (format depends on stats_type): Mist Edge ID for mxedges, device ID for devices, MAC address for BGP/OSPF/peer_paths/ports, client MAC for wireless_clients, site ID for sites"
       required: false
     - name: limit
       schema:
@@ -1557,74 +1556,74 @@ getStats:
     org:
       get:
         operationId: getOrgStats
-        function: mistapi.api.v1.orgs.stats.getOrgStats(apisession, org_id=str(org_id), start=str(start), end=str(end) )
+        function: mistapi.api.v1.orgs.stats.getOrgStats(apisession, org_id=str(org_id), start=str(start) if start else None, end=str(end) if end else None )
     sites:
       list:
         operationId: listOrgSiteStats
-        function: mistapi.api.v1.orgs.stats.listOrgSiteStats(apisession, org_id=str(org_id), start=str(start), end=str(end), limit=limit)
+        function: mistapi.api.v1.orgs.stats.listOrgSiteStats(apisession, org_id=str(org_id), start=str(start) if start else None, end=str(end) if end else None, limit=limit)
       get:
         operationId: getSiteStats
-        function: mistapi.api.v1.sites.stats.getSiteStats(apisession, site_id=str(object_id),)
+        function: mistapi.api.v1.sites.stats.getSiteStats(apisession, site_id=str(object_id))
     org_mxedges:
       list:
         operationId: listOrgMxEdgesStats
-        function: mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(apisession, org_id=str(org_id), start=str(start), end=str(end), limit=limit)
+        function: mistapi.api.v1.orgs.stats.listOrgMxEdgesStats(apisession, org_id=str(org_id), start=str(start) if start else None, end=str(end) if end else None, limit=limit)
       get:
         operationId: getOrgMxEdgeStats
-        function: mistapi.api.v1.orgs.stats.getOrgMxEdgeStats(apisession, org_id=str(org_id), mxedge_id=str(object_id) )
+        function: mistapi.api.v1.orgs.stats.getOrgMxEdgeStats(apisession, org_id=str(org_id), mxedge_id=str(object_id))
     org_devices:
       list:
         operationId: listOrgDevicesStats
-        function: mistapi.api.v1.orgs.stats.listOrgDevicesStats(apisession, org_id=str(org_id), type=device_type.value if device_type else None, start=str(start), end=str(end), mac=str(object_id), limit=limit)
+        function: mistapi.api.v1.orgs.stats.listOrgDevicesStats(apisession, org_id=str(org_id), type=device_type.value if device_type else None, start=str(start) if start else None, end=str(end) if end else None, mac=str(object_id), limit=limit)
     org_bgp:
       list:
         operationId: searchOrgBgpStats
-        function: mistapi.api.v1.orgs.stats.searchOrgBgpStats(apisession, org_id=str(org_id), start=str(start), end=str(end), mac=str(object_id), limit=limit)
+        function: mistapi.api.v1.orgs.stats.searchOrgBgpStats(apisession, org_id=str(org_id), start=str(start) if start else None, end=str(end) if end else None, mac=str(object_id) if object_id else None, limit=limit)
     org_ospf:
       list:
         operationId: searchOrgOspfStats
-        function: mistapi.api.v1.orgs.stats.searchOrgOspfStats(apisession, org_id=str(org_id), start=str(start), end=str(end), mac=str(object_id)  )
+        function: mistapi.api.v1.orgs.stats.searchOrgOspfStats(apisession, org_id=str(org_id), start=str(start) if start else None, end=str(end) if end else None, mac=str(object_id) if object_id else None )
     org_peer_paths:
       list:
         operationId: searchOrgPeerPathStats
-        function: mistapi.api.v1.orgs.stats.searchOrgPeerPathStats(apisession, org_id=str(org_id), start=str(start), end=str(end), mac=str(object_id), limit=limit)
+        function: mistapi.api.v1.orgs.stats.searchOrgPeerPathStats(apisession, org_id=str(org_id), start=str(start) if start else None, end=str(end) if end else None, mac=str(object_id) if object_id else None, limit=limit)
     org_ports:
       list:
         operationId: searchOrgSwOrGwPorts
-        function: mistapi.api.v1.orgs.stats.searchOrgSwOrGwPorts(apisession, org_id=str(org_id), mac=str(object_id), limit=limit)
+        function: mistapi.api.v1.orgs.stats.searchOrgSwOrGwPorts(apisession, org_id=str(org_id), mac=str(object_id) if object_id else None, limit=limit)
     site_mxedges:
       list:
         operationId: listSiteMxEdgesStats
-        function: mistapi.api.v1.sites.stats.listSiteMxEdgesStats(apisession, site_id=str(site_id), start=str(start), end=str(end), limit=limit)
+        function: mistapi.api.v1.sites.stats.listSiteMxEdgesStats(apisession, site_id=str(site_id), start=str(start) if start else None, end=str(end) if end else None, limit=limit)
       get:
         operationId: getSiteMxEdgeStats
-        function: mistapi.api.v1.sites.stats.getSiteMxEdgeStats(apisession, site_id=str(site_id), start=str(start), end=str(end), mxedge_id=str(object_id) )
+        function: mistapi.api.v1.sites.stats.getSiteMxEdgeStats(apisession, site_id=str(site_id), start=str(start) if start else None, end=str(end) if end else None, mxedge_id=str(object_id))
     site_wireless_clients:
       list:
         operationId: listSiteWirelessClientsStats
-        function: mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(apisession, site_id=str(site_id), start=str(start), end=str(end), limit=limit)
+        function: mistapi.api.v1.sites.stats.listSiteWirelessClientsStats(apisession, site_id=str(site_id), start=str(start) if start else None, end=str(end) if end else None, limit=limit)
       get:
         operationId: getSiteWirelessClientStats
-        function: mistapi.api.v1.sites.stats.getSiteWirelessClientStats(apisession, site_id=str(site_id),  client_mac=str(object_id)  )
+        function: mistapi.api.v1.sites.stats.getSiteWirelessClientStats(apisession, site_id=str(site_id),  client_mac=str(object_id))
     site_devices:
       list:
         operationId: listSiteDevicesStats
         function: mistapi.api.v1.sites.stats.listSiteDevicesStats(apisession, site_id=str(site_id), type=device_type.value if device_type else None, limit=limit)
       get:
         operationId: getSiteDeviceStats
-        function: mistapi.api.v1.sites.stats.getSiteDeviceStats(apisession, site_id=str(site_id), device_id=str(object_id)  )
+        function: mistapi.api.v1.sites.stats.getSiteDeviceStats(apisession, site_id=str(site_id), device_id=str(object_id))
     site_bgp:
       list:
         operationId: searchSiteBgpStats
-        function: mistapi.api.v1.sites.stats.searchSiteBgpStats(apisession, site_id=str(site_id), start=str(start), end=str(end), mac=str(object_id), limit=limit)
+        function: mistapi.api.v1.sites.stats.searchSiteBgpStats(apisession, site_id=str(site_id), start=str(start) if start else None, end=str(end) if end else None, mac=str(object_id) if object_id else None, limit=limit)
     site_ospf:
       list:
         operationId: searchSiteOspfStats
-        function: mistapi.api.v1.sites.stats.searchSiteOspfStats(apisession, site_id=str(site_id), start=str(start), end=str(end), mac=str(object_id), limit=limit)
+        function: mistapi.api.v1.sites.stats.searchSiteOspfStats(apisession, site_id=str(site_id), start=str(start) if start else None, end=str(end) if end else None, mac=str(object_id) if object_id else None, limit=limit)
     site_ports:
       list:
         operationId: searchSiteSwOrGwPorts
-        function: mistapi.api.v1.sites.stats.searchSiteSwOrGwPorts(apisession, site_id=str(site_id), mac=str(object_id), limit=limit)
+        function: mistapi.api.v1.sites.stats.searchSiteSwOrGwPorts(apisession, site_id=str(site_id), mac=str(object_id) if object_id else None, limit=limit)
 
 searchEvents:
   type: tool_consolidation

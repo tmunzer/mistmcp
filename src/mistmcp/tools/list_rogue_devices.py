@@ -69,7 +69,6 @@ async def list_rogue_devices(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve a list of rogue devices (APs or clients) for a site, with optional filters for rogue AP type and time range"""
 

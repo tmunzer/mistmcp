@@ -97,7 +97,6 @@ async def list_upgrades(
             description="""MAC address (or comma-separated list) of SSR device(s) to retrieve available versions for. Only applicable when device_type is available_ssr_versions"""
         ),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve upgrade-related information for the organization. Use device types (ap, switch, srx, mxedge, ssr) to list or retrieve upgrade jobs. Use available_device_versions to list available firmware versions for AP/switch/gateway devices. Use available_ssr_versions to list available SSR firmware versions."""
 

@@ -40,7 +40,6 @@ async def get_next_page(
         str,
         Field(description="The '_next' URL from a previous response"),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Retrieve the next page of results using the '_next' URL returned by a previous tool call."""
 

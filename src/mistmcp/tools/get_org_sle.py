@@ -59,7 +59,6 @@ async def get_org_sle(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get Org SLEs (all/worst sites, Mx Edges, ...). Use the `mist_get_insight_metrics` tool to get the list of available SLE metrics"""
 

@@ -53,7 +53,6 @@ async def get_self(
             description="""Type of information to retrieve about the current user and account. Possible values are `account_info`, `api_usage`, and `login_failures`"""
         ),
     ],
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """This tool can be used to retrieve information about the current user and account
     The information provided will depend on the `action_type` attribute:

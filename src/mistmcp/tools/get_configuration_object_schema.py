@@ -97,7 +97,6 @@ async def get_configuration_object_schema(
             description="Return the full schema with all constraints and nested sub-schemas. When False (default), returns a compact summary with required fields in full and optional fields as name+type+description only."
         ),
     ] = False,
-    ctx: Context | None = None,
 ) -> dict[str, Any] | str:
     """Retrieve the pre-resolved JSON schema for a Mist configuration object."""
 

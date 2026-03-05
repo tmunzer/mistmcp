@@ -60,7 +60,6 @@ async def get_org_sites_sle(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get SLE summary for the organization sites."""
 

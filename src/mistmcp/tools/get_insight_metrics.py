@@ -85,7 +85,6 @@ async def get_insight_metrics(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Get insight metrics for a given object"""
 

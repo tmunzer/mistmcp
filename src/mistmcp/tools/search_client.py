@@ -106,7 +106,6 @@ async def search_client(
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
     ] = 20,
-    ctx: Context | None = None,
 ) -> dict | list | str:
     """Search for clients across an organization or specific site.
     Supports searching by client type (WAN, wired, wireless, NAC), MAC address, hostname, IP address, and more.
