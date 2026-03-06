@@ -31,6 +31,10 @@ async def get_apisession() -> tuple[mistapi.APISession, str]:
                 .replace("https://", "")
                 .replace("http://", "")
             )
+            if not cloud and request.headers.get("X-Mist-Cloud", ""):
+                cloud = request.headers.get(
+                    "X-Mist-Cloud", "").replace("https://", "").replace("http://", "")
+
             if request.headers.get("Authorization", None):
                 apitoken = request.headers.get("Authorization", "").replace(
                     "Bearer ", ""
@@ -39,31 +43,31 @@ async def get_apisession() -> tuple[mistapi.APISession, str]:
                 apitoken = request.headers.get("X-Authorization", "").replace(
                     "Bearer ", ""
                 )
+
             if request.query_params.get("output", "").lower() == "string":
                 response_format = "string"
         except NotFoundError as exc:
             raise ClientError(
                 "HTTP request context not found. Are you using HTTP transport?"
             ) from exc
-        if not cloud or not apitoken:
+        if not cloud:
+            cloud = "api.mist.com"
+        if not apitoken:
             raise ClientError(
-                "Missing required parameters: 'cloud' and 'Authorization' or 'X-Authorization' header"
+                "Missing required parameters: 'Authorization' or 'X-Authorization' header"
             )
     else:
         apitoken = config.mist_apitoken
-        cloud = config.mist_host
+        cloud = config.mist_host if config.mist_host else "api.mist.com"
         response_format = config.response_format
 
-    if not apitoken:
-        raise ClientError(
-            "Missing required parameter: 'Authorization' or 'X-Authorization' header or mist_apitoken in config"
-        )
-    if not cloud:
-        raise ClientError(
-            "Missing required parameter: 'cloud' query parameter or mist_host in config"
-        )
+        if not apitoken:
+            raise ClientError(
+                "Missing required parameter: mist_apitoken in config"
+            )
 
-    logger.info("API request — host: %s, token: %s", cloud, mask_token(apitoken))
+    logger.info("API request — host: %s, token: %s",
+                cloud, mask_token(apitoken))
 
     apisession = mistapi.APISession(
         host=cloud,

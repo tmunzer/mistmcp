@@ -354,6 +354,7 @@ quadrantChart
 # Module-level MCP instance — imported directly by tool modules
 mcp = FastMCP(
     name="mist_mcp",
+    version="0.1.0",
     instructions=_instructions,
     on_duplicate="replace",
     mask_error_details=True,
