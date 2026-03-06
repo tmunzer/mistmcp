@@ -50,8 +50,15 @@ async def get_apisession() -> tuple[mistapi.APISession, str]:
             raise ClientError(
                 "HTTP request context not found. Are you using HTTP transport?"
             ) from exc
+
+        if not cloud and not apitoken:
+            raise ClientError(
+                "Missing required parameters: 'X-Mist-Cloud' header or 'cloud' query parameter, and 'Authorization' or 'X-Authorization' header"
+            )
         if not cloud:
-            cloud = "api.mist.com"
+            raise ClientError(
+                "Missing required parameters: 'X-Mist-Cloud' header or 'cloud' query parameter"
+            )
         if not apitoken:
             raise ClientError(
                 "Missing required parameters: 'Authorization' or 'X-Authorization' header"
@@ -61,6 +68,14 @@ async def get_apisession() -> tuple[mistapi.APISession, str]:
         cloud = config.mist_host if config.mist_host else "api.mist.com"
         response_format = config.response_format
 
+        if not cloud and not apitoken:
+            raise ClientError(
+                "Missing required parameters: mist_host and mist_apitoken in config"
+            )
+        if not cloud:
+            raise ClientError(
+                "Missing required parameter: mist_host in config"
+            )
         if not apitoken:
             raise ClientError(
                 "Missing required parameter: mist_apitoken in config"
