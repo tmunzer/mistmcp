@@ -64,6 +64,15 @@ async def get_org_sle(
     """Get Org SLEs (all/worst sites, Mx Edges, ...). Use the `mist_get_insight_metrics` tool to get the list of available SLE metrics"""
 
     logger.debug("Tool get_org_sle called")
+    logger.debug(
+        "Input Parameters: org_id: %s, metric: %s, sle: %s, start: %s, end: %s, limit: %s",
+        org_id,
+        metric,
+        sle,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

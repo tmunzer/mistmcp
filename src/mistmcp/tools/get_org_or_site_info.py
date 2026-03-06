@@ -55,6 +55,12 @@ async def get_org_or_site_info(
     """Search information about the organizations or sites"""
 
     logger.debug("Tool get_org_or_site_info called")
+    logger.debug(
+        "Input Parameters: info_type: %s, org_id: %s, site_id: %s",
+        info_type,
+        org_id,
+        site_id,
+    )
 
     apisession, response_format = await get_apisession()
 

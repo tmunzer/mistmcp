@@ -871,6 +871,15 @@ def _gen_tools_optim(
             )
         )
 
+        input_parameters = "\"Input Parameters: "
+        i = 0
+        for param in func_data.get('parameters', []):
+            if i > 0:
+                input_parameters += ", "
+            input_parameters += f"{param.get('name')}: %s"
+            i += 1
+        input_parameters += f"\", {', '.join([param.get('name') for param in func_data.get('parameters', [])])}"
+
         # Select the template based on hints
         if func_data.get("read_only_hint") is True:
             tool_code = TOOL_TEMPLATE_READ.format(
@@ -884,6 +893,7 @@ def _gen_tools_optim(
                 readOnlyHint=func_data.get("read_only_hint", False),
                 destructiveHint=func_data.get("destructive_hint", True),
                 parameters=parameters,
+                input_parameters=input_parameters,
                 request=request,
             )
         elif func_data.get("destructive_hint") is False:
@@ -898,6 +908,7 @@ def _gen_tools_optim(
                 readOnlyHint=func_data.get("read_only_hint", True),
                 destructiveHint=func_data.get("destructive_hint", True),
                 parameters=parameters,
+                input_parameters=input_parameters,
                 request=request,
             )
         else:
@@ -912,6 +923,7 @@ def _gen_tools_optim(
                 readOnlyHint=func_data.get("read_only_hint", True),
                 destructiveHint=func_data.get("destructive_hint", False),
                 parameters=parameters,
+                input_parameters=input_parameters,
                 request=request,
             )
 

@@ -82,6 +82,16 @@ async def search_device_config_history(
     This tool can be used to track configuration changes over time, useful for troubleshooting issues that started after a config change."""
 
     logger.debug("Tool search_device_config_history called")
+    logger.debug(
+        "Input Parameters: site_id: %s, query_type: %s, device_type: %s, device_mac: %s, start: %s, end: %s, limit: %s",
+        site_id,
+        query_type,
+        device_type,
+        device_mac,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

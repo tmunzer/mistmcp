@@ -74,6 +74,15 @@ async def list_rogue_devices(
     """Retrieve a list of rogue devices (APs or clients) for a site, with optional filters for rogue AP type and time range"""
 
     logger.debug("Tool list_rogue_devices called")
+    logger.debug(
+        "Input Parameters: site_id: %s, rogue_type: %s, rogue_ap_type: %s, start: %s, end: %s, limit: %s",
+        site_id,
+        rogue_type,
+        rogue_ap_type,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

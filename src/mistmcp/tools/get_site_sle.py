@@ -102,6 +102,18 @@ async def get_site_sle(
     """Provides Information about the Service Level Expectations (SLEs) for a given site. The SLEs are derived from the insight metrics and can be used to monitor the network user experience of the site against the defined SLEs"""
 
     logger.debug("Tool get_site_sle called")
+    logger.debug(
+        "Input Parameters: site_id: %s, scope: %s, scope_id: %s, metric: %s, object_type: %s, start: %s, end: %s, classifier: %s, duration: %s",
+        site_id,
+        scope,
+        scope_id,
+        metric,
+        object_type,
+        start,
+        end,
+        classifier,
+        duration,
+    )
 
     apisession, response_format = await get_apisession()
 

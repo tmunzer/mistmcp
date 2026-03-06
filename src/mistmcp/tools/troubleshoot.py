@@ -69,6 +69,15 @@ async def troubleshoot(
     """Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. Use the `mist_search_client` tool to find a client MAC Address. Use the `mist_search_device` tool to find device MAC Address. **NOTE**: requires Marvis subscription license"""
 
     logger.debug("Tool troubleshoot called")
+    logger.debug(
+        "Input Parameters: org_id: %s, troubleshoot_type: %s, site_id: %s, mac: %s, start: %s, end: %s",
+        org_id,
+        troubleshoot_type,
+        site_id,
+        mac,
+        start,
+        end,
+    )
 
     apisession, response_format = await get_apisession()
 

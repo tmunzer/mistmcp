@@ -106,6 +106,16 @@ async def list_upgrades(
     """Retrieve upgrade-related information for the organization. Use device types (ap, switch, srx, mxedge, ssr) to list or retrieve upgrade jobs. Use available_device_versions to list available firmware versions for AP/switch/gateway devices. Use available_ssr_versions to list available SSR firmware versions."""
 
     logger.debug("Tool list_upgrades called")
+    logger.debug(
+        "Input Parameters: org_id: %s, device_type: %s, upgrade_id: %s, firmware_type: %s, model: %s, channel: %s, mac: %s",
+        org_id,
+        device_type,
+        upgrade_id,
+        firmware_type,
+        model,
+        channel,
+        mac,
+    )
 
     apisession, response_format = await get_apisession()
 

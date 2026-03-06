@@ -122,6 +122,13 @@ async def change_org_configuration_objects(
     When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload\n"""
 
     logger.debug("Tool change_org_configuration_objects called")
+    logger.debug(
+        "Input Parameters: org_id: %s, object_type: %s, payload: %s, object_id: %s",
+        org_id,
+        object_type,
+        payload,
+        object_id,
+    )
 
     apisession, response_format = await get_apisession()
 

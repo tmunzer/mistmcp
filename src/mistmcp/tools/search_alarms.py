@@ -115,6 +115,19 @@ async def search_alarms(
     For a complete list of alarm types, use `mist_get_constants` with `object_type=alarm_definitions`."""
 
     logger.debug("Tool search_alarms called")
+    logger.debug(
+        "Input Parameters: org_id: %s, scope: %s, site_id: %s, group: %s, severity: %s, alarm_type: %s, acked: %s, start: %s, end: %s, limit: %s",
+        org_id,
+        scope,
+        site_id,
+        group,
+        severity,
+        alarm_type,
+        acked,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

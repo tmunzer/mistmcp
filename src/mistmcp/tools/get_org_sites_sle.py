@@ -64,6 +64,14 @@ async def get_org_sites_sle(
     """Get SLE summary for the organization sites."""
 
     logger.debug("Tool get_org_sites_sle called")
+    logger.debug(
+        "Input Parameters: org_id: %s, sle: %s, start: %s, end: %s, limit: %s",
+        org_id,
+        sle,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

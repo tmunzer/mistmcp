@@ -171,6 +171,16 @@ async def get_configuration_objects(
     """Retrieve configuration objects from a specified organization or site. For the site configuration objects, set the attribute `computed` to `true` to retrieve the computed configuration including all configuration objects defined at the org level and assigned to the site. This tool allows you to retrieve a list of configuration objects (e.g. wlans, device profiles, network templates) or to filter them providing their ID."""
 
     logger.debug("Tool get_configuration_objects called")
+    logger.debug(
+        "Input Parameters: org_id=%s, object_type=%s, site_id=%s, object_id=%s, name=%s, computed=%s, limit=%s",
+        org_id,
+        object_type,
+        site_id,
+        object_id,
+        name,
+        computed,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

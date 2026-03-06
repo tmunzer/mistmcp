@@ -55,6 +55,9 @@ async def get_org_licenses(
     """This tool can be used to retrieve information about the licenses of an org"""
 
     logger.debug("Tool get_org_licenses called")
+    logger.debug(
+        "Input Parameters: org_id: %s, response_type: %s", org_id, response_type
+    )
 
     apisession, response_format = await get_apisession()
 

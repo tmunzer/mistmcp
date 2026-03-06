@@ -122,6 +122,22 @@ async def search_client(
     Different client types support different filter parameters - the tool will validate compatibility."""
 
     logger.debug("Tool search_client called")
+    logger.debug(
+        "Input Parameters: client_type: %s, org_id: %s, site_id: %s, device_mac: %s, band: %s, ssid: %s, mac: %s, hostname: %s, ip: %s, text: %s, start: %s, end: %s, limit: %s",
+        client_type,
+        org_id,
+        site_id,
+        device_mac,
+        band,
+        ssid,
+        mac,
+        hostname,
+        ip,
+        text,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

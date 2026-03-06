@@ -96,6 +96,17 @@ async def get_stats(
     """Use this tool to retrieve various statistics from Mist infrastructure including organization and site-level data. Supports stats for MxEdges, devices, BGP, OSPF, peer paths, ports, and wireless clients. Use object_id to filter results by device ID or MAC address (format varies by stats_type)."""
 
     logger.debug("Tool get_stats called")
+    logger.debug(
+        "Input Parameters: stats_type: %s, org_id: %s, site_id: %s, device_type: %s, object_id: %s, start: %s, end: %s, limit: %s",
+        stats_type,
+        org_id,
+        site_id,
+        device_type,
+        object_id,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

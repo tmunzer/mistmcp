@@ -100,6 +100,7 @@ async def get_configuration_object_schema(
     """Retrieve the pre-resolved JSON schema for a Mist configuration object."""
 
     logger.debug("Tool get_configuration_object_schema called")
+    logger.debug("Input Parameters: schema_name=%s, verbose=%s", schema_name, verbose)
 
     _, response_format = await get_apisession()
 

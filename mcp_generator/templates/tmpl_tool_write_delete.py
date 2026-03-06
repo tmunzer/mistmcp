@@ -49,6 +49,7 @@ async def {operationId}(
     \"\"\"{description}\"\"\"
 
     logger.debug("Tool {operationId} called")
+    logger.debug({input_parameters})
 
     apisession, response_format = await get_apisession()
 

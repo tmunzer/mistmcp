@@ -94,6 +94,20 @@ async def get_insight_metrics(
     """Get insight metrics for a given object"""
 
     logger.debug("Tool get_insight_metrics called")
+    logger.debug(
+        "Input Parameters: site_id: %s, object_type: %s, metric: %s, mac: %s, device_id: %s, start: %s, end: %s, duration: %s, interval: %s, page: %s, limit: %s",
+        site_id,
+        object_type,
+        metric,
+        mac,
+        device_id,
+        start,
+        end,
+        duration,
+        interval,
+        page,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

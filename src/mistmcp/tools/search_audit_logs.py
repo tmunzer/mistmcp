@@ -70,6 +70,15 @@ async def search_audit_logs(
     """Search audit logs for the current account or an organization"""
 
     logger.debug("Tool search_audit_logs called")
+    logger.debug(
+        "Input Parameters: scope: %s, org_id: %s, start: %s, end: %s, message: %s, limit: %s",
+        scope,
+        org_id,
+        start,
+        end,
+        message,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

@@ -81,6 +81,14 @@ async def list_site_sle_info(
     """List SLE metadata for a site scope. Use metrics to list available SLE metrics for a given scope, or classifiers to list the classifiers available for a specific metric."""
 
     logger.debug("Tool list_site_sle_info called")
+    logger.debug(
+        "Input Parameters: site_id: %s, query_type: %s, scope: %s, scope_id: %s, metric: %s",
+        site_id,
+        query_type,
+        scope,
+        scope_id,
+        metric,
+    )
 
     apisession, response_format = await get_apisession()
 

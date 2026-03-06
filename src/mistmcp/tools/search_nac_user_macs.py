@@ -66,6 +66,14 @@ async def search_nac_user_macs(
     """Search for NAC user MAC addresses in an organization or site, with optional filters for associated SSID and time range. User MACs are used to perform MAC Authentication with Juniper Mist NAC."""
 
     logger.debug("Tool search_nac_user_macs called")
+    logger.debug(
+        "Input Parameters: org_id: %s, usermac_id: %s, mac: %s, labels: %s, limit: %s",
+        org_id,
+        usermac_id,
+        mac,
+        labels,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

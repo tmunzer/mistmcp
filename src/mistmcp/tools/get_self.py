@@ -61,6 +61,7 @@ async def get_self(
     * `login_failures`: will return information about the recent login failures for the account including the timestamp of the failure, the source IP address, and the reason for the failure"""
 
     logger.debug("Tool get_self called")
+    logger.debug("Input Parameters: action_type: %s", action_type)
 
     apisession, response_format = await get_apisession()
 

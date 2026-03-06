@@ -61,6 +61,7 @@ async def get_constants(
     """Retrieve Mist platform constants including insight metrics, webhook topics, alarm definitions, device models, events definitions, and license types. Use this to understand available options and configurations for the Mist API."""
 
     logger.debug("Tool get_constants called")
+    logger.debug("Input Parameters: object_type: %s", object_type)
 
     apisession, response_format = await get_apisession()
 

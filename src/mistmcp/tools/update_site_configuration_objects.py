@@ -87,6 +87,13 @@ async def update_site_configuration_objects(
     When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required"""
 
     logger.debug("Tool update_site_configuration_objects called")
+    logger.debug(
+        "Input Parameters: site_id: %s, object_type: %s, payload: %s, object_id: %s",
+        site_id,
+        object_type,
+        payload,
+        object_id,
+    )
 
     apisession, response_format = await get_apisession()
 

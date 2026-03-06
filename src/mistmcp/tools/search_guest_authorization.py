@@ -92,6 +92,19 @@ async def search_guest_authorization(
     """Search for guest authorization entries in an organization or site"""
 
     logger.debug("Tool search_guest_authorization called")
+    logger.debug(
+        "Input Parameters: scope: %s, org_id: %s, site_id: %s, guest_mac: %s, wlan_id: %s, auth_method: %s, ssid: %s, start: %s, end: %s, limit: %s",
+        scope,
+        org_id,
+        site_id,
+        guest_mac,
+        wlan_id,
+        auth_method,
+        ssid,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 

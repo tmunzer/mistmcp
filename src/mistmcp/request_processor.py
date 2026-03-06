@@ -32,8 +32,11 @@ async def get_apisession() -> tuple[mistapi.APISession, str]:
                 .replace("http://", "")
             )
             if not cloud and request.headers.get("X-Mist-Cloud", ""):
-                cloud = request.headers.get(
-                    "X-Mist-Cloud", "").replace("https://", "").replace("http://", "")
+                cloud = (
+                    request.headers.get("X-Mist-Cloud", "")
+                    .replace("https://", "")
+                    .replace("http://", "")
+                )
 
             if request.headers.get("Authorization", None):
                 apitoken = request.headers.get("Authorization", "").replace(
@@ -73,16 +76,11 @@ async def get_apisession() -> tuple[mistapi.APISession, str]:
                 "Missing required parameters: mist_host and mist_apitoken in config"
             )
         if not cloud:
-            raise ClientError(
-                "Missing required parameter: mist_host in config"
-            )
+            raise ClientError("Missing required parameter: mist_host in config")
         if not apitoken:
-            raise ClientError(
-                "Missing required parameter: mist_apitoken in config"
-            )
+            raise ClientError("Missing required parameter: mist_apitoken in config")
 
-    logger.info("API request — host: %s, token: %s",
-                cloud, mask_token(apitoken))
+    logger.info("API request — host: %s, token: %s", cloud, mask_token(apitoken))
 
     apisession = mistapi.APISession(
         host=cloud,

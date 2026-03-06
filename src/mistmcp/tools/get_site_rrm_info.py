@@ -92,6 +92,18 @@ async def get_site_rrm_info(
     """Retrieve Radio Resource Management (RRM) information for a site. Use current_channel_planning to get the current channel plan, current_rrm_considerations to get RRM considerations for a specific device and band, current_rrm_neighbors to list current RRM neighbor APs for a band, or events to list RRM change events over a time range."""
 
     logger.debug("Tool get_site_rrm_info called")
+    logger.debug(
+        "Input Parameters: site_id: %s, rrm_info_type: %s, device_id: %s, band: %s, start: %s, end: %s, duration: %s, limit: %s, page: %s",
+        site_id,
+        rrm_info_type,
+        device_id,
+        band,
+        start,
+        end,
+        duration,
+        limit,
+        page,
+    )
 
     apisession, response_format = await get_apisession()
 

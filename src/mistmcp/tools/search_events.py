@@ -119,6 +119,19 @@ async def search_events(
     - `object_type=nac_events` for NAC client events"""
 
     logger.debug("Tool search_events called")
+    logger.debug(
+        "Input Parameters: event_source: %s, org_id: %s, event_type: %s, site_id: %s, mac: %s, text: %s, ssid: %s, start: %s, end: %s, limit: %s",
+        event_source,
+        org_id,
+        event_type,
+        site_id,
+        mac,
+        text,
+        ssid,
+        start,
+        end,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 
