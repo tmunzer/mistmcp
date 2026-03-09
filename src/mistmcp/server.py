@@ -18,6 +18,7 @@ from fastmcp.server.transforms import Visibility
 from mistmcp.config import ServerConfig
 from mistmcp.elicitation_middleware import ElicitationMiddleware
 from mistmcp.logger import logger
+from mistmcp.null_strip_middleware import NullStripMiddleware
 from mistmcp.tool_helper import TOOLS
 
 _instructions = """
@@ -358,7 +359,7 @@ mcp = FastMCP(
     instructions=_instructions,
     on_duplicate="replace",
     mask_error_details=True,
-    middleware=[ElicitationMiddleware()],
+    middleware=[NullStripMiddleware(), ElicitationMiddleware()],
 )
 
 # Write tools are disabled by default and enabled per-session by
