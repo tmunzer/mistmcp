@@ -63,7 +63,7 @@ async def search_client(
     device_mac: Annotated[
         str,
         Field(
-            description="""MAC address of the access point or switch. Not applicable for WAN or NAC clients""",
+            description="""Partial / full MAC Address of the Access Point or the Switch. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
             default=None,
         ),
     ],
@@ -81,21 +81,21 @@ async def search_client(
     mac: Annotated[
         str,
         Field(
-            description="""Client MAC address (supports * wildcard for partial match)""",
+            description="""Partial / full Client MAC Address. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
             default=None,
         ),
     ],
     hostname: Annotated[
         str,
         Field(
-            description="""Client hostname (supports * wildcard). Not applicable for WAN or wired clients""",
+            description="""Partial / full Client hostname. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `everest*` and `*rest*` match `my-everest-client`). Suffix-only wildcards (e.g. `*everest`) are not supported. Not applicable for WAN or wired clients""",
             default=None,
         ),
     ],
     ip: Annotated[
         str,
         Field(
-            description="""Client IP address (supports * wildcard). Not applicable for NAC clients""",
+            description="""Partial / full Client IP Address.  Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `10.100.10.*` and  `*100.10.*` match `10.100.10.54`). Suffix-only wildcards (e.g. `*.54`) are not supported. Not applicable for NAC clients""",
             default=None,
         ),
     ],

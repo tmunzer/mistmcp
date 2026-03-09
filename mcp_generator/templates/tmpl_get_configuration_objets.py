@@ -226,7 +226,7 @@ async def get_configuration_objects(
         str,
         Field(
             default=None,
-            description="""Name of the specific configuration object to retrieve. Not supported when `object_type` is `site_devices` (use the `mist_search_device` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Add a wildcard (`*`) before and/or after the string for partial match""",
+            description="""Name of the specific configuration object to retrieve. Not supported when `object_type` is `site_devices` (use the `mist_search_device` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
         ),
     ],
     computed: Annotated[

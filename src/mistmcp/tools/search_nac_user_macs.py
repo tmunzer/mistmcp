@@ -48,7 +48,7 @@ async def search_nac_user_macs(
     mac: Annotated[
         str,
         Field(
-            description="""Partial/full MAC address of the NAC endpoint to search for""",
+            description="""Partial / full Client MAC Address. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
             default=None,
         ),
     ],
