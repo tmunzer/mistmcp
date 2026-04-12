@@ -141,16 +141,16 @@ async def change_configuration_objects(
 
     3. Use this tool to update the configuration object with the modified attributes
 
-    
+
 
     When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.
 
-    
+
 
     When deleting an org WLAN template (`org_wlantemplates`), make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail
 
     When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload
-"""
+    """
 
     logger.debug("Tool change_configuration_objects called")
     logger.debug(

@@ -75,9 +75,7 @@ async def update_configuration_objects(
 ) -> dict | list | str:
     """Update an existing configuration object or create a new one."""
 
-    action_type = (
-        ChangeActionType.UPDATE if object_id else ChangeActionType.CREATE
-    )
+    action_type = ChangeActionType.UPDATE if object_id else ChangeActionType.CREATE
     return await change_configuration_objects(
         action_type=action_type,
         object_type=object_type,
