@@ -17,12 +17,12 @@ class McpToolsCategory(Enum):
     DEVICES = "devices"
     CONFIGURATION = "configuration"
     INFO = "info"
+    WRITE_DELETE = "write_delete"
+    WRITE = "write"
     UTILITIES_UPGRADE = "utilities_upgrade"
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
     SLES = "sles"
-    WRITE = "write"
-    WRITE_DELETE = "write_delete"
     SELF_ACCOUNT = "self_account"
     SITES_RRM = "sites_rrm"
     ORGS = "orgs"
@@ -110,16 +110,10 @@ TOOLS = {
     },
     "write": {
         "description": "Tools that perform write operations, such as creating, updating, or deleting resources in the Juniper Mist platform. These tools allow users to modify configurations, manage devices, and perform other actions that change the state of the network.",
-        "tools": [
-            "mist_update_site_configuration_objects",
-            "mist_update_org_configuration_objects",
-        ],
+        "tools": ["mist_update_configuration_objects"],
     },
     "write_delete": {
         "description": "Tools that perform both write and delete operations. These tools allow users to create, update, and delete resources in the Juniper Mist platform, providing more flexibility in managing the network configurations and resources.",
-        "tools": [
-            "mist_change_site_configuration_objects",
-            "mist_change_org_configuration_objects",
-        ],
+        "tools": ["mist_change_configuration_objects"],
     },
 }

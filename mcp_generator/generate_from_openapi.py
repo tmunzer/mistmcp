@@ -38,22 +38,60 @@ from typing import Dict, List
 
 import yaml
 
-# Import template strings for code generation
-from templates.tmpl_get_configuration_object_schema import (
-    GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
-)
-from templates.tmpl_get_configuration_objets import (
-    GET_CONFIGURATION_OBJECTS_OPERATION_IDS,
-    GET_CONFIGURATION_OBJECTS_TEMPLATE,
-)
-from templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
-from templates.tmpl_helper import TOOLS_HELPER
-from templates.tmpl_init import INIT_TEMPLATE
-from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
-from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
-from templates.tmpl_tool_search_device import TOOL_TEMPLATE_SEARCH_DEVICE
-from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
-from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
+# Import template strings for code generation. Support both:
+# - running as script: `python mcp_generator/generate_from_openapi.py`
+# - running as module: `python -m mcp_generator.generate_from_openapi`
+try:
+    from mcp_generator.templates.tmpl_get_configuration_object_schema import (
+        GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
+    )
+    from mcp_generator.templates.tmpl_get_configuration_objets import (
+        GET_CONFIGURATION_OBJECTS_OPERATION_IDS,
+        GET_CONFIGURATION_OBJECTS_TEMPLATE,
+    )
+    from mcp_generator.templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
+    from mcp_generator.templates.tmpl_helper import TOOLS_HELPER
+    from mcp_generator.templates.tmpl_init import INIT_TEMPLATE
+    from mcp_generator.templates.tmpl_req import (
+        REQ_OPTIMIZED_TEMPLATE,
+        REQ_TEMPLATE,
+    )
+    from mcp_generator.templates.tmpl_tool_change_configuration_objects import (
+        CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
+    )
+    from mcp_generator.templates.tmpl_tool_read import TOOL_TEMPLATE_READ
+    from mcp_generator.templates.tmpl_tool_search_device import (
+        TOOL_TEMPLATE_SEARCH_DEVICE,
+    )
+    from mcp_generator.templates.tmpl_tool_update_configuration_objects import (
+        UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
+    )
+    from mcp_generator.templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
+    from mcp_generator.templates.tmpl_tool_write_delete import (
+        TOOL_TEMPLATE_WRITE_DELETE,
+    )
+except ModuleNotFoundError:
+    from templates.tmpl_get_configuration_object_schema import (
+        GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
+    )
+    from templates.tmpl_get_configuration_objets import (
+        GET_CONFIGURATION_OBJECTS_OPERATION_IDS,
+        GET_CONFIGURATION_OBJECTS_TEMPLATE,
+    )
+    from templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
+    from templates.tmpl_helper import TOOLS_HELPER
+    from templates.tmpl_init import INIT_TEMPLATE
+    from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
+    from templates.tmpl_tool_change_configuration_objects import (
+        CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
+    )
+    from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
+    from templates.tmpl_tool_search_device import TOOL_TEMPLATE_SEARCH_DEVICE
+    from templates.tmpl_tool_update_configuration_objects import (
+        UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
+    )
+    from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
+    from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
 
 # ---------------------------------------------------------------------------
 # CONFIGURATION CONSTANTS
@@ -99,6 +137,18 @@ CUSTOM_TOOLS = [
         "template": GET_NEXT_PAGE_TEMPLATE,
         "tag": "info",
         "operation_ids": []
+    },
+    {
+        "name": "change_configuration_objects",
+        "template": CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
+        "tag": "write_delete",
+        "operation_ids": [],
+    },
+    {
+        "name": "update_configuration_objects",
+        "template": UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
+        "tag": "write",
+        "operation_ids": [],
     },
 ]
 # Global read-only hint for tool generation
@@ -576,7 +626,7 @@ def _gen_tools_custom(
                   ]["tools"].append(f"mist_{func_name}")
 
 
-def _gen_tools_additional_required_parameters(parameters: list, match_name: str = "object_type") -> str:
+def _gen_tools_additional_required_parameters(parameters: list) -> str:
     additional_parameters = ""
     for param in parameters:
         param_name = param.get("name")
@@ -776,7 +826,12 @@ def _gen_tools_optim(
         root_tag_defs: dict,
         processed_operation_ids: list
 ):
+    if func_data.get("skip", False):
+        return
+
     request = None
+    description = ""
+    tag = "untagged"
     match_name = None
     if (func_data.get("type") == "tool_replacement"):
         description = func_data.get("description", "")  # Tool description

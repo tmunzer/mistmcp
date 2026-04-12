@@ -1,3 +1,5 @@
+CHANGE_CONFIGURATION_OBJECTS_TEMPLATE = r'''
+
 """
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
@@ -10,46 +12,52 @@
 --------------------------------------------------------------------------------
 """
 
+from enum import Enum
+from typing import Annotated
+from uuid import UUID
+
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
-from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response, handle_network_error
-from mistmcp.response_formatter import format_response
+from pydantic import Field
 
 from mistmcp.elicitation_processor import config_elicitation_handler
-from mistmcp.server import mcp
 from mistmcp.logger import logger
-
-from pydantic import Field
-from typing import Annotated
-from uuid import UUID
-from enum import Enum
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_formatter import format_response
+from mistmcp.response_processor import handle_network_error, process_response
+from mistmcp.server import mcp
 
 
 class Object_type(Enum):
-    ALARMTEMPLATES = "alarmtemplates"
-    WLANS = "wlans"
-    SITEGROUPS = "sitegroups"
-    AVPROFILES = "avprofiles"
-    DEVICEPROFILES = "deviceprofiles"
-    GATEWAYTEMPLATES = "gatewaytemplates"
-    IDPPROFILES = "idpprofiles"
-    AAMWPROFILES = "aamwprofiles"
-    NACTAGS = "nactags"
-    NACRULES = "nacrules"
-    NETWORKTEMPLATES = "networktemplates"
-    NETWORKS = "networks"
-    PSKS = "psks"
-    RFTEMPLATES = "rftemplates"
-    SERVICES = "services"
-    SERVICEPOLICIES = "servicepolicies"
-    SITETEMPLATES = "sitetemplates"
-    VPNS = "vpns"
-    WEBHOOKS = "webhooks"
-    WLANTEMPLATES = "wlantemplates"
-    WXRULES = "wxrules"
-    WXTAGS = "wxtags"
+    ORG_ALARMTEMPLATES = "org_alarmtemplates"
+    ORG_WLANS = "org_wlans"
+    ORG_SITEGROUPS = "org_sitegroups"
+    ORG_AVPROFILES = "org_avprofiles"
+    ORG_DEVICEPROFILES = "org_deviceprofiles"
+    ORG_GATEWAYTEMPLATES = "org_gatewaytemplates"
+    ORG_IDPPROFILES = "org_idpprofiles"
+    ORG_AAMWPROFILES = "org_aamwprofiles"
+    ORG_NACTAGS = "org_nactags"
+    ORG_NACRULES = "org_nacrules"
+    ORG_NETWORKTEMPLATES = "org_networktemplates"
+    ORG_NETWORKS = "org_networks"
+    ORG_PSKS = "org_psks"
+    ORG_RFTEMPLATES = "org_rftemplates"
+    ORG_SERVICES = "org_services"
+    ORG_SERVICEPOLICIES = "org_servicepolicies"
+    ORG_SITETEMPLATES = "org_sitetemplates"
+    ORG_VPNS = "org_vpns"
+    ORG_WEBHOOKS = "org_webhooks"
+    ORG_WLANTEMPLATES = "org_wlantemplates"
+    ORG_WXRULES = "org_wxrules"
+    ORG_WXTAGS = "org_wxtags"
+    SITE_DEVICES = "site_devices"
+    SITE_PSKS = "site_psks"
+    SITE_WEBHOOKS = "site_webhooks"
+    SITE_WLANS = "site_wlans"
+    SITE_WXRULES = "site_wxrules"
+    SITE_WXTAGS = "site_wxtags"
 
 
 class Action_type(Enum):
@@ -59,35 +67,45 @@ class Action_type(Enum):
 
 
 @mcp.tool(
-    name="mist_change_org_configuration_objects",
-    description="""Update, create or delete configuration object for a specified org.\n
-IMPORTANT:\n
-To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n
-1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n
-2. Modify the desired attributes\n
-3. Use this tool to update the configuration object with the modified attributes\n
-\n
-When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.\n
-\n
-When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail\n
-When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload\n""",
+    name="mist_change_configuration_objects",
+    description="""Update, create or delete configuration object for a specified org or site.
+
+IMPORTANT:
+
+To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :
+
+1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level
+
+2. Modify the desired attributes
+
+3. Use this tool to update the configuration object with the modified attributes
+
+
+
+When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.
+
+
+
+When deleting an org WLAN template (`org_wlantemplates`), make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail
+
+When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload
+""",
     tags={"write_delete"},
     annotations={
-        "title": "Change org configuration objects",
+        "title": "Change configuration objects",
         "readOnlyHint": False,
         "destructiveHint": True,
         "openWorldHint": True,
         "idempotentHint": False,
     },
 )
-async def change_org_configuration_objects(
+async def change_configuration_objects(
     action_type: Annotated[
         Action_type,
         Field(
             description="Whether the action is creating a new object, updating an existing one, or deleting an existing one. When updating or deleting, the object_id parameter must be provided."
         ),
     ],
-    org_id: Annotated[UUID, Field(description="""Organization ID""")],
     object_type: Annotated[
         Object_type,
         Field(
@@ -100,6 +118,8 @@ async def change_org_configuration_objects(
             description="""JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the`mist_get_configuration_objects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes"""
         ),
     ],
+    org_id: Annotated[UUID, Field(description="""Organization ID""", default=None)],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     object_id: Annotated[
         UUID,
         Field(
@@ -109,24 +129,36 @@ async def change_org_configuration_objects(
     ],
     ctx: Context,
 ) -> dict | list | str:
-    """Update, create or delete configuration object for a specified org.\n
-    IMPORTANT:\n
-    To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :\n
-    1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level\n
-    2. Modify the desired attributes\n
-    3. Use this tool to update the configuration object with the modified attributes\n
-    \n
-    When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.\n
-    \n
-    When deleting a WLAN Template, make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail\n
-    When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload\n"""
+    """Update, create or delete configuration object for a specified org or site.
 
-    logger.debug("Tool change_org_configuration_objects called")
+    IMPORTANT:
+
+    To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :
+
+    1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level
+
+    2. Modify the desired attributes
+
+    3. Use this tool to update the configuration object with the modified attributes
+
+    
+
+    When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.
+
+    
+
+    When deleting an org WLAN template (`org_wlantemplates`), make sure to delete all WLANs that are using the template before deleting it, otherwise the deletion will fail
+
+    When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload
+"""
+
+    logger.debug("Tool change_configuration_objects called")
     logger.debug(
-        "Input Parameters: org_id: %s, object_type: %s, payload: %s, object_id: %s",
-        org_id,
+        "Input Parameters: object_type: %s, payload: %s, org_id: %s, site_id: %s, object_id: %s",
         object_type,
         payload,
+        org_id,
+        site_id,
         object_id,
     )
 
@@ -151,6 +183,39 @@ async def change_org_configuration_objects(
                 }
             )
         action_wording = "delete an existing"
+
+    if object_type.value.startswith("org_") and not org_id:
+        raise ToolError(
+            {
+                "status_code": 400,
+                "message": (
+                    "`org_id` parameter is required when `object_type` starts "
+                    "with `org_`."
+                ),
+            }
+        )
+
+    if object_type.value.startswith("site_") and not site_id:
+        raise ToolError(
+            {
+                "status_code": 400,
+                "message": (
+                    "`site_id` parameter is required when `object_type` starts "
+                    "with `site_`."
+                ),
+            }
+        )
+
+    if object_type == Object_type.SITE_DEVICES and action_type != Action_type.UPDATE:
+        raise ToolError(
+            {
+                "status_code": 400,
+                "message": (
+                    "`site_devices` supports `update` only. "
+                    "Use `action_type=update` with `object_id`."
+                ),
+            }
+        )
 
     if ctx:
         try:
@@ -178,7 +243,7 @@ async def change_org_configuration_objects(
 
     try:
         match object_type.value:
-            case "alarmtemplates":
+            case "org_alarmtemplates":
                 if action_type.value == "update":
                     response = (
                         mistapi.api.v1.orgs.alarmtemplates.updateOrgAlarmTemplate(
@@ -205,7 +270,7 @@ async def change_org_configuration_objects(
                         )
                     )
                     await process_response(response)
-            case "wlans":
+            case "org_wlans":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.wlans.updateOrgWlan(
                         apisession,
@@ -224,7 +289,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), wlan_id=str(object_id)
                     )
                     await process_response(response)
-            case "sitegroups":
+            case "org_sitegroups":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.sitegroups.updateOrgSiteGroup(
                         apisession,
@@ -243,7 +308,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), sitegroup_id=str(object_id)
                     )
                     await process_response(response)
-            case "avprofiles":
+            case "org_avprofiles":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.avprofiles.updateOrgAntivirusProfile(
                         apisession,
@@ -262,7 +327,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), avprofile_id=str(object_id)
                     )
                     await process_response(response)
-            case "deviceprofiles":
+            case "org_deviceprofiles":
                 if action_type.value == "update":
                     response = (
                         mistapi.api.v1.orgs.deviceprofiles.updateOrgDeviceProfile(
@@ -289,7 +354,7 @@ async def change_org_configuration_objects(
                         )
                     )
                     await process_response(response)
-            case "gatewaytemplates":
+            case "org_gatewaytemplates":
                 if action_type.value == "update":
                     response = (
                         mistapi.api.v1.orgs.gatewaytemplates.updateOrgGatewayTemplate(
@@ -316,7 +381,7 @@ async def change_org_configuration_objects(
                         )
                     )
                     await process_response(response)
-            case "idpprofiles":
+            case "org_idpprofiles":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.idpprofiles.updateOrgIdpProfile(
                         apisession,
@@ -335,7 +400,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), idpprofile_id=str(object_id)
                     )
                     await process_response(response)
-            case "aamwprofiles":
+            case "org_aamwprofiles":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.aamwprofiles.updateOrgAAMWProfile(
                         apisession,
@@ -354,7 +419,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), aamwprofile_id=str(object_id)
                     )
                     await process_response(response)
-            case "nactags":
+            case "org_nactags":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.nactags.updateOrgNacTag(
                         apisession,
@@ -373,7 +438,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), nactag_id=str(object_id)
                     )
                     await process_response(response)
-            case "nacrules":
+            case "org_nacrules":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.nacrules.updateOrgNacRule(
                         apisession,
@@ -392,7 +457,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), nacrule_id=str(object_id)
                     )
                     await process_response(response)
-            case "networktemplates":
+            case "org_networktemplates":
                 if action_type.value == "update":
                     response = (
                         mistapi.api.v1.orgs.networktemplates.updateOrgNetworkTemplate(
@@ -419,7 +484,7 @@ async def change_org_configuration_objects(
                         )
                     )
                     await process_response(response)
-            case "networks":
+            case "org_networks":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.networks.updateOrgNetwork(
                         apisession,
@@ -438,7 +503,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), network_id=str(object_id)
                     )
                     await process_response(response)
-            case "psks":
+            case "org_psks":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.psks.updateOrgPsk(
                         apisession,
@@ -457,7 +522,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), psk_id=str(object_id)
                     )
                     await process_response(response)
-            case "rftemplates":
+            case "org_rftemplates":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.rftemplates.updateOrgRfTemplate(
                         apisession,
@@ -476,7 +541,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), rftemplate_id=str(object_id)
                     )
                     await process_response(response)
-            case "services":
+            case "org_services":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.services.updateOrgService(
                         apisession,
@@ -495,7 +560,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), service_id=str(object_id)
                     )
                     await process_response(response)
-            case "servicepolicies":
+            case "org_servicepolicies":
                 if action_type.value == "update":
                     response = (
                         mistapi.api.v1.orgs.servicepolicies.updateOrgServicePolicy(
@@ -522,7 +587,7 @@ async def change_org_configuration_objects(
                         )
                     )
                     await process_response(response)
-            case "sitetemplates":
+            case "org_sitetemplates":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.sitetemplates.updateOrgSiteTemplate(
                         apisession,
@@ -541,7 +606,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), sitetemplate_id=str(object_id)
                     )
                     await process_response(response)
-            case "vpns":
+            case "org_vpns":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.vpns.updateOrgVpn(
                         apisession,
@@ -560,7 +625,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), vpn_id=str(object_id)
                     )
                     await process_response(response)
-            case "webhooks":
+            case "org_webhooks":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.webhooks.updateOrgWebhook(
                         apisession,
@@ -579,7 +644,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), webhook_id=str(object_id)
                     )
                     await process_response(response)
-            case "wlantemplates":
+            case "org_wlantemplates":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.templates.updateOrgTemplate(
                         apisession,
@@ -598,7 +663,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), template_id=str(object_id)
                     )
                     await process_response(response)
-            case "wxrules":
+            case "org_wxrules":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.wxrules.updateOrgWxRule(
                         apisession,
@@ -617,7 +682,7 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), wxrule_id=str(object_id)
                     )
                     await process_response(response)
-            case "wxtags":
+            case "org_wxtags":
                 if action_type.value == "update":
                     response = mistapi.api.v1.orgs.wxtags.updateOrgWxTag(
                         apisession,
@@ -636,6 +701,110 @@ async def change_org_configuration_objects(
                         apisession, org_id=str(org_id), wxtag_id=str(object_id)
                     )
                     await process_response(response)
+            case "site_devices":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.sites.devices.updateSiteDevice(
+                        apisession,
+                        site_id=str(site_id),
+                        device_id=str(object_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+            case "site_psks":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.sites.psks.updateSitePsk(
+                        apisession,
+                        site_id=str(site_id),
+                        psk_id=str(object_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+                elif action_type.value == "create":
+                    response = mistapi.api.v1.sites.psks.createSitePsk(
+                        apisession, site_id=str(site_id), body=payload
+                    )
+                    await process_response(response)
+                else:
+                    response = mistapi.api.v1.sites.psks.deleteSitePsk(
+                        apisession, site_id=str(site_id), psk_id=str(object_id)
+                    )
+                    await process_response(response)
+            case "site_webhooks":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.sites.webhooks.updateSiteWebhook(
+                        apisession,
+                        site_id=str(site_id),
+                        webhook_id=str(object_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+                elif action_type.value == "create":
+                    response = mistapi.api.v1.sites.webhooks.createSiteWebhook(
+                        apisession, site_id=str(site_id), body=payload
+                    )
+                    await process_response(response)
+                else:
+                    response = mistapi.api.v1.sites.webhooks.deleteSiteWebhook(
+                        apisession, site_id=str(site_id), webhook_id=str(object_id)
+                    )
+                    await process_response(response)
+            case "site_wlans":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.sites.wlans.updateSiteWlan(
+                        apisession,
+                        site_id=str(site_id),
+                        wlan_id=str(object_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+                elif action_type.value == "create":
+                    response = mistapi.api.v1.sites.wlans.createSiteWlan(
+                        apisession, site_id=str(site_id), body=payload
+                    )
+                    await process_response(response)
+                else:
+                    response = mistapi.api.v1.sites.wlans.deleteSiteWlan(
+                        apisession, site_id=str(site_id), wlan_id=str(object_id)
+                    )
+                    await process_response(response)
+            case "site_wxrules":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.sites.wxrules.updateSiteWxRule(
+                        apisession,
+                        site_id=str(site_id),
+                        wxrule_id=str(object_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+                elif action_type.value == "create":
+                    response = mistapi.api.v1.sites.wxrules.createSiteWxRule(
+                        apisession, site_id=str(site_id), body=payload
+                    )
+                    await process_response(response)
+                else:
+                    response = mistapi.api.v1.sites.wxrules.deleteSiteWxRule(
+                        apisession, site_id=str(site_id), wxrule_id=str(object_id)
+                    )
+                    await process_response(response)
+            case "site_wxtags":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.sites.wxtags.updateSiteWxTag(
+                        apisession,
+                        site_id=str(site_id),
+                        wxtag_id=str(object_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+                elif action_type.value == "create":
+                    response = mistapi.api.v1.sites.wxtags.createSiteWxTag(
+                        apisession, site_id=str(site_id), body=payload
+                    )
+                    await process_response(response)
+                else:
+                    response = mistapi.api.v1.sites.wxtags.deleteSiteWxTag(
+                        apisession, site_id=str(site_id), wxtag_id=str(object_id)
+                    )
+                    await process_response(response)
 
             case _:
                 raise ToolError(
@@ -651,3 +820,4 @@ async def change_org_configuration_objects(
         await handle_network_error(_exc)
 
     return format_response(response, response_format)
+'''

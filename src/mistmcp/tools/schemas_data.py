@@ -95,6 +95,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "examples": [
                   "testing123"
                 ],
+                "format": "password",
                 "type": "string"
               }
             },
@@ -136,6 +137,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "examples": [
                 "user1"
               ],
+              "format": "password",
               "type": "string"
             },
             "username": {
@@ -523,6 +525,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "examples": [
                   "testing123"
                 ],
+                "format": "password",
                 "type": "string"
               }
             },
@@ -556,7 +559,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "auth_servers_retries": {
           "default": 2,
-          "description": "Radius auth session retries. Following fast timers are set if \\"fast_dot1x_timers\\" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+          "description": "Radius auth session retries. Following fast timers are set if \\"fast_dot1x_timers\\" knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
           "examples": [
             5
           ],
@@ -1491,6 +1494,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "examples": [
                 "password"
               ],
+              "format": "password",
               "type": "string"
             },
             "broadnet_sid": {
@@ -1642,6 +1646,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "gupshup_password": {
               "description": "Required if `sms_provider`==`gupshup`",
+              "format": "password",
               "type": "string"
             },
             "gupshup_userid": {
@@ -1725,6 +1730,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "puzzel_password": {
               "description": "Required if `sms_provider`==`puzzel`",
+              "format": "password",
               "type": "string"
             },
             "puzzel_service_id": {
@@ -1777,6 +1783,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "smsglobal_api_secret": {
               "description": "Required if `sms_provider`==`smsglobal`, Client secret",
+              "format": "password",
               "type": "string"
             },
             "sponsor_auto_approve": {
@@ -1908,6 +1915,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "telstra_client_secret": {
               "description": "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
+              "format": "password",
               "type": "string"
             },
             "twilio_auth_token": {
@@ -2594,6 +2602,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "examples": [
                   "testing123"
                 ],
+                "format": "password",
                 "type": "string"
               }
             },
@@ -2635,6 +2644,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "examples": [
                 "user1"
               ],
+              "format": "password",
               "type": "string"
             },
             "username": {
@@ -3022,6 +3032,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "examples": [
                   "testing123"
                 ],
+                "format": "password",
                 "type": "string"
               }
             },
@@ -3055,7 +3066,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "auth_servers_retries": {
           "default": 2,
-          "description": "Radius auth session retries. Following fast timers are set if \\"fast_dot1x_timers\\" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+          "description": "Radius auth session retries. Following fast timers are set if \\"fast_dot1x_timers\\" knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
           "examples": [
             5
           ],
@@ -3990,6 +4001,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "examples": [
                 "password"
               ],
+              "format": "password",
               "type": "string"
             },
             "broadnet_sid": {
@@ -4141,6 +4153,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "gupshup_password": {
               "description": "Required if `sms_provider`==`gupshup`",
+              "format": "password",
               "type": "string"
             },
             "gupshup_userid": {
@@ -4224,6 +4237,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "puzzel_password": {
               "description": "Required if `sms_provider`==`puzzel`",
+              "format": "password",
               "type": "string"
             },
             "puzzel_service_id": {
@@ -4276,6 +4290,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "smsglobal_api_secret": {
               "description": "Required if `sms_provider`==`smsglobal`, Client secret",
+              "format": "password",
               "type": "string"
             },
             "sponsor_auto_approve": {
@@ -4407,6 +4422,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "telstra_client_secret": {
               "description": "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
+              "format": "password",
               "type": "string"
             },
             "twilio_auth_token": {
@@ -7293,6 +7309,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "testing123"
                     ],
+                    "format": "password",
                     "type": "string"
                   }
                 },
@@ -7372,6 +7389,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "testing123"
                     ],
+                    "format": "password",
                     "type": "string"
                   }
                 },
@@ -8208,7 +8226,7 @@ SCHEMAS_DATA: dict = _json.loads(
                   },
                   "switch_mgmt": {
                     "additionalProperties": false,
-                    "description": "Switch settings",
+                    "description": "Switch Management settings",
                     "properties": {
                       "ap_affinity_threshold": {
                         "default": 10,
@@ -8269,6 +8287,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "root_password": {
+                        "format": "password",
                         "type": "string"
                       },
                       "tacacs": {
@@ -8292,7 +8311,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "switch_mgmt": {
           "additionalProperties": false,
-          "description": "Switch settings",
+          "description": "Switch Management settings",
           "properties": {
             "ap_affinity_threshold": {
               "default": 10,
@@ -8339,6 +8358,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "Juniper123"
                     ],
+                    "format": "password",
                     "type": "string"
                   },
                   "role": {
@@ -8543,6 +8563,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "root_password": {
+              "format": "password",
               "type": "string"
             },
             "tacacs": {
@@ -8559,6 +8580,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       },
                       "timeout": {
@@ -8599,6 +8621,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       },
                       "timeout": {
@@ -9479,6 +9502,274 @@ SCHEMAS_DATA: dict = _json.loads(
           },
           "type": "object"
         },
+        "gateway_mgmt": {
+          "additionalProperties": false,
+          "description": "Gateway Management settings",
+          "properties": {
+            "admin_sshkeys": {
+              "description": "For SSR only, as direct root access is not allowed",
+              "examples": [
+                [
+                  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAA...Wxa6p6UW0ZbcP john@host"
+                ]
+              ],
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "app_probing": {
+              "additionalProperties": false,
+              "properties": {
+                "apps": {
+                  "description": "APp-keys from [List Applications](/#operations/listApplications)",
+                  "examples": [
+                    [
+                      "facebook"
+                    ]
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "custom_apps": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "address": {
+                        "description": "Required if `protocol`==`icmp`",
+                        "examples": [
+                          "192.168.1.1"
+                        ],
+                        "type": "string"
+                      },
+                      "app_type": {
+                        "type": "string"
+                      },
+                      "hostnames": {
+                        "$comment": "max depth reached"
+                      },
+                      "key": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "examples": [
+                          "pos_app"
+                        ],
+                        "type": "string"
+                      },
+                      "network": {
+                        "examples": [
+                          "lan"
+                        ],
+                        "type": "string"
+                      },
+                      "packetSize": {
+                        "description": "If `protocol`==`icmp`",
+                        "maximum": 65400,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "protocol": {
+                        "$comment": "max depth reached"
+                      },
+                      "url": {
+                        "description": "If `protocol`==`http`",
+                        "examples": [
+                          "www.abc.com"
+                        ],
+                        "type": "string"
+                      },
+                      "vrf": {
+                        "examples": [
+                          "lan"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "type": "object"
+            },
+            "app_usage": {
+              "description": "Consumes uplink bandwidth, requires WA license",
+              "type": "boolean"
+            },
+            "auto_signature_update": {
+              "additionalProperties": false,
+              "properties": {
+                "day_of_week": {
+                  "description": "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
+                  "enum": [
+                    "any",
+                    "fri",
+                    "mon",
+                    "sat",
+                    "sun",
+                    "thu",
+                    "tue",
+                    "wed"
+                  ],
+                  "type": "string"
+                },
+                "enable": {
+                  "default": true,
+                  "type": "boolean"
+                },
+                "time_of_day": {
+                  "description": "Optional, Mist will decide the timing",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "config_revert_timer": {
+              "default": 10,
+              "description": "Rollback timer for commit confirmed",
+              "maximum": 30,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "disable_console": {
+              "default": false,
+              "description": "For SSR and SRX, disable console port",
+              "type": "boolean"
+            },
+            "disable_oob": {
+              "default": false,
+              "description": "For SSR and SRX, disable management interface",
+              "type": "boolean"
+            },
+            "disable_usb": {
+              "default": false,
+              "description": "For SSR and SRX, disable usb interface",
+              "type": "boolean"
+            },
+            "fips_enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "probe_hosts": {
+              "examples": [
+                [
+                  "8.8.8.8"
+                ]
+              ],
+              "format": "ipv4",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "probe_hostsv6": {
+              "examples": [
+                [
+                  "2001:4860:4860::8888"
+                ]
+              ],
+              "format": "ipv6",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "protect_re": {
+              "additionalProperties": false,
+              "description": "Restrict inbound-traffic to host\\nwhen enabled, all traffic that is not essential to our operation will be dropped \\ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
+              "properties": {
+                "allowed_services": {
+                  "description": "Optionally, services we'll allow",
+                  "examples": [
+                    [
+                      "icmp",
+                      "ssh"
+                    ]
+                  ],
+                  "items": {
+                    "description": "enum: `icmp`, `ssh`",
+                    "enum": [
+                      "icmp",
+                      "ssh"
+                    ],
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "custom": {
+                  "items": {
+                    "additionalProperties": false,
+                    "description": "Custom acls",
+                    "properties": {
+                      "port_range": {
+                        "default": "0",
+                        "description": "Matched dst port, \\"0\\" means any",
+                        "examples": [
+                          "80,1035-1040"
+                        ],
+                        "type": "string"
+                      },
+                      "protocol": {
+                        "$comment": "max depth reached"
+                      },
+                      "subnets": {
+                        "$comment": "max depth reached"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "enabled": {
+                  "default": false,
+                  "description": "When enabled, all traffic that is not essential to our operation will be dropped\\ne.g. ntp / dns / traffic to mist will be allowed by default\\n     if dhcpd is enabled, we'll make sure it works",
+                  "type": "boolean"
+                },
+                "hit_count": {
+                  "default": false,
+                  "description": "Whether to enable hit count for Protect_RE policy",
+                  "type": "boolean"
+                },
+                "trusted_hosts": {
+                  "description": "host/subnets we'll allow traffic to/from",
+                  "items": {
+                    "examples": [
+                      "10.242.3.0/24"
+                    ],
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "type": "object"
+            },
+            "root_password": {
+              "description": "SRX only",
+              "format": "password",
+              "type": "string"
+            },
+            "security_log_source_address": {
+              "examples": [
+                "192.168.1.1"
+              ],
+              "format": "ipv4",
+              "type": "string"
+            },
+            "security_log_source_interface": {
+              "examples": [
+                "ge-0/0/1.0"
+              ],
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
         "id": {
           "description": "Unique ID of the object instance in the Mist Organization",
           "examples": [
@@ -9966,7 +10257,17 @@ SCHEMAS_DATA: dict = _json.loads(
                   "type": "boolean"
                 },
                 "vlan_id": {
-                  "type": "string"
+                  "description": "If WAN interface is on a VLAN. Can be the VLAN ID (i.e. \\"10\\") or a Variable (i.e. \\"{{myvar}}\\")",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "maximum": 4094,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  ]
                 }
               },
               "type": "object"
@@ -9994,7 +10295,17 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "vlan_id": {
-              "type": "string"
+              "description": "If WAN interface is on a VLAN. Can be the VLAN ID (i.e. \\"10\\") or a Variable (i.e. \\"{{myvar}}\\")",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "maximum": 4094,
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              ]
             }
           },
           "type": "object"
@@ -11080,7 +11391,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "type": "integer"
               },
               "ipsec_proposals": {
-                "description": "Only if  `provider`==`custom-ipsec`",
+                "description": "Only if `provider`==`custom-ipsec`",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -11183,7 +11494,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "uniqueItems": true
                   },
                   "remote_ids": {
-                    "description": "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+                    "description": "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
                     "items": {
                       "type": "string"
                     },
@@ -11287,7 +11598,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "uniqueItems": true
                   },
                   "remote_ids": {
-                    "description": "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+                    "description": "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
                     "items": {
                       "type": "string"
                     },
@@ -14489,7 +14800,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "type": "object"
               },
               "gateway": {
-                "description": "If `type`==`server`  - optional, `ip` will be used if not provided",
+                "description": "If `type`==`server` - optional, `ip` will be used if not provided",
                 "examples": [
                   "192.168.70.1"
                 ],
@@ -16364,6 +16675,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "testing123"
                     ],
+                    "format": "password",
                     "type": "string"
                   }
                 },
@@ -16443,6 +16755,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "testing123"
                     ],
+                    "format": "password",
                     "type": "string"
                   }
                 },
@@ -17207,7 +17520,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "switch_mgmt": {
           "additionalProperties": false,
-          "description": "Switch settings",
+          "description": "Switch Management settings",
           "properties": {
             "ap_affinity_threshold": {
               "default": 10,
@@ -17254,6 +17567,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "Juniper123"
                     ],
+                    "format": "password",
                     "type": "string"
                   },
                   "role": {
@@ -17458,6 +17772,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "root_password": {
+              "format": "password",
               "type": "string"
             },
             "tacacs": {
@@ -17474,6 +17789,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       },
                       "timeout": {
@@ -17514,6 +17830,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       },
                       "timeout": {
@@ -18329,14 +18646,268 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "gateway_mgmt": {
           "additionalProperties": false,
-          "description": "Gateway settings",
+          "description": "Gateway Management settings",
           "properties": {
+            "admin_sshkeys": {
+              "description": "For SSR only, as direct root access is not allowed",
+              "examples": [
+                [
+                  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAA...Wxa6p6UW0ZbcP john@host"
+                ]
+              ],
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "app_probing": {
+              "additionalProperties": false,
+              "properties": {
+                "apps": {
+                  "description": "APp-keys from [List Applications](/#operations/listApplications)",
+                  "examples": [
+                    [
+                      "facebook"
+                    ]
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "custom_apps": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "address": {
+                        "description": "Required if `protocol`==`icmp`",
+                        "examples": [
+                          "192.168.1.1"
+                        ],
+                        "type": "string"
+                      },
+                      "app_type": {
+                        "type": "string"
+                      },
+                      "hostnames": {
+                        "$comment": "max depth reached"
+                      },
+                      "key": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "examples": [
+                          "pos_app"
+                        ],
+                        "type": "string"
+                      },
+                      "network": {
+                        "examples": [
+                          "lan"
+                        ],
+                        "type": "string"
+                      },
+                      "packetSize": {
+                        "description": "If `protocol`==`icmp`",
+                        "maximum": 65400,
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "protocol": {
+                        "$comment": "max depth reached"
+                      },
+                      "url": {
+                        "description": "If `protocol`==`http`",
+                        "examples": [
+                          "www.abc.com"
+                        ],
+                        "type": "string"
+                      },
+                      "vrf": {
+                        "examples": [
+                          "lan"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "enabled": {
+                  "type": "boolean"
+                }
+              },
+              "type": "object"
+            },
+            "app_usage": {
+              "description": "Consumes uplink bandwidth, requires WA license",
+              "type": "boolean"
+            },
+            "auto_signature_update": {
+              "additionalProperties": false,
+              "properties": {
+                "day_of_week": {
+                  "description": "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
+                  "enum": [
+                    "any",
+                    "fri",
+                    "mon",
+                    "sat",
+                    "sun",
+                    "thu",
+                    "tue",
+                    "wed"
+                  ],
+                  "type": "string"
+                },
+                "enable": {
+                  "default": true,
+                  "type": "boolean"
+                },
+                "time_of_day": {
+                  "description": "Optional, Mist will decide the timing",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
             "config_revert_timer": {
               "default": 10,
               "description": "Rollback timer for commit confirmed",
               "maximum": 30,
               "minimum": 1,
               "type": "integer"
+            },
+            "disable_console": {
+              "default": false,
+              "description": "For SSR and SRX, disable console port",
+              "type": "boolean"
+            },
+            "disable_oob": {
+              "default": false,
+              "description": "For SSR and SRX, disable management interface",
+              "type": "boolean"
+            },
+            "disable_usb": {
+              "default": false,
+              "description": "For SSR and SRX, disable usb interface",
+              "type": "boolean"
+            },
+            "fips_enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "probe_hosts": {
+              "examples": [
+                [
+                  "8.8.8.8"
+                ]
+              ],
+              "format": "ipv4",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "probe_hostsv6": {
+              "examples": [
+                [
+                  "2001:4860:4860::8888"
+                ]
+              ],
+              "format": "ipv6",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "protect_re": {
+              "additionalProperties": false,
+              "description": "Restrict inbound-traffic to host\\nwhen enabled, all traffic that is not essential to our operation will be dropped \\ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
+              "properties": {
+                "allowed_services": {
+                  "description": "Optionally, services we'll allow",
+                  "examples": [
+                    [
+                      "icmp",
+                      "ssh"
+                    ]
+                  ],
+                  "items": {
+                    "description": "enum: `icmp`, `ssh`",
+                    "enum": [
+                      "icmp",
+                      "ssh"
+                    ],
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "custom": {
+                  "items": {
+                    "additionalProperties": false,
+                    "description": "Custom acls",
+                    "properties": {
+                      "port_range": {
+                        "default": "0",
+                        "description": "Matched dst port, \\"0\\" means any",
+                        "examples": [
+                          "80,1035-1040"
+                        ],
+                        "type": "string"
+                      },
+                      "protocol": {
+                        "$comment": "max depth reached"
+                      },
+                      "subnets": {
+                        "$comment": "max depth reached"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "enabled": {
+                  "default": false,
+                  "description": "When enabled, all traffic that is not essential to our operation will be dropped\\ne.g. ntp / dns / traffic to mist will be allowed by default\\n     if dhcpd is enabled, we'll make sure it works",
+                  "type": "boolean"
+                },
+                "hit_count": {
+                  "default": false,
+                  "description": "Whether to enable hit count for Protect_RE policy",
+                  "type": "boolean"
+                },
+                "trusted_hosts": {
+                  "description": "host/subnets we'll allow traffic to/from",
+                  "items": {
+                    "examples": [
+                      "10.242.3.0/24"
+                    ],
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "type": "object"
+            },
+            "root_password": {
+              "description": "SRX only",
+              "format": "password",
+              "type": "string"
+            },
+            "security_log_source_address": {
+              "examples": [
+                "192.168.1.1"
+              ],
+              "format": "ipv4",
+              "type": "string"
+            },
+            "security_log_source_interface": {
+              "examples": [
+                "ge-0/0/1.0"
+              ],
+              "type": "string"
             }
           },
           "type": "object"
@@ -18877,7 +19448,17 @@ SCHEMAS_DATA: dict = _json.loads(
                   "type": "boolean"
                 },
                 "vlan_id": {
-                  "type": "string"
+                  "description": "If WAN interface is on a VLAN. Can be the VLAN ID (i.e. \\"10\\") or a Variable (i.e. \\"{{myvar}}\\")",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "maximum": 4094,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  ]
                 }
               },
               "type": "object"
@@ -18905,7 +19486,17 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "vlan_id": {
-              "type": "string"
+              "description": "If WAN interface is on a VLAN. Can be the VLAN ID (i.e. \\"10\\") or a Variable (i.e. \\"{{myvar}}\\")",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "maximum": 4094,
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              ]
             }
           },
           "type": "object"
@@ -20041,7 +20632,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "type": "integer"
               },
               "ipsec_proposals": {
-                "description": "Only if  `provider`==`custom-ipsec`",
+                "description": "Only if `provider`==`custom-ipsec`",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -20144,7 +20735,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "uniqueItems": true
                   },
                   "remote_ids": {
-                    "description": "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+                    "description": "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
                     "items": {
                       "type": "string"
                     },
@@ -20248,7 +20839,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "uniqueItems": true
                   },
                   "remote_ids": {
-                    "description": "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+                    "description": "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
                     "items": {
                       "type": "string"
                     },
@@ -23209,7 +23800,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "type": "object"
               },
               "gateway": {
-                "description": "If `type`==`server`  - optional, `ip` will be used if not provided",
+                "description": "If `type`==`server` - optional, `ip` will be used if not provided",
                 "examples": [
                   "192.168.70.1"
                 ],
@@ -24638,6 +25229,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "testing123"
                     ],
+                    "format": "password",
                     "type": "string"
                   }
                 },
@@ -24717,6 +25309,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "testing123"
                     ],
+                    "format": "password",
                     "type": "string"
                   }
                 },
@@ -25466,7 +26059,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "switch_mgmt": {
           "additionalProperties": false,
-          "description": "Switch settings",
+          "description": "Switch Management settings",
           "properties": {
             "ap_affinity_threshold": {
               "default": 10,
@@ -25513,6 +26106,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "Juniper123"
                     ],
+                    "format": "password",
                     "type": "string"
                   },
                   "role": {
@@ -25717,6 +26311,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "root_password": {
+              "format": "password",
               "type": "string"
             },
             "tacacs": {
@@ -25733,6 +26328,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       },
                       "timeout": {
@@ -25773,6 +26369,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       },
                       "timeout": {
@@ -27186,7 +27783,17 @@ SCHEMAS_DATA: dict = _json.loads(
                   "type": "boolean"
                 },
                 "vlan_id": {
-                  "type": "string"
+                  "description": "If WAN interface is on a VLAN. Can be the VLAN ID (i.e. \\"10\\") or a Variable (i.e. \\"{{myvar}}\\")",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "maximum": 4094,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  ]
                 }
               },
               "type": "object"
@@ -27214,7 +27821,17 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "vlan_id": {
-              "type": "string"
+              "description": "If WAN interface is on a VLAN. Can be the VLAN ID (i.e. \\"10\\") or a Variable (i.e. \\"{{myvar}}\\")",
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "maximum": 4094,
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              ]
             }
           },
           "type": "object"
@@ -28300,7 +28917,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 "type": "integer"
               },
               "ipsec_proposals": {
-                "description": "Only if  `provider`==`custom-ipsec`",
+                "description": "Only if `provider`==`custom-ipsec`",
                 "items": {
                   "additionalProperties": false,
                   "properties": {
@@ -28403,7 +29020,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "uniqueItems": true
                   },
                   "remote_ids": {
-                    "description": "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+                    "description": "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
                     "items": {
                       "type": "string"
                     },
@@ -28507,7 +29124,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "uniqueItems": true
                   },
                   "remote_ids": {
-                    "description": "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+                    "description": "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
                     "items": {
                       "type": "string"
                     },
@@ -29755,6 +30372,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "examples": [
                 "ROOT_PASSWORD"
               ],
+              "format": "password",
               "type": "string"
             }
           },
@@ -30423,6 +31041,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "examples": [
                 "ROOT_PASSWORD"
               ],
+              "format": "password",
               "type": "string"
             }
           },
@@ -32775,6 +33394,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "oauth2_client_secret": {
           "description": "Required when `oauth2_grant_type`==`client_credentials`",
+          "format": "password",
           "type": "string"
         },
         "oauth2_grant_type": {
@@ -32787,6 +33407,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "oauth2_password": {
           "description": "Required when `oauth2_grant_type`==`password`",
+          "format": "password",
           "type": "string"
         },
         "oauth2_scopes": {
@@ -32813,7 +33434,7 @@ SCHEMAS_DATA: dict = _json.loads(
           "type": "string"
         },
         "secret": {
-          "description": "Only if `type`=`http-post` \\n\\nwhen `secret` is provided, two  HTTP headers will be added: \\n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+          "description": "Only if `type`=`http-post` \\n\\nwhen `secret` is provided, two HTTP headers will be added: \\n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
           "type": [
             "string",
             "null"
@@ -32941,6 +33562,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "oauth2_client_secret": {
           "description": "Required when `oauth2_grant_type`==`client_credentials`",
+          "format": "password",
           "type": "string"
         },
         "oauth2_grant_type": {
@@ -32953,6 +33575,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "oauth2_password": {
           "description": "Required when `oauth2_grant_type`==`password`",
+          "format": "password",
           "type": "string"
         },
         "oauth2_scopes": {
@@ -32979,7 +33602,7 @@ SCHEMAS_DATA: dict = _json.loads(
           "type": "string"
         },
         "secret": {
-          "description": "Only if `type`=`http-post` \\n\\nwhen `secret` is provided, two  HTTP headers will be added: \\n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+          "description": "Only if `type`=`http-post` \\n\\nwhen `secret` is provided, two HTTP headers will be added: \\n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
           "type": [
             "string",
             "null"
@@ -33831,7 +34454,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "boolean"
                   },
                   "expression": {
-                    "description": "If `src`==`name`, `src`==`lldp_system_name`,  `src`==`dns_suffix`  \\n      \\"[0:3]\\"            // \\"abcdef\\" -> \\"abc\\"  \\n      \\"split(.)[1]\\"      // \\"a.b.c\\" -> \\"b\\"  \\n      \\"split(-)[1][0:3]\\" // \\"a1234-b5678-c90\\" -> \\"b56\\"'",
+                    "description": "If `src`==`name`, `src`==`lldp_system_name`, `src`==`dns_suffix`  \\n      \\"[0:3]\\"            // \\"abcdef\\" -> \\"abc\\"  \\n      \\"split(.)[1]\\"      // \\"a.b.c\\" -> \\"b\\"  \\n      \\"split(-)[1][0:3]\\" // \\"a1234-b5678-c90\\" -> \\"b56\\"'",
                     "examples": [
                       "split(.)[1]"
                     ],
@@ -33939,7 +34562,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "boolean"
                   },
                   "expression": {
-                    "description": "If `src`==`name`, `src`==`lldp_system_name`,  `src`==`dns_suffix`  \\n      \\"[0:3]\\"            // \\"abcdef\\" -> \\"abc\\"  \\n      \\"split(.)[1]\\"      // \\"a.b.c\\" -> \\"b\\"  \\n      \\"split(-)[1][0:3]\\" // \\"a1234-b5678-c90\\" -> \\"b56\\"'",
+                    "description": "If `src`==`name`, `src`==`lldp_system_name`, `src`==`dns_suffix`  \\n      \\"[0:3]\\"            // \\"abcdef\\" -> \\"abc\\"  \\n      \\"split(.)[1]\\"      // \\"a.b.c\\" -> \\"b\\"  \\n      \\"split(-)[1][0:3]\\" // \\"a1234-b5678-c90\\" -> \\"b56\\"'",
                     "examples": [
                       "split(.)[1]"
                     ],
@@ -34804,6 +35427,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "examples": [
                 "ROOT_PASSWORD"
               ],
+              "format": "password",
               "type": "string"
             }
           },
@@ -37615,6 +38239,198 @@ SCHEMAS_DATA: dict = _json.loads(
               },
               "type": "object"
             },
+            "gateway_mgmt": {
+              "additionalProperties": false,
+              "description": "Gateway Management settings",
+              "properties": {
+                "admin_sshkeys": {
+                  "description": "For SSR only, as direct root access is not allowed",
+                  "examples": [
+                    [
+                      "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAA...Wxa6p6UW0ZbcP john@host"
+                    ]
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "app_probing": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "apps": {
+                      "description": "APp-keys from [List Applications](/#operations/listApplications)",
+                      "examples": [
+                        [
+                          "facebook"
+                        ]
+                      ],
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "custom_apps": {
+                      "items": {
+                        "$comment": "max depth reached"
+                      },
+                      "type": "array"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
+                },
+                "app_usage": {
+                  "description": "Consumes uplink bandwidth, requires WA license",
+                  "type": "boolean"
+                },
+                "auto_signature_update": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "day_of_week": {
+                      "description": "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
+                      "enum": [
+                        "any",
+                        "fri",
+                        "mon",
+                        "sat",
+                        "sun",
+                        "thu",
+                        "tue",
+                        "wed"
+                      ],
+                      "type": "string"
+                    },
+                    "enable": {
+                      "default": true,
+                      "type": "boolean"
+                    },
+                    "time_of_day": {
+                      "description": "Optional, Mist will decide the timing",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "config_revert_timer": {
+                  "default": 10,
+                  "description": "Rollback timer for commit confirmed",
+                  "maximum": 30,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "disable_console": {
+                  "default": false,
+                  "description": "For SSR and SRX, disable console port",
+                  "type": "boolean"
+                },
+                "disable_oob": {
+                  "default": false,
+                  "description": "For SSR and SRX, disable management interface",
+                  "type": "boolean"
+                },
+                "disable_usb": {
+                  "default": false,
+                  "description": "For SSR and SRX, disable usb interface",
+                  "type": "boolean"
+                },
+                "fips_enabled": {
+                  "default": false,
+                  "type": "boolean"
+                },
+                "probe_hosts": {
+                  "examples": [
+                    [
+                      "8.8.8.8"
+                    ]
+                  ],
+                  "format": "ipv4",
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "probe_hostsv6": {
+                  "examples": [
+                    [
+                      "2001:4860:4860::8888"
+                    ]
+                  ],
+                  "format": "ipv6",
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "protect_re": {
+                  "additionalProperties": false,
+                  "description": "Restrict inbound-traffic to host\\nwhen enabled, all traffic that is not essential to our operation will be dropped \\ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
+                  "properties": {
+                    "allowed_services": {
+                      "description": "Optionally, services we'll allow",
+                      "examples": [
+                        [
+                          "icmp",
+                          "ssh"
+                        ]
+                      ],
+                      "items": {
+                        "$comment": "max depth reached"
+                      },
+                      "type": "array"
+                    },
+                    "custom": {
+                      "items": {
+                        "$comment": "max depth reached"
+                      },
+                      "type": "array"
+                    },
+                    "enabled": {
+                      "default": false,
+                      "description": "When enabled, all traffic that is not essential to our operation will be dropped\\ne.g. ntp / dns / traffic to mist will be allowed by default\\n     if dhcpd is enabled, we'll make sure it works",
+                      "type": "boolean"
+                    },
+                    "hit_count": {
+                      "default": false,
+                      "description": "Whether to enable hit count for Protect_RE policy",
+                      "type": "boolean"
+                    },
+                    "trusted_hosts": {
+                      "description": "host/subnets we'll allow traffic to/from",
+                      "items": {
+                        "examples": [
+                          "10.242.3.0/24"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                },
+                "root_password": {
+                  "description": "SRX only",
+                  "format": "password",
+                  "type": "string"
+                },
+                "security_log_source_address": {
+                  "examples": [
+                    "192.168.1.1"
+                  ],
+                  "format": "ipv4",
+                  "type": "string"
+                },
+                "security_log_source_interface": {
+                  "examples": [
+                    "ge-0/0/1.0"
+                  ],
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
             "id": {
               "description": "Unique ID of the object instance in the Mist Organization",
               "examples": [
@@ -38000,7 +38816,17 @@ SCHEMAS_DATA: dict = _json.loads(
                       "type": "boolean"
                     },
                     "vlan_id": {
-                      "type": "string"
+                      "description": "If WAN interface is on a VLAN. Can be the VLAN ID (i.e. \\"10\\") or a Variable (i.e. \\"{{myvar}}\\")",
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "maximum": 4094,
+                          "minimum": 1,
+                          "type": "integer"
+                        }
+                      ]
                     }
                   },
                   "type": "object"
@@ -38028,7 +38854,17 @@ SCHEMAS_DATA: dict = _json.loads(
                   "type": "boolean"
                 },
                 "vlan_id": {
-                  "type": "string"
+                  "description": "If WAN interface is on a VLAN. Can be the VLAN ID (i.e. \\"10\\") or a Variable (i.e. \\"{{myvar}}\\")",
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "maximum": 4094,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  ]
                 }
               },
               "type": "object"
@@ -38932,7 +39768,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "integer"
                   },
                   "ipsec_proposals": {
-                    "description": "Only if  `provider`==`custom-ipsec`",
+                    "description": "Only if `provider`==`custom-ipsec`",
                     "items": {
                       "additionalProperties": false,
                       "properties": {
@@ -39002,7 +39838,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "uniqueItems": true
                       },
                       "remote_ids": {
-                        "description": "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+                        "description": "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
                         "items": {
                           "$comment": "max depth reached"
                         },
@@ -39105,7 +39941,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "uniqueItems": true
                       },
                       "remote_ids": {
-                        "description": "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+                        "description": "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
                         "items": {
                           "$comment": "max depth reached"
                         },
@@ -39363,7 +40199,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "gateway_mgmt": {
           "additionalProperties": false,
-          "description": "Gateway Site settings",
+          "description": "Gateway Management settings",
           "properties": {
             "admin_sshkeys": {
               "description": "For SSR only, as direct root access is not allowed",
@@ -39610,6 +40446,7 @@ SCHEMAS_DATA: dict = _json.loads(
             },
             "root_password": {
               "description": "SRX only",
+              "format": "password",
               "type": "string"
             },
             "security_log_source_address": {
@@ -39853,6 +40690,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       }
                     },
@@ -39978,6 +40816,7 @@ SCHEMAS_DATA: dict = _json.loads(
                       },
                       "secret": {
                         "description": "Secret of RADIUS server",
+                        "format": "password",
                         "type": "string"
                       },
                       "ssids": {
@@ -40036,6 +40875,7 @@ SCHEMAS_DATA: dict = _json.loads(
                       },
                       "secret": {
                         "description": "Secret of RADIUS server",
+                        "format": "password",
                         "type": "string"
                       },
                       "ssids": {
@@ -40148,6 +40988,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "examples": [
                 "ROOT_PASSWORD"
               ],
+              "format": "password",
               "type": "string"
             }
           },
@@ -40409,6 +41250,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "examples": [
                           "testing123"
                         ],
+                        "format": "password",
                         "type": "string"
                       }
                     },
@@ -40463,6 +41305,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "examples": [
                           "testing123"
                         ],
+                        "format": "password",
                         "type": "string"
                       }
                     },
@@ -41918,6 +42761,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "testing123"
                     ],
+                    "format": "password",
                     "type": "string"
                   }
                 },
@@ -41997,6 +42841,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "testing123"
                     ],
+                    "format": "password",
                     "type": "string"
                   }
                 },
@@ -44130,7 +44975,7 @@ SCHEMAS_DATA: dict = _json.loads(
                 },
                 "switch_mgmt": {
                   "additionalProperties": false,
-                  "description": "Switch settings",
+                  "description": "Switch Management settings",
                   "properties": {
                     "ap_affinity_threshold": {
                       "default": 10,
@@ -44242,6 +45087,7 @@ SCHEMAS_DATA: dict = _json.loads(
                       "type": "boolean"
                     },
                     "root_password": {
+                      "format": "password",
                       "type": "string"
                     },
                     "tacacs": {
@@ -44488,7 +45334,7 @@ SCHEMAS_DATA: dict = _json.loads(
                   },
                   "switch_mgmt": {
                     "additionalProperties": false,
-                    "description": "Switch settings",
+                    "description": "Switch Management settings",
                     "properties": {
                       "ap_affinity_threshold": {
                         "default": 10,
@@ -44549,6 +45395,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "boolean"
                       },
                       "root_password": {
+                        "format": "password",
                         "type": "string"
                       },
                       "tacacs": {
@@ -44572,7 +45419,7 @@ SCHEMAS_DATA: dict = _json.loads(
         },
         "switch_mgmt": {
           "additionalProperties": false,
-          "description": "Switch settings",
+          "description": "Switch Management settings",
           "properties": {
             "ap_affinity_threshold": {
               "default": 10,
@@ -44619,6 +45466,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "examples": [
                       "Juniper123"
                     ],
+                    "format": "password",
                     "type": "string"
                   },
                   "role": {
@@ -44823,6 +45671,7 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "root_password": {
+              "format": "password",
               "type": "string"
             },
             "tacacs": {
@@ -44839,6 +45688,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       },
                       "timeout": {
@@ -44879,6 +45729,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       },
                       "secret": {
+                        "format": "password",
                         "type": "string"
                       },
                       "timeout": {
@@ -45457,6 +46308,7 @@ SCHEMAS_DATA: dict = _json.loads(
               },
               "auth_password": {
                 "description": "If `auth_type`==`simple`",
+                "format": "password",
                 "type": "string"
               },
               "auth_type": {
