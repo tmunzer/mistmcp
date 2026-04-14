@@ -34,7 +34,7 @@ mistmcp = "mistmcp.__main__:main"
 [dependency-groups]
 dev = [
   # Testing dependencies
-  "pytest>=8.4.0",
+  "pytest>=9.0.3",
   "pytest-cov>=6.1.1",
   "responses>=0.25.7",
   "factory-boy>=3.3.3",
