@@ -181,6 +181,7 @@ async def search_client(
                     site_id=str(site_id) if site_id else None,
                     device_mac=str(device_mac) if device_mac else None,
                     mac=str(mac) if mac else None,
+                    text=str(text) if text else str(hostname) if hostname else None,
                     ip=str(ip) if ip else None,
                     start=str(start) if start else None,
                     end=str(end) if end else None,
