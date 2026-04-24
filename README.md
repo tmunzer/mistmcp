@@ -1,3 +1,5 @@
+> [!IMPORTANT]
+> This MCP server is mostly used as a sandbox to explore the MCP protocol. For a more stable and optimized Mist MCP Server, please refer to the [Official Mist MCP Server](https://www.juniper.net/documentation/us/en/software/mist/mist-aiops/shared-content/topics/concept/juniper-mist-mcp-claude.html)
 
 # Mist MCP Server
 
