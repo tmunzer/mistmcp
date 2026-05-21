@@ -241,6 +241,25 @@ def snake_case(s: str) -> str:
 def camel_to_snake(name):
     s1 = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def _enum_member_name(value: str) -> str:
+    member_name = snake_case(str(value).replace("/", "_"))
+    member_name = re.sub(r"[^0-9a-zA-Z_]", "_", member_name)
+    member_name = re.sub(r"_+", "_", member_name).strip("_")
+
+    if not member_name:
+        member_name = "VALUE"
+    if member_name[0].isdigit():
+        member_name = f"B{member_name}"
+
+    return member_name.upper()
+
+
+def _python_literal(value) -> str:
+    return repr(value)
+
+
 ########
 # Parameter Processing Functions
 
@@ -384,11 +403,8 @@ def _process_params(
                     if entry == "":
                         continue
                     e = entry.replace("/", "_").replace("-", "_")
-                    tmp_choices.append(e.lower())
-                    e_tmp = snake_case(e)
-                    if e_tmp in ["24", "5", "6"]:
-                        e_tmp = f"B{e_tmp}"
-                    tmp_enum += f'    {e_tmp.upper()} = "{e}"\n'
+                    tmp_choices.append(snake_case(e))
+                    tmp_enum += f'    {_enum_member_name(e)} = "{e}"\n'
                 if (
                     not tmp_param["required"]
                     and not tmp_param["default"]
@@ -398,9 +414,14 @@ def _process_params(
                     tmp_enum += "    NONE = None\n"
                 enums += tmp_enum
                 tmp_type = tmp_param["name"].capitalize()
-                if tmp_param["default"]:
-                    tmp_default = f" = {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}"
-                    tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else {tmp_param['name'].capitalize()}.{tmp_param['default'].upper()}.value,\n"
+                if tmp_param["default"] is not None:
+                    default_member = _enum_member_name(tmp_param["default"])
+                    tmp_default = (
+                        f" = {tmp_param['name'].capitalize()}.{default_member}"
+                    )
+                    tmp_mistapi_parameters = (
+                        f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else {tmp_param['name'].capitalize()}.{default_member}.value,\n"
+                    )
                 elif force_default:
                     # tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else None,\n"
@@ -432,12 +453,12 @@ def _process_params(
         if not tmp_default:
             if tmp_param["required"]:
                 tmp_optional = ""
-            elif tmp_param["default"] is not None and tmp_param["type"] in ("integer", "number", "boolean"):
-                # Non-enum param with an explicit schema default (e.g. limit: 10)
-                # Use the default value directly; no Optional wrapper needed.
-                tmp_default = f" = {tmp_param['default']}"
+            elif tmp_param["default"] is not None:
+                # Non-enum param with an explicit schema default.
+                default_literal = _python_literal(tmp_param["default"])
+                tmp_default = f" = {default_literal}"
                 if annotations:
-                    annotations.append(f"default={tmp_param['default']}")
+                    annotations.append(f"default={default_literal}")
             else:
                 # Optional param without a default: inject default=None into Field
                 # instead of wrapping in Optional[X] to avoid anyOf in the JSON schema.
@@ -445,6 +466,7 @@ def _process_params(
                 _add_import(imports, "pydantic", "Field")
                 _add_import(imports, "typing", "Annotated")
                 annotations.append("default=None")
+             #   tmp_default = " = None"
         # When tmp_default is already set (e.g. enum with default), no Optional
         # wrapper is needed — the existing default already makes the param optional.
 
@@ -458,7 +480,7 @@ def _process_params(
         if not tmp_mistapi_parameters:
             if tmp_param["required"]:
                 tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']},\n"
-            elif tmp_param["default"] is not None and tmp_param["type"] in ("integer", "number", "boolean"):
+            elif tmp_param["default"] is not None:
                 # Param has an explicit default — always pass it through (never None)
                 tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']},\n"
             else:
@@ -656,6 +678,27 @@ def _gen_tools_additional_required_parameters(parameters: list) -> str:
             additional_parameters += "            }\n"
             additional_parameters += "        )\n\n"
     return additional_parameters
+
+
+def _build_input_parameters_log(parameters: list) -> str:
+    param_names = [
+        param_name
+        for param_name in (param.get("name") for param in parameters)
+        if param_name
+    ]
+    input_parameters = "\"Input Parameters: "
+
+    for i, param_name in enumerate(param_names):
+        if i > 0:
+            input_parameters += ", "
+        input_parameters += f"{param_name}: %s"
+
+    if param_names:
+        input_parameters += f"\", {', '.join(param_names)}"
+    else:
+        input_parameters += "\""
+
+    return input_parameters
 
 
 def _gen_tool_replacement(details: dict, processed_operation_ids: list) -> str:
@@ -926,14 +969,9 @@ def _gen_tools_optim(
             )
         )
 
-        input_parameters = "\"Input Parameters: "
-        i = 0
-        for param in func_data.get('parameters', []):
-            if i > 0:
-                input_parameters += ", "
-            input_parameters += f"{param.get('name')}: %s"
-            i += 1
-        input_parameters += f"\", {', '.join([param.get('name') for param in func_data.get('parameters', [])])}"
+        input_parameters = _build_input_parameters_log(
+            func_data.get("parameters", [])
+        )
 
         # Select the template based on hints
         if func_data.get("read_only_hint") is True:
@@ -1125,6 +1163,10 @@ def _gen_tools_openapi(
         else:
             request = REQ_TEMPLATE.format(request=mistapi_request)
 
+        input_parameters = _build_input_parameters_log(
+            methods.get("parameters", [])
+        )
+
         tool_code = TOOL_TEMPLATE_READ.format(
             imports=imports,
             models=models,
@@ -1136,6 +1178,7 @@ def _gen_tools_openapi(
             readOnlyHint=read_only_hint,
             destructiveHint=destructive_hint,
             parameters=parameters,
+            input_parameters=input_parameters,
             request=request,
         )
 

@@ -97,6 +97,7 @@ Site-level takes precedence when both org and site objects of the same type exis
 ## Write-Capable Object Types
 | object_type | Description |
 | - | - |
+| org_info | Organization settings (update only) |
 | org_alarmtemplates | Org alarm templates |
 | org_wlans | Org WLAN definitions |
 | org_sitegroups | Org site groups |
@@ -113,12 +114,14 @@ Site-level takes precedence when both org and site objects of the same type exis
 | org_rftemplates | Org RF templates |
 | org_services | Org services |
 | org_servicepolicies | Org service policies |
+| org_sites | Org sites |
 | org_sitetemplates | Org site templates |
 | org_vpns | Org VPNs |
 | org_webhooks | Org webhooks |
 | org_wlantemplates | Org WLAN templates |
 | org_wxrules | Org Wx rules |
 | org_wxtags | Org Wx tags |
+| site_info | Site settings (update only) |
 | site_devices | Site devices (update only) |
 | site_psks | Site-level Multi-PSK configs |
 | site_webhooks | Site-level webhook endpoints |

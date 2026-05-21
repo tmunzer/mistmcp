@@ -346,6 +346,16 @@ SCHEMAS_DATA: dict = _json.loads(
               "description": "Whether to trigger EAP reauth when the session ends",
               "type": "boolean"
             },
+            "enable_beacon_protection": {
+              "default": false,
+              "description": "Enable Beacon Protection; default is false for better compatibility",
+              "type": "boolean"
+            },
+            "enable_gcmp256": {
+              "default": false,
+              "description": "Enable GCMP-256 encryption suite; default is false for better compatibility",
+              "type": "boolean"
+            },
             "enable_mac_auth": {
               "default": false,
               "description": "Whether to enable MAC Auth, uses the same auth_servers",
@@ -591,13 +601,17 @@ SCHEMAS_DATA: dict = _json.loads(
             "5",
             "6"
           ],
-          "description": "List of radios that the wlan should apply to.",
+          "description": "List of radios that the wlan should apply to. enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`",
           "items": {
-            "description": "enum: `24`, `5`, `6`",
+            "description": "enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`",
             "enum": [
               "24",
               "5",
-              "6"
+              "5-dedicated",
+              "5-selectable",
+              "6",
+              "6-dedicated",
+              "6-selectable"
             ],
             "type": "string"
           },
@@ -2853,6 +2867,16 @@ SCHEMAS_DATA: dict = _json.loads(
               "description": "Whether to trigger EAP reauth when the session ends",
               "type": "boolean"
             },
+            "enable_beacon_protection": {
+              "default": false,
+              "description": "Enable Beacon Protection; default is false for better compatibility",
+              "type": "boolean"
+            },
+            "enable_gcmp256": {
+              "default": false,
+              "description": "Enable GCMP-256 encryption suite; default is false for better compatibility",
+              "type": "boolean"
+            },
             "enable_mac_auth": {
               "default": false,
               "description": "Whether to enable MAC Auth, uses the same auth_servers",
@@ -3098,13 +3122,17 @@ SCHEMAS_DATA: dict = _json.loads(
             "5",
             "6"
           ],
-          "description": "List of radios that the wlan should apply to.",
+          "description": "List of radios that the wlan should apply to. enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`",
           "items": {
-            "description": "enum: `24`, `5`, `6`",
+            "description": "enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`",
             "enum": [
               "24",
               "5",
-              "6"
+              "5-dedicated",
+              "5-selectable",
+              "6",
+              "6-dedicated",
+              "6-selectable"
             ],
             "type": "string"
           },
@@ -7043,6 +7071,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port",
                 "type": "boolean"
               },
+              "poe_keep_state_when_reboot": {
+                "default": false,
+                "description": "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
+                "type": "boolean"
+              },
               "poe_priority": {
                 "description": "PoE priority. enum: `low`, `high`",
                 "enum": [
@@ -7077,7 +7110,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "string"
                   }
                 ],
-                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600)"
+                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication)."
               },
               "reset_default_when": {
                 "default": "link_down",
@@ -8985,6 +9018,15 @@ SCHEMAS_DATA: dict = _json.loads(
                       "examples": [
                         65000
                       ]
+                    },
+                    "tunnel_via": {
+                      "default": "primary",
+                      "description": "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
+                      "enum": [
+                        "primary",
+                        "secondary"
+                      ],
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -9410,6 +9452,9 @@ SCHEMAS_DATA: dict = _json.loads(
                           "$comment": "max depth reached"
                         },
                         "poe_disabled": {
+                          "$comment": "max depth reached"
+                        },
+                        "poe_keep_state_when_reboot": {
                           "$comment": "max depth reached"
                         },
                         "port_network": {
@@ -10630,6 +10675,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "default": false,
                 "type": "boolean"
               },
+              "poe_keep_state_when_reboot": {
+                "default": false,
+                "description": "Whether Perpetual PoE capabilities are enabled for a port",
+                "type": "boolean"
+              },
               "port_network": {
                 "description": "Only for SRX and if `usage`==`lan`, the name of the Network to be used as the Untagged VLAN",
                 "type": "string"
@@ -10658,7 +10708,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "string"
                   }
                 ],
-                "description": "For SRX only and if HA Mode"
+                "description": "For SRX only and if HA Mode. `-1` means it will be managed by the device. Use `>= 0` values to manage it manually. Ensure no conflicting values are assigned across all ports."
               },
               "reth_node": {
                 "description": "If HA mode",
@@ -13055,11 +13105,15 @@ SCHEMAS_DATA: dict = _json.loads(
             "bands": {
               "description": "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
               "items": {
-                "description": "enum: `24`, `5`, `6`",
+                "description": "enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`",
                 "enum": [
                   "24",
                   "5",
-                  "6"
+                  "5-dedicated",
+                  "5-selectable",
+                  "6",
+                  "6-dedicated",
+                  "6-selectable"
                 ],
                 "type": "string"
               },
@@ -13092,6 +13146,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "base"
               ],
               "type": "string"
+            },
+            "use_wpa3_on_5": {
+              "default": false,
+              "description": "Whether to use WPA3 on the 5 GHz band for mesh links",
+              "type": "boolean"
             }
           },
           "type": "object"
@@ -14324,6 +14383,60 @@ SCHEMAS_DATA: dict = _json.loads(
           ],
           "format": "double",
           "type": "number"
+        },
+        "zigbee_config": {
+          "additionalProperties": false,
+          "description": "Zigbee AP settings",
+          "properties": {
+            "allow_join": {
+              "default": "manual",
+              "description": "Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`",
+              "enum": [
+                "always",
+                "manual"
+              ],
+              "examples": [
+                "manual"
+              ],
+              "type": "string"
+            },
+            "channel": {
+              "default": 0,
+              "description": "Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26",
+              "examples": [
+                0
+              ],
+              "maximum": 26,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable Zigbee on this AP",
+              "type": "boolean"
+            },
+            "extended_pan_id": {
+              "description": "Extended PAN ID in hex string format; only applicable when `pan_id` is also specified",
+              "examples": [
+                1311768467294899695
+              ],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "pan_id": {
+              "description": "PAN ID in hex string format; if not specified, assigned automatically",
+              "examples": [
+                "0x1234"
+              ],
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "type": "object"
         }
       },
       "required": [
@@ -14961,9 +15074,10 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "role": {
-              "description": "enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
+              "description": "enum: `access`, `border`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
               "enum": [
                 "access",
+                "border",
                 "collapsed-core",
                 "core",
                 "distribution",
@@ -15455,7 +15569,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "string"
                   }
                 ],
-                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600)"
+                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication)."
               },
               "server_fail_network": {
                 "description": "Only if `port_auth`==`dot1x` sets server fail fallback vlan",
@@ -16006,8 +16120,13 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "Users could force to use the designated AE name",
                 "type": "integer"
               },
+              "ae_lacp_force_up": {
+                "default": false,
+                "description": "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
+                "type": "boolean"
+              },
               "ae_lacp_slow": {
-                "description": "To use fast timeout",
+                "description": "To use slow timeout",
                 "type": "boolean"
               },
               "aggregated": {
@@ -16142,6 +16261,11 @@ SCHEMAS_DATA: dict = _json.loads(
               "poe_disabled": {
                 "default": false,
                 "description": "Whether PoE capabilities are disabled for a port",
+                "type": "boolean"
+              },
+              "poe_keep_state_when_reboot": {
+                "default": false,
+                "description": "Whether Perpetual PoE is enabled; keeps PoE state across reboots",
                 "type": "boolean"
               },
               "port_network": {
@@ -16409,6 +16533,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port",
                 "type": "boolean"
               },
+              "poe_keep_state_when_reboot": {
+                "default": false,
+                "description": "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
+                "type": "boolean"
+              },
               "poe_priority": {
                 "description": "PoE priority. enum: `low`, `high`",
                 "enum": [
@@ -16443,7 +16572,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "string"
                   }
                 ],
-                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600)"
+                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication)."
               },
               "reset_default_when": {
                 "default": "link_down",
@@ -18314,6 +18443,15 @@ SCHEMAS_DATA: dict = _json.loads(
                       "examples": [
                         65000
                       ]
+                    },
+                    "tunnel_via": {
+                      "default": "primary",
+                      "description": "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
+                      "enum": [
+                        "primary",
+                        "secondary"
+                      ],
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -19821,6 +19959,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "default": false,
                 "type": "boolean"
               },
+              "poe_keep_state_when_reboot": {
+                "default": false,
+                "description": "Whether Perpetual PoE capabilities are enabled for a port",
+                "type": "boolean"
+              },
               "port_network": {
                 "description": "Only for SRX and if `usage`==`lan`, the name of the Network to be used as the Untagged VLAN",
                 "type": "string"
@@ -19849,7 +19992,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "string"
                   }
                 ],
-                "description": "For SRX only and if HA Mode"
+                "description": "For SRX only and if HA Mode. `-1` means it will be managed by the device. Use `>= 0` values to manage it manually. Ensure no conflicting values are assigned across all ports."
               },
               "reth_node": {
                 "description": "If HA mode",
@@ -22038,11 +22181,15 @@ SCHEMAS_DATA: dict = _json.loads(
             "bands": {
               "description": "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
               "items": {
-                "description": "enum: `24`, `5`, `6`",
+                "description": "enum: `24`, `5`, `5-dedicated`, `5-selectable`, `6`, `6-dedicated`, `6-selectable`",
                 "enum": [
                   "24",
                   "5",
-                  "6"
+                  "5-dedicated",
+                  "5-selectable",
+                  "6",
+                  "6-dedicated",
+                  "6-selectable"
                 ],
                 "type": "string"
               },
@@ -22075,6 +22222,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "base"
               ],
               "type": "string"
+            },
+            "use_wpa3_on_5": {
+              "default": false,
+              "description": "Whether to use WPA3 on the 5 GHz band for mesh links",
+              "type": "boolean"
             }
           },
           "type": "object"
@@ -23462,6 +23614,60 @@ SCHEMAS_DATA: dict = _json.loads(
             }
           ],
           "type": "object"
+        },
+        "zigbee_config": {
+          "additionalProperties": false,
+          "description": "Zigbee AP settings",
+          "properties": {
+            "allow_join": {
+              "default": "manual",
+              "description": "Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`",
+              "enum": [
+                "always",
+                "manual"
+              ],
+              "examples": [
+                "manual"
+              ],
+              "type": "string"
+            },
+            "channel": {
+              "default": 0,
+              "description": "Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26",
+              "examples": [
+                0
+              ],
+              "maximum": 26,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable Zigbee on this AP",
+              "type": "boolean"
+            },
+            "extended_pan_id": {
+              "description": "Extended PAN ID in hex string format; only applicable when `pan_id` is also specified",
+              "examples": [
+                1311768467294899695
+              ],
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "pan_id": {
+              "description": "PAN ID in hex string format; if not specified, assigned automatically",
+              "examples": [
+                "0x1234"
+              ],
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "type": "object"
         }
       },
       "required": [
@@ -23956,9 +24162,10 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "boolean"
             },
             "role": {
-              "description": "enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
+              "description": "enum: `access`, `border`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
               "enum": [
                 "access",
+                "border",
                 "collapsed-core",
                 "core",
                 "distribution",
@@ -24629,8 +24836,13 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "Users could force to use the designated AE name",
                 "type": "integer"
               },
+              "ae_lacp_force_up": {
+                "default": false,
+                "description": "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
+                "type": "boolean"
+              },
               "ae_lacp_slow": {
-                "description": "To use fast timeout",
+                "description": "To use slow timeout",
                 "type": "boolean"
               },
               "aggregated": {
@@ -24963,6 +25175,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port",
                 "type": "boolean"
               },
+              "poe_keep_state_when_reboot": {
+                "default": false,
+                "description": "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
+                "type": "boolean"
+              },
               "poe_priority": {
                 "description": "PoE priority. enum: `low`, `high`",
                 "enum": [
@@ -24997,7 +25214,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "string"
                   }
                 ],
-                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600)"
+                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication)."
               },
               "reset_default_when": {
                 "default": "link_down",
@@ -26779,6 +26996,15 @@ SCHEMAS_DATA: dict = _json.loads(
                       "examples": [
                         65000
                       ]
+                    },
+                    "tunnel_via": {
+                      "default": "primary",
+                      "description": "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
+                      "enum": [
+                        "primary",
+                        "secondary"
+                      ],
+                      "type": "string"
                     }
                   },
                   "required": [
@@ -27204,6 +27430,9 @@ SCHEMAS_DATA: dict = _json.loads(
                           "$comment": "max depth reached"
                         },
                         "poe_disabled": {
+                          "$comment": "max depth reached"
+                        },
+                        "poe_keep_state_when_reboot": {
                           "$comment": "max depth reached"
                         },
                         "port_network": {
@@ -28156,6 +28385,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "default": false,
                 "type": "boolean"
               },
+              "poe_keep_state_when_reboot": {
+                "default": false,
+                "description": "Whether Perpetual PoE capabilities are enabled for a port",
+                "type": "boolean"
+              },
               "port_network": {
                 "description": "Only for SRX and if `usage`==`lan`, the name of the Network to be used as the Untagged VLAN",
                 "type": "string"
@@ -28184,7 +28418,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "string"
                   }
                 ],
-                "description": "For SRX only and if HA Mode"
+                "description": "For SRX only and if HA Mode. `-1` means it will be managed by the device. Use `>= 0` values to manage it manually. Ensure no conflicting values are assigned across all ports."
               },
               "reth_node": {
                 "description": "If HA mode",
@@ -30384,7 +30618,7 @@ SCHEMAS_DATA: dict = _json.loads(
           ],
           "type": "string"
         },
-        "note": {
+        "notes": {
           "examples": [
             "note for mxedge"
           ],
@@ -30607,8 +30841,15 @@ SCHEMAS_DATA: dict = _json.loads(
           "additionalProperties": false,
           "properties": {
             "enabled": {
-              "default": false,
-              "type": "boolean"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": false
             },
             "querier": {
               "additionalProperties": false,
@@ -30651,16 +30892,23 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "object"
             },
             "vlan_ids": {
-              "description": "List of vlans on which tunterm performs IGMP snooping",
-              "items": {
-                "examples": [
-                  2
-                ],
-                "maximum": 4096,
-                "minimum": 0,
-                "type": "integer"
-              },
-              "type": "array"
+              "anyOf": [
+                {
+                  "items": {
+                    "examples": [
+                      2
+                    ],
+                    "maximum": 4096,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "List of vlans on which tunterm performs IGMP snooping"
             }
           },
           "type": "object"
@@ -31053,7 +31301,7 @@ SCHEMAS_DATA: dict = _json.loads(
           ],
           "type": "string"
         },
-        "note": {
+        "notes": {
           "examples": [
             "note for mxedge"
           ],
@@ -31276,8 +31524,15 @@ SCHEMAS_DATA: dict = _json.loads(
           "additionalProperties": false,
           "properties": {
             "enabled": {
-              "default": false,
-              "type": "boolean"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": false
             },
             "querier": {
               "additionalProperties": false,
@@ -31320,16 +31575,23 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "object"
             },
             "vlan_ids": {
-              "description": "List of vlans on which tunterm performs IGMP snooping",
-              "items": {
-                "examples": [
-                  2
-                ],
-                "maximum": 4096,
-                "minimum": 0,
-                "type": "integer"
-              },
-              "type": "array"
+              "anyOf": [
+                {
+                  "items": {
+                    "examples": [
+                      2
+                    ],
+                    "maximum": 4096,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "List of vlans on which tunterm performs IGMP snooping"
             }
           },
           "type": "object"
@@ -32579,6 +32841,10 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "integer"
             }
           ]
+        },
+        "vlan_name": {
+          "description": "VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided",
+          "type": "string"
         }
       },
       "required": [
@@ -32733,6 +32999,10 @@ SCHEMAS_DATA: dict = _json.loads(
               "type": "integer"
             }
           ]
+        },
+        "vlan_name": {
+          "description": "VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided",
+          "type": "string"
         }
       },
       "required": [
@@ -35128,44 +35398,39 @@ SCHEMAS_DATA: dict = _json.loads(
         "marvis": {
           "additionalProperties": false,
           "properties": {
-            "auto_operations": {
+            "self_driving": {
               "additionalProperties": false,
+              "description": "Self-driving network automation settings per domain",
               "properties": {
-                "ap_insufficient_capacity": {
-                  "default": false,
-                  "type": "boolean"
+                "wan": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "enabled": {
+                      "default": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
                 },
-                "ap_loop": {
-                  "default": false,
-                  "type": "boolean"
+                "wired": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "enabled": {
+                      "default": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
                 },
-                "ap_non_compliant": {
-                  "default": false,
-                  "type": "boolean"
-                },
-                "bounce_port_for_abnormal_poe_client": {
-                  "default": false,
-                  "type": "boolean"
-                },
-                "disable_port_when_ddos_protocol_violation": {
-                  "default": false,
-                  "type": "boolean"
-                },
-                "disable_port_when_rogue_dhcp_server_detected": {
-                  "default": false,
-                  "type": "boolean"
-                },
-                "gateway_non_compliant": {
-                  "default": false,
-                  "type": "boolean"
-                },
-                "switch_misconfigured_port": {
-                  "default": false,
-                  "type": "boolean"
-                },
-                "switch_port_stuck": {
-                  "default": false,
-                  "type": "boolean"
+                "wireless": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "enabled": {
+                      "default": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
                 }
               },
               "type": "object"
@@ -35204,6 +35469,11 @@ SCHEMAS_DATA: dict = _json.loads(
         "mist_nac": {
           "additionalProperties": false,
           "properties": {
+            "allow_teap_machine_auth_only": {
+              "default": false,
+              "description": "allow clients to connect even when the user cert failed. TEAP authenticates both Machine Cert and User Cert. When enabled, clients who only succeed Machine Cert authentication will be accepted.",
+              "type": "boolean"
+            },
             "cacerts": {
               "description": "List of PEM-encoded ca certs",
               "items": {
@@ -35320,6 +35590,22 @@ SCHEMAS_DATA: dict = _json.loads(
                 "type": "object"
               },
               "type": "array"
+            },
+            "mdm": {
+              "additionalProperties": false,
+              "description": "MDM (Mobile Device Management) CoA configuration",
+              "properties": {
+                "coa_type": {
+                  "default": "reauth",
+                  "description": "CoA type to send. enum: `reauth`, `disconnect`",
+                  "enum": [
+                    "reauth",
+                    "disconnect"
+                  ],
+                  "type": "string"
+                }
+              },
+              "type": "object"
             },
             "server_cert": {
               "additionalProperties": false,
@@ -37456,6 +37742,11 @@ SCHEMAS_DATA: dict = _json.loads(
               "description": "Optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well",
               "type": "boolean"
             },
+            "enable_inband_mgmt": {
+              "default": false,
+              "description": "Whether to route management traffic inband; routes will be propagated to downstream switches",
+              "type": "boolean"
+            },
             "enable_inband_ztp": {
               "default": false,
               "description": "if the mangement traffic goes inbnd, during installation, only the border/core switches are connected to the Internet to allow initial configuration to be pushed down and leave the downstream access switches stay in the Factory Default state enabling inband-ztp allows upstream switches to use LLDP to assign IP and gives Internet to downstream switches in that state",
@@ -37913,6 +38204,9 @@ SCHEMAS_DATA: dict = _json.loads(
                           "type": "integer"
                         },
                         "neighbor_as": {
+                          "$comment": "max depth reached"
+                        },
+                        "tunnel_via": {
                           "$comment": "max depth reached"
                         }
                       },
@@ -39166,6 +39460,11 @@ SCHEMAS_DATA: dict = _json.loads(
                     "default": false,
                     "type": "boolean"
                   },
+                  "poe_keep_state_when_reboot": {
+                    "default": false,
+                    "description": "Whether Perpetual PoE capabilities are enabled for a port",
+                    "type": "boolean"
+                  },
                   "port_network": {
                     "description": "Only for SRX and if `usage`==`lan`, the name of the Network to be used as the Untagged VLAN",
                     "type": "string"
@@ -39194,7 +39493,7 @@ SCHEMAS_DATA: dict = _json.loads(
                         "type": "string"
                       }
                     ],
-                    "description": "For SRX only and if HA Mode"
+                    "description": "For SRX only and if HA Mode. `-1` means it will be managed by the device. Use `>= 0` values to manage it manually. Ensure no conflicting values are assigned across all ports."
                   },
                   "reth_node": {
                     "description": "If HA mode",
@@ -40497,6 +40796,59 @@ SCHEMAS_DATA: dict = _json.loads(
           "format": "uuid",
           "readOnly": true,
           "type": "string"
+        },
+        "iotproxy": {
+          "additionalProperties": false,
+          "description": "IoT proxy configuration for the site",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "visionline": {
+              "additionalProperties": false,
+              "description": "Visionline integration settings for IoT proxy",
+              "properties": {
+                "access_id": {
+                  "description": "Access ID for the Visionline service",
+                  "examples": [
+                    "790e6c1790e6c18541d"
+                  ],
+                  "type": "string"
+                },
+                "enabled": {
+                  "default": false,
+                  "type": "boolean"
+                },
+                "host": {
+                  "description": "Hostname or IP of the Visionline collector",
+                  "examples": [
+                    "visionline_collector1.local"
+                  ],
+                  "type": "string"
+                },
+                "password": {
+                  "description": "Password for the Visionline service",
+                  "format": "password",
+                  "type": "string"
+                },
+                "port": {
+                  "default": 443,
+                  "description": "TCP port of the Visionline collector",
+                  "type": "integer"
+                },
+                "username": {
+                  "description": "Username for the Visionline service",
+                  "examples": [
+                    "card_administrator"
+                  ],
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "type": "object"
         },
         "juniper_srx": {
           "additionalProperties": false,
@@ -41875,6 +42227,11 @@ SCHEMAS_DATA: dict = _json.loads(
                 "description": "Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port",
                 "type": "boolean"
               },
+              "poe_keep_state_when_reboot": {
+                "default": false,
+                "description": "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
+                "type": "boolean"
+              },
               "poe_priority": {
                 "description": "PoE priority. enum: `low`, `high`",
                 "enum": [
@@ -41909,7 +42266,7 @@ SCHEMAS_DATA: dict = _json.loads(
                     "type": "string"
                   }
                 ],
-                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600)"
+                "description": "Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range (min: 10, max: 65535, default: 3600). Set to 0 to disable reauthentication (no-reauthentication)."
               },
               "reset_default_when": {
                 "default": "link_down",
@@ -44574,6 +44931,11 @@ SCHEMAS_DATA: dict = _json.loads(
                         "description": "Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port",
                         "type": "boolean"
                       },
+                      "poe_keep_state_when_reboot": {
+                        "default": false,
+                        "description": "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
+                        "type": "boolean"
+                      },
                       "poe_priority": {
                         "$comment": "max depth reached"
                       },
@@ -46075,6 +46437,36 @@ SCHEMAS_DATA: dict = _json.loads(
             {
               "RADIUS_IP1": "172.31.2.5",
               "RADIUS_SECRET": "11s64632d"
+            }
+          ],
+          "type": "object"
+        },
+        "vars_annotations": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "description": "Annotation for a single var, helping identify its purpose and enabling auto-complete/enumeration in UI",
+            "properties": {
+              "note": {
+                "description": "User-provided note to describe what this var was created for",
+                "type": "string"
+              },
+              "type": {
+                "default": "generic",
+                "description": "Used to identify where to enumerate / auto-complete the field from. Default is `generic` (plain string, no special handling).\\n\\nenum: `generic`, `mxtunnel_id`",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "description": "Optional annotations for vars defined in this site. Keys match var names; values describe the var purpose and type for UI auto-complete.",
+          "examples": [
+            {
+              "MXTUNNEL_GUEST": {
+                "type": "mxtunnel_id"
+              },
+              "RADIUS_IP1": {
+                "note": "RADIUS server IP address for US East Campus"
+              }
             }
           ],
           "type": "object"

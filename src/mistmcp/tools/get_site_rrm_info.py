@@ -26,6 +26,7 @@ from enum import Enum
 
 
 class Rrm_info_type(Enum):
+    CHANNEL_SCORES = "channel_scores"
     CURRENT_CHANNEL_PLANNING = "current_channel_planning"
     CURRENT_RRM_CONSIDERATIONS = "current_rrm_considerations"
     CURRENT_RRM_NEIGHBORS = "current_rrm_neighbors"
@@ -35,7 +36,11 @@ class Rrm_info_type(Enum):
 class Band(Enum):
     B24 = "24"
     B5 = "5"
+    B5_DEDICATED = "5_dedicated"
+    B5_SELECTABLE = "5_selectable"
     B6 = "6"
+    B6_DEDICATED = "6_dedicated"
+    B6_SELECTABLE = "6_selectable"
 
 
 @mcp.tool(
@@ -137,6 +142,15 @@ async def get_site_rrm_info(
                     }
                 )
 
+        if object_type.value == "channel_scores":
+            if not band:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": '`band` parameter is required when `rrm_info_type` is "channel_scores".',
+                    }
+                )
+
         if duration and rrm_info_type.value not in ["events"]:
             raise ToolError(
                 {
@@ -162,6 +176,15 @@ async def get_site_rrm_info(
             )
 
         match object_type.value:
+            case "channel_scores":
+                response = mistapi.api.v1.sites.rrm.getSiteChannelScores(
+                    apisession,
+                    site_id=str(site_id),
+                    band=str(band.value),
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                )
+                await process_response(response)
             case "current_channel_planning":
                 response = mistapi.api.v1.sites.rrm.getSiteCurrentChannelPlanning(
                     apisession, site_id=str(site_id)

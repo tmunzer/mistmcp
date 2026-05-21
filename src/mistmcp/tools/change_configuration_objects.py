@@ -28,6 +28,7 @@ from mistmcp.server import mcp
 
 
 class Object_type(Enum):
+    ORG_INFO = "org_info"
     ORG_ALARMTEMPLATES = "org_alarmtemplates"
     ORG_WLANS = "org_wlans"
     ORG_SITEGROUPS = "org_sitegroups"
@@ -44,12 +45,14 @@ class Object_type(Enum):
     ORG_RFTEMPLATES = "org_rftemplates"
     ORG_SERVICES = "org_services"
     ORG_SERVICEPOLICIES = "org_servicepolicies"
+    ORG_SITES = "org_sites"
     ORG_SITETEMPLATES = "org_sitetemplates"
     ORG_VPNS = "org_vpns"
     ORG_WEBHOOKS = "org_webhooks"
     ORG_WLANTEMPLATES = "org_wlantemplates"
     ORG_WXRULES = "org_wxrules"
     ORG_WXTAGS = "org_wxtags"
+    SITE_INFO = "site_info"
     SITE_DEVICES = "site_devices"
     SITE_PSKS = "site_psks"
     SITE_WEBHOOKS = "site_webhooks"
@@ -241,6 +244,21 @@ async def change_configuration_objects(
 
     try:
         match object_type.value:
+            case "org_info":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.orgs.updateOrg(
+                        apisession,
+                        org_id=str(org_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+                else:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "Only 'update' action is supported for 'org_info' object type.",
+                        }
+                    )
             case "org_alarmtemplates":
                 if action_type.value == "update":
                     response = (
@@ -304,6 +322,25 @@ async def change_configuration_objects(
                 else:
                     response = mistapi.api.v1.orgs.sitegroups.deleteOrgSiteGroup(
                         apisession, org_id=str(org_id), sitegroup_id=str(object_id)
+                    )
+                    await process_response(response)
+            case "org_sites":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.orgs.sites.updateOrgSite(
+                        apisession,
+                        org_id=str(org_id),
+                        site_id=str(object_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+                elif action_type.value == "create":
+                    response = mistapi.api.v1.orgs.sites.createOrgSite(
+                        apisession, org_id=str(org_id), body=payload
+                    )
+                    await process_response(response)
+                else:
+                    response = mistapi.api.v1.orgs.sites.deleteOrgSite(
+                        apisession, org_id=str(org_id), site_id=str(object_id)
                     )
                     await process_response(response)
             case "org_avprofiles":
@@ -699,6 +736,21 @@ async def change_configuration_objects(
                         apisession, org_id=str(org_id), wxtag_id=str(object_id)
                     )
                     await process_response(response)
+            case "site_info":
+                if action_type.value == "update":
+                    response = mistapi.api.v1.sites.updateSite(
+                        apisession,
+                        site_id=str(site_id),
+                        body=payload,
+                    )
+                    await process_response(response)
+                else:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "Only 'update' action is supported for 'site_info' object type.",
+                        }
+                    )
             case "site_devices":
                 if action_type.value == "update":
                     response = mistapi.api.v1.sites.devices.updateSiteDevice(

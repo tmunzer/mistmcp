@@ -95,3 +95,7 @@
 - searchOrgDevices
 - searchSiteDevices
 - getSiteDeviceSyntheticTest
+- listOrgAuditLogsLegacy
+- getOrgE911Report
+- getSiteAutoMapAssignmentStatus
+- searchSiteIotEndpoints

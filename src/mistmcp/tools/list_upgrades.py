@@ -29,7 +29,8 @@ class Device_type(Enum):
     AP = "ap"
     SWITCH = "switch"
     SRX = "srx"
-    MXEDGE = "mxedge"
+    ORG_MXEDGE = "org_mxedge"
+    SITE_MXEDGE = "site_mxedge"
     SSR = "ssr"
     AVAILABLE_DEVICE_VERSIONS = "available_device_versions"
     AVAILABLE_SSR_VERSIONS = "available_ssr_versions"
@@ -61,16 +62,17 @@ class Channel(Enum):
 )
 async def list_upgrades(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
+    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
     device_type: Annotated[
         Device_type,
         Field(
-            description="""Type of query: use ap/switch/srx/mxedge/ssr to list upgrade jobs for that device type; use available_device_versions to list available firmware versions for AP/switch/gateway devices; use available_ssr_versions to list available SSR firmware versions"""
+            description="""Type of query: use ap/switch/srx/org_mxedge/site_mxedge/ssr to list upgrade jobs for that device type; use available_device_versions to list available firmware versions for AP/switch/gateway devices; use available_ssr_versions to list available SSR firmware versions"""
         ),
     ],
     upgrade_id: Annotated[
         UUID,
         Field(
-            description="""ID of a specific upgrade job to retrieve. Only applicable when device_type is ap, switch, srx, mxedge, or ssr""",
+            description="""ID of a specific upgrade job to retrieve. Only applicable when device_type is ap, switch, srx, org_mxedge, site_mxedge, or ssr""",
             default=None,
         ),
     ],
@@ -107,8 +109,9 @@ async def list_upgrades(
 
     logger.debug("Tool list_upgrades called")
     logger.debug(
-        "Input Parameters: org_id: %s, device_type: %s, upgrade_id: %s, firmware_type: %s, model: %s, channel: %s, mac: %s",
+        "Input Parameters: org_id: %s, site_id: %s, device_type: %s, upgrade_id: %s, firmware_type: %s, model: %s, channel: %s, mac: %s",
         org_id,
+        site_id,
         device_type,
         upgrade_id,
         firmware_type,
@@ -122,17 +125,27 @@ async def list_upgrades(
     try:
         object_type = device_type
 
+        if object_type.value == "site_mxedge":
+            if not site_id:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": '`site_id` parameter is required when `device_type` is "site_mxedge".',
+                    }
+                )
+
         if upgrade_id and device_type.value not in [
             "ap",
             "switch",
             "srx",
-            "mxedge",
+            "org_mxedge",
+            "site_mxedge",
             "ssr",
         ]:
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`upgrade_id` parameter can only be used when `device_type` is in "ap", "switch", "srx", "mxedge", "ssr".',
+                    "message": '`upgrade_id` parameter can only be used when `device_type` is in "ap", "switch", "srx", "org_mxedge", "site_mxedge", "ssr".',
                 }
             )
 
@@ -202,7 +215,7 @@ async def list_upgrades(
                         apisession, org_id=str(org_id)
                     )
                     await process_response(response)
-            case "mxedge":
+            case "org_mxedge":
                 if upgrade_id:
                     response = mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(
                         apisession, org_id=str(org_id), upgrade_id=str(upgrade_id)
@@ -211,6 +224,17 @@ async def list_upgrades(
                 else:
                     response = mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(
                         apisession, org_id=str(org_id)
+                    )
+                    await process_response(response)
+            case "site_mxedge":
+                if upgrade_id:
+                    response = mistapi.api.v1.sites.mxedges.getSiteMxEdgeUpgrade(
+                        apisession, site_id=str(site_id), upgrade_id=str(upgrade_id)
+                    )
+                    await process_response(response)
+                else:
+                    response = mistapi.api.v1.sites.mxedges.listSiteMxEdgeUpgrades(
+                        apisession, site_id=str(site_id)
                     )
                     await process_response(response)
             case "ssr":
