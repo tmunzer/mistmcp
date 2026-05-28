@@ -15,6 +15,7 @@ from enum import Enum
 
 class McpToolsCategory(Enum):
     DEVICES = "devices"
+    UTILITIES = "utilities"
     CONFIGURATION = "configuration"
     INFO = "info"
     WRITE_DELETE = "write_delete"
@@ -54,6 +55,10 @@ TOOLS = {
     "devices": {
         "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices. Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
         "tools": ["mist_search_device"],
+    },
+    "utilities": {
+        "description": "Device-side utilities that run diagnostics and operational commands against APs, switches, SRX, and SSR devices. Use this tool for commands such as ping, traceroute, ARP, BGP, OSPF, route lookup, service path checks, cable tests, traffic monitoring, and selected state-changing maintenance actions.",
+        "tools": ["mist_utilities"],
     },
     "events": {
         "description": "Events related to the sites and organizations. It provides access to various events such as device events, client events, and more. These events can be used for monitoring and troubleshooting purposes.",

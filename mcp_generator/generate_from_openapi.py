@@ -42,6 +42,8 @@ import yaml
 # - running as script: `python mcp_generator/generate_from_openapi.py`
 # - running as module: `python -m mcp_generator.generate_from_openapi`
 try:
+    from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
+
     from mcp_generator.templates.tmpl_get_configuration_object_schema import (
         GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
     )
@@ -90,6 +92,7 @@ except ModuleNotFoundError:
     from templates.tmpl_tool_update_configuration_objects import (
         UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
     )
+    from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
     from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
     from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
 
@@ -148,6 +151,12 @@ CUSTOM_TOOLS = [
         "name": "update_configuration_objects",
         "template": UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
         "tag": "write",
+        "operation_ids": [],
+    },
+    {
+        "name": "utilities",
+        "template": UTILITIES_TEMPLATE,
+        "tag": "utilities",
         "operation_ids": [],
     },
 ]

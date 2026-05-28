@@ -43,6 +43,8 @@ Juniper Mist Cloud MCP server for managing and monitoring Wi-Fi, LAN, WAN, and N
 - Use `mist_list_site_sle_info` to discover available SLE metrics before querying SLE data.
 - Use `mist_get_configuration_object_schema(verbose=True)` to understand config fields before writing.
 - Use `mist_update_configuration_objects` for create/update and `mist_change_configuration_objects` for create/update/delete.
+- Use `mist_utilities` for device-side diagnostics and maintenance commands such as ping, traceroute, ARP, BGP, OSPF, routes, cable tests, traffic monitoring, and service path checks. Call it without `utility` to list the supported utilities and their extra parameters for a platform.
+- `mist_utilities` commands can stream output over WebSocket and may take around a minute to finish.
 - Config objects exist at org and/or site level; site-level takes precedence when both exist.
 - Object-type naming: read uses `org_*` / `site_*`; aggregated write tools also use `org_*` / `site_*`.
 - `name` filtering is not supported for `site_devices`; use `mist_search_device`.
