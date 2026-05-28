@@ -10,19 +10,19 @@
 --------------------------------------------------------------------------------
 """
 
-import mistapi
-from fastmcp import Context
-from fastmcp.exceptions import ToolError
-from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response, handle_network_error
-from mistmcp.response_formatter import format_response
-from mistmcp.server import mcp
-from mistmcp.logger import logger
-
-from pydantic import Field
-from typing import Annotated
 from enum import Enum
+from typing import Annotated
 from uuid import UUID
+
+import mistapi
+from fastmcp.exceptions import ToolError
+from pydantic import Field
+
+from mistmcp.logger import logger
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_formatter import format_response
+from mistmcp.response_processor import handle_network_error, process_response
+from mistmcp.server import mcp
 
 
 class Stats_type(Enum):
@@ -84,10 +84,12 @@ async def get_stats(
         ),
     ],
     start: Annotated[
-        int, Field(description="""Start of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        int, Field(description="""End of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
@@ -179,9 +181,7 @@ async def get_stats(
             case "org":
                 response = mistapi.api.v1.orgs.stats.getOrgStats(
                     apisession,
-                    org_id=str(org_id),
-                    start=str(start) if start else None,
-                    end=str(end) if end else None,
+                    org_id=str(org_id)
                 )
                 await process_response(response)
             case "sites":
@@ -194,8 +194,6 @@ async def get_stats(
                     response = mistapi.api.v1.orgs.stats.listOrgSiteStats(
                         apisession,
                         org_id=str(org_id),
-                        start=str(start) if start else None,
-                        end=str(end) if end else None,
                         limit=limit,
                     )
                     await process_response(response)

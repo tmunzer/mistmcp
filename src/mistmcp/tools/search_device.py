@@ -139,7 +139,6 @@ async def search_device(
             type=device_type.value if device_type else None,
             mac=mac if mac else None,
             site_id=str(site_id) if site_id else None,
-            vc_mac=vc_mac if vc_mac else None,
             version=version if version else None,
             text=text if text else None,
             status=status.value if status else None,

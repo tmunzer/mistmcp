@@ -79,13 +79,6 @@ async def search_device(
             default=None,
         ),
     ],
-    vc_mac: Annotated[
-        str,
-        Field(
-            description="""MAC address of the virtual chassis (switch stack) to filter inventory by""",
-            default=None,
-        ),
-    ],
     device_type: Annotated[
         Device_type,
         Field(
@@ -113,7 +106,7 @@ async def search_device(
     """Search a network device in the Organization Inventory. This tool provides a consolidated view of all devices within an organization, even those not assigned to any site. This can be used to quickly search for a device across the whole organization. It allows filtering by various attributes such as serial number, model, MAC address, firmware version, device type, and connection status. This tool is useful for quickly finding specific devices or getting an overview of the organization's inventory without needing to query each site separately."""
 
     logger.debug("Tool search_device called")
-    logger.debug("Input Parameters: org_id: %s, site_id: %s, serial: %s, model: %s, mac: %s, version: %s, vc_mac: %s, device_type: %s, status: %s, text: %s, limit: %s", org_id, site_id, serial, model, mac, version, vc_mac, device_type, status, text, limit)
+    logger.debug("Input Parameters: org_id: %s, site_id: %s, serial: %s, model: %s, mac: %s, version: %s, device_type: %s, status: %s, text: %s, limit: %s", org_id, site_id, serial, model, mac, version, device_type, status, text, limit)
 
     apisession, response_format = await get_apisession()
 
@@ -126,7 +119,6 @@ async def search_device(
             type=device_type.value if device_type else None,
             mac=mac if mac else None,
             site_id=str(site_id) if site_id else None,
-            vc_mac=vc_mac if vc_mac else None,
             version=version if version else None,
             text=text if text else None,
             status=status.value if status else None,

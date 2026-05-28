@@ -10,19 +10,19 @@
 --------------------------------------------------------------------------------
 """
 
-import mistapi
-from fastmcp import Context
-from fastmcp.exceptions import ToolError
-from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response, handle_network_error
-from mistmcp.response_formatter import format_response
-from mistmcp.server import mcp
-from mistmcp.logger import logger
-
-from pydantic import Field
+from enum import Enum
 from typing import Annotated
 from uuid import UUID
-from enum import Enum
+
+import mistapi
+from fastmcp.exceptions import ToolError
+from pydantic import Field
+
+from mistmcp.logger import logger
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_formatter import format_response
+from mistmcp.response_processor import handle_network_error, process_response
+from mistmcp.server import mcp
 
 
 class Object_type(Enum):
@@ -49,7 +49,8 @@ class Object_type(Enum):
 async def get_insight_metrics(
     site_id: Annotated[UUID, Field(description="""Site ID""")],
     object_type: Annotated[
-        Object_type, Field(description="""Type of object to retrieve metrics for""")
+        Object_type, Field(
+            description="""Type of object to retrieve metrics for""")
     ],
     metric: Annotated[
         str,
@@ -72,17 +73,20 @@ async def get_insight_metrics(
         ),
     ],
     start: Annotated[
-        int, Field(description="""Start of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        int, Field(description="""End of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""End of time range (epoch seconds)""", default=None)
     ],
     duration: Annotated[
         str,
         Field(description="""Time range duration (e.g. 1d, 1h, 10m)""", default=None),
     ],
     interval: Annotated[
-        str, Field(description="""Aggregation interval (e.g. 1h, 1d)""", default=None)
+        str, Field(
+            description="""Aggregation interval (e.g. 1h, 1d)""", default=None)
     ],
     page: Annotated[
         int, Field(description="""Page number for pagination""", default=None)
@@ -117,11 +121,11 @@ async def get_insight_metrics(
                 response = mistapi.api.v1.sites.insights.getSiteInsightMetrics(
                     apisession,
                     site_id=str(site_id),
-                    metric=str(metric),
-                    start=str(start),
-                    end=str(end),
-                    duration=str(duration),
-                    interval=str(interval),
+                    metrics=str(metric),
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=str(duration) if duration else None,
+                    interval=str(interval) if interval else None,
                     limit=limit,
                     page=page,
                 )
@@ -131,11 +135,11 @@ async def get_insight_metrics(
                     apisession,
                     site_id=str(site_id),
                     client_mac=str(mac),
-                    metric=str(metric),
-                    start=str(start),
-                    end=str(end),
-                    duration=str(duration),
-                    interval=str(interval),
+                    metrics=str(metric),
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=str(duration) if duration else None,
+                    interval=str(interval) if interval else None,
                     limit=limit,
                     page=page,
                 )
@@ -146,10 +150,10 @@ async def get_insight_metrics(
                     site_id=str(site_id),
                     device_mac=str(mac),
                     metric=str(metric),
-                    start=str(start),
-                    end=str(end),
-                    duration=str(duration),
-                    interval=str(interval),
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    duration=str(duration) if duration else None,
+                    interval=str(interval) if interval else None,
                     limit=limit,
                     page=page,
                 )
@@ -160,7 +164,7 @@ async def get_insight_metrics(
                         apisession,
                         site_id=str(site_id),
                         device_id=str(device_id),
-                        metric=str(metric),
+                        metrics=str(metric),
                         start=str(start),
                         end=str(end),
                         duration=str(duration),
