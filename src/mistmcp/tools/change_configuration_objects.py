@@ -229,8 +229,11 @@ async def change_configuration_objects(
 
     if ctx:
         try:
-            elicitation_response = await config_elicitation_handler(
-                message=f"""The LLM wants to {action_wording} {object_type.value}. Do you accept to trigger the API call?""",
+            elicitation_response = config_elicitation_handler(
+                message=(
+                    f"The LLM wants to {action_wording} {object_type.value}. "
+                    "Do you accept to trigger the API call?"
+                ),
                 ctx=ctx,
             )
         except Exception as exc:

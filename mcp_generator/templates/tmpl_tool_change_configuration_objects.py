@@ -1,5 +1,4 @@
 CHANGE_CONFIGURATION_OBJECTS_TEMPLATE = r'''
-
 """
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
@@ -115,10 +114,22 @@ async def change_configuration_objects(
         Field(
             description="""JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the`mist_get_configuration_objects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes""",
             default=None,
-        )
+        ),
     ],
-    org_id: Annotated[UUID, Field(description="""Organization ID. Required when object_type starts with 'org_'""", default=None)],
-    site_id: Annotated[UUID, Field(description="""Site ID. Required when object_type starts with 'site_'""", default=None)],
+    org_id: Annotated[
+        UUID,
+        Field(
+            description="""Organization ID. Required when object_type starts with 'org_'""",
+            default=None,
+        ),
+    ],
+    site_id: Annotated[
+        UUID,
+        Field(
+            description="""Site ID. Required when object_type starts with 'site_'""",
+            default=None,
+        ),
+    ],
     object_id: Annotated[
         UUID,
         Field(
@@ -219,8 +230,11 @@ async def change_configuration_objects(
 
     if ctx:
         try:
-            elicitation_response = await config_elicitation_handler(
-                message=f"""The LLM wants to {action_wording} {object_type.value}. Do you accept to trigger the API call?""",
+            elicitation_response = config_elicitation_handler(
+                message=(
+                    f"The LLM wants to {action_wording} {object_type.value}. "
+                    "Do you accept to trigger the API call?"
+                ),
                 ctx=ctx,
             )
         except Exception as exc:
@@ -798,7 +812,7 @@ async def _org_function(
 
 
 async def _site_function(
-        object_type: Object_type,
+    object_type: Object_type,
     action_type: Action_type,
     apisession: mistapi.APISession,
     site_id: UUID,
