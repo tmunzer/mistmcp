@@ -98,6 +98,7 @@ Site-level takes precedence when both org and site objects of the same type exis
 | object_type | Description |
 | - | - |
 | org_info | Organization settings (update only) |
+| org_settings | Organization settings profile (update only) |
 | org_alarmtemplates | Org alarm templates |
 | org_wlans | Org WLAN definitions |
 | org_sitegroups | Org site groups |
@@ -121,7 +122,7 @@ Site-level takes precedence when both org and site objects of the same type exis
 | org_wlantemplates | Org WLAN templates |
 | org_wxrules | Org Wx rules |
 | org_wxtags | Org Wx tags |
-| site_info | Site settings (update only) |
+| site_settings | Site settings profile (update only) |
 | site_devices | Site devices (update only) |
 | site_psks | Site-level Multi-PSK configs |
 | site_webhooks | Site-level webhook endpoints |
