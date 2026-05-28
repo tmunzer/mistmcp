@@ -48,6 +48,8 @@ class ElicitationMiddleware(Middleware):
         # AI Apps or if you have other safeguards in place. Do NOT use this in production or with untrusted AI Apps!
         if config.enable_write_tools and config.disable_elicitation:
             enable_write_tools = True
+            if ctx is not None:
+                await ctx.set_state("disable_elicitation", True)
             logger.warning(
                 "Elicitation middleware: WARNING - both enable_write_tools and disable_elicitation config flags are set. This is not recommended as it will enable write tools without elicitation safeguards. Proceed with caution!"
             )
@@ -63,7 +65,8 @@ class ElicitationMiddleware(Middleware):
                     enable_write_tools = True
                     if ctx is not None:
                         await ctx.set_state("disable_elicitation", False)
-                    logger.debug("Elicitation middleware: client supports elicitation")
+                    logger.debug(
+                        "Elicitation middleware: client supports elicitation")
             except Exception as exc:
                 logger.error(
                     "Elicitation middleware: error checking capabilities for elicitation support: %s",
@@ -77,7 +80,8 @@ class ElicitationMiddleware(Middleware):
 
                     request = get_http_request()
                     if (
-                        request.headers.get("X-Disable-Elicitation", "false").lower()
+                        request.headers.get(
+                            "X-Disable-Elicitation", "false").lower()
                         == "true"
                     ):
                         enable_write_tools = True
@@ -87,7 +91,8 @@ class ElicitationMiddleware(Middleware):
                             "Elicitation middleware: X-Disable-Elicitation header detected"
                         )
                     elif (
-                        request.query_params.get("disable_elicitation", "false").lower()
+                        request.query_params.get(
+                            "disable_elicitation", "false").lower()
                         == "true"
                     ):
                         enable_write_tools = True
@@ -97,7 +102,8 @@ class ElicitationMiddleware(Middleware):
                             "Elicitation middleware: disable_elicitation query parameter detected"
                         )
                     elif (
-                        request.query_params.get("experimental", "false").lower()
+                        request.query_params.get(
+                            "experimental", "false").lower()
                         == "true"
                     ):
                         enable_write_delete_tools = True
@@ -127,7 +133,8 @@ class ElicitationMiddleware(Middleware):
             if ctx is not None:
                 await ctx.enable_components(tags={"write"}, components={"tool"})
                 await ctx.disable_components(tags={"write_delete"}, components={"tool"})
-            logger.debug("Elicitation middleware: write tools enabled for this session")
+            logger.debug(
+                "Elicitation middleware: write tools enabled for this session")
         else:
             await ctx.disable_components(
                 tags={"write", "write_delete"}, components={"tool"}
