@@ -175,9 +175,7 @@ def _convert_parameter_value(name: str, value: Any, annotation: Any) -> Any:
                 }
             )
         inner_type = get_args(target)[0] if get_args(target) else Any
-        return [
-            _convert_parameter_value(name, item, inner_type) for item in value
-        ]
+        return [_convert_parameter_value(name, item, inner_type) for item in value]
 
     if inspect.isclass(target) and issubclass(target, Enum):
         if isinstance(value, target):
@@ -271,7 +269,13 @@ def _describe_device_utility(name: str, utility_callable: Any) -> dict[str, Any]
     parameters: list[dict[str, Any]] = []
 
     for parameter_name, parameter in signature.parameters.items():
-        if parameter_name in {"apisession", "site_id", "device_id", "on_message", "timeout"}:
+        if parameter_name in {
+            "apisession",
+            "site_id",
+            "device_id",
+            "on_message",
+            "timeout",
+        }:
             continue
 
         parameter_description: dict[str, Any] = {
@@ -287,7 +291,9 @@ def _describe_device_utility(name: str, utility_callable: Any) -> dict[str, Any]
         "name": name,
         "requires_write_tools": name in MUTATING_DEVICE_UTILITIES,
         "parameters": parameters,
-        "timeout_parameter": "timeout_seconds" if "timeout" in signature.parameters else None,
+        "timeout_parameter": "timeout_seconds"
+        if "timeout" in signature.parameters
+        else None,
     }
 
 
@@ -342,7 +348,9 @@ async def _wait_for_device_utility(
     utility_response: Any,
 ) -> bool:
     if not getattr(utility_response, "ws_required", False):
-        await ctx.report_progress(100, 100, f"Device utility '{utility_name}' completed")
+        await ctx.report_progress(
+            100, 100, f"Device utility '{utility_name}' completed"
+        )
         return True
 
     started_at = time.monotonic()
@@ -406,7 +414,9 @@ def _format_device_utility_result(
     return result
 
 
-def _serialize_output(output: dict[str, Any], response_format: str) -> dict[str, Any] | str:
+def _serialize_output(
+    output: dict[str, Any], response_format: str
+) -> dict[str, Any] | str:
     if response_format == "string":
         return json.dumps(output, indent=2, default=str)
     return output
@@ -469,8 +479,7 @@ async def run_utilities(
             }
         )
 
-    canonical_utility, utility_callable = _resolve_utility(
-        device_type, utility)
+    canonical_utility, utility_callable = _resolve_utility(device_type, utility)
     if canonical_utility in MUTATING_DEVICE_UTILITIES and not config.enable_write_tools:
         raise ToolError(
             {

@@ -11,3 +11,4 @@ write_delete: "Tools that perform both write and delete operations. These tools 
 events: "Events related to the sites and organizations. It provides access to various events such as device events, client events, and more. These events can be used for monitoring and troubleshooting purposes."
 info: "Tools that provide information about the sites and organizations."
 stats: "Tools that provide various statistics about the organizations, sites, devices, clients, ports and more."
+utilities: "Utility tools that provide various helper functions for the sites and organizations. These tools can be used for tasks such as searching, filtering, and formatting data."

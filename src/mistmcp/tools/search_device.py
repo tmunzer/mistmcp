@@ -79,13 +79,6 @@ async def search_device(
             default=None,
         ),
     ],
-    vc_mac: Annotated[
-        str,
-        Field(
-            description="""MAC address of the virtual chassis (switch stack) to filter inventory by""",
-            default=None,
-        ),
-    ],
     device_type: Annotated[
         Device_type,
         Field(
@@ -114,14 +107,13 @@ async def search_device(
 
     logger.debug("Tool search_device called")
     logger.debug(
-        "Input Parameters: org_id: %s, site_id: %s, serial: %s, model: %s, mac: %s, version: %s, vc_mac: %s, device_type: %s, status: %s, text: %s, limit: %s",
+        "Input Parameters: org_id: %s, site_id: %s, serial: %s, model: %s, mac: %s, version: %s, device_type: %s, status: %s, text: %s, limit: %s",
         org_id,
         site_id,
         serial,
         model,
         mac,
         version,
-        vc_mac,
         device_type,
         status,
         text,

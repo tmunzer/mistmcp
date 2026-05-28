@@ -15,11 +15,11 @@ from enum import Enum
 
 class McpToolsCategory(Enum):
     DEVICES = "devices"
-    UTILITIES = "utilities"
     CONFIGURATION = "configuration"
     INFO = "info"
     WRITE_DELETE = "write_delete"
     WRITE = "write"
+    UTILITIES = "utilities"
     UTILITIES_UPGRADE = "utilities_upgrade"
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
@@ -55,10 +55,6 @@ TOOLS = {
     "devices": {
         "description": "Devices are any Network device managed or monitored by Juniper Mist. It can be * Wireless Access Points * Juniper Switch (EX, QFX) * Juniper WAN Gateway (SRX, SSR) * Mist Edges * Other or 3rd party devices, like Cradlepoint Devices. Mist provides many ways (device_type specific template, site template, device profile, per-device) to configure devices for different kind of scenarios.\n\nThe precedence goes from most specific to least specific\n\nDevice > Device Profile > RFTemplate (for AP only) > DeviceType-specific Template > Site Template > Site Setting",
         "tools": ["mist_search_device"],
-    },
-    "utilities": {
-        "description": "Device-side utilities that run diagnostics and operational commands against APs, switches, SRX, and SSR devices. Use this tool for commands such as ping, traceroute, ARP, BGP, OSPF, route lookup, service path checks, cable tests, traffic monitoring, and selected state-changing maintenance actions.",
-        "tools": ["mist_utilities"],
     },
     "events": {
         "description": "Events related to the sites and organizations. It provides access to various events such as device events, client events, and more. These events can be used for monitoring and troubleshooting purposes.",
@@ -108,6 +104,10 @@ TOOLS = {
     "stats": {
         "description": "Tools that provide various statistics about the organizations, sites, devices, clients, ports and more.",
         "tools": ["mist_get_stats"],
+    },
+    "utilities": {
+        "description": "Utility tools that provide various helper functions for the sites and organizations. These tools can be used for tasks such as searching, filtering, and formatting data.",
+        "tools": ["mist_utilities"],
     },
     "utilities_upgrade": {
         "description": "tools used to manage device upgrades for a single device, at the site level or at the organization level.",

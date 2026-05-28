@@ -10,18 +10,18 @@
 --------------------------------------------------------------------------------
 """
 
+import mistapi
+from fastmcp import Context
+from fastmcp.exceptions import ToolError
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_processor import process_response, handle_network_error
+from mistmcp.response_formatter import format_response
+from mistmcp.server import mcp
+from mistmcp.logger import logger
+
+from pydantic import Field
 from typing import Annotated
 from uuid import UUID
-
-import mistapi
-from fastmcp.exceptions import ToolError
-from pydantic import Field
-
-from mistmcp.logger import logger
-from mistmcp.request_processor import get_apisession
-from mistmcp.response_formatter import format_response
-from mistmcp.response_processor import handle_network_error, process_response
-from mistmcp.server import mcp
 
 
 @mcp.tool(
@@ -52,12 +52,10 @@ async def get_org_sle(
         ),
     ],
     start: Annotated[
-        int, Field(
-            description="""Start of time range (epoch seconds)""", default=None)
+        int, Field(description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        int, Field(
-            description="""End of time range (epoch seconds)""", default=None)
+        int, Field(description="""End of time range (epoch seconds)""", default=None)
     ],
 ) -> dict | list | str:
     """Get Org SLEs (all/worst sites, Mx Edges, ...). Use the `mist_get_insight_metrics` tool to get the list of available SLE metrics"""

@@ -783,7 +783,7 @@ getStats:
     sites:
       list:
         operationId: listOrgSiteStats
-        function: mistapi.api.v1.orgs.stats.listOrgSiteStats(apisession, org_id=str(org_id), start=str(start) if start else None, end=str(end) if end else None, limit=limit)
+        function: mistapi.api.v1.orgs.stats.listOrgSiteStats(apisession, org_id=str(org_id), limit=limit)
       get:
         operationId: getSiteStats
         function: mistapi.api.v1.sites.stats.getSiteStats(apisession, site_id=str(object_id))
