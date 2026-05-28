@@ -1,5 +1,6 @@
 """Tests for the mistmcp device utilities dispatcher."""
 
+import threading
 from enum import Enum
 from types import SimpleNamespace
 from uuid import UUID
@@ -68,11 +69,18 @@ def test_describe_supported_device_utilities_exposes_expected_actions() -> None:
     )
 
     utility_names = [utility["name"] for utility in description["utilities"]]
+    utilities_by_name = {
+        utility["name"]: utility for utility in description["utilities"]
+    }
 
     assert description["device_type"] == "ex"
     assert "ping" in utility_names
     assert "bouncePort" in utility_names
     assert "createShellSession" not in utility_names
+    assert utilities_by_name["bouncePort"]["requires_write_tools"] is True
+    assert utilities_by_name["bouncePort"]["requires_elicitation"] is True
+    assert utilities_by_name["clearHitCount"]["requires_write_tools"] is True
+    assert utilities_by_name["clearHitCount"]["requires_elicitation"] is False
 
 
 def test_build_utility_kwargs_converts_enum_and_list_values() -> None:
@@ -218,6 +226,64 @@ async def test_run_utilities_returns_partial_output_when_stream_stalls(
 
 
 @pytest.mark.asyncio
+async def test_run_utilities_waits_for_async_trigger_response(monkeypatch) -> None:
+    ctx = FakeContext()
+    response = FakeUtilityResponse(done=False, ws_required=False)
+    response.trigger_api_response = None
+
+    def fake_cable_test(
+        apisession,
+        site_id,
+        device_id,
+        port_id: str,
+        timeout: int = 10,
+    ) -> FakeUtilityResponse:
+        del apisession, site_id, device_id, port_id, timeout
+
+        def complete_trigger() -> None:
+            response.trigger_api_response = SimpleNamespace(
+                status_code=200,
+                data={"session": "abc", "id": "capture"},
+            )
+            response.ws_required = True
+            response.done = True
+            response.ws_data.append("cable test complete")
+
+        threading.Timer(0.05, complete_trigger).start()
+        return response
+
+    async def fake_get_apisession():
+        return object(), "json"
+
+    async def fake_process_response(response_arg) -> None:
+        assert response_arg.status_code == 200
+
+    monkeypatch.setattr(
+        utilities_module,
+        "SUPPORTED_DEVICE_UTILITIES",
+        {utilities_module.DeviceUtilityType.EX: {"cableTest": fake_cable_test}},
+    )
+    monkeypatch.setattr(utilities_module, "get_apisession",
+                        fake_get_apisession)
+    monkeypatch.setattr(utilities_module, "process_response",
+                        fake_process_response)
+
+    result = await utilities_module.run_utilities(
+        ctx,
+        utilities_module.DeviceUtilityType.EX,
+        "cableTest",
+        UUID("00000000-0000-0000-0000-000000000001"),
+        UUID("00000000-0000-0000-0000-000000000002"),
+        {"port_id": "mge-0/0/1"},
+        None,
+    )
+
+    assert result["completed"] is True
+    assert result["trigger_response"] == {"session": "abc", "id": "capture"}
+    assert result["stream_output"] == ["cable test complete"]
+
+
+@pytest.mark.asyncio
 async def test_run_utilities_blocks_mutating_actions_without_write_tools(
     monkeypatch,
 ) -> None:
@@ -314,6 +380,71 @@ async def test_run_utilities_prompts_before_mutating_action(monkeypatch) -> None
 
     assert recorded_call["port_ids"] == ["ge-0/0/1"]
     assert recorded_call["timeout"] == 12
+    assert result["completed"] is True
+
+
+@pytest.mark.asyncio
+async def test_run_utilities_skips_elicitation_for_non_disruptive_mutation(
+    monkeypatch,
+) -> None:
+    ctx = FakeContext()
+    recorded_call: dict[str, object] = {}
+
+    def fake_clear_hit_count(
+        apisession,
+        site_id,
+        device_id,
+        policy_name: str,
+    ) -> FakeUtilityResponse:
+        recorded_call.update(
+            {
+                "apisession": apisession,
+                "site_id": site_id,
+                "device_id": device_id,
+                "policy_name": policy_name,
+            }
+        )
+        return FakeUtilityResponse(ws_required=False)
+
+    async def fake_get_apisession():
+        return object(), "json"
+
+    async def fake_process_response(response) -> None:
+        assert response.status_code == 200
+
+    async def unexpected_elicitation_handler(*, message: str, ctx) -> SimpleNamespace:
+        raise AssertionError(
+            f"Elicitation should not be requested for clearHitCount: {message}"
+        )
+
+    monkeypatch.setattr(
+        utilities_module,
+        "SUPPORTED_DEVICE_UTILITIES",
+        {utilities_module.DeviceUtilityType.EX: {
+            "clearHitCount": fake_clear_hit_count}},
+    )
+    monkeypatch.setattr(utilities_module, "get_apisession",
+                        fake_get_apisession)
+    monkeypatch.setattr(utilities_module, "process_response",
+                        fake_process_response)
+    monkeypatch.setattr(
+        utilities_module,
+        "config_elicitation_handler",
+        unexpected_elicitation_handler,
+    )
+    monkeypatch.setattr(config, "enable_write_tools", True)
+
+    result = await utilities_module.run_utilities(
+        ctx,
+        utilities_module.DeviceUtilityType.EX,
+        "clearHitCount",
+        UUID("00000000-0000-0000-0000-000000000001"),
+        UUID("00000000-0000-0000-0000-000000000002"),
+        {"policy_name": "block-social"},
+        None,
+    )
+
+    assert recorded_call["policy_name"] == "block-social"
     assert result["completed"] is True
 
 

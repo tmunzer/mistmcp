@@ -56,6 +56,15 @@ MUTATING_DEVICE_UTILITIES = {
     "clearSessions",
     "releaseDhcpLeases",
 }
+DISRUPTIVE_DEVICE_UTILITIES = {
+    "bouncePort",
+    "clearBpduError",
+    "clearDot1xSessions",
+    "clearLearnedMac",
+    "clearMacTable",
+    "clearSessions",
+    "releaseDhcpLeases",
+}
 
 
 class DeviceUtilityType(Enum):
@@ -177,9 +186,7 @@ def _convert_parameter_value(name: str, value: Any, annotation: Any) -> Any:
                 }
             )
         inner_type = get_args(target)[0] if get_args(target) else Any
-        return [
-            _convert_parameter_value(name, item, inner_type) for item in value
-        ]
+        return [_convert_parameter_value(name, item, inner_type) for item in value]
 
     if inspect.isclass(target) and issubclass(target, Enum):
         if isinstance(value, target):
@@ -273,7 +280,13 @@ def _describe_device_utility(name: str, utility_callable: Any) -> dict[str, Any]
     parameters: list[dict[str, Any]] = []
 
     for parameter_name, parameter in signature.parameters.items():
-        if parameter_name in {"apisession", "site_id", "device_id", "on_message", "timeout"}:
+        if parameter_name in {
+            "apisession",
+            "site_id",
+            "device_id",
+            "on_message",
+            "timeout",
+        }:
             continue
 
         parameter_description: dict[str, Any] = {
@@ -288,8 +301,11 @@ def _describe_device_utility(name: str, utility_callable: Any) -> dict[str, Any]
     return {
         "name": name,
         "requires_write_tools": name in MUTATING_DEVICE_UTILITIES,
+        "requires_elicitation": name in DISRUPTIVE_DEVICE_UTILITIES,
         "parameters": parameters,
-        "timeout_parameter": "timeout_seconds" if "timeout" in signature.parameters else None,
+        "timeout_parameter": "timeout_seconds"
+        if "timeout" in signature.parameters
+        else None,
     }
 
 
@@ -343,12 +359,35 @@ async def _wait_for_device_utility(
     utility_name: str,
     utility_response: Any,
 ) -> bool:
-    if not getattr(utility_response, "ws_required", False):
-        await ctx.report_progress(100, 100, f"Device utility '{utility_name}' completed")
-        return True
-
     started_at = time.monotonic()
     deadline = started_at + UTILITY_WAIT_TIMEOUT_SECONDS
+
+    while not getattr(utility_response, "ws_required", False):
+        if utility_response.done:
+            await ctx.report_progress(
+                100, 100, f"Device utility '{utility_name}' completed"
+            )
+            return True
+        if time.monotonic() >= deadline:
+            utility_response.disconnect()
+            await ctx.warning(
+                f"Device utility '{utility_name}' did not start streaming before the wait deadline. Returning partial output."
+            )
+            await ctx.report_progress(
+                100,
+                100,
+                f"Device utility '{utility_name}' completed",
+            )
+            return False
+
+        elapsed = time.monotonic() - started_at
+        progress = 5 + int((elapsed / UTILITY_WAIT_TIMEOUT_SECONDS) * 10)
+        await ctx.report_progress(
+            min(progress, 15),
+            100,
+            f"Waiting for '{utility_name}' trigger response",
+        )
+        await asyncio.sleep(0.25)
 
     while not utility_response.done and time.monotonic() < deadline:
         elapsed = time.monotonic() - started_at
@@ -397,7 +436,7 @@ def _format_device_utility_result(
     if result["stream_output"] and all(
         isinstance(item, str) for item in result["stream_output"]
     ):
-        result["stream_output_text"] = "\\n".join(result["stream_output"])
+        result["stream_output_text"] = "\n".join(result["stream_output"])
 
     if not completed:
         result["message"] = (
@@ -408,13 +447,15 @@ def _format_device_utility_result(
     return result
 
 
-def _serialize_output(output: dict[str, Any], response_format: str) -> dict[str, Any] | str:
+def _serialize_output(
+    output: dict[str, Any], response_format: str
+) -> dict[str, Any] | str:
     if response_format == "string":
         return json.dumps(output, indent=2, default=str)
     return output
 
 
-async def _confirm_mutating_utility(
+async def _confirm_disruptive_utility(
     ctx: Context,
     device_type: DeviceUtilityType,
     utility_name: str,
@@ -423,8 +464,8 @@ async def _confirm_mutating_utility(
     try:
         elicitation_response = await config_elicitation_handler(
             message=(
-                f"The LLM wants to run the mutating device utility '{utility_name}' "
-                f"on {device_type.value} device {device_id}. This may change device state. "
+                f"The LLM wants to run the disruptive device utility '{utility_name}' "
+                f"on {device_type.value} device {device_id}. This may disrupt live traffic or active sessions. "
                 "Do you accept to trigger the API call?"
             ),
             ctx=ctx,
@@ -435,7 +476,7 @@ async def _confirm_mutating_utility(
                 "status_code": 400,
                 "message": (
                     "AI App does not support elicitation. You cannot use it to "
-                    "run mutating device utilities. Please use the Mist API "
+                    "run disruptive device utilities. Please use the Mist API "
                     "directly or use an AI App with elicitation support."
                 ),
             }
@@ -480,8 +521,8 @@ async def run_utilities(
                 "message": f"Utility '{canonical_utility}' modifies device state and is disabled unless the server is started with --enable-write-tools.",
             }
         )
-    if canonical_utility in MUTATING_DEVICE_UTILITIES:
-        confirmation_result = await _confirm_mutating_utility(
+    if canonical_utility in DISRUPTIVE_DEVICE_UTILITIES:
+        confirmation_result = await _confirm_disruptive_utility(
             ctx,
             device_type,
             canonical_utility,
@@ -551,7 +592,7 @@ async def run_utilities(
 
 @mcp.tool(
     name="mist_utilities",
-    description="""Run device-side Mist utilities for AP, EX, SRX, and SSR devices. Call this tool with `device_type` only to list the supported utilities and their extra parameters for that platform. To execute a utility, set `utility`, `site_id`, `device_id`, and pass any utility-specific arguments inside `parameters`. State-changing utilities such as bounce or clear actions require the server to be started with write tools enabled and trigger elicitation confirmation before the API call is sent. This tool sets a longer MCP timeout because many device utilities stream their result over WebSocket and can take some time to finish.""",
+    description="""Run device-side Mist utilities for AP, EX, SRX, and SSR devices. Call this tool with `device_type` only to list the supported utilities and their extra parameters for that platform. To execute a utility, set `utility`, `site_id`, `device_id`, and pass any utility-specific arguments inside `parameters`. State-changing utilities require the server to be started with write tools enabled. Utilities that may disrupt live traffic or active sessions also trigger elicitation confirmation before the API call is sent. This tool sets a longer MCP timeout because many device utilities stream their result over WebSocket and can take some time to finish.""",
     tags={"utilities"},
     timeout=UTILITY_TOOL_TIMEOUT_SECONDS,
     annotations={
