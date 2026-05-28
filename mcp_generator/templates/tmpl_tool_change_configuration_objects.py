@@ -18,6 +18,7 @@ from uuid import UUID
 import mistapi
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
+from mistapi.__api_response import APIResponse
 from pydantic import Field
 
 from mistmcp.elicitation_processor import config_elicitation_handler
@@ -230,7 +231,7 @@ async def change_configuration_objects(
 
     if ctx:
         try:
-            elicitation_response = config_elicitation_handler(
+            elicitation_response = await config_elicitation_handler(
                 message=(
                     f"The LLM wants to {action_wording} {object_type.value}. "
                     "Do you accept to trigger the API call?"
@@ -293,7 +294,7 @@ async def _org_function(
     org_id: UUID,
     object_id: UUID | None,
     payload: dict,
-) -> mistapi.api_response.APIResponse:
+) -> APIResponse:
     try:
         match object_type.value:
             case "org_info":
@@ -818,7 +819,7 @@ async def _site_function(
     site_id: UUID,
     object_id: UUID | None,
     payload: dict,
-) -> mistapi.api_response.APIResponse:
+) -> APIResponse:
     try:
         match object_type.value:
             case "site_settings":
