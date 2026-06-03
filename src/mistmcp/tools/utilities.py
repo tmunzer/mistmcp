@@ -510,8 +510,7 @@ async def run_utilities(
             }
         )
 
-    canonical_utility, utility_callable = _resolve_utility(
-        device_type, utility)
+    canonical_utility, utility_callable = _resolve_utility(device_type, utility)
     if canonical_utility in MUTATING_DEVICE_UTILITIES and not config.enable_write_tools:
         raise ToolError(
             {

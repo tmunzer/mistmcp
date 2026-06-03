@@ -436,7 +436,7 @@ def _format_device_utility_result(
     if result["stream_output"] and all(
         isinstance(item, str) for item in result["stream_output"]
     ):
-        result["stream_output_text"] = "\n".join(result["stream_output"])
+        result["stream_output_text"] = "\\n".join(result["stream_output"])
 
     if not completed:
         result["message"] = (
