@@ -24,6 +24,43 @@ from mistmcp.tool_helper import TOOLS
 _instructions = """
 Juniper Mist Cloud MCP server for managing and monitoring Wi-Fi, LAN, WAN, and NAC networks.
 
+# WHAT MIST IS
+Juniper Mist is an AI-native cloud platform for enterprise networking operations.
+It manages and monitors:
+- Wireless networks (access points, RF, SSIDs, roaming, client experience)
+- Wired networks (switches, ports, PoE, wired assurance)
+- WAN and gateways (SRX/SSR paths, tunnels, site connectivity)
+- NAC and policy controls (identity, tags, rules, access decisions)
+- AI operations (Marvis insights, SLE analytics, event/alarm intelligence)
+
+# WHY USE THIS MCP
+Use this MCP instead of raw REST calls when you need reliable, guided access to Mist data and actions.
+It provides:
+- Purpose-built tools for common Mist workflows (search, stats, config, insights, troubleshooting)
+- Strong parameter guidance to reduce invalid combinations and guesswork
+- Better agent reliability via discovery-first flows (constants, schemas, ID resolution)
+- Safer write operations through explicit write tools and visibility controls
+
+# WHEN TO USE THIS MCP
+Use this MCP when the user asks about network health, inventory, client behavior, alarms/events, SLEs, Marvis diagnostics, or Mist configuration changes.
+Typical intents include:
+- "What is wrong with my network?"
+- "Which clients/devices are impacted and why?"
+- "Show or compare Mist configuration"
+- "Update a WLAN/site/device config"
+
+Do not guess from generic networking assumptions when Mist data is available. Query Mist tools first.
+
+# HOW TO START (AGENT RUNBOOK)
+1. Confirm you have enough user intent context (scope, site/org/device/client, time range).
+2. Resolve identity and scope IDs first (org, then site/device/client/object IDs).
+3. Discover valid enums/metrics before filtering (`mist_get_constants`, SLE info tools).
+4. Prefer read/search/stats/insight tools before proposing changes.
+5. For config updates, inspect schema first and send only required fields.
+6. After writes, verify by re-reading the affected object/state.
+
+This MCP requires valid Mist API credentials configured on the server side.
+
 # CRITICAL RULES
 1. **Never assume IDs or MAC addresses.** Always retrieve them first.
 2. **Only send parameters that are needed.** No empty, null, or irrelevant values.
@@ -33,9 +70,9 @@ Juniper Mist Cloud MCP server for managing and monitoring Wi-Fi, LAN, WAN, and N
 | Need | Tool | Key Parameters |
 | - | - | - |
 | org_id | mist_get_self | action_type=account_info |
-| site_id | mist_get_configuration_objects | object_type=org_sites, name=<site_name> |
-| device MAC/ID | mist_search_device | text=<name*>, serial, model, device_type |
-| client MAC | mist_search_client | hostname=<name*>, ip=<ip*>, mac=<mac*> |
+| site_id | mist_get_configuration_objects | object_type=org_sites, name=<site_name*> |
+| device MAC/ID | mist_search_device | text=<name*>, serial, model, mac, device_type, site_id, status |
+| client MAC | mist_search_client | client_type=<wireless|wired|wan|nac>, hostname=<name*>, ip=<ip*>, mac=<mac*> |
 | config object ID | mist_get_configuration_objects | object_type=<type>, name=<name> (not supported for site_devices) |
 
 # KEY WORKFLOWS
@@ -43,8 +80,10 @@ Juniper Mist Cloud MCP server for managing and monitoring Wi-Fi, LAN, WAN, and N
 - Use `mist_list_site_sle_info` to discover available SLE metrics before querying SLE data.
 - Use `mist_get_configuration_object_schema(verbose=True)` to understand config fields before writing.
 - Use `mist_update_configuration_objects` for create/update and `mist_change_configuration_objects` for create/update/delete.
+- `mist_search_device` returns a normalized `device_id`; reuse that value directly in tools requiring a device UUID.
 - Use `mist_utilities` for device-side diagnostics and maintenance commands such as ping, traceroute, ARP, BGP, OSPF, routes, cable tests, traffic monitoring, and service path checks. Call it without `utility` to list the supported utilities and their extra parameters for a platform.
 - `mist_utilities` commands can stream output over WebSocket and may take around a minute to finish.
+- Write tools may be hidden in read-only sessions; if write tools are unavailable, complete read-only analysis and report that writes are not currently exposed.
 - Config objects exist at org and/or site level; site-level takes precedence when both exist.
 - Object-type naming: read uses `org_*` / `site_*`; aggregated write tools also use `org_*` / `site_*`.
 - `name` filtering is not supported for `site_devices`; use `mist_search_device`.
@@ -139,7 +178,7 @@ Site-level takes precedence when both org and site objects of the same type exis
 | org_sites | List all sites — primary way to get `site_id` |
 
 # PAGINATION
-When a response includes `_next`, use `mist_get_next_page(url=<_next>)` for more results.
+When a response includes `next` (or legacy `_next`), pass that URL to `mist_get_next_page(url=<next_url>)` for more results.
 """
 
 # Module-level MCP instance — imported directly by tool modules
