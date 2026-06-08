@@ -168,6 +168,153 @@ def _annotation_description(annotation: Any) -> str:
     return str(target)
 
 
+def _build_example_value(name: str, annotation: Any) -> Any:
+    target = _strip_optional(annotation)
+    origin = get_origin(target)
+
+    if inspect.isclass(target) and issubclass(target, Enum):
+        return next(iter(target)).value
+
+    if origin is list:
+        inner_type = get_args(target)[0] if get_args(target) else Any
+        return [_build_example_value(name, inner_type)]
+
+    if target is bool:
+        return True
+    if target is int:
+        return 1
+    if target is float:
+        return 1.0
+    if target is str:
+        lowered_name = name.lower()
+        if "host" in lowered_name:
+            return "8.8.8.8"
+        if "port_id" in lowered_name:
+            return "ge-0/0/1"
+        if "node" in lowered_name:
+            return "node0"
+        if "service" in lowered_name:
+            return "internet"
+        if "protocol" in lowered_name:
+            return "udp"
+        return "value"
+
+    return "value"
+
+
+def _format_default_value(default: Any, annotation: Any) -> Any:
+    if default is None:
+        return None
+
+    target = _strip_optional(annotation)
+    if inspect.isclass(target) and issubclass(target, Enum) and isinstance(default, target):
+        return default.value
+    return default
+
+
+def _build_parameters_field_description() -> str:
+    lines = ["Utility-specific arguments as a JSON object."]
+
+    utility_names = sorted(
+        {
+            utility_name
+            for device_utilities in SUPPORTED_DEVICE_UTILITIES.values()
+            for utility_name in device_utilities
+            if utility_name not in EXCLUDED_DEVICE_UTILITIES
+        }
+    )
+    lines.append(f"Supported utilities: {', '.join(utility_names)}.")
+    lines.append("Parameter schemas (deduplicated by utility signature):")
+
+    grouped_schemas: dict[tuple[str,
+                                tuple[tuple[Any, ...], ...]], dict[str, Any]] = {}
+
+    for device_type, device_utilities in SUPPORTED_DEVICE_UTILITIES.items():
+        for utility_name, utility_callable in device_utilities.items():
+            if utility_name in EXCLUDED_DEVICE_UTILITIES:
+                continue
+
+            signature = inspect.signature(utility_callable)
+            parameter_descriptions: list[str] = []
+            signature_parts: list[tuple[Any, ...]] = []
+            example_payload: dict[str, Any] = {}
+
+            for parameter_name, parameter in signature.parameters.items():
+                if parameter_name in {
+                    "apisession",
+                    "site_id",
+                    "device_id",
+                    "on_message",
+                    "timeout",
+                }:
+                    continue
+
+                annotation = parameter.annotation
+                type_description = _annotation_description(annotation)
+                required = parameter.default is inspect.Signature.empty
+                requirement_text = "required" if required else "optional"
+                default_value = None
+                if parameter.default is not inspect.Signature.empty:
+                    default_value = _format_default_value(
+                        parameter.default, annotation)
+
+                details = f"{parameter_name} ({type_description}, {requirement_text})"
+                if default_value is not None:
+                    details += f", default={default_value}"
+                parameter_descriptions.append(details)
+
+                signature_parts.append(
+                    (parameter_name, type_description, required, default_value)
+                )
+
+                if required:
+                    example_payload[parameter_name] = _build_example_value(
+                        parameter_name,
+                        annotation,
+                    )
+
+            schema_key = (utility_name, tuple(signature_parts))
+            schema_data = grouped_schemas.setdefault(
+                schema_key,
+                {
+                    "utility_name": utility_name,
+                    "parameters": parameter_descriptions,
+                    "example": example_payload,
+                    "device_types": set(),
+                },
+            )
+            schema_data["device_types"].add(device_type.value)
+
+    sorted_schema_items = sorted(
+        grouped_schemas.values(),
+        key=lambda item: (item["utility_name"], sorted(item["device_types"])),
+    )
+
+    for item in sorted_schema_items:
+        utility_name = item["utility_name"]
+        device_types = ", ".join(sorted(item["device_types"]))
+        parameter_descriptions = item["parameters"]
+        example_payload = item["example"]
+
+        if not parameter_descriptions:
+            lines.append(
+                f"- {utility_name} [{device_types}]: no parameters. Example: {{}}"
+            )
+            continue
+
+        parameter_summary = "; ".join(parameter_descriptions)
+        example_text = json.dumps(example_payload, ensure_ascii=True)
+        lines.append(
+            f"- {utility_name} [{device_types}]: {parameter_summary}. "
+            f"Example: `{example_text}`"
+        )
+
+    return "\n".join(lines)
+
+
+PARAMETERS_FIELD_DESCRIPTION = _build_parameters_field_description()
+
+
 def _convert_parameter_value(name: str, value: Any, annotation: Any) -> Any:
     if annotation in (inspect.Signature.empty, Any):
         return value
@@ -510,7 +657,8 @@ async def run_utilities(
             }
         )
 
-    canonical_utility, utility_callable = _resolve_utility(device_type, utility)
+    canonical_utility, utility_callable = _resolve_utility(
+        device_type, utility)
     if canonical_utility in MUTATING_DEVICE_UTILITIES and not config.enable_write_tools:
         raise ToolError(
             {
@@ -608,35 +756,35 @@ async def utilities(
         ),
     ],
     utility: Annotated[
-        str | None,
+        str,
         Field(
             description="""Utility name to execute for the selected device platform. Leave this empty to list the supported utilities and required parameters for that platform. Examples: `ping`, `traceroute`, `retrieveArpTable`, `retrieveBgpSummary`, `retrieveRoutes`, `showServicePath`, `bouncePort`, `cableTest`.""",
             default=None,
         ),
     ],
     site_id: Annotated[
-        UUID | None,
+        UUID,
         Field(
             description="""Site ID of the target device. Required when `utility` is set.""",
             default=None,
         ),
     ],
     device_id: Annotated[
-        UUID | None,
+        UUID,
         Field(
             description="""Device ID of the target device. Required when `utility` is set. Retrieve it with `mist_search_device`.""",
             default=None,
         ),
     ],
     parameters: Annotated[
-        dict[str, Any] | None,
+        dict[str, Any],
         Field(
-            description="""Utility-specific arguments as a JSON object. Examples: {"host": "8.8.8.8"}, {"port_ids": ["ge-0/0/1"]}, {"protocol": "udp", "port": 33434}, {"node": "node0", "service_name": "internet"}.""",
+            description=PARAMETERS_FIELD_DESCRIPTION,
             default=None,
         ),
     ],
     timeout_seconds: Annotated[
-        int | None,
+        int,
         Field(
             description="""Optional websocket command timeout in seconds. This is passed to the underlying mistapi utility when supported.""",
             default=None,
