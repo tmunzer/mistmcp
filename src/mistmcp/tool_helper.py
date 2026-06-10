@@ -111,7 +111,7 @@ TOOLS = {
     },
     "utilities_upgrade": {
         "description": "tools used to manage device upgrades for a single device, at the site level or at the organization level.",
-        "tools": ["mist_list_upgrades"],
+        "tools": ["mist_upgrades"],
     },
     "write": {
         "description": "Tools that perform write operations, such as creating, updating, or deleting resources in the Juniper Mist platform. These tools allow users to modify configurations, manage devices, and perform other actions that change the state of the network.",
