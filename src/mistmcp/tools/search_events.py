@@ -191,6 +191,12 @@ async def search_events(
     try:
         match search_type:
             case SearchType.EVENT:
+                _validate_alarm_params_not_used(
+                    group=group,
+                    severity=severity,
+                    alarm_type=alarm_type,
+                    acked=acked,
+                )
                 response = await _search_event(
                     apisession=apisession,
                     org_id=org_id,
@@ -205,6 +211,13 @@ async def search_events(
                     limit=limit,
                 )
             case SearchType.ALARM:
+                _validate_event_params_not_used(
+                    event_source=event_source,
+                    event_type=event_type,
+                    mac=mac,
+                    text=text,
+                    ssid=ssid,
+                )
                 response = await _search_alarm(
                     apisession=apisession,
                     org_id=org_id,
@@ -324,7 +337,7 @@ async def _search_event(
                     limit=limit,
                 )
         case EventSource.MXEDGE:
-            mxedge_id = f"00000000-0000-0000-1000-{str(mac)}" if mac else None
+            mxedge_id = _mxedge_id_from_mac(mac)
             if site_id:
                 response = mistapi.api.v1.sites.mxedges.searchSiteMistEdgeEvents(
                     apisession,
@@ -442,6 +455,24 @@ async def _search_event(
 
     await process_response(response)
     return response
+
+
+def _mxedge_id_from_mac(mac: str) -> str | None:
+    if not mac:
+        return None
+
+    normalized_mac = str(mac).replace(":", "").replace("-", "").replace(".", "").lower()
+    if len(normalized_mac) != 12 or not all(
+        char in "0123456789abcdef" for char in normalized_mac
+    ):
+        raise ToolError(
+            {
+                "status_code": 400,
+                "message": "`mac` must be a 12-character MAC address when `event_source` is `mxedge`.",
+            }
+        )
+
+    return f"00000000-0000-0000-1000-{normalized_mac}"
 
 
 async def _search_alarm(
