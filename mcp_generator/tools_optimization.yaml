@@ -787,6 +787,7 @@ getStats:
         function: mistapi.api.v1.sites.stats.searchSiteSwOrGwPorts(apisession, site_id=str(site_id), mac=str(object_id) if object_id else None, limit=limit)
 
 searchEvents:
+  skip: true
   type: tool_consolidation
   tags: [events]
   description: |-
@@ -1436,6 +1437,7 @@ listRogueDevices:
 #         function: mistapi.api.v1.sites.sle.listSiteSleMetricClassifiers(apisession, site_id=str(site_id), scope=scope.value, scope_id=scope_id, metric=metric)
 
 searchAlarms:
+  skip: true
   type: tool_consolidation
   tags: [events]
   description: |-

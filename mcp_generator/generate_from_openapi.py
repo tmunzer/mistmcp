@@ -68,7 +68,6 @@ try:
     from mcp_generator.templates.tmpl_tool_change_configuration_objects import (
         CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
-        CHANGE_OPERATIONS,
     )
     from mcp_generator.templates.tmpl_tool_read import TOOL_TEMPLATE_READ
     from mcp_generator.templates.tmpl_tool_search_device import (
@@ -76,6 +75,10 @@ try:
     )
     from mcp_generator.templates.tmpl_tool_update_configuration_objects import (
         UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
+    )
+    from mcp_generator.templates.tmpl_tool_upgrade import (
+        TOOL_TEMPLATE_UPGRADE,
+        UPGRADE_OPERATIONS,
     )
     from mcp_generator.templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
     from mcp_generator.templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
@@ -102,7 +105,6 @@ except ModuleNotFoundError:
     from templates.tmpl_tool_change_configuration_objects import (
         CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
-        CHANGE_OPERATIONS,
     )
     from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
     from templates.tmpl_tool_search_device import TOOL_TEMPLATE_SEARCH_DEVICE
@@ -132,6 +134,26 @@ SCHEMAS_DATA_OUTPUT_PATH = Path(
     os.path.join(
         DIR_PATH, "../src/mistmcp/tools/schemas_data.py")
 )
+SEARCH_EVENTS_OPERATION_IDS = [
+    "searchSiteDeviceEvents",
+    "searchOrgDeviceEvents",
+    "searchSiteMistEdgeEvents",
+    "searchOrgMistEdgeEvents",
+    "searchSiteWanClientEvents",
+    "searchOrgWanClientEvents",
+    "searchSiteWirelessClientEvents",
+    "searchOrgWirelessClientEvents",
+    "searchSiteNacClientEvents",
+    "searchOrgNacClientEvents",
+    "listSiteRoamingEvents",
+    "searchSiteRogueEvents",
+    "searchOrgAlarms",
+    "searchSiteAlarms",
+    "listOrgSuppressedAlarms",
+]
+SEARCH_EVENTS_TEMPLATE = Path(
+    os.path.join(DIR_PATH, "../src/mistmcp/tools/search_events.py")
+).read_text(encoding="utf-8")
 # List of custom tools to generate (not directly from OpenAPI)
 CUSTOM_TOOLS = [
     {
@@ -187,6 +209,18 @@ CUSTOM_TOOLS = [
         "template": SEARCH_CLIENT_TEMPLATE,
         "tag": "clients",
         "operation_ids": SEARCH_CLIENT_OPERATION_IDS,
+    },
+    {
+        "name": "search_events",
+        "template": SEARCH_EVENTS_TEMPLATE,
+        "tag": "events",
+        "operation_ids": SEARCH_EVENTS_OPERATION_IDS,
+    },
+    {
+        "name": "upgrades",
+        "template": TOOL_TEMPLATE_UPGRADE,
+        "tag": "utilities_upgrade",
+        "operation_ids": UPGRADE_OPERATIONS,
     },
 ]
 # Global read-only hint for tool generation
