@@ -20,7 +20,7 @@ The server exposes a focused set of tools grouped by workflow. This is the quick
 | Workflow | Main tools | What they are used for |
 | - | - | - |
 | Account and navigation | `mist_get_self`, `mist_get_next_page`, `mist_get_constants` | Resolve account details, discover IDs, follow pagination, and look up fixed Mist constants before making deeper queries. |
-| Device and client lookup | `mist_search_device`, `mist_search_client`, `mist_search_guest_authorization`, `mist_search_nac_user_macs` | Find devices, clients, guest authorizations, and NAC-related client entries by name, MAC, IP, serial, model, or other filters. |
+| Device and client lookup | `mist_search_device`, `mist_search_client`, `mist_search_nac_user_macs` | Find devices, clients, guest authorizations, and NAC-related client entries by name, MAC, IP, serial, model, or other filters. |
 | Configuration read | `mist_get_configuration_objects`, `mist_get_configuration_object_schema`, `mist_search_device_config_history` | Inspect org or site configuration, discover valid schema fields, and review recent configuration history on devices. |
 | Configuration changes | `mist_update_configuration_objects`, `mist_change_configuration_objects` | Create, update, and delete supported configuration objects. These tools require `--enable-write-tools`. |
 | Monitoring and events | `mist_search_events`, `mist_search_audit_logs`, `mist_search_alarms`, `mist_get_stats` | Investigate events, audit history, alarms, and operational statistics across organizations, sites, devices, clients, and ports. |
