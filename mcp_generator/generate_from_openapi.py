@@ -42,6 +42,7 @@ import yaml
 # - running as script: `python mcp_generator/generate_from_openapi.py`
 # - running as module: `python -m mcp_generator.generate_from_openapi`
 try:
+    from templates.tmpl_tool_upgrade import TOOL_TEMPLATE_UPGRADE, UPGRADE_OPERATIONS
     from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
 
     from mcp_generator.templates.tmpl_get_configuration_object_schema import (
@@ -60,6 +61,7 @@ try:
     )
     from mcp_generator.templates.tmpl_tool_change_configuration_objects import (
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
+        CHANGE_OPERATIONS,
     )
     from mcp_generator.templates.tmpl_tool_read import TOOL_TEMPLATE_READ
     from mcp_generator.templates.tmpl_tool_search_device import (
@@ -86,12 +88,14 @@ except ModuleNotFoundError:
     from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
     from templates.tmpl_tool_change_configuration_objects import (
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
+        CHANGE_OPERATIONS,
     )
     from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
     from templates.tmpl_tool_search_device import TOOL_TEMPLATE_SEARCH_DEVICE
     from templates.tmpl_tool_update_configuration_objects import (
         UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
     )
+    from templates.tmpl_tool_upgrade import TOOL_TEMPLATE_UPGRADE, UPGRADE_OPERATIONS
     from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
     from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
     from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
@@ -145,7 +149,7 @@ CUSTOM_TOOLS = [
         "name": "change_configuration_objects",
         "template": CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
         "tag": "write_delete",
-        "operation_ids": [],
+        "operation_ids": CHANGE_OPERATIONS,
     },
     {
         "name": "update_configuration_objects",
@@ -158,6 +162,12 @@ CUSTOM_TOOLS = [
         "template": UTILITIES_TEMPLATE,
         "tag": "utilities",
         "operation_ids": [],
+    },
+    {
+        "name": "upgrade",
+        "template": TOOL_TEMPLATE_UPGRADE,
+        "tag": "upgrade",
+        "operation_ids": UPGRADE_OPERATIONS,
     },
 ]
 # Global read-only hint for tool generation
