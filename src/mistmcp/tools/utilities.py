@@ -207,7 +207,11 @@ def _format_default_value(default: Any, annotation: Any) -> Any:
         return None
 
     target = _strip_optional(annotation)
-    if inspect.isclass(target) and issubclass(target, Enum) and isinstance(default, target):
+    if (
+        inspect.isclass(target)
+        and issubclass(target, Enum)
+        and isinstance(default, target)
+    ):
         return default.value
     return default
 
@@ -226,8 +230,7 @@ def _build_parameters_field_description() -> str:
     lines.append(f"Supported utilities: {', '.join(utility_names)}.")
     lines.append("Parameter schemas (deduplicated by utility signature):")
 
-    grouped_schemas: dict[tuple[str,
-                                tuple[tuple[Any, ...], ...]], dict[str, Any]] = {}
+    grouped_schemas: dict[tuple[str, tuple[tuple[Any, ...], ...]], dict[str, Any]] = {}
 
     for device_type, device_utilities in SUPPORTED_DEVICE_UTILITIES.items():
         for utility_name, utility_callable in device_utilities.items():
@@ -255,8 +258,7 @@ def _build_parameters_field_description() -> str:
                 requirement_text = "required" if required else "optional"
                 default_value = None
                 if parameter.default is not inspect.Signature.empty:
-                    default_value = _format_default_value(
-                        parameter.default, annotation)
+                    default_value = _format_default_value(parameter.default, annotation)
 
                 details = f"{parameter_name} ({type_description}, {requirement_text})"
                 if default_value is not None:
@@ -657,8 +659,7 @@ async def run_utilities(
             }
         )
 
-    canonical_utility, utility_callable = _resolve_utility(
-        device_type, utility)
+    canonical_utility, utility_callable = _resolve_utility(device_type, utility)
     if canonical_utility in MUTATING_DEVICE_UTILITIES and not config.enable_write_tools:
         raise ToolError(
             {

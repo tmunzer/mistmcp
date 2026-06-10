@@ -209,7 +209,11 @@ def _format_default_value(default: Any, annotation: Any) -> Any:
         return None
 
     target = _strip_optional(annotation)
-    if inspect.isclass(target) and issubclass(target, Enum) and isinstance(default, target):
+    if (
+        inspect.isclass(target)
+        and issubclass(target, Enum)
+        and isinstance(default, target)
+    ):
         return default.value
     return default
 
@@ -311,7 +315,7 @@ def _build_parameters_field_description() -> str:
             f"Example: `{example_text}`"
         )
 
-    return "\n".join(lines)
+    return "\\n".join(lines)
 
 
 PARAMETERS_FIELD_DESCRIPTION = _build_parameters_field_description()
@@ -583,7 +587,7 @@ def _format_device_utility_result(
     if result["stream_output"] and all(
         isinstance(item, str) for item in result["stream_output"]
     ):
-        result["stream_output_text"] = "\n".join(result["stream_output"])
+        result["stream_output_text"] = "\\n".join(result["stream_output"])
 
     if not completed:
         result["message"] = (
