@@ -1,4 +1,8 @@
 GET_CONFIGURATION_OBJECTS_OPERATION_IDS = [
+    "getOrg",
+    "getOrgSettings",
+    "getSiteInfo",
+    "getSiteSettings",
     "listSiteWxTags",
     "getSiteWxTag",
     "listSiteWxRules",
@@ -103,7 +107,8 @@ from mistmcp.server import mcp
 
 
 class Object_type(Enum):
-    ORG = "org"
+    ORG_INFO = "org_info"
+    ORG_SETTINGS = "org_settings"
     ORG_ALARMTEMPLATES = "org_alarmtemplates"
     ORG_WLANS = "org_wlans"
     ORG_SITEGROUPS = "org_sitegroups"
@@ -131,6 +136,8 @@ class Object_type(Enum):
     ORG_WLANTEMPLATES = "org_wlantemplates"
     ORG_WXRULES = "org_wxrules"
     ORG_WXTAGS = "org_wxtags"
+    SITE_INFO = "site_info"
+    SITE_SETTINGS = "site_settings"
     SITE_EVPN_TOPOLOGIES = "site_evpn_topologies"
     SITE_MAPS = "site_maps"
     SITE_MXEDGES = "site_mxedges"
@@ -226,7 +233,7 @@ async def get_configuration_objects(
         str,
         Field(
             default=None,
-            description="""Name of the specific configuration object to retrieve. Not supported when `object_type` is `site_devices` (use the `mist_search_device` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
+            description="""Name of the specific configuration object to retrieve. Not supported when `object_type` is `org_info`, `org_settings`, `site_info`, `site_settings` or `site_devices` (use the `mist_search_device` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
         ),
     ],
     computed: Annotated[
@@ -240,14 +247,23 @@ async def get_configuration_objects(
         int,
         Field(
             default=20,
-            description="""Max number of results per page. Default is 20, Max is 1000""",
+            description="""Max number of results per page. Default is 20, Max is 1000. Not supported when `object_type` is `org_info`, `org_settings`, `site_info` or `site_settings`""",
         ),
     ] = 20,
 ) -> dict | list | str:
     """Retrieve configuration objects from a specified organization or site. For the site configuration objects, set the attribute `computed` to `true` to retrieve the computed configuration including all configuration objects defined at the org level and assigned to the site. This tool allows you to retrieve a list of configuration objects (e.g. wlans, device profiles, network templates) or to filter them providing their ID."""
 
     logger.debug("Tool get_configuration_objects called")
-    logger.debug("Input Parameters: org_id=%s, object_type=%s, site_id=%s, object_id=%s, name=%s, computed=%s, limit=%s", org_id, object_type, site_id, object_id, name, computed, limit)
+    logger.debug(
+        "Input Parameters: org_id=%s, object_type=%s, site_id=%s, object_id=%s, name=%s, computed=%s, limit=%s",
+        org_id,
+        object_type,
+        site_id,
+        object_id,
+        name,
+        computed,
+        limit,
+    )
 
     apisession, response_format = await get_apisession()
 
@@ -306,7 +322,12 @@ async def _org_configuration_objects_getter(
     limit: int = 20,
 ) -> _APIResponse:
     match object_type:
-        case "org":
+        case "org_info":
+            response = mistapi.api.v1.orgs.orgs.getOrg(
+                apisession, org_id=str(org_id)
+            )
+            await process_response(response)
+        case "org_settings":
             response = mistapi.api.v1.orgs.setting.getOrgSettings(
                 apisession, org_id=str(org_id)
             )
@@ -931,6 +952,16 @@ async def _site_configuration_objects_getter(
     limit: int = 20,
 ) -> _APIResponse:
     match object_type:
+        case "site_info":
+            response = mistapi.api.v1.sites.sites.getSiteInfo(
+                apisession, site_id=str(site_id)
+            )
+            await process_response(response)
+        case "site_settings":
+            response = mistapi.api.v1.sites.setting.getSiteSetting(
+                apisession, site_id=str(site_id)
+            )
+            await process_response(response)
         case "site_devices":
             return await _get_site_devices(
                 apisession, org_id, site_id, object_id, name, computed, limit
