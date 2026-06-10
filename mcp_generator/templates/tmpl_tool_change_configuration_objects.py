@@ -68,7 +68,6 @@ CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS = [
     "updateOrgWxTag",
     "createOrgWxTag",
     "deleteOrgWxTag",
-    "Site Operations:",
     "updateSiteInfo",
     "deleteSite",
     "updateSiteSettings",
