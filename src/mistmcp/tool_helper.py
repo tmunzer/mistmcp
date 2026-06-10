@@ -96,7 +96,6 @@ TOOLS = {
         "description": "SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network.\\n\\nThey are generated through data science and machine learning algorithms and provide insights into various aspects of the network, such as coverage, capacity, connectivity, and performance.\\n\\nMist SLEs help identify when users do not have sufficient network quality, when they face issues with connecting or roaming between access points, and when there are problems on the wired network.\\n\\n SLEs API Calls at the MSP level can be used to retrieve the SLEs summary for each Organization attached to the MSP account.",
         "tools": [
             "mist_get_sle",
-            "mist_list_site_sle_info",
         ],
     },
     "stats": {

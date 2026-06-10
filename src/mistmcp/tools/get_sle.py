@@ -28,6 +28,8 @@ class SleScope(Enum):
     ORG = "org"
     ORG_SITES = "org_sites"
     SITE = "site"
+    SITE_METRICS = "site_metrics"
+    SITE_CLASSIFIERS = "site_classifiers"
 
 
 class OrgSitesSle(Enum):
@@ -68,7 +70,9 @@ class ObjectType(Enum):
 Use `sle_scope=org` to get org-level SLEs (all/worst sites, Mx Edges, ...).
 Use `sle_scope=org_sites` to get SLE summary for all organization sites.
 Use `sle_scope=site` to get detailed site-level SLE data (summary, trends, impacted devices/clients, histograms, thresholds).
-Use the `mist_list_site_sle_info` tool to discover available SLE metrics and classifiers before querying.""",
+Use `sle_scope=site_metrics` to discover available SLE metrics for a given site scope.
+Use `sle_scope=site_classifiers` to list classifiers for a specific SLE metric (requires `metric` parameter).
+Use `sle_scope=site_metrics` first to discover metric names before querying SLE data.""",
     tags={"sles"},
     annotations={
         "title": "Get SLE",
@@ -82,7 +86,7 @@ async def get_sle(
     sle_scope: Annotated[
         SleScope,
         Field(
-            description="""Scope of the SLE query. `org`: org-level SLEs; `org_sites`: SLE summary for all sites in the org; `site`: detailed site-level SLE data"""
+            description="""Scope of the SLE query. `org`: org-level SLEs; `org_sites`: SLE summary for all sites in the org; `site`: detailed site-level SLE data; `site_metrics`: list available SLE metrics for a site scope; `site_classifiers`: list classifiers for a specific metric"""
         ),
     ],
     org_id: Annotated[
@@ -95,14 +99,14 @@ async def get_sle(
     site_id: Annotated[
         UUID,
         Field(
-            description="""Site ID. Required when sle_scope is `site`""",
+            description="""Site ID. Required when sle_scope is `site`, `site_metrics`, or `site_classifiers`""",
             default=None,
         ),
     ],
     metric: Annotated[
         str,
         Field(
-            description="""SLE metric name. Required when sle_scope is `org` or `site`. Use `mist_list_site_sle_info` or `mist_get_constants` with `object_type=insight_metrics` to discover available metrics""",
+            description="""SLE metric name. Required when sle_scope is `org`, `site`, or `site_classifiers`. Use `sle_scope=site_metrics` or `mist_get_constants` with `object_type=insight_metrics` to discover available metrics""",
             default=None,
         ),
     ],
@@ -116,14 +120,14 @@ async def get_sle(
     scope: Annotated[
         SiteSleScope,
         Field(
-            description="""Site SLE scope. Required when sle_scope is `site`. Can be `client`, `ap`, `gateway`, `mxedge`, `switch`, or `site`""",
+            description="""Site SLE scope. Required when sle_scope is `site`, `site_metrics`, or `site_classifiers`. Can be `client`, `ap`, `gateway`, `mxedge`, `switch`, or `site`""",
             default=None,
         ),
     ],
     scope_id: Annotated[
         str,
         Field(
-            description="""ID of the scoped object. Required when sle_scope is `site`. Use `site_id` if `scope=site`; `device_id` if `scope=ap`, `switch`, or `gateway`; `MAC address` if `scope=client`""",
+            description="""ID of the scoped object. Required when sle_scope is `site`, `site_metrics`, or `site_classifiers`. Use `site_id` if `scope=site`; `device_id` if `scope=ap`, `switch`, or `gateway`; `MAC address` if `scope=client`""",
             default=None,
         ),
     ],
@@ -467,6 +471,74 @@ async def get_sle(
                                 "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in ObjectType]}",
                             }
                         )
+                await process_response(response)
+
+            case SleScope.SITE_METRICS:
+                if not site_id:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`site_id` is required when `sle_scope` is `site_metrics`.",
+                        }
+                    )
+                if not scope:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`scope` is required when `sle_scope` is `site_metrics`.",
+                        }
+                    )
+                if not scope_id:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`scope_id` is required when `sle_scope` is `site_metrics`.",
+                        }
+                    )
+                response = mistapi.api.v1.sites.sle.listSiteSlesMetrics(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                )
+                await process_response(response)
+
+            case SleScope.SITE_CLASSIFIERS:
+                if not site_id:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`site_id` is required when `sle_scope` is `site_classifiers`.",
+                        }
+                    )
+                if not scope:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`scope` is required when `sle_scope` is `site_classifiers`.",
+                        }
+                    )
+                if not scope_id:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`scope_id` is required when `sle_scope` is `site_classifiers`.",
+                        }
+                    )
+                if not metric:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`metric` is required when `sle_scope` is `site_classifiers`. Use `sle_scope=site_metrics` first to discover available metric names.",
+                        }
+                    )
+                response = mistapi.api.v1.sites.sle.listSiteSleMetricClassifiers(
+                    apisession,
+                    site_id=str(site_id),
+                    scope=scope.value,
+                    scope_id=scope_id,
+                    metric=metric,
+                )
                 await process_response(response)
 
             case _:
