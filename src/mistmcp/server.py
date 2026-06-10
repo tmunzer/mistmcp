@@ -95,6 +95,8 @@ Site-level takes precedence when both org and site objects of the same type exis
 ## Org-Level Read Types
 | object_type | Description |
 | - | - |
+| org_info | Organization information |
+| org_settings | Organization settings |
 | org_alarmtemplates | Alarm rules templates assigned to sites |
 | org_wlans | Org WLAN definitions |
 | org_sitegroups | Groups of sites for bulk assignment |
@@ -115,6 +117,7 @@ Site-level takes precedence when both org and site objects of the same type exis
 | org_rftemplates | RF templates (channels, TX power, bands) |
 | org_services | Application/service definitions |
 | org_servicepolicies | Security/firewall policies |
+| org_sites | List all sites — primary way to get `site_id` |
 | org_sitetemplates | Site attribute/settings templates |
 | org_vpns | WAN Overlay VPN hub/spoke configs |
 | org_webhooks | Real-time event push endpoints |
@@ -125,6 +128,8 @@ Site-level takes precedence when both org and site objects of the same type exis
 ## Site-Level Read Types
 | object_type | Description |
 | - | - |
+| site_info | Site information |
+| site_settings | Site settings |
 | site_evpn_topologies | Site EVPN topologies |
 | site_maps | Site map objects |
 | site_mxedges | Mist Edge appliances at a site |
@@ -174,8 +179,6 @@ Site-level takes precedence when both org and site objects of the same type exis
 ## Read-Only Helper Types (mist_get_configuration_objects only)
 | object_type | Description |
 | - | - |
-| org | Organization settings |
-| org_sites | List all sites — primary way to get `site_id` |
 
 # PAGINATION
 When a response includes `next` (or legacy `_next`), pass that URL to `mist_get_next_page(url=<next_url>)` for more results.
