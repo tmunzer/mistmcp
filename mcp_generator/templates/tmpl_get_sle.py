@@ -375,17 +375,15 @@ async def get_sle(
                             duration=duration if duration else None,
                         )
                     case ObjectType.IMPACTED_GATEWAYS:
-                        response = (
-                            mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(
-                                apisession,
-                                site_id=str(site_id),
-                                scope=scope.value,
-                                scope_id=scope_id,
-                                metric=metric,
-                                start=str(start) if start else None,
-                                end=str(end) if end else None,
-                                duration=duration if duration else None,
-                            )
+                        response = mistapi.api.v1.sites.sle.listSiteSleImpactedGateways(
+                            apisession,
+                            site_id=str(site_id),
+                            scope=scope.value,
+                            scope_id=scope_id,
+                            metric=metric,
+                            start=str(start) if start else None,
+                            end=str(end) if end else None,
+                            duration=duration if duration else None,
                         )
                     case ObjectType.IMPACTED_INTERFACES:
                         response = (
@@ -401,17 +399,15 @@ async def get_sle(
                             )
                         )
                     case ObjectType.IMPACTED_SWITCHES:
-                        response = (
-                            mistapi.api.v1.sites.sle.listSiteSleImpactedSwitches(
-                                apisession,
-                                site_id=str(site_id),
-                                scope=scope.value,
-                                scope_id=scope_id,
-                                metric=metric,
-                                start=str(start) if start else None,
-                                end=str(end) if end else None,
-                                duration=duration if duration else None,
-                            )
+                        response = mistapi.api.v1.sites.sle.listSiteSleImpactedSwitches(
+                            apisession,
+                            site_id=str(site_id),
+                            scope=scope.value,
+                            scope_id=scope_id,
+                            metric=metric,
+                            start=str(start) if start else None,
+                            end=str(end) if end else None,
+                            duration=duration if duration else None,
                         )
                     case ObjectType.IMPACTED_WIRELESS_CLIENTS:
                         response = (
@@ -440,17 +436,15 @@ async def get_sle(
                             )
                         )
                     case ObjectType.IMPACTED_CHASSIS:
-                        response = (
-                            mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(
-                                apisession,
-                                site_id=str(site_id),
-                                scope=scope.value,
-                                scope_id=scope_id,
-                                metric=metric,
-                                start=str(start) if start else None,
-                                end=str(end) if end else None,
-                                duration=duration if duration else None,
-                            )
+                        response = mistapi.api.v1.sites.sle.listSiteSleImpactedChassis(
+                            apisession,
+                            site_id=str(site_id),
+                            scope=scope.value,
+                            scope_id=scope_id,
+                            metric=metric,
+                            start=str(start) if start else None,
+                            end=str(end) if end else None,
+                            duration=duration if duration else None,
                         )
                     case ObjectType.HISTOGRAM:
                         response = mistapi.api.v1.sites.sle.getSiteSleHistogram(
@@ -509,6 +503,13 @@ async def get_sle(
                             "message": "`scope` is required when `sle_scope` is `site_metrics`.",
                         }
                     )
+                if scope == SiteSleScope.MXEDGE:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`scope=mxedge` is not supported when `sle_scope` is `site_metrics`. Use `ap`, `client`, `gateway`, `switch`, or `site`.",
+                        }
+                    )
                 if not scope_id:
                     raise ToolError(
                         {
@@ -537,6 +538,13 @@ async def get_sle(
                         {
                             "status_code": 400,
                             "message": "`scope` is required when `sle_scope` is `site_classifiers`.",
+                        }
+                    )
+                if scope == SiteSleScope.MXEDGE:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`scope=mxedge` is not supported when `sle_scope` is `site_classifiers`. Use `ap`, `client`, `gateway`, `switch`, or `site`.",
                         }
                     )
                 if not scope_id:
