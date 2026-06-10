@@ -20,140 +20,140 @@ listSiteRogueAPs:
 getSiteRogueAP:
   skip: true
 
-listUpgrades:
-  type: tool_consolidation
-  tags: [utilities_upgrade]
-  description: Retrieve upgrade-related information for the organization. Use device types (ap, switch, srx, mxedge, ssr) to list or retrieve upgrade jobs. Use available_device_versions to list available firmware versions for AP/switch/gateway devices. Use available_ssr_versions to list available SSR firmware versions.
-  read_only_hint: true
-  destructive_hint: false
-  match_name: device_type
-  if_filter: upgrade_id
-  parameters:
-    - name: org_id
-      schema:
-        type: string
-        format: uuid
-      description: ID of the organization
-      required: true
-    - name: site_id
-      schema:
-        type: string
-        format: uuid
-      description: ID of the site. Required when device_type is site_mxedge
-      required: false
-      required_if:
-        device_type:
-          - site_mxedge
-    - name: device_type
-      schema:
-        type: string
-        enum:
-          [
-            ap,
-            switch,
-            srx,
-            org_mxedge,
-            site_mxedge,
-            ssr,
-            available_device_versions,
-            available_ssr_versions,
-          ]
-      required: true
-      description: "Type of query: use ap/switch/srx/org_mxedge/site_mxedge/ssr to list upgrade jobs for that device type; use available_device_versions to list available firmware versions for AP/switch/gateway devices; use available_ssr_versions to list available SSR firmware versions"
-    - name: upgrade_id
-      schema:
-        type: string
-        format: uuid
-      description: ID of a specific upgrade job to retrieve. Only applicable when device_type is ap, switch, srx, org_mxedge, site_mxedge, or ssr
-      only_if:
-        device_type:
-          - ap
-          - switch
-          - srx
-          - org_mxedge
-          - site_mxedge
-          - ssr
-    - name: firmware_type
-      schema:
-        type: string
-        enum: [ap, switch, gateway]
-      description: Device model type to filter available firmware versions by. Only applicable when device_type is available_device_versions
-      only_if:
-        device_type:
-          - available_device_versions
-    - name: model
-      schema:
-        type: string
-      description: Device model to filter available firmware versions by. Only applicable when device_type is available_device_versions
-      only_if:
-        device_type:
-          - available_device_versions
-    - name: channel
-      schema:
-        type: string
-        enum: [alpha, beta, stable]
-      description: SSR firmware release channel to filter by. Only applicable when device_type is available_ssr_versions. Defaults to stable
-      only_if:
-        device_type:
-          - available_ssr_versions
-    - name: mac
-      schema:
-        type: string
-      description: MAC address (or comma-separated list) of SSR device(s) to retrieve available versions for. Only applicable when device_type is available_ssr_versions
-      only_if:
-        device_type:
-          - available_ssr_versions
-  requests:
-    ap:
-      list:
-        operationId: listOrgDeviceUpgrades
-        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
-      get:
-        operationId: getOrgDeviceUpgrade
-        function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
-    switch:
-      list:
-        operationId: listOrgDeviceUpgrades
-        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
-      get:
-        operationId: getOrgDeviceUpgrade
-        function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
-    srx:
-      list:
-        operationId: listOrgDeviceUpgrades
-        function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
-      get:
-        operationId: getOrgDeviceUpgrade
-        function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
-    org_mxedge:
-      list:
-        operationId: listOrgMxEdgeUpgrades
-        function: mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(apisession, org_id=str(org_id))
-      get:
-        operationId: getOrgMxEdgeUpgrade
-        function: mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
-    site_mxedge:
-      list:
-        operationId: listSiteMxEdgeUpgrades
-        function: mistapi.api.v1.sites.mxedges.listSiteMxEdgeUpgrades(apisession, site_id=str(site_id))
-      get:
-        operationId: getSiteMxEdgeUpgrade
-        function: mistapi.api.v1.sites.mxedges.getSiteMxEdgeUpgrade(apisession, site_id=str(site_id), upgrade_id=str(upgrade_id))
-    ssr:
-      list:
-        operationId: listOrgSsrUpgrades
-        function: mistapi.api.v1.orgs.ssr.listOrgSsrUpgrades(apisession, org_id=str(org_id))
-      get:
-        operationId: getOrgSsrUpgrade
-        function: mistapi.api.v1.orgs.ssr.getOrgSsrUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
-    available_device_versions:
-      list:
-        operationId: listOrgAvailableDeviceVersions
-        function: mistapi.api.v1.orgs.devices.listOrgAvailableDeviceVersions(apisession, org_id=str(org_id), type=firmware_type.value if firmware_type else None, model=model if model else None)
-    available_ssr_versions:
-      list:
-        operationId: listOrgAvailableSsrVersions
-        function: mistapi.api.v1.orgs.ssr.listOrgAvailableSsrVersions(apisession, org_id=str(org_id), channel=channel.value if channel else "stable", mac=mac if mac else None)
+# listUpgrades:
+#   type: tool_consolidation
+#   tags: [utilities_upgrade]
+#   description: Retrieve upgrade-related information for the organization. Use device types (ap, switch, srx, mxedge, ssr) to list or retrieve upgrade jobs. Use available_device_versions to list available firmware versions for AP/switch/gateway devices. Use available_ssr_versions to list available SSR firmware versions.
+#   read_only_hint: true
+#   destructive_hint: false
+#   match_name: device_type
+#   if_filter: upgrade_id
+#   parameters:
+#     - name: org_id
+#       schema:
+#         type: string
+#         format: uuid
+#       description: ID of the organization
+#       required: true
+#     - name: site_id
+#       schema:
+#         type: string
+#         format: uuid
+#       description: ID of the site. Required when device_type is site_mxedge
+#       required: false
+#       required_if:
+#         device_type:
+#           - site_mxedge
+#     - name: device_type
+#       schema:
+#         type: string
+#         enum:
+#           [
+#             ap,
+#             switch,
+#             srx,
+#             org_mxedge,
+#             site_mxedge,
+#             ssr,
+#             available_device_versions,
+#             available_ssr_versions,
+#           ]
+#       required: true
+#       description: "Type of query: use ap/switch/srx/org_mxedge/site_mxedge/ssr to list upgrade jobs for that device type; use available_device_versions to list available firmware versions for AP/switch/gateway devices; use available_ssr_versions to list available SSR firmware versions"
+#     - name: upgrade_id
+#       schema:
+#         type: string
+#         format: uuid
+#       description: ID of a specific upgrade job to retrieve. Only applicable when device_type is ap, switch, srx, org_mxedge, site_mxedge, or ssr
+#       only_if:
+#         device_type:
+#           - ap
+#           - switch
+#           - srx
+#           - org_mxedge
+#           - site_mxedge
+#           - ssr
+#     - name: firmware_type
+#       schema:
+#         type: string
+#         enum: [ap, switch, gateway]
+#       description: Device model type to filter available firmware versions by. Only applicable when device_type is available_device_versions
+#       only_if:
+#         device_type:
+#           - available_device_versions
+#     - name: model
+#       schema:
+#         type: string
+#       description: Device model to filter available firmware versions by. Only applicable when device_type is available_device_versions
+#       only_if:
+#         device_type:
+#           - available_device_versions
+#     - name: channel
+#       schema:
+#         type: string
+#         enum: [alpha, beta, stable]
+#       description: SSR firmware release channel to filter by. Only applicable when device_type is available_ssr_versions. Defaults to stable
+#       only_if:
+#         device_type:
+#           - available_ssr_versions
+#     - name: mac
+#       schema:
+#         type: string
+#       description: MAC address (or comma-separated list) of SSR device(s) to retrieve available versions for. Only applicable when device_type is available_ssr_versions
+#       only_if:
+#         device_type:
+#           - available_ssr_versions
+#   requests:
+#     ap:
+#       list:
+#         operationId: listOrgDeviceUpgrades
+#         function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+#       get:
+#         operationId: getOrgDeviceUpgrade
+#         function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+#     switch:
+#       list:
+#         operationId: listOrgDeviceUpgrades
+#         function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+#       get:
+#         operationId: getOrgDeviceUpgrade
+#         function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+#     srx:
+#       list:
+#         operationId: listOrgDeviceUpgrades
+#         function: mistapi.api.v1.orgs.devices.listOrgDeviceUpgrades(apisession, org_id=str(org_id))
+#       get:
+#         operationId: getOrgDeviceUpgrade
+#         function: mistapi.api.v1.orgs.devices.getOrgDeviceUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+#     org_mxedge:
+#       list:
+#         operationId: listOrgMxEdgeUpgrades
+#         function: mistapi.api.v1.orgs.mxedges.listOrgMxEdgeUpgrades(apisession, org_id=str(org_id))
+#       get:
+#         operationId: getOrgMxEdgeUpgrade
+#         function: mistapi.api.v1.orgs.mxedges.getOrgMxEdgeUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+#     site_mxedge:
+#       list:
+#         operationId: listSiteMxEdgeUpgrades
+#         function: mistapi.api.v1.sites.mxedges.listSiteMxEdgeUpgrades(apisession, site_id=str(site_id))
+#       get:
+#         operationId: getSiteMxEdgeUpgrade
+#         function: mistapi.api.v1.sites.mxedges.getSiteMxEdgeUpgrade(apisession, site_id=str(site_id), upgrade_id=str(upgrade_id))
+#     ssr:
+#       list:
+#         operationId: listOrgSsrUpgrades
+#         function: mistapi.api.v1.orgs.ssr.listOrgSsrUpgrades(apisession, org_id=str(org_id))
+#       get:
+#         operationId: getOrgSsrUpgrade
+#         function: mistapi.api.v1.orgs.ssr.getOrgSsrUpgrade(apisession, org_id=str(org_id), upgrade_id=str(upgrade_id))
+#     available_device_versions:
+#       list:
+#         operationId: listOrgAvailableDeviceVersions
+#         function: mistapi.api.v1.orgs.devices.listOrgAvailableDeviceVersions(apisession, org_id=str(org_id), type=firmware_type.value if firmware_type else None, model=model if model else None)
+#     available_ssr_versions:
+#       list:
+#         operationId: listOrgAvailableSsrVersions
+#         function: mistapi.api.v1.orgs.ssr.listOrgAvailableSsrVersions(apisession, org_id=str(org_id), channel=channel.value if channel else "stable", mac=mac if mac else None)
 
 getInsightMetrics:
   type: tool_consolidation

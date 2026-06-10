@@ -68,6 +68,7 @@ try:
     from mcp_generator.templates.tmpl_tool_change_configuration_objects import (
         CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
+        CHANGE_OPERATIONS,
     )
     from mcp_generator.templates.tmpl_tool_read import TOOL_TEMPLATE_READ
     from mcp_generator.templates.tmpl_tool_search_device import (
@@ -101,12 +102,14 @@ except ModuleNotFoundError:
     from templates.tmpl_tool_change_configuration_objects import (
         CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
+        CHANGE_OPERATIONS,
     )
     from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
     from templates.tmpl_tool_search_device import TOOL_TEMPLATE_SEARCH_DEVICE
     from templates.tmpl_tool_update_configuration_objects import (
         UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
     )
+    from templates.tmpl_tool_upgrade import TOOL_TEMPLATE_UPGRADE, UPGRADE_OPERATIONS
     from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
     from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
     from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
