@@ -113,7 +113,7 @@ async def get_sle(
     sle: Annotated[
         str,
         Field(
-            description="""SLE type. When sle_scope is `org`: free-form SLE name. When sle_scope is `org_sites`: must be `wifi`, `wired`, or `wan`""",
+            description="""SLE type. When sle_scope is `org`: SLE name to filter on (use `mist_get_insight_metrics` to discover available values). When sle_scope is `org_sites`: must be `wifi`, `wired`, or `wan`""",
             default=None,
         ),
     ],
@@ -166,7 +166,7 @@ async def get_sle(
         ),
     ] = 20,
 ) -> dict | list | str:
-    """Get SLE data at org, org_sites, or site scope."""
+    """Get SLE data at org, org_sites, site, site_metrics, or site_classifiers scope."""
 
     logger.debug("Tool get_sle called")
     logger.debug(
