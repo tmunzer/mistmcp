@@ -91,84 +91,84 @@ async def search_events(
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     event_source: Annotated[
-        EventSource,
+        EventSource | None,
         Field(
             description="""Required when search_type is `event`. Event source type: device, mxedge, wan_client, wireless_client, nac_client, roaming (requires site_id), or rogue (requires site_id)""",
             default=None,
         ),
     ],
     event_type: Annotated[
-        str,
+        str | None,
         Field(
             description="""Only for search_type=event. Comma-separated event types to filter by. Use `mist_get_constants` to discover available values for the selected event_source""",
             default=None,
         ),
     ],
     site_id: Annotated[
-        UUID,
+        UUID | None,
         Field(
             description="""Site ID. For search_type=alarm, providing site_id searches site alarms; omitting it searches org alarms. Required for event_source=roaming or rogue. Optional for other event sources to narrow results to a site""",
             default=None,
         ),
     ],
     mac: Annotated[
-        str,
+        str | None,
         Field(
             description="""Only for search_type=event. MAC address filter for device, mxedge, WAN client, NAC client, or rogue events""",
             default=None,
         ),
     ],
     text: Annotated[
-        str,
+        str | None,
         Field(
             description="""Only for search_type=event with event_source=device or nac_client. Text search in event details""",
             default=None,
         ),
     ],
     ssid: Annotated[
-        str,
+        str | None,
         Field(
             description="""Only for search_type=event with event_source=wireless_client, nac_client, or rogue. SSID filter""",
             default=None,
         ),
     ],
     group: Annotated[
-        str,
+        str | None,
         Field(
             description="""Only for search_type=alarm. Alarm group: `infrastructure`, `marvis`, or `security`""",
             default=None,
         ),
     ],
     severity: Annotated[
-        str,
+        str | None,
         Field(
             description="""Only for search_type=alarm. Alarm severity: `critical`, `major`, `minor`, `warn`, or `info`""",
             default=None,
         ),
     ],
     alarm_type: Annotated[
-        str,
+        str | None,
         Field(
             description="""Only for search_type=alarm. Comma-separated alarm types (e.g., `bad_cable,auth_failure`). Use `mist_get_constants` with `object_type=alarm_definitions` to discover available alarm types""",
             default=None,
         ),
     ],
     acked: Annotated[
-        bool,
+        bool | None,
         Field(
             description="""Only for search_type=alarm. Filter acknowledged (true) or unacknowledged (false) alarms""",
             default=None,
         ),
     ],
     start: Annotated[
-        int,
+        int | None,
         Field(
             description="""Start of time range (epoch seconds). Used for search_type=event or alarm; ignored for suppressed_alarm""",
             default=None,
         ),
     ],
     end: Annotated[
-        int,
+        int | None,
         Field(
             description="""End of time range (epoch seconds). Used for search_type=event or alarm; ignored for suppressed_alarm""",
             default=None,
@@ -284,14 +284,14 @@ async def search_events(
 async def _search_event(
     apisession,
     org_id: UUID,
-    event_source: EventSource,
-    event_type: str,
-    site_id: UUID,
-    mac: str,
-    text: str,
-    ssid: str,
-    start: int,
-    end: int,
+    event_source: EventSource | None,
+    event_type: str | None,
+    site_id: UUID | None,
+    mac: str | None,
+    text: str | None,
+    ssid: str | None,
+    start: int | None,
+    end: int | None,
     limit: int,
 ):
     if not event_source:
@@ -475,7 +475,7 @@ async def _search_event(
     return response
 
 
-def _mxedge_id_from_mac(mac: str) -> str | None:
+def _mxedge_id_from_mac(mac: str | None) -> str | None:
     if not mac:
         return None
 
@@ -496,13 +496,13 @@ def _mxedge_id_from_mac(mac: str) -> str | None:
 async def _search_alarm(
     apisession,
     org_id: UUID,
-    site_id: UUID,
-    group: str,
-    severity: str,
-    alarm_type: str,
-    acked: bool,
-    start: int,
-    end: int,
+    site_id: UUID | None,
+    group: str | None,
+    severity: str | None,
+    alarm_type: str | None,
+    acked: bool | None,
+    start: int | None,
+    end: int | None,
     limit: int,
 ):
     if site_id:
@@ -535,11 +535,11 @@ async def _search_alarm(
 
 
 def _validate_event_params_not_used(
-    event_source: EventSource,
-    event_type: str,
-    mac: str,
-    text: str,
-    ssid: str,
+    event_source: EventSource | None,
+    event_type: str | None,
+    mac: str | None,
+    text: str | None,
+    ssid: str | None,
 ) -> None:
     if event_source or event_type or mac or text or ssid:
         raise ToolError(
@@ -551,10 +551,10 @@ def _validate_event_params_not_used(
 
 
 def _validate_alarm_params_not_used(
-    group: str,
-    severity: str,
-    alarm_type: str,
-    acked: bool,
+    group: str | None,
+    severity: str | None,
+    alarm_type: str | None,
+    acked: bool | None,
 ) -> None:
     if group or severity or alarm_type or acked is not None:
         raise ToolError(
