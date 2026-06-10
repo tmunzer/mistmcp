@@ -65,6 +65,10 @@ try:
         REQ_OPTIMIZED_TEMPLATE,
         REQ_TEMPLATE,
     )
+    from mcp_generator.templates.tmpl_search_events import (
+        SEARCH_EVENTS_OPERATION_IDS,
+        SEARCH_EVENTS_TEMPLATE,
+    )
     from mcp_generator.templates.tmpl_tool_change_configuration_objects import (
         CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
@@ -102,6 +106,10 @@ except ModuleNotFoundError:
         SEARCH_CLIENT_OPERATION_IDS,
         SEARCH_CLIENT_TEMPLATE,
     )
+    from templates.tmpl_search_events import (
+        SEARCH_EVENTS_OPERATION_IDS,
+        SEARCH_EVENTS_TEMPLATE,
+    )
     from templates.tmpl_tool_change_configuration_objects import (
         CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
@@ -134,26 +142,6 @@ SCHEMAS_DATA_OUTPUT_PATH = Path(
     os.path.join(
         DIR_PATH, "../src/mistmcp/tools/schemas_data.py")
 )
-SEARCH_EVENTS_OPERATION_IDS = [
-    "searchSiteDeviceEvents",
-    "searchOrgDeviceEvents",
-    "searchSiteMistEdgeEvents",
-    "searchOrgMistEdgeEvents",
-    "searchSiteWanClientEvents",
-    "searchOrgWanClientEvents",
-    "searchSiteWirelessClientEvents",
-    "searchOrgWirelessClientEvents",
-    "searchSiteNacClientEvents",
-    "searchOrgNacClientEvents",
-    "listSiteRoamingEvents",
-    "searchSiteRogueEvents",
-    "searchOrgAlarms",
-    "searchSiteAlarms",
-    "listOrgSuppressedAlarms",
-]
-SEARCH_EVENTS_TEMPLATE = Path(
-    os.path.join(DIR_PATH, "../src/mistmcp/tools/search_events.py")
-).read_text(encoding="utf-8")
 # List of custom tools to generate (not directly from OpenAPI)
 CUSTOM_TOOLS = [
     {
