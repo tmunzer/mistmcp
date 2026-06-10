@@ -42,8 +42,8 @@ import yaml
 # - running as script: `python mcp_generator/generate_from_openapi.py`
 # - running as module: `python -m mcp_generator.generate_from_openapi`
 try:
-    from templates.tmpl_get_sle import GET_SLE_OPERATION_IDS, GET_SLE_TEMPLATE
-    from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
+    from mcp_generator.templates.tmpl_get_sle import GET_SLE_OPERATION_IDS, GET_SLE_TEMPLATE
+    from mcp_generator.templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
 
     from mcp_generator.templates.tmpl_get_configuration_object_schema import (
         GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
