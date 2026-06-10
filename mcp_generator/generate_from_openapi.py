@@ -42,8 +42,10 @@ import yaml
 # - running as script: `python mcp_generator/generate_from_openapi.py`
 # - running as module: `python -m mcp_generator.generate_from_openapi`
 try:
-    from templates.tmpl_tool_upgrade import TOOL_TEMPLATE_UPGRADE, UPGRADE_OPERATIONS
-    from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
+    from templates.tmpl_search_client import (
+        SEARCH_CLIENT_OPERATION_IDS,
+        SEARCH_CLIENT_TEMPLATE,
+    )
 
     from mcp_generator.templates.tmpl_get_configuration_object_schema import (
         GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
@@ -51,6 +53,10 @@ try:
     from mcp_generator.templates.tmpl_get_configuration_objets import (
         GET_CONFIGURATION_OBJECTS_OPERATION_IDS,
         GET_CONFIGURATION_OBJECTS_TEMPLATE,
+    )
+    from mcp_generator.templates.tmpl_get_sle import (
+        GET_SLE_OPERATION_IDS,
+        GET_SLE_TEMPLATE,
     )
     from mcp_generator.templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
     from mcp_generator.templates.tmpl_helper import TOOLS_HELPER
@@ -60,6 +66,7 @@ try:
         REQ_TEMPLATE,
     )
     from mcp_generator.templates.tmpl_tool_change_configuration_objects import (
+        CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
         CHANGE_OPERATIONS,
     )
@@ -70,6 +77,7 @@ try:
     from mcp_generator.templates.tmpl_tool_update_configuration_objects import (
         UPDATE_CONFIGURATION_OBJECTS_TEMPLATE,
     )
+    from mcp_generator.templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
     from mcp_generator.templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
     from mcp_generator.templates.tmpl_tool_write_delete import (
         TOOL_TEMPLATE_WRITE_DELETE,
@@ -82,11 +90,17 @@ except ModuleNotFoundError:
         GET_CONFIGURATION_OBJECTS_OPERATION_IDS,
         GET_CONFIGURATION_OBJECTS_TEMPLATE,
     )
+    from templates.tmpl_get_sle import GET_SLE_OPERATION_IDS, GET_SLE_TEMPLATE
     from templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
     from templates.tmpl_helper import TOOLS_HELPER
     from templates.tmpl_init import INIT_TEMPLATE
     from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
+    from templates.tmpl_search_client import (
+        SEARCH_CLIENT_OPERATION_IDS,
+        SEARCH_CLIENT_TEMPLATE,
+    )
     from templates.tmpl_tool_change_configuration_objects import (
+        CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
         CHANGE_OPERATIONS,
     )
@@ -99,7 +113,6 @@ except ModuleNotFoundError:
     from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
     from templates.tmpl_tool_write import TOOL_TEMPLATE_WRITE
     from templates.tmpl_tool_write_delete import TOOL_TEMPLATE_WRITE_DELETE
-
 # ---------------------------------------------------------------------------
 # CONFIGURATION CONSTANTS
 # ---------------------------------------------------------------------------
@@ -149,7 +162,7 @@ CUSTOM_TOOLS = [
         "name": "change_configuration_objects",
         "template": CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
         "tag": "write_delete",
-        "operation_ids": CHANGE_OPERATIONS,
+        "operation_ids": CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
     },
     {
         "name": "update_configuration_objects",
@@ -164,10 +177,16 @@ CUSTOM_TOOLS = [
         "operation_ids": [],
     },
     {
-        "name": "upgrades",
-        "template": TOOL_TEMPLATE_UPGRADE,
-        "tag": "utilities_upgrade",
-        "operation_ids": UPGRADE_OPERATIONS,
+        "name": "get_sle",
+        "template": GET_SLE_TEMPLATE,
+        "tag": "sles",
+        "operation_ids": GET_SLE_OPERATION_IDS,
+    },
+    {
+        "name": "search_client",
+        "template": SEARCH_CLIENT_TEMPLATE,
+        "tag": "clients",
+        "operation_ids": SEARCH_CLIENT_OPERATION_IDS,
     },
 ]
 # Global read-only hint for tool generation

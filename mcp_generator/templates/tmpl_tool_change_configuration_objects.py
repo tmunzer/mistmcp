@@ -1,4 +1,4 @@
-CHANGE_OPERATIONS = [
+CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS = [
     "updateOrg",
     "updateOrgSettings",
     "updateOrgAlarmTemplate",
@@ -6,12 +6,11 @@ CHANGE_OPERATIONS = [
     "deleteOrgAlarmTemplate",
     "updateOrgWlan",
     "createOrgWlan",
+    "deleteOrgWlan",
     "updateOrgSiteGroup",
     "createOrgSiteGroup",
     "deleteOrgSiteGroup",
-    "updateSiteInfo",
     "createOrgSite",
-    "deleteSite",
     "updateOrgAntivirusProfile",
     "createOrgAntivirusProfile",
     "deleteOrgAntivirusProfile",
@@ -69,6 +68,8 @@ CHANGE_OPERATIONS = [
     "updateOrgWxTag",
     "createOrgWxTag",
     "deleteOrgWxTag",
+    "updateSiteInfo",
+    "deleteSite",
     "updateSiteSettings",
     "updateSiteDevice",
     "updateSitePsk",
@@ -87,6 +88,7 @@ CHANGE_OPERATIONS = [
     "createSiteWxTag",
     "deleteSiteWxTag",
 ]
+
 
 CHANGE_CONFIGURATION_OBJECTS_TEMPLATE = r'''
 """
