@@ -120,14 +120,14 @@ async def get_sle(
     scope: Annotated[
         SiteSleScope,
         Field(
-            description="""Site SLE scope. Required when sle_scope is `site`, `site_metrics`, or `site_classifiers`. Can be `client`, `ap`, `gateway`, `mxedge`, `switch`, or `site`""",
+            description="""Site SLE scope. Required when sle_scope is `site`, `site_metrics`, or `site_classifiers`. For `sle_scope=site`, can be `client`, `ap`, `gateway`, `mxedge`, `switch`, or `site`. For `sle_scope=site_metrics` or `site_classifiers`, can be `client`, `ap`, `gateway`, `switch`, or `site`""",
             default=None,
         ),
     ],
     scope_id: Annotated[
         str,
         Field(
-            description="""ID of the scoped object. Required when sle_scope is `site`, `site_metrics`, or `site_classifiers`. Use `site_id` if `scope=site`; `device_id` if `scope=ap`, `switch`, or `gateway`; `MAC address` if `scope=client`""",
+            description="""ID of the scoped object. Required when sle_scope is `site`, `site_metrics`, or `site_classifiers`. Use `site_id` if `scope=site`; `device_id` if `scope=ap`, `switch`, `gateway`, or `mxedge`; `MAC address` if `scope=client`""",
             default=None,
         ),
     ],
