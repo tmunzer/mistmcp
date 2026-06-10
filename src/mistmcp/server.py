@@ -77,7 +77,7 @@ This MCP requires valid Mist API credentials configured on the server side.
 
 # KEY WORKFLOWS
 - Use `mist_get_constants` to discover valid event_type or insight metric names before searching.
-- Use `mist_get_sle` with `sle_scope=site_metrics` to discover available SLE metrics before querying SLE data.
+- For site-level SLEs, use `mist_get_sle` with `sle_scope=site_metrics` to discover metric names for a specific `site_id`, `scope`, and `scope_id` before using `sle_scope=site`. Use `sle_scope=site_classifiers` only when a site query needs classifier names.
 - Use `mist_get_configuration_object_schema(verbose=True)` to understand config fields before writing.
 - Use `mist_update_configuration_objects` for create/update and `mist_change_configuration_objects` for create/update/delete.
 - `mist_search_device` returns a normalized `device_id`; reuse that value directly in tools requiring a device UUID.

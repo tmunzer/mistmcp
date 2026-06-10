@@ -88,12 +88,12 @@ class ObjectType(Enum):
 @mcp.tool(
     name="mist_get_sle",
     description="""Get SLE (Service Level Expectation) data at different scopes.
-Use `sle_scope=org` to get org-level SLEs (all/worst sites, Mx Edges, ...).
-Use `sle_scope=org_sites` to get SLE summary for all organization sites.
-Use `sle_scope=site` to get detailed site-level SLE data (summary, trends, impacted devices/clients, histograms, thresholds).
-Use `sle_scope=site_metrics` to discover available SLE metrics for a given site scope.
-Use `sle_scope=site_classifiers` to list classifiers for a specific SLE metric (requires `metric` parameter).
-Use `sle_scope=site_metrics` first to discover metric names before querying SLE data.""",
+Use `sle_scope=org` with `org_id` and `metric` to get org-level SLE rollups such as all sites, worst sites, and Mx Edges. The optional `sle` parameter narrows the org query to a specific SLE name.
+Use `sle_scope=org_sites` with `org_id` and `sle=wifi|wired|wan` to get per-site SLE summaries for an organization.
+Use `sle_scope=site_metrics` with `site_id`, `scope`, and `scope_id` to discover metric names for one site-level object or scope.
+Use `sle_scope=site_classifiers` with `site_id`, `scope`, `scope_id`, and `metric` to list classifier names for a site-level metric.
+Use `sle_scope=site` with `site_id`, `scope`, `scope_id`, `metric`, and `object_type` to get detailed site-level SLE data such as summaries, trends, impacted objects, histograms, thresholds, or classifier trends.
+For site-level SLE queries, call `sle_scope=site_metrics` first when you do not already know the metric name.""",
     tags={"sles"},
     annotations={
         "title": "Get SLE",
@@ -127,7 +127,7 @@ async def get_sle(
     metric: Annotated[
         str,
         Field(
-            description="""SLE metric name. Required when sle_scope is `org`, `site`, or `site_classifiers`. Use `sle_scope=site_metrics` or `mist_get_constants` with `object_type=insight_metrics` to discover available metrics""",
+            description="""SLE metric name. Required when sle_scope is `org`, `site`, or `site_classifiers`. For site-level queries, use `sle_scope=site_metrics` to discover metric names for the selected `scope` and `scope_id`. For org-level queries, use `mist_get_insight_metrics` or `mist_get_constants` with `object_type=insight_metrics` to discover available values""",
             default=None,
         ),
     ],
