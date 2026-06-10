@@ -21,6 +21,7 @@ class McpToolsCategory(Enum):
     WRITE = "write"
     UTILITIES = "utilities"
     SLES = "sles"
+    CLIENTS = "clients"
     UTILITIES_UPGRADE = "utilities_upgrade"
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
@@ -29,7 +30,6 @@ class McpToolsCategory(Enum):
     ORGS = "orgs"
     STATS = "stats"
     EVENTS = "events"
-    CLIENTS = "clients"
     SITES_ROGUES = "sites_rogues"
     ORGS_NAC = "orgs_nac"
     MARVIS = "marvis"
@@ -38,7 +38,7 @@ class McpToolsCategory(Enum):
 TOOLS = {
     "clients": {
         "description": "Clients related objects for the sites and organizations. It provides access to clients, guests, and NAC clients. Defining the `site_id` parameter will return the clients for the specified site, while leaving it empty will return the clients for the whole organization.",
-        "tools": ["mist_search_guest_authorization", "mist_search_client"],
+        "tools": ["mist_search_client"],
     },
     "configuration": {
         "description": "Configuration related objects for the sites and organizations. It provides access to various configuration objects such as site settings, device profiles, and more. These objects can be used to configure the network in a consistent manner.",

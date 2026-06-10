@@ -1,4 +1,15 @@
-"""
+SEARCH_CLIENT_OPERATION_IDS = [
+    "searchOrgWanClients",
+    "searchOrgWiredClients",
+    "searchOrgWirelessClients",
+    "searchOrgNacClients",
+    "getOrgGuestAuthorization",
+    "searchOrgGuestAuthorization",
+    "getSiteGuestAuthorization",
+    "searchSiteGuestAuthorization",
+]
+
+SEARCH_CLIENT_TEMPLATE = '''"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -121,10 +132,12 @@ async def search_client(
         ),
     ],
     start: Annotated[
-        int, Field(description="""Start of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        int, Field(description="""End of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
@@ -328,3 +341,4 @@ async def search_client(
         await handle_network_error(_exc)
 
     return format_response(response, response_format)
+'''
