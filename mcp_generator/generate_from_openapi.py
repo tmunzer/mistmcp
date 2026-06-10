@@ -59,6 +59,7 @@ try:
         REQ_TEMPLATE,
     )
     from mcp_generator.templates.tmpl_tool_change_configuration_objects import (
+        CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
     )
     from mcp_generator.templates.tmpl_tool_read import TOOL_TEMPLATE_READ
@@ -85,6 +86,7 @@ except ModuleNotFoundError:
     from templates.tmpl_init import INIT_TEMPLATE
     from templates.tmpl_req import REQ_OPTIMIZED_TEMPLATE, REQ_TEMPLATE
     from templates.tmpl_tool_change_configuration_objects import (
+        CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
         CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
     )
     from templates.tmpl_tool_read import TOOL_TEMPLATE_READ
@@ -145,7 +147,7 @@ CUSTOM_TOOLS = [
         "name": "change_configuration_objects",
         "template": CHANGE_CONFIGURATION_OBJECTS_TEMPLATE,
         "tag": "write_delete",
-        "operation_ids": [],
+        "operation_ids": CHANGE_CONFIGURATION_OBJECTS_OPERATION_IDS,
     },
     {
         "name": "update_configuration_objects",
