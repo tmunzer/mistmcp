@@ -58,7 +58,7 @@ TOOLS = {
     },
     "events": {
         "description": "Events related to the sites and organizations. It provides access to various events such as device events, client events, and more. These events can be used for monitoring and troubleshooting purposes.",
-        "tools": ["mist_search_events", "mist_search_audit_logs", "mist_search_alarms"],
+        "tools": ["mist_search_events", "mist_search_audit_logs"],
     },
     "info": {
         "description": "Tools that provide information about the sites and organizations.",
