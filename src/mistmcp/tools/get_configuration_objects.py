@@ -133,8 +133,7 @@ Raises:
 async def get_configuration_objects(
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
     object_type: Annotated[
-        Object_type, Field(
-            description="""Type of configuration object to retrieve""")
+        Object_type, Field(description="""Type of configuration object to retrieve""")
     ],
     site_id: Annotated[
         UUID,
@@ -244,9 +243,7 @@ async def _org_configuration_objects_getter(
 ) -> _APIResponse:
     match object_type:
         case "org_info":
-            response = mistapi.api.v1.orgs.orgs.getOrg(
-                apisession, org_id=str(org_id)
-            )
+            response = mistapi.api.v1.orgs.orgs.getOrg(apisession, org_id=str(org_id))
             await process_response(response)
         case "org_settings":
             response = mistapi.api.v1.orgs.setting.getOrgSettings(
@@ -1147,8 +1144,7 @@ async def _get_computed_device_configuration(
                     elif isinstance(value, dict) and isinstance(
                         switch_data.get(key, {}), dict
                     ):
-                        switch_data[key] = {
-                            **switch_data.get(key, {}), **value}
+                        switch_data[key] = {**switch_data.get(key, {}), **value}
                     elif isinstance(value, list) and isinstance(
                         switch_data.get(key, []), list
                     ):
@@ -1163,8 +1159,7 @@ async def _get_computed_device_configuration(
                 )
                 await process_response(site_data)
                 if isinstance(site_data.data, dict):
-                    gateway_template_id = site_data.data.get(
-                        "gatewaytemplate_id")
+                    gateway_template_id = site_data.data.get("gatewaytemplate_id")
                     if gateway_template_id:
                         response = (
                             mistapi.api.v1.orgs.gatewaytemplates.getOrgGatewayTemplate(
@@ -1189,8 +1184,7 @@ async def _get_computed_device_configuration(
                             elif isinstance(value, list) and isinstance(
                                 gateway_data.get(key, []), list
                             ):
-                                gateway_data[key] = gateway_data.get(
-                                    key, []) + value
+                                gateway_data[key] = gateway_data.get(key, []) + value
                             else:
                                 gateway_data[key] = value
                 device_data.data = gateway_data
@@ -1255,8 +1249,7 @@ def _process_switch_rule(
             elif k.startswith("match_model"):
                 match_model_enabled = True
                 del rule_cleansed[k]
-                match_model_true = _process_switch_rule_match(
-                    switch_model, k, v)
+                match_model_true = _process_switch_rule_match(switch_model, k, v)
             elif k == "match_role":
                 match_role_enabled = True
                 match_role_true = _process_switch_rule_match(switch_role, k, v)
@@ -1283,12 +1276,11 @@ def _process_switch_rule_match(
     switch_value: str, match_key: str, match_value: str
 ) -> bool:
     if ":" in match_key:
-        match_start, match_stop = match_key.replace(
-            "]", "").split("[")[1].split(":")
+        match_start, match_stop = match_key.replace("]", "").split("[")[1].split(":")
         try:
             if (
                 len(switch_value) > int(match_stop)
-                and switch_value[int(match_start): int(match_stop)].lower()
+                and switch_value[int(match_start) : int(match_stop)].lower()
                 == match_value.lower()
             ):
                 return True

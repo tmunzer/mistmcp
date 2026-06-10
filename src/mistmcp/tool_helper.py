@@ -20,10 +20,10 @@ class McpToolsCategory(Enum):
     WRITE_DELETE = "write_delete"
     WRITE = "write"
     UTILITIES = "utilities"
+    SLES = "sles"
     UTILITIES_UPGRADE = "utilities_upgrade"
     SITES_INSIGHTS = "sites_insights"
     CONSTANTS = "constants"
-    SLES = "sles"
     SELF_ACCOUNT = "self_account"
     SITES_RRM = "sites_rrm"
     ORGS = "orgs"
@@ -62,7 +62,7 @@ TOOLS = {
     },
     "info": {
         "description": "Tools that provide information about the sites and organizations.",
-        "tools": ["mist_get_next_page", "mist_get_org_or_site_info"],
+        "tools": ["mist_get_next_page"],
     },
     "marvis": {
         "description": "Marvis is a virtual network assistant that provides insights and analytics for the Mist network. It can be used to analyze network performance, troubleshoot issues, and optimize network configurations.\n\nIt includes features such as synthetic tests, which allow users to simulate network traffic and measure performance metrics.",
@@ -94,9 +94,7 @@ TOOLS = {
     },
     "sles": {
         "description": "SLEs, or Service-Level Expectations, are metrics used to monitor and report on the user experience of a Wireless, Wired or Wan network.\\n\\nThey are generated through data science and machine learning algorithms and provide insights into various aspects of the network, such as coverage, capacity, connectivity, and performance.\\n\\nMist SLEs help identify when users do not have sufficient network quality, when they face issues with connecting or roaming between access points, and when there are problems on the wired network.\\n\\n SLEs API Calls at the MSP level can be used to retrieve the SLEs summary for each Organization attached to the MSP account.",
-        "tools": [
-            "mist_get_sle",
-        ],
+        "tools": ["mist_get_sle"],
     },
     "stats": {
         "description": "Tools that provide various statistics about the organizations, sites, devices, clients, ports and more.",
