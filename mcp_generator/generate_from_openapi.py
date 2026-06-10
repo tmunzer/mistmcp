@@ -42,6 +42,7 @@ import yaml
 # - running as script: `python mcp_generator/generate_from_openapi.py`
 # - running as module: `python -m mcp_generator.generate_from_openapi`
 try:
+    from templates.tmpl_get_sle import GET_SLE_OPERATION_IDS, GET_SLE_TEMPLATE
     from templates.tmpl_tool_utilities import UTILITIES_TEMPLATE
 
     from mcp_generator.templates.tmpl_get_configuration_object_schema import (
@@ -81,6 +82,7 @@ except ModuleNotFoundError:
         GET_CONFIGURATION_OBJECTS_OPERATION_IDS,
         GET_CONFIGURATION_OBJECTS_TEMPLATE,
     )
+    from templates.tmpl_get_sle import GET_SLE_OPERATION_IDS, GET_SLE_TEMPLATE
     from templates.tmpl_getnextpage import GET_NEXT_PAGE_TEMPLATE
     from templates.tmpl_helper import TOOLS_HELPER
     from templates.tmpl_init import INIT_TEMPLATE
@@ -160,6 +162,12 @@ CUSTOM_TOOLS = [
         "template": UTILITIES_TEMPLATE,
         "tag": "utilities",
         "operation_ids": [],
+    },
+    {
+        "name": "get_sle",
+        "template": GET_SLE_TEMPLATE,
+        "tag": "sles",
+        "operation_ids": GET_SLE_OPERATION_IDS,
     },
 ]
 # Global read-only hint for tool generation
