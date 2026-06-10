@@ -207,7 +207,11 @@ def _format_default_value(default: Any, annotation: Any) -> Any:
         return None
 
     target = _strip_optional(annotation)
-    if inspect.isclass(target) and issubclass(target, Enum) and isinstance(default, target):
+    if (
+        inspect.isclass(target)
+        and issubclass(target, Enum)
+        and isinstance(default, target)
+    ):
         return default.value
     return default
 

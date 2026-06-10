@@ -305,7 +305,9 @@ ACTION_TYPE_DESCRIPTION = _build_action_type_description()
 PAYLOAD_DESCRIPTION = _build_payload_description()
 
 
-def _ensure_parameter(value: Any, parameter_name: str, action: UpgradeActionType) -> None:
+def _ensure_parameter(
+    value: Any, parameter_name: str, action: UpgradeActionType
+) -> None:
     if value is None:
         raise ToolError(
             {
@@ -315,7 +317,9 @@ def _ensure_parameter(value: Any, parameter_name: str, action: UpgradeActionType
         )
 
 
-def _require_str(value: str | None, parameter_name: str, action: UpgradeActionType) -> str:
+def _require_str(
+    value: str | None, parameter_name: str, action: UpgradeActionType
+) -> str:
     _ensure_parameter(value, parameter_name, action)
     if value is None:
         raise AssertionError("unreachable")
@@ -347,7 +351,9 @@ def _require_payload_dict(
     return payload
 
 
-async def _confirm_upgrade_write_action(ctx: Context, action_type: UpgradeActionType) -> dict[str, str] | None:
+async def _confirm_upgrade_write_action(
+    ctx: Context, action_type: UpgradeActionType
+) -> dict[str, str] | None:
     try:
         elicitation_response = await config_elicitation_handler(
             message=(
@@ -390,9 +396,7 @@ async def _confirm_upgrade_write_action(ctx: Context, action_type: UpgradeAction
 async def upgrades(
     action_type: Annotated[
         UpgradeActionType,
-        Field(
-            description=ACTION_TYPE_DESCRIPTION
-        ),
+        Field(description=ACTION_TYPE_DESCRIPTION),
     ],
     org_id: Annotated[
         UUID | None,

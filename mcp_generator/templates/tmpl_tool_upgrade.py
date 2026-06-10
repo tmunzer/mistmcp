@@ -11,6 +11,12 @@ UPGRADE_OPERATIONS = [
     "upgradeOrgMxEdges",
     "upgradeOrgSsrs",
     "upgradeSiteMxEdges",
+    "listSiteMxEdgeUpgrades",
+    "listOrgSsrUpgrades",
+    "listOrgMxEdgeUpgrades",
+    "listOrgDeviceUpgrades",
+    "listOrgAvailableSsrVersions",
+    "listOrgAvailableDeviceVersions",
 ]
 
 # Template for individual tool files
@@ -280,7 +286,7 @@ def _format_attribute_descriptions(contract: dict[str, Any]) -> str:
 
 
 def _build_action_type_description() -> str:
-    return "\n".join(
+    return "\\n".join(
         [
             "Upgrade action to execute.",
             "Read actions: get_*, list_*.",
@@ -314,7 +320,7 @@ def _build_payload_description() -> str:
     lines.append(
         "If unsure, use the matching list/get action first to discover valid versions/channels and targets, then submit payload."
     )
-    return "\n".join(lines)
+    return "\\n".join(lines)
 
 
 ACTION_TYPE_DESCRIPTION = _build_action_type_description()

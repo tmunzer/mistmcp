@@ -164,9 +164,9 @@ CUSTOM_TOOLS = [
         "operation_ids": [],
     },
     {
-        "name": "upgrade",
+        "name": "upgrades",
         "template": TOOL_TEMPLATE_UPGRADE,
-        "tag": "upgrade",
+        "tag": "utilities_upgrade",
         "operation_ids": UPGRADE_OPERATIONS,
     },
 ]
