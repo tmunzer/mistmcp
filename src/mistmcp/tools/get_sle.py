@@ -482,6 +482,13 @@ async def get_sle(
                             "message": "`scope` is required when `sle_scope` is `site_metrics`.",
                         }
                     )
+                if scope == SiteSleScope.MXEDGE:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": "`scope=mxedge` is not supported when `sle_scope` is `site_metrics`. Use `ap`, `client`, `gateway`, `switch`, or `site`.",
+                        }
+                    )
                 if not scope_id:
                     raise ToolError(
                         {
