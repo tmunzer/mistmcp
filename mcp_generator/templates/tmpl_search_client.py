@@ -74,7 +74,7 @@ async def search_client(
         ),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID""")],
-    site_id: Annotated[UUID, Field(description="""Site ID""", default=None)],
+    site_id: Annotated[UUID, Field(description="""Site ID. Required for site_guest, optional for other client types""", default=None)],
     device_mac: Annotated[
         str,
         Field(
@@ -99,7 +99,7 @@ async def search_client(
     hostname: Annotated[
         str,
         Field(
-            description="""Partial / full Client hostname. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `everest*` and `*rest*` match `my-everest-client`). Suffix-only wildcards (e.g. `*everest`) are not supported. Not applicable for WAN or wired clients or Org/Site Guests""",
+            description="""Partial / full Client hostname. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `everest*` and `*rest*` match `my-everest-client`). Suffix-only wildcards (e.g. `*everest`) are not supported. Not applicable for wired clients or Org/Site Guests""",
             default=None,
         ),
     ],
@@ -107,13 +107,6 @@ async def search_client(
         str,
         Field(
             description="""Partial / full Client IP Address.  Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `10.100.10.*` and  `*100.10.*` match `10.100.10.54`). Suffix-only wildcards (e.g. `*.54`) are not supported. Not applicable for NAC clients or Org/Site Guests""",
-            default=None,
-        ),
-    ],
-    wlan_id: Annotated[
-        UUID,
-        Field(
-            description="""WLAN ID to filter by. Only applicable for wireless clients and Guests""",
             default=None,
         ),
     ],
@@ -150,7 +143,7 @@ async def search_client(
 
     logger.debug("Tool search_client called")
     logger.debug(
-        "Input Parameters: client_type: %s, org_id: %s, site_id: %s, device_mac: %s, band: %s, mac: %s, hostname: %s, ip: %s, wlan_id: %s, ssid: %s, text: %s, start: %s, end: %s, limit: %s",
+        "Input Parameters: client_type: %s, org_id: %s, site_id: %s, device_mac: %s, band: %s, mac: %s, hostname: %s, ip: %s, ssid: %s, text: %s, start: %s, end: %s, limit: %s",
         client_type,
         org_id,
         site_id,
@@ -159,7 +152,6 @@ async def search_client(
         mac,
         hostname,
         ip,
-        wlan_id,
         ssid,
         text,
         start,
@@ -188,11 +180,11 @@ async def search_client(
                 }
             )
 
-        if hostname and client_type.value not in ["wireless", "nac"]:
+        if hostname and client_type.value not in ["wireless", "nac", "wan"]:
             raise ToolError(
                 {
                     "status_code": 400,
-                    "message": '`hostname` parameter can only be used when `client_type` is in "wireless", "nac".',
+                    "message": '`hostname` parameter can only be used when `client_type` is in "wireless", "nac", "wan".',
                 }
             )
 
@@ -201,14 +193,6 @@ async def search_client(
                 {
                     "status_code": 400,
                     "message": '`ip` parameter can only be used when `client_type` is in "wan", "wired", "wireless".',
-                }
-            )
-
-        if wlan_id and client_type.value not in ["wireless", "org_guest", "site_guest"]:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": '`wlan_id` parameter can only be used when `client_type` is in "wireless", "org_guest", "site_guest".',
                 }
             )
 
@@ -303,13 +287,19 @@ async def search_client(
                         apisession,
                         org_id=str(org_id),
                         ssid=str(ssid) if ssid else None,
-                        wlan_id=str(wlan_id) if wlan_id else None,
                         start=str(start) if start else None,
                         end=str(end) if end else None,
                         limit=limit,
                     )
                     await process_response(response)
             case "site_guest":
+                if not site_id:
+                    raise ToolError(
+                        {
+                            "status_code": 400,
+                            "message": '`site_id` parameter is required when `client_type` is "site_guest".',
+                        }
+                    )
                 if mac:
                     response = mistapi.api.v1.sites.guests.getSiteGuestAuthorization(
                         apisession, site_id=str(site_id), guest_mac=str(mac)
@@ -320,7 +310,6 @@ async def search_client(
                         apisession,
                         site_id=str(site_id),
                         ssid=str(ssid) if ssid else None,
-                        wlan_id=str(wlan_id) if wlan_id else None,
                         start=str(start) if start else None,
                         end=str(end) if end else None,
                         limit=limit,

@@ -283,8 +283,7 @@ def _build_payload_description() -> str:
 
     for action in sorted(PAYLOAD_REQUIRED_ACTIONS, key=lambda value: value.value):
         contract = PAYLOAD_CONTRACTS[action]
-        required = ", ".join(contract["required"]
-                             ) if contract["required"] else "none"
+        required = ", ".join(contract["required"]) if contract["required"] else "none"
         attributes = ", ".join(contract["attributes"])
         attribute_descriptions = _format_attribute_descriptions(contract)
         example_text = json.dumps(contract["example"], ensure_ascii=True)

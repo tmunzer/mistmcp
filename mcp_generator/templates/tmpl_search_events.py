@@ -1,4 +1,22 @@
-"""
+SEARCH_EVENTS_OPERATION_IDS = [
+    "searchSiteDeviceEvents",
+    "searchOrgDeviceEvents",
+    "searchSiteMistEdgeEvents",
+    "searchOrgMistEdgeEvents",
+    "searchSiteWanClientEvents",
+    "searchOrgWanClientEvents",
+    "searchSiteWirelessClientEvents",
+    "searchOrgWirelessClientEvents",
+    "searchSiteNacClientEvents",
+    "searchOrgNacClientEvents",
+    "listSiteRoamingEvents",
+    "searchSiteRogueEvents",
+    "searchOrgAlarms",
+    "searchSiteAlarms",
+    "listOrgSuppressedAlarms",
+]
+
+SEARCH_EVENTS_TEMPLATE = '''"""
 --------------------------------------------------------------------------------
 -------------------------------- Mist MCP SERVER -------------------------------
 
@@ -545,3 +563,4 @@ def _validate_alarm_params_not_used(
                 "message": "`group`, `severity`, `alarm_type`, and `acked` can only be used when `search_type` is `alarm`.",
             }
         )
+'''
