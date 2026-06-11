@@ -82,7 +82,7 @@ This MCP requires valid Mist API credentials configured on the server side.
 - Use `mist_update_configuration_objects` for create/update and `mist_change_configuration_objects` for create/update/delete.
 - `mist_search_device` returns a normalized `device_id`; reuse that value directly in tools requiring a device UUID.
 - Use `mist_utilities` for device-side diagnostics and maintenance commands such as ping, traceroute, ARP, BGP, OSPF, routes, cable tests, traffic monitoring, and service path checks. Call it without `utility` to list the supported utilities and their extra parameters for a platform.
-- `mist_utilities` commands can stream output over WebSocket and may take around a minute to finish.
+- `mist_utilities` commands can stream output over WebSocket and may take around a minute to finish. If `completed` is false and `trigger_response.session` is present, call `mist_utilities` again with the same site/device plus `session_id` to read buffered output from the MCP server in follow-up calls.
 - Write tools may be hidden in read-only sessions; if write tools are unavailable, complete read-only analysis and report that writes are not currently exposed.
 - Config objects exist at org and/or site level; site-level takes precedence when both exist.
 - Object-type naming: read uses `org_*` / `site_*`; aggregated write tools also use `org_*` / `site_*`.

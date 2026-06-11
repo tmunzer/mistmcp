@@ -59,8 +59,23 @@ class FakeUtilityResponse:
             status_code=200, data={"ok": True})
         self.disconnected = False
 
+    def receive(self):
+        yield from self.ws_data
+        if not self.done:
+            # Simulate a stalled stream: block until disconnect
+            import time
+            while not self.disconnected:
+                time.sleep(0.05)
+
     def disconnect(self) -> None:
         self.disconnected = True
+
+
+@pytest.fixture(autouse=True)
+def clear_utility_session_store():
+    utilities_module.UTILITY_SESSION_STORE.clear()
+    yield
+    utilities_module.UTILITY_SESSION_STORE.clear()
 
 
 def test_describe_supported_device_utilities_exposes_expected_actions() -> None:
@@ -223,6 +238,136 @@ async def test_run_utilities_returns_partial_output_when_stream_stalls(
     assert result["stream_output"] == ["partial"]
     assert response.disconnected is True
     assert ctx.warning_messages
+
+
+@pytest.mark.asyncio
+async def test_run_utilities_buffers_incomplete_session(monkeypatch) -> None:
+    ctx = FakeContext()
+    response = FakeUtilityResponse(done=False, ws_data=["partial"])
+    response.trigger_api_response = SimpleNamespace(
+        status_code=200,
+        data={"session": "session-123"},
+    )
+
+    def fake_ping(
+        apisession,
+        site_id,
+        device_id,
+        host: str,
+        timeout: int = 3,
+    ) -> FakeUtilityResponse:
+        del apisession, site_id, device_id, host, timeout
+        return response
+
+    async def fake_get_apisession():
+        return object(), "json"
+
+    async def fake_process_response(response_arg) -> None:
+        assert response_arg.status_code == 200
+
+    monkeypatch.setattr(
+        utilities_module,
+        "SUPPORTED_DEVICE_UTILITIES",
+        {utilities_module.DeviceUtilityType.AP: {"ping": fake_ping}},
+    )
+    monkeypatch.setattr(utilities_module, "get_apisession",
+                        fake_get_apisession)
+    monkeypatch.setattr(utilities_module, "process_response",
+                        fake_process_response)
+    monkeypatch.setattr(utilities_module, "UTILITY_WAIT_TIMEOUT_SECONDS", 0)
+
+    result = await utilities_module.run_utilities(
+        ctx,
+        utilities_module.DeviceUtilityType.AP,
+        "ping",
+        UUID("00000000-0000-0000-0000-000000000001"),
+        UUID("00000000-0000-0000-0000-000000000002"),
+        {"host": "8.8.8.8"},
+        25,
+    )
+
+    assert result["completed"] is False
+    assert result["session_buffered"] is True
+    assert response.disconnected is False
+    assert utilities_module.UTILITY_SESSION_STORE["session-123"]["response"] is response
+
+    response.ws_data.append("later")
+    response.done = True
+
+    read_result = await utilities_module.run_utilities(
+        ctx,
+        utilities_module.DeviceUtilityType.AP,
+        "ping",
+        UUID("00000000-0000-0000-0000-000000000001"),
+        UUID("00000000-0000-0000-0000-000000000002"),
+        None,
+        10,
+        wait_seconds=1,
+        session_id="session-123",
+    )
+
+    assert read_result["completed"] is True
+    assert read_result["session_buffered"] is True
+    assert read_result["stream_output"] == ["partial", "later"]
+
+
+@pytest.mark.asyncio
+async def test_run_utilities_does_not_complete_until_stream_closes(
+    monkeypatch,
+) -> None:
+    ctx = FakeContext()
+    response = FakeUtilityResponse(
+        done=False,
+        ws_data=[
+            "traceroute to 8.8.8.8 (8.8.8.8), 30 hops max",
+            " 8.8.8.8 (8.8.8.8) 8.123 ms",
+        ],
+    )
+    response.trigger_api_response = SimpleNamespace(
+        status_code=200,
+        data={"session": "session-123"},
+    )
+
+    def fake_traceroute(
+        apisession,
+        site_id,
+        device_id,
+        host: str,
+        timeout: int = 10,
+    ) -> FakeUtilityResponse:
+        del apisession, site_id, device_id, host, timeout
+        return response
+
+    async def fake_get_apisession():
+        return object(), "json"
+
+    async def fake_process_response(response_arg) -> None:
+        assert response_arg.status_code == 200
+
+    monkeypatch.setattr(
+        utilities_module,
+        "SUPPORTED_DEVICE_UTILITIES",
+        {utilities_module.DeviceUtilityType.AP: {"traceroute": fake_traceroute}},
+    )
+    monkeypatch.setattr(utilities_module, "get_apisession",
+                        fake_get_apisession)
+    monkeypatch.setattr(utilities_module, "process_response",
+                        fake_process_response)
+
+    result = await utilities_module.run_utilities(
+        ctx,
+        utilities_module.DeviceUtilityType.AP,
+        "traceroute",
+        UUID("00000000-0000-0000-0000-000000000001"),
+        UUID("00000000-0000-0000-0000-000000000002"),
+        {"host": "8.8.8.8"},
+        25,
+    )
+
+    assert result["completed"] is False
+    assert result["session_buffered"] is True
+    assert response.disconnected is False
+    assert utilities_module.UTILITY_SESSION_STORE["session-123"]["response"] is response
 
 
 @pytest.mark.asyncio
@@ -552,4 +697,85 @@ async def test_run_utilities_skips_elicitation_when_disabled_in_context(
 
     assert recorded_call["port_ids"] == ["ge-0/0/1"]
     assert result["completed"] is True
+
+
+@pytest.mark.asyncio
+async def test_run_utilities_reads_active_session(monkeypatch) -> None:
+    ctx = FakeContext()
+    recorded_call: dict[str, object] = {}
+
+    async def fake_get_apisession():
+        return object(), "json"
+
+    def fake_open_session(
+        apisession,
+        site_id,
+        device_id,
+        session_id,
+        capture_id,
+        timeout_seconds,
+    ) -> FakeUtilityResponse:
+        recorded_call.update(
+            {
+                "apisession": apisession,
+                "site_id": site_id,
+                "device_id": device_id,
+                "session_id": session_id,
+                "capture_id": capture_id,
+                "timeout_seconds": timeout_seconds,
+            }
+        )
+        response = FakeUtilityResponse(ws_data=["hop 6", "hop 7"])
+        response.trigger_api_response = SimpleNamespace(
+            status_code=200,
+            data={"session": session_id, "id": capture_id},
+        )
+        return response
+
+    monkeypatch.setattr(utilities_module, "get_apisession", fake_get_apisession)
+    monkeypatch.setattr(
+        utilities_module,
+        "_open_device_utility_session_response",
+        fake_open_session,
+    )
+
+    result = await utilities_module.run_utilities(
+        ctx,
+        utilities_module.DeviceUtilityType.AP,
+        "traceroute",
+        UUID("00000000-0000-0000-0000-000000000001"),
+        UUID("00000000-0000-0000-0000-000000000002"),
+        None,
+        10,
+        wait_seconds=1,
+        session_id="session-123",
+        capture_id="capture-456",
+    )
+
+    assert recorded_call["session_id"] == "session-123"
+    assert recorded_call["capture_id"] == "capture-456"
+    assert result["completed"] is True
+    assert result["stream_output"] == ["hop 6", "hop 7"]
+    assert result["trigger_response"] == {
+        "session": "session-123",
+        "id": "capture-456",
+    }
+
+
+@pytest.mark.asyncio
+async def test_read_session_helper_requires_session_or_capture_id() -> None:
+    ctx = FakeContext()
+
+    with pytest.raises(ToolError):
+        await utilities_module.run_read_utility_session(
+            ctx,
+            utilities_module.DeviceUtilityType.AP,
+            "traceroute",
+            UUID("00000000-0000-0000-0000-000000000001"),
+            UUID("00000000-0000-0000-0000-000000000002"),
+            "",
+            None,
+            1,
+            10,
+        )
     assert ctx.elicit_calls == []

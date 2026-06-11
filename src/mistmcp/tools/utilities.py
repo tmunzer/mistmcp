@@ -15,16 +15,18 @@ import inspect
 import json
 import time
 from enum import Enum
-from types import NoneType, UnionType
+from types import NoneType, SimpleNamespace, UnionType
 from typing import Annotated, Any, Union, get_args, get_origin
 from uuid import UUID
 
 from fastmcp import Context
 from fastmcp.exceptions import ToolError
+from mistapi.device_utils.__tools.__ws_wrapper import UtilResponse, WebSocketWrapper
 from mistapi.device_utils import ap as ap_utils
 from mistapi.device_utils import ex as ex_utils
 from mistapi.device_utils import srx as srx_utils
 from mistapi.device_utils import ssr as ssr_utils
+from mistapi.websockets.sites import DeviceCmdEvents
 from pydantic import Field
 
 from mistmcp.config import config
@@ -36,6 +38,10 @@ from mistmcp.server import mcp
 
 UTILITY_TOOL_TIMEOUT_SECONDS = 120.0
 UTILITY_WAIT_TIMEOUT_SECONDS = 75.0
+UTILITY_DEFAULT_FOREGROUND_WAIT_SECONDS = 3.0
+UTILITY_STREAM_POLL_SECONDS = 0.25
+UTILITY_DRAIN_SHUTDOWN_SECONDS = 0.2
+UTILITY_SESSION_RETENTION_SECONDS = 600.0
 EXCLUDED_DEVICE_UTILITIES = {
     "ShellSession",
     "createShellSession",
@@ -63,6 +69,7 @@ DISRUPTIVE_DEVICE_UTILITIES = {
     "clearSessions",
     "releaseDhcpLeases",
 }
+UTILITY_SESSION_STORE: dict[str, dict[str, Any]] = {}
 
 
 class DeviceUtilityType(Enum):
@@ -466,7 +473,8 @@ def describe_supported_device_utilities(
             "site_id": "Required when executing a utility.",
             "device_id": "Required when executing a utility. Retrieve it with mist_search_device.",
             "parameters": "Pass utility-specific arguments as a JSON object.",
-            "timeout_seconds": "Optional. Overrides the underlying websocket utility timeout when supported.",
+            "timeout_seconds": "Optional. Overrides the underlying device/WebSocket idle timeout when supported; high values can delay completed=true.",
+            "wait_seconds": "Optional. Controls how long the MCP foreground request waits for streaming output before returning partial output.",
         },
         "utilities": [
             _describe_device_utility(name, utility_callable)
@@ -501,14 +509,100 @@ def _resolve_utility(
     return canonical_name, device_utilities[canonical_name]
 
 
+def _get_utility_session_keys(utility_response: Any) -> list[str]:
+    trigger_response = getattr(utility_response, "trigger_api_response", None)
+    trigger_data = getattr(trigger_response, "data", None)
+    if not isinstance(trigger_data, dict):
+        return []
+
+    keys: list[str] = []
+    session_id = trigger_data.get("session")
+    capture_id = trigger_data.get("id")
+    if session_id:
+        keys.append(str(session_id))
+    if capture_id:
+        keys.append(str(capture_id))
+    return keys
+
+
+def _cleanup_utility_session_store() -> None:
+    now = time.monotonic()
+    expired_records = {
+        id(record): record
+        for record in UTILITY_SESSION_STORE.values()
+        if now - record["updated_at"] > UTILITY_SESSION_RETENTION_SECONDS
+    }
+    if not expired_records:
+        return
+
+    expired_keys = [
+        key
+        for key, record in UTILITY_SESSION_STORE.items()
+        if id(record) in expired_records
+    ]
+    for key in expired_keys:
+        UTILITY_SESSION_STORE.pop(key, None)
+    for record in expired_records.values():
+        if not record["response"].done:
+            record["response"].disconnect()
+
+
+def _store_device_utility_session(
+    device_type: DeviceUtilityType,
+    utility_name: str,
+    site_id: UUID,
+    device_id: UUID,
+    utility_response: Any,
+) -> bool:
+    keys = _get_utility_session_keys(utility_response)
+    if not keys:
+        return False
+
+    _cleanup_utility_session_store()
+    record = {
+        "device_type": device_type,
+        "utility_name": utility_name,
+        "site_id": site_id,
+        "device_id": device_id,
+        "response": utility_response,
+        "updated_at": time.monotonic(),
+    }
+    for key in keys:
+        UTILITY_SESSION_STORE[key] = record
+    return True
+
+
+def _get_stored_device_utility_session(
+    session_id: str | None,
+    capture_id: str | None,
+) -> dict[str, Any] | None:
+    _cleanup_utility_session_store()
+    for key in (session_id, capture_id):
+        if key and key in UTILITY_SESSION_STORE:
+            record = UTILITY_SESSION_STORE[key]
+            record["updated_at"] = time.monotonic()
+            return record
+    return None
+
+
 async def _wait_for_device_utility(
     ctx: Context,
     utility_name: str,
     utility_response: Any,
+    wait_seconds: float | None = None,
+    stream_from_index: int = 0,
+    keep_alive_on_timeout: bool = False,
 ) -> bool:
     started_at = time.monotonic()
-    deadline = started_at + UTILITY_WAIT_TIMEOUT_SECONDS
+    effective_wait_seconds = (
+        min(UTILITY_DEFAULT_FOREGROUND_WAIT_SECONDS, UTILITY_WAIT_TIMEOUT_SECONDS)
+        if wait_seconds is None
+        else max(wait_seconds, 0.0)
+    )
+    progress_denominator = max(effective_wait_seconds, 1.0)
+    deadline = started_at + effective_wait_seconds
 
+    # Phase 1: wait for the trigger response / WS flag
     while not getattr(utility_response, "ws_required", False):
         if utility_response.done:
             await ctx.report_progress(
@@ -528,7 +622,7 @@ async def _wait_for_device_utility(
             return False
 
         elapsed = time.monotonic() - started_at
-        progress = 5 + int((elapsed / UTILITY_WAIT_TIMEOUT_SECONDS) * 10)
+        progress = 5 + int((elapsed / progress_denominator) * 10)
         await ctx.report_progress(
             min(progress, 15),
             100,
@@ -536,27 +630,53 @@ async def _wait_for_device_utility(
         )
         await asyncio.sleep(0.25)
 
-    while not utility_response.done and time.monotonic() < deadline:
+    msg_count = 0
+    seen_count = max(stream_from_index, 0)
+
+    while time.monotonic() < deadline:
+        stream_output = list(getattr(utility_response, "ws_data", []))
+        if len(stream_output) > seen_count:
+            for msg in stream_output[seen_count:]:
+                msg_count += 1
+                await ctx.info(f"[{utility_name}] {msg}")
+            seen_count = len(stream_output)
+
+            elapsed = time.monotonic() - started_at
+            progress = 10 + int((elapsed / progress_denominator) * 85)
+            await ctx.report_progress(
+                min(progress, 95),
+                100,
+                f"Received {msg_count} message(s) from '{utility_name}'",
+            )
+        elif utility_response.done:
+            break
+
         elapsed = time.monotonic() - started_at
-        progress = 10 + int((elapsed / UTILITY_WAIT_TIMEOUT_SECONDS) * 85)
+        progress = 10 + int((elapsed / progress_denominator) * 85)
         await ctx.report_progress(
             min(progress, 95),
             100,
-            f"Waiting for '{utility_name}' websocket output",
+            f"Waiting for '{utility_name}' output",
         )
-        await asyncio.sleep(2)
+        await asyncio.sleep(UTILITY_STREAM_POLL_SECONDS)
 
     completed = utility_response.done
     if not completed:
-        utility_response.disconnect()
+        if not (keep_alive_on_timeout and _get_utility_session_keys(utility_response)):
+            utility_response.disconnect()
         await ctx.warning(
-            f"Device utility '{utility_name}' did not close before the wait deadline. Returning partial output."
+            f"Device utility '{utility_name}' is still running after "
+            f"{effective_wait_seconds:g}s. Returning partial output."
         )
 
     await ctx.report_progress(
         100,
         100,
-        f"Device utility '{utility_name}' completed",
+        (
+            f"Device utility '{utility_name}' completed ({msg_count} message(s))"
+            if completed
+            else f"Device utility '{utility_name}' foreground wait expired ({msg_count} message(s))"
+        ),
     )
     return completed
 
@@ -587,11 +707,43 @@ def _format_device_utility_result(
 
     if not completed:
         result["message"] = (
-            "The device utility did not close cleanly before the wait deadline. "
+            "The device utility did not close before the foreground wait deadline. "
             "Partial output may be returned."
         )
 
     return result
+
+
+def _open_device_utility_session_response(
+    apisession: Any,
+    site_id: UUID,
+    device_id: UUID,
+    session_id: str,
+    capture_id: str | None,
+    timeout_seconds: int | None,
+) -> Any:
+    trigger_data = {"session": session_id}
+    if capture_id:
+        trigger_data["id"] = capture_id
+
+    utility_response = UtilResponse()
+    utility_response.trigger_api_response = SimpleNamespace(
+        status_code=200,
+        data=trigger_data,
+    )
+    websocket_timeout = timeout_seconds or 10
+    return WebSocketWrapper(
+        apisession,
+        utility_response,
+        timeout=websocket_timeout,
+        max_duration=max(websocket_timeout, int(UTILITY_TOOL_TIMEOUT_SECONDS)),
+    ).start(
+        DeviceCmdEvents(
+            apisession,
+            site_id=str(site_id),
+            device_ids=[str(device_id)],
+        )
+    )
 
 
 def _serialize_output(
@@ -644,7 +796,30 @@ async def run_utilities(
     device_id: UUID | None,
     parameters: dict[str, Any] | None,
     timeout_seconds: int | None,
+    wait_seconds: float | None = None,
+    session_id: str | None = None,
+    capture_id: str | None = None,
 ) -> dict[str, Any] | str:
+    if session_id or capture_id:
+        if site_id is None or device_id is None:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": "'site_id' and 'device_id' are required when reading a device utility session.",
+                }
+            )
+        return await run_read_utility_session(
+            ctx,
+            device_type,
+            utility,
+            site_id,
+            device_id,
+            session_id or "",
+            capture_id,
+            wait_seconds,
+            timeout_seconds,
+        )
+
     if utility is None:
         return _serialize_output(
             describe_supported_device_utilities(device_type),
@@ -681,13 +856,14 @@ async def run_utilities(
     parameters = parameters or {}
 
     logger.debug(
-        "Tool utilities called for device_type=%s utility=%s site_id=%s device_id=%s parameters=%s timeout_seconds=%s",
+        "Tool utilities called for device_type=%s utility=%s site_id=%s device_id=%s parameters=%s timeout_seconds=%s wait_seconds=%s",
         device_type.value,
         canonical_utility,
         site_id,
         device_id,
         parameters,
         timeout_seconds,
+        wait_seconds,
     )
 
     try:
@@ -711,6 +887,8 @@ async def run_utilities(
             ctx,
             canonical_utility,
             utility_response,
+            wait_seconds,
+            keep_alive_on_timeout=True,
         )
         if getattr(utility_response, "trigger_api_response", None) is None:
             raise ToolError(
@@ -720,6 +898,15 @@ async def run_utilities(
                 }
             )
         await process_response(utility_response.trigger_api_response)
+        stored_session = False
+        if not completed:
+            stored_session = _store_device_utility_session(
+                device_type,
+                canonical_utility,
+                site_id,
+                device_id,
+                utility_response,
+            )
         output = _format_device_utility_result(
             device_type,
             canonical_utility,
@@ -728,6 +915,103 @@ async def run_utilities(
             utility_response,
             completed,
         )
+        if stored_session:
+            output["session_buffered"] = True
+            output["message"] = (
+                "Returned partial output after the foreground wait deadline. "
+                "The MCP server is still buffering this utility session; use "
+                "`mist_utilities` with `session_id=trigger_response.session` to read more output."
+            )
+        return _serialize_output(output, response_format)
+    except ToolError:
+        raise
+    except Exception as exc:
+        await handle_network_error(exc)
+        raise AssertionError("unreachable") from exc
+
+
+async def run_read_utility_session(
+    ctx: Context,
+    device_type: DeviceUtilityType,
+    utility: str | None,
+    site_id: UUID,
+    device_id: UUID,
+    session_id: str,
+    capture_id: str | None,
+    wait_seconds: float | None,
+    timeout_seconds: int | None,
+) -> dict[str, Any] | str:
+    if not session_id and not capture_id:
+        raise ToolError(
+            {
+                "status_code": 400,
+                "message": "'session_id' or 'capture_id' is required to read a utility session.",
+            }
+        )
+
+    apisession, response_format = await get_apisession()
+    utility_name = utility or "utility_session"
+
+    logger.debug(
+        "Tool read utility session called for device_type=%s utility=%s site_id=%s device_id=%s session_id=%s capture_id=%s wait_seconds=%s timeout_seconds=%s",
+        device_type.value,
+        utility_name,
+        site_id,
+        device_id,
+        session_id,
+        capture_id,
+        wait_seconds,
+        timeout_seconds,
+    )
+
+    try:
+        stored_session = _get_stored_device_utility_session(session_id, capture_id)
+        stream_from_index = 0
+        if stored_session is not None:
+            utility_response = stored_session["response"]
+            utility_name = utility or stored_session["utility_name"]
+            stream_from_index = len(getattr(utility_response, "ws_data", []))
+            await ctx.info(
+                f"Reading buffered device utility session '{session_id or capture_id}' on {device_type.value}."
+            )
+            await ctx.report_progress(5, 100, "Reading buffered utility session")
+        else:
+            await ctx.info(
+                f"Reading active device utility session '{session_id or capture_id}' on {device_type.value}."
+            )
+            await ctx.report_progress(5, 100, "Connecting to device utility session")
+            utility_response = await asyncio.to_thread(
+                _open_device_utility_session_response,
+                apisession,
+                site_id,
+                device_id,
+                session_id,
+                capture_id,
+                timeout_seconds,
+            )
+        completed = await _wait_for_device_utility(
+            ctx,
+            utility_name,
+            utility_response,
+            wait_seconds,
+            stream_from_index=stream_from_index,
+            keep_alive_on_timeout=stored_session is not None,
+        )
+        output = _format_device_utility_result(
+            device_type,
+            utility_name,
+            site_id,
+            device_id,
+            utility_response,
+            completed,
+        )
+        if stored_session is not None:
+            output["session_buffered"] = True
+        if not output.get("stream_output"):
+            output["message"] = (
+                "No output was received while reading this utility session. "
+                "The session may have already completed, or the MCP wait window may have expired before new events arrived."
+            )
         return _serialize_output(output, response_format)
     except ToolError:
         raise
@@ -738,7 +1022,7 @@ async def run_utilities(
 
 @mcp.tool(
     name="mist_utilities",
-    description="""Run device-side Mist utilities for AP, EX, SRX, and SSR devices. Call this tool with `device_type` only to list the supported utilities and their extra parameters for that platform. To execute a utility, set `utility`, `site_id`, `device_id`, and pass any utility-specific arguments inside `parameters`. State-changing utilities require the server to be started with write tools enabled. Utilities that may disrupt live traffic or active sessions also trigger elicitation confirmation before the API call is sent. This tool sets a longer MCP timeout because many device utilities stream their result over WebSocket and can take some time to finish.""",
+    description="""Run or continue device-side Mist utilities for AP, EX, SRX, and SSR devices. Call this tool with `device_type` only to list the supported utilities and their extra parameters for that platform. To start a utility, set `utility`, `site_id`, `device_id`, and pass any utility-specific arguments inside `parameters`. To continue reading a previous streaming utility, provide the same `device_type`, `site_id`, and `device_id`, plus `session_id` from the prior result's `trigger_response.session`; provide `capture_id` from `trigger_response.id` when present. State-changing utilities require the server to be started with write tools enabled. Utilities that may disrupt live traffic or active sessions also trigger elicitation confirmation before the API call is sent. Utilities such as `ping` and `traceroute` stream output over WebSocket; by default the tool returns partial output quickly to avoid MCP client request timeouts, and that short default is often not enough for a complete diagnostic result. `wait_seconds` controls how long this MCP tool call waits for foreground WebSocket output and must be lower than the MCP client/request timeout. Some clients time out after only a few seconds, so use a small value such as 3-5 when you need a quick partial result. Use 30-60 seconds only when the MCP client is configured to allow long-running tool calls. A result with `completed: false` can be normal when `wait_seconds` expires and partial output is returned; it does not necessarily mean the utility failed. If a full result is required and the MCP client timeout is short, repeat this tool with `session_id` to read the MCP server's buffered output from the original utility WebSocket in follow-up calls. Buffered sessions are in-memory and only available on the same running MCP server process for a limited retention window. Use `timeout_seconds` separately to control the underlying device/WebSocket command timeout when supported; setting it high can keep the WebSocket open longer and delay `completed: true` even after useful output appears.""",
     tags={"utilities"},
     timeout=UTILITY_TOOL_TIMEOUT_SECONDS,
     annotations={
@@ -759,7 +1043,7 @@ async def utilities(
     utility: Annotated[
         str,
         Field(
-            description="""Utility name to execute for the selected device platform. Leave this empty to list the supported utilities and required parameters for that platform. Examples: `ping`, `traceroute`, `retrieveArpTable`, `retrieveBgpSummary`, `retrieveRoutes`, `showServicePath`, `bouncePort`, `cableTest`.""",
+            description="""Utility name to execute for the selected device platform. Leave this empty to list the supported utilities and required parameters for that platform, or when using `session_id` to continue a previous utility session. Examples: `ping`, `traceroute`, `retrieveArpTable`, `retrieveBgpSummary`, `retrieveRoutes`, `showServicePath`, `bouncePort`, `cableTest`.""",
             default=None,
         ),
     ],
@@ -787,7 +1071,28 @@ async def utilities(
     timeout_seconds: Annotated[
         int,
         Field(
-            description="""Optional websocket command timeout in seconds. This is passed to the underlying mistapi utility when supported.""",
+            description="""Optional device/WebSocket command timeout in seconds. This is passed to the underlying mistapi utility when supported; it does not control how long the MCP request waits before returning partial output. Use `wait_seconds` for the foreground MCP wait. Larger values can keep the underlying WebSocket/session open longer and delay `completed: true`; avoid setting this high unless you need a longer device-side idle timeout.""",
+            default=None,
+        ),
+    ],
+    wait_seconds: Annotated[
+        float,
+        Field(
+            description="""Optional number of seconds to keep the MCP request open while collecting streaming output. This must be lower than the MCP client/request timeout. Defaults to a short wait so long-running utilities return partial output before MCP clients cancel the request; this default is often not enough for complete ping/traceroute results. Use a small value such as 3-5 for quick partial output when the client timeout is short. Use 30-60 seconds only when the MCP client is configured to allow long-running tool calls. If this wait expires, `completed` may be false even though the returned partial output is valid and the utility did not necessarily fail.""",
+            default=None,
+        ),
+    ],
+    session_id: Annotated[
+        str,
+        Field(
+            description="""Optional Mist utility session ID from a previous result's `trigger_response.session`. When provided, this tool continues reading that utility session instead of starting a new utility.""",
+            default=None,
+        ),
+    ],
+    capture_id: Annotated[
+        str,
+        Field(
+            description="""Optional capture/session ID from a previous result's `trigger_response.id`, when present. Used with `session_id` to continue reading a utility session.""",
             default=None,
         ),
     ],
@@ -801,4 +1106,7 @@ async def utilities(
         device_id,
         parameters,
         timeout_seconds,
+        wait_seconds,
+        session_id,
+        capture_id,
     )
