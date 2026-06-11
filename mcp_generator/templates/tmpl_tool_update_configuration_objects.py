@@ -39,10 +39,12 @@ class Action_type(Enum):
     description="""Update or create configuration object for a specified org or site.
 
 IMPORTANT:
-To ensure that you are not missing existing attributes when updating an object:
+When updating an existing object:
 1. Retrieve the current object with `mist_get_configuration_objects`
 2. Modify the desired attributes
-3. Submit the full payload with this tool
+3. Submit only the attributes that need to be created or updated
+
+It is not required to send all root attributes in the request payload. Root attributes omitted from the payload are not removed from Mist; Mist replaces the values of the root attributes included in the payload with the values sent.
 
 When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.
 
@@ -50,7 +52,7 @@ When deleting an org WLAN template (`org_wlantemplates`), make sure to delete al
 When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload
 
 NOTE:
-- If it is required to remove an attribute at the root level from a configuration object, add the "-attribute_name" field in the payload with a value of true. For example, to remove the "description" field from an org network, add "-description": true` to the payload when updating the org network.
+- To remove a root attribute, include it in the payload with the same name prefixed by "-" and an empty string value. Example: {"-dhcpd_config": ""} removes the root attribute "dhcpd_config".
 """,
     tags={"write"},
     annotations={
@@ -75,7 +77,7 @@ async def update_configuration_objects(
     payload: Annotated[
         dict,
         Field(
-            description="JSON payload of the configuration object to create or update. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the`mist_get_configuration_objects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes""",
+            description="JSON payload of the configuration object to create or update. When updating an existing object, include the attributes to create or update; root attributes omitted from the payload are not removed from Mist. To remove a root attribute, include it in the payload with the same name prefixed by '-' and an empty string value; for example, {'-dhcpd_config': ''} removes the root attribute 'dhcpd_config'. It is recommended to first retrieve the current configuration object using the `mist_get_configuration_objects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes""",
         ),
     ],
     org_id: Annotated[UUID, Field(description="""Organization ID. Required when object_type starts with 'org_'""", default=None)],

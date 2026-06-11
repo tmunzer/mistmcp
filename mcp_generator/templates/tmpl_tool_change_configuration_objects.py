@@ -167,10 +167,12 @@ class Action_type(Enum):
     description="""Update, create or delete configuration object for a specified org or site.
 
 IMPORTANT:
-To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :
-1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level
+When updating an existing object:
+1. Retrieve the current object with `mist_get_configuration_objects`
 2. Modify the desired attributes
-3. Use this tool to update the configuration object with the modified attributes
+3. Submit only the attributes that need to be created or updated
+
+It is not required to send all root attributes in the request payload. Root attributes omitted from the payload are not removed from Mist; Mist replaces the values of the root attributes included in the payload with the values sent.
 
 When creating a new configuration object, make sure to use the`mist_get_configuration_object_schema` tool to discover the attributes of the configuration object and which of them are required.
 
@@ -178,7 +180,7 @@ When deleting an org WLAN template (`org_wlantemplates`), make sure to delete al
 When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload
 
 NOTE:
-- If it is required to remove an attribute at the root level from a configuration object, add the "-attribute_name" field in the payload with a value of true. For example, to remove the "description" field from an org network, add "-description": true` to the payload when updating the org network.
+- To remove a root attribute, include it in the payload with the same name prefixed by "-" and an empty string value. Example: {"-dhcpd_config": ""} removes the root attribute "dhcpd_config".
 """,
     tags={"write_delete"},
     annotations={
@@ -205,7 +207,7 @@ async def change_configuration_objects(
     payload: Annotated[
         dict,
         Field(
-            description="""JSON payload of the configuration object to update or create. When updating an existing object, make sure to include all required attributes in the payload. It is recommended to first retrieve the current configuration object using the`mist_get_configuration_objects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes""",
+            description="""JSON payload of the configuration object to update or create. When updating an existing object, include the attributes to create or update; root attributes omitted from the payload are not removed from Mist. To remove a root attribute, include it in the payload with the same name prefixed by '-' and an empty string value; for example, {'-dhcpd_config': ''} removes the root attribute 'dhcpd_config'. It is recommended to first retrieve the current configuration object using the `mist_get_configuration_objects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes""",
             default=None,
         ),
     ],
@@ -236,13 +238,15 @@ async def change_configuration_objects(
 
     IMPORTANT:
 
-    To ensure that you are not missing any existing attributes when updating the configuration object, make sure to :
+    When updating an existing object:
 
-    1. retrieve the current configuration object using the tools `mist_get_configuration_objects` to retrieve the object defined at the site level
+    1. Retrieve the current object with `mist_get_configuration_objects`
 
     2. Modify the desired attributes
 
-    3. Use this tool to update the configuration object with the modified attributes
+    3. Submit only the attributes that need to be created or updated
+
+    It is not required to send all root attributes in the request payload. Root attributes omitted from the payload are not removed from Mist; Mist replaces the values of the root attributes included in the payload with the values sent.
 
 
 
@@ -255,7 +259,7 @@ async def change_configuration_objects(
     When creating a WLAN, make sure to set the `template_id` attribute in the payload to the ID of an existing WLAN Template. If needed, create a new WLAN Template using this tool before creating the WLAN and use the ID of the newly created template in the WLAN payload
 
     NOTE:
-    - If it is required to remove an attribute at the root level from a configuration object, add the "-attribute_name" field in the payload with a value of true. For example, to remove the "description" field from an org network, add "-description": true` to the payload when updating the org network.
+    - To remove a root attribute, include it in the payload with the same name prefixed by "-" and an empty string value. Example: {"-dhcpd_config": ""} removes the root attribute "dhcpd_config".
     """
 
     logger.debug("Tool change_configuration_objects called")
