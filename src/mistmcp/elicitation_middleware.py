@@ -24,7 +24,9 @@ class ElicitationMiddleware(Middleware):
     (via MCP capabilities) or has explicitly opted out via the X-Disable-Elicitation
     HTTP header (HTTP transport) or the --disable-elicitation flag (stdio transport).
 
-    Write tools are disabled by default (via the server-level Visibility transform).
+    Write tools are hidden at build time by _configure_write_visibility() in
+    create_mcp_server; in stateful mode this middleware re-resolves their per-session
+    visibility below.
     If either condition is detected, they are enabled for this session only.
     """
 
@@ -139,3 +141,19 @@ class ElicitationMiddleware(Middleware):
             )
 
         return result
+
+    async def on_call_tool(self, context, call_next):
+        """In stateless HTTP, on_initialize state does not carry to this tool call.
+        Set the DANGER-ZONE auto-accept flag request-scoped so config_elicitation_handler
+        accepts for this call only (no leak into the session store). Gated on
+        config.stateless so the stateful path is literally unchanged."""
+        ctx = context.fastmcp_context
+        if (
+            config.stateless
+            and config.transport_mode == "http"
+            and config.enable_write_tools
+            and config.disable_elicitation
+            and ctx is not None
+        ):
+            await ctx.set_state("disable_elicitation", True, serializable=False)
+        return await call_next(context)
