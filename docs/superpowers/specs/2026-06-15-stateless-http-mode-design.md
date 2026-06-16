@@ -62,10 +62,12 @@ The asymmetry between `mist_upgrades` (elicitation-only) and `mist_utilities`
 
 ### Why this is the crux of the port
 
-In stateless mode `on_initialize` **does not fire** (fresh transport per request), so the
-middleware's per-session visibility resolution never runs. Therefore **build-time
-visibility is final** in stateless mode. Today only `write` is hidden at build time, which
-means in naive stateless:
+In stateless mode each request is served by a **fresh transport that the SDK starts
+already-initialized**, so `on_initialize` **cannot be relied on to set state for later tool
+calls** — any state it records during one request does not carry to a subsequent
+tool-call request, and the middleware's per-session visibility resolution does not run for
+those calls. Therefore **build-time visibility is final** in stateless mode. Today only
+`write` is hidden at build time, which means in naive stateless:
 
 - `write_delete` (the DELETE tool) would be **visible** in a read-only session, and
 - worse, in the DANGER-ZONE config (see §5.4) `on_call_tool` sets `disable_elicitation`,
@@ -101,7 +103,10 @@ Hence folding `write_delete` into the build-time resolver is **required**, not o
   `create_mcp_server()`.
 - `ElicitationMiddleware.on_call_tool` to set request-scoped `disable_elicitation` in the
   stateless DANGER-ZONE path.
-- Observability log; README + `.env.example` docs.
+- A deterministic fail-closed guard in `config_elicitation_handler` so mutating actions
+  that reach elicitation in stateless cannot hang or behave undefined (see §5.8).
+- Observability log; README docs (this repo has no `.env.example`; the README env-var
+  table is the canonical place — see §5.6).
 - Tests.
 
 ### Out of scope (dropped fork-only machinery)
@@ -300,7 +305,7 @@ server-level transform (this is exactly how `write` already works today). `utili
 ### 5.5 Request-scoped elicitation state (`elicitation_middleware.py`)
 
 Add an `on_call_tool` handler so the DANGER-ZONE auto-accept works in stateless, where
-`on_initialize` never set the session state:
+state set in `on_initialize` does not carry to the tool-call request:
 
 ```python
 async def on_call_tool(self, context, call_next):
@@ -312,9 +317,9 @@ async def on_call_tool(self, context, call_next):
         and config.disable_elicitation
         and ctx is not None
     ):
-        # on_initialize does not fire in stateless. Set the flag request-scoped so
-        # config_elicitation_handler auto-accepts for this call only, without leaking
-        # into the session store (per-request sessions in stateless are discarded).
+        # In stateless, on_initialize state does not carry to this call. Set the flag
+        # request-scoped so config_elicitation_handler auto-accepts for this call only,
+        # without leaking into the session store (per-request sessions are discarded).
         await ctx.set_state("disable_elicitation", True, serializable=False)
     return await call_next(context)
 ```
@@ -322,10 +327,55 @@ async def on_call_tool(self, context, call_next):
 Gated on `config.stateless` so the stateful code path is literally unchanged (stateful
 DANGER ZONE already sets the flag in `on_initialize`).
 
-### 5.6 Observability
+### 5.6 Observability and documentation
 
 The INFO log in §5.2 is emitted once at startup when stateless+http is active. No
 per-request logging is added.
+
+This repo has **no `.env.example`**; the README environment-variable tables (currently
+README.md lines ~84–106) are the canonical reference. The README change adds rows for
+`MISTMCP_STATELESS` and `MISTMCP_DISABLE_ELICITATION` and a short "Stateless HTTP mode"
+subsection covering the restart-survival benefit and the no-push / writes-require-DANGER-ZONE
+trade-offs. No new `.env.example` artifact is introduced.
+
+### 5.8 Deterministic fail-closed elicitation guard (`elicitation_processor.py`)
+
+The handler must not depend on `ctx.elicit()`'s undefined behavior in stateless (it could
+block awaiting a client response that can never be correlated). Add an explicit guard
+**after** the state check so any mutating action that reaches elicitation in stateless
+fails fast and deterministically:
+
+```python
+from mistmcp.config import config
+
+
+class ElicitationUnavailableError(RuntimeError):
+    """Raised when elicitation is required but cannot be performed (stateless HTTP has no
+    server->client channel). The tool wrappers convert this into a clean ToolError."""
+
+
+async def config_elicitation_handler(message, ctx: Context):
+    if await ctx.get_state("disable_elicitation") is True:
+        return ElicitResult(action="accept")
+
+    if config.stateless and config.transport_mode == "http":
+        # No live session / server->client channel in stateless: in-band elicitation
+        # cannot complete. Fail closed deterministically instead of calling ctx.elicit().
+        raise ElicitationUnavailableError(
+            "In-band elicitation is unavailable in stateless HTTP mode; this action "
+            "requires disable_elicitation (DANGER ZONE) or a stateful transport."
+        )
+
+    result = await ctx.elicit(message, response_type=None)
+    ...  # unchanged
+```
+
+All three elicitation call sites already wrap `config_elicitation_handler` in
+`try/except Exception` and re-raise as `ToolError` (`upgrades.py` `_confirm_upgrade_write_action`,
+`utilities.py` `_confirm_disruptive_utility`, `change_configuration_objects.py`), so the raised
+`ElicitationUnavailableError` surfaces to the client as a clean tool error. This guard is
+behavior-neutral in stateful mode (`config.stateless` is `False`) and never reached in the
+stateless DANGER-ZONE path (the state check returns "accept" first).
 
 ### 5.7 Fatality of config errors
 
@@ -349,7 +399,7 @@ auto-accept; "fail-closed" = mutation refused with a clean `ToolError`.
 | **Stateful elicitation-capable** (write, client supports elicit) | visible | hidden | visible | visible | W/UP/UT mutating **elicit** (user prompted) |
 | **Stateful DANGER** (write + disable_elicitation) | visible | hidden | visible | visible | W/UP/UT mutating **auto** (session state set in on_initialize) |
 | **Stateful experimental** (`?experimental=true`) | hidden | visible | visible | visible | WD/UP/UT mutating **auto** |
-| **Stateless read-only** (no write; gate passes) | hidden | hidden | visible | visible | UT mutating hard-blocked; UP mutating **fail-closed** (no session ⇒ elicit raises ⇒ ToolError); WD not listed |
+| **Stateless read-only** (no write; gate passes) | hidden | hidden | visible | visible | UT mutating hard-blocked (`enable_write_tools=False`); UP mutating **fail-closed** via the §5.8 guard (ElicitationUnavailableError ⇒ ToolError, deterministic — never calls `ctx.elicit()`); WD not listed |
 | **Stateless DANGER** (write + disable_elicitation; gate passes) | visible | hidden | visible | visible | W/UP/UT mutating **auto** (request-scoped state set in on_call_tool); WD hidden ⇒ no delete |
 
 Note: **stateless + http + write + NOT disable_elicitation** is **refused at startup**
@@ -363,9 +413,10 @@ initialize) state — that is the behavior-neutrality the centralization preserv
 - **No server→client push in stateless.** `stateless_http=True` drops the GET route, so
   notifications and in-band elicitation are unavailable. Accepted.
 - **Destructive actions in stateless read-only fail closed.** `mist_upgrades` mutating
-  actions return a clean `ToolError` (elicitation unavailable) rather than executing;
-  `mist_utilities` mutating actions are hard-blocked by `enable_write_tools`. This is the
-  safe default.
+  actions hit the §5.8 guard and return a clean `ToolError` (elicitation unavailable)
+  deterministically, rather than relying on `ctx.elicit()` behavior; `mist_utilities`
+  mutating actions are hard-blocked earlier by `enable_write_tools`. This is the safe
+  default.
 - **Write in stateless requires DANGER ZONE.** The only way to perform writes in stateless
   is `enable_write_tools=True` + `disable_elicitation=True` (auto-accept). This is explicit
   and logged loudly.
@@ -394,6 +445,12 @@ initialize) state — that is the behavior-neutrality the centralization preserv
 - **Middleware** (`test_elicitation_middleware.py`): `on_call_tool` sets request-scoped
   (`serializable=False`) `disable_elicitation` only in stateless DANGER ZONE; no-op
   otherwise; existing `on_initialize` tests stay green under the new build-time floor.
+- **Elicitation guard** (`test_elicitation_processor.py` or similar): `config_elicitation_handler`
+  returns `accept` when `disable_elicitation` state is `True`; raises
+  `ElicitationUnavailableError` when `config.stateless and config.transport_mode == "http"`
+  and state is not set (asserting `ctx.elicit` is **not** called); calls `ctx.elicit` normally
+  in stateful mode. Optionally assert a wrapper (e.g. `_confirm_upgrade_write_action`) converts
+  the raised error into a `ToolError`.
 
 ## 9. Process
 
