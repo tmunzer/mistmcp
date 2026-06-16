@@ -225,16 +225,28 @@ class TestLoadEnvVar:
         for value, expected in test_cases:
             env = {**base_env, "MISTMCP_STATELESS": value}
             with patch.dict(os.environ, env, clear=False):
-                result = load_env_var(
+                *_, stateless = load_env_var(
                     "http", None, None, False, False, False, None, None, False
                 )
-                assert result[8] == expected, f"Failed for MISTMCP_STATELESS='{value}'"
+                assert stateless == expected, f"Failed for MISTMCP_STATELESS='{value}'"
 
     def test_load_env_var_disable_elicitation_parsing(self) -> None:
+        test_cases = [
+            ("true", True),
+            ("TRUE", True),
+            ("1", True),
+            ("yes", True),
+            ("false", False),
+            ("0", False),
+            ("", False),
+        ]
         base_env = {"MIST_APITOKEN": "t", "MIST_HOST": "h"}
-        env = {**base_env, "MISTMCP_DISABLE_ELICITATION": "true"}
-        with patch.dict(os.environ, env, clear=False):
-            result = load_env_var(
-                "stdio", None, None, False, False, False, None, None, False
-            )
-            assert result[5] is True  # disable_elicitation
+        for value, expected in test_cases:
+            env = {**base_env, "MISTMCP_DISABLE_ELICITATION": value}
+            with patch.dict(os.environ, env, clear=False):
+                _, _, _, _, _, disable_elicitation, _, _, _ = load_env_var(
+                    "stdio", None, None, False, False, False, None, None, False
+                )
+                assert disable_elicitation == expected, (
+                    f"Failed for MISTMCP_DISABLE_ELICITATION='{value}'"
+                )
