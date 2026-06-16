@@ -16,9 +16,27 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from mistmcp.config import config
+from mistmcp.config import config, validate_stateless_config
 from mistmcp.logger import logger, setup_logging
 from mistmcp.server import create_mcp_server
+
+
+def _run_stateless_http(mcp_server, host: str, port: int) -> None:
+    """Serve via http_app(stateless_http=True): the SDK builds a fresh transport per
+    request, so there is no session id to go stale on a server restart. We pass no
+    event_store; in stateless mode the SDK's per-request transport uses event_store=None
+    regardless (the resumable GET stream is dropped)."""
+    import uvicorn
+
+    app = mcp_server.http_app(stateless_http=True)
+    uvicorn.run(
+        app,
+        host=host,
+        port=port,
+        lifespan="on",
+        timeout_graceful_shutdown=2,
+        ws="websockets-sansio",
+    )
 
 
 def start(
@@ -30,20 +48,8 @@ def start(
     disable_elicitation: bool = False,
     response_format: str = "json",
     log_file: str | None = None,
+    stateless: bool = False,
 ) -> None:
-    """
-    Main entry point for the Mist MCP Server
-
-    Args:
-        transport_mode: Transport mode to use ("stdio" or "http")
-        mcp_host: Host to bind HTTP server to
-        mcp_port: Port for HTTP server
-        debug: Enable debug output
-        enable_write_tools: Enable write tools. By default, only read tools are enabled for safety. This flag enabled the full set of tools including those that can modify configuration (secured with elicitation). Use with caution!
-        disable_elicitation: DANGER ZONE!!! Disable elicitation for write tools. This will allow any AI App to modify configuration objects without confirmation. Use only for testing with non-malicious AI Apps or if you have other safeguards in place. Do NOT use this in production or with untrusted AI Apps!
-        response_format: Response format for HTTP transport ("json" or "string")
-        log_file: Optional path to write logs to a file
-    """
     # Update global config
     config.transport_mode = transport_mode
     config.debug = debug
@@ -51,8 +57,21 @@ def start(
     config.disable_elicitation = disable_elicitation
     config.response_format = response_format
     config.log_file = log_file
+    config.stateless = stateless
 
     setup_logging(debug=debug, log_file=log_file)
+
+    # stateless only applies to http
+    if config.stateless and transport_mode != "http":
+        logger.warning(
+            "MISTMCP_STATELESS / --stateless is set but transport is %s; stateless "
+            "applies only to http — ignoring.",
+            transport_mode,
+        )
+        config.stateless = False
+
+    # Refuse incompatible config BEFORE the broad try below, so it cannot be swallowed.
+    validate_stateless_config(config)
 
     logger.info("Starting Mist MCP Server — transport: %s", transport_mode)
     logger.debug("  MIST_HOST: %s", config.mist_host)
@@ -62,12 +81,23 @@ def start(
     if transport_mode == "http":
         logger.debug("  MCP_HOST: %s", mcp_host)
         logger.debug("  MCP_PORT: %s", mcp_port)
+    if config.stateless:
+        logger.info(
+            "Stateless HTTP mode active: fresh transport per request, so an "
+            "already-connected MCP client survives a server restart. Server->client "
+            "push (notifications/elicitation) is disabled; in-band elicitation is "
+            "unavailable, so destructive utility/upgrade actions require "
+            "disable_elicitation (DANGER ZONE) or are refused."
+        )
 
     try:
         mcp_server = create_mcp_server(config)
 
         if transport_mode == "http":
-            mcp_server.run(transport="http", host=mcp_host, port=mcp_port)
+            if config.stateless:
+                _run_stateless_http(mcp_server, mcp_host, mcp_port)
+            else:
+                mcp_server.run(transport="http", host=mcp_host, port=mcp_port)
         else:
             mcp_server.run()
 
