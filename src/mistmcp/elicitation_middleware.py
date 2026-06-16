@@ -25,8 +25,8 @@ class ElicitationMiddleware(Middleware):
     HTTP header (HTTP transport) or the --disable-elicitation flag (stdio transport).
 
     Write tools are hidden at build time by _configure_write_visibility() in
-    create_mcp_server; in stateful mode this middleware re-resolves their per-session
-    visibility below.
+    create_mcp_server; in stateful mode on_initialize re-resolves per-session
+    visibility.
     If either condition is detected, they are enabled for this session only.
     """
 
@@ -51,6 +51,9 @@ class ElicitationMiddleware(Middleware):
         if config.enable_write_tools and config.disable_elicitation:
             enable_write_tools = True
             if ctx is not None:
+                # session-scoped (serializable defaults True). on_call_tool sets the
+                # same flag request-scoped for stateless, where on_initialize state
+                # does not carry to the tool call — keep both paths in sync.
                 await ctx.set_state("disable_elicitation", True)
             logger.warning(
                 "Elicitation middleware: WARNING - both enable_write_tools and disable_elicitation config flags are set. This is not recommended as it will enable write tools without elicitation safeguards. Proceed with caution!"
