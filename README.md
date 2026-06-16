@@ -63,6 +63,7 @@ OPTIONS:
     -d, --debug             Enable debug output
     --enable-write-tools    Enable write tools (by default only read tools are enabled for safety)
     --disable-elicitation   DANGER ZONE! Disable elicitation for write tools
+    --stateless             Only when transport==http, serve statelessly so clients survive a server restart (no server->client push)
     -h, --help              Show help message
 
 TRANSPORT MODES:
@@ -92,6 +93,7 @@ Set environment variables directly or via a `.env` file. Requirements differ by 
 | MIST_ENV_FILE    | No       | Path to .env file                   |
 | MISTMCP_DEBUG    | No       | true/false (default: false)         |
 | MISTMCP_ENABLE_WRITE_TOOLS | No | true/false (default: false)     |
+| MISTMCP_DISABLE_ELICITATION | No | DANGER ZONE! true/false (default: false) |
 
 ### HTTP Mode
 
@@ -102,8 +104,34 @@ Set environment variables directly or via a `.env` file. Requirements differ by 
 | MISTMCP_PORT     | No       | HTTP port (default: 8000)           |
 | MISTMCP_DEBUG    | No       | true/false (default: false)         |
 | MISTMCP_ENABLE_WRITE_TOOLS | No | true/false (default: false)     |
+| MISTMCP_DISABLE_ELICITATION | No | DANGER ZONE! true/false (default: false) |
+| MISTMCP_STATELESS | No | true/false (default: false) — survive server restart, no server->client push |
 
 > **Note:** In HTTP mode, Mist API credentials are provided by the client (e.g. Claude, VS Code) via HTTP headers or query parameters, not as environment variables.
+
+### Stateless HTTP mode
+
+Set `MISTMCP_STATELESS=true` (or `--stateless`) with `--transport http` to serve each
+request on a fresh transport. There is no server session id to go stale, so an
+already-connected MCP client survives a server restart without reconnecting.
+
+Trade-offs:
+
+- **No server→client push.** Notifications and in-band elicitation are disabled.
+- **Writes require the DANGER ZONE.** Because elicitation can't prompt, write tools are
+  only available with `--enable-write-tools` **and** `--disable-elicitation` (or
+  `MISTMCP_DISABLE_ELICITATION=true`), which auto-accepts. Starting stateless + http +
+  `--enable-write-tools` without `--disable-elicitation` is refused at startup.
+- **Read-only stays safe.** Without write tools, destructive upgrade/utility actions
+  fail closed with a clear error.
+
+Example:
+
+```bash
+uv run mistmcp --transport http --stateless                       # read-only, restart-safe
+uv run mistmcp --transport http --stateless \
+    --enable-write-tools --disable-elicitation                    # writes (DANGER ZONE)
+```
 
 
 ## Example: Claude Desktop / VS Code MCP Client

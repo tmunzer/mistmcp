@@ -88,9 +88,17 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format, _ = load_env_var(
-                "stdio", None, None, True, False, False, None, None
-            )
+            (
+                transport_mode,
+                mcp_host,
+                mcp_port,
+                debug,
+                enable_write_tools,
+                disable_elicitation,
+                response_format,
+                _,
+                _,
+            ) = load_env_var("stdio", None, None, True, False, False, None, None)
 
             assert config.mist_apitoken == "test-api-token"
             assert config.mist_host == "api.mist.com"
@@ -111,9 +119,17 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            transport_mode, mcp_host, mcp_port, debug, enable_write_tools, disable_elicitation, response_format, _ = load_env_var(
-                "http", None, None, False, False, False, None, None
-            )
+            (
+                transport_mode,
+                mcp_host,
+                mcp_port,
+                debug,
+                enable_write_tools,
+                disable_elicitation,
+                response_format,
+                _,
+                _,
+            ) = load_env_var("http", None, None, False, False, False, None, None)
 
             assert transport_mode == "http"
             assert debug is False
@@ -142,8 +158,9 @@ class TestLoadEnvVar:
             test_env = {**base_env, "MISTMCP_DEBUG": debug_value}
 
             with patch.dict(os.environ, test_env, clear=False):
-                _, _, _, debug, _, _, _, _ = load_env_var(
-                    "stdio", None, None, False, False, False, None, None)
+                _, _, _, debug, _, _, _, _, _ = load_env_var(
+                    "stdio", None, None, False, False, False, None, None
+                )
                 assert debug == expected, f"Failed for debug_value='{debug_value}'"
 
     def test_load_env_var_port_parsing(self) -> None:
@@ -164,8 +181,9 @@ class TestLoadEnvVar:
             test_env = {**base_env, "MISTMCP_PORT": port_value}
 
             with patch.dict(os.environ, test_env, clear=False):
-                _, _, mcp_port, _, _, _, _, _ = load_env_var(
-                    "stdio", None, None, False, False, False, None, None)
+                _, _, mcp_port, _, _, _, _, _, _ = load_env_var(
+                    "stdio", None, None, False, False, False, None, None
+                )
                 assert mcp_port == expected, f"Failed for port='{port_value}'"
 
     def test_load_env_var_host_and_port_from_env(self) -> None:
@@ -178,8 +196,57 @@ class TestLoadEnvVar:
         }
 
         with patch.dict(os.environ, test_env, clear=False):
-            _, mcp_host, mcp_port, _, _, _, _, _ = load_env_var(
-                "stdio", None, None, False, False, False, None, None)
+            _, mcp_host, mcp_port, _, _, _, _, _, _ = load_env_var(
+                "stdio", None, None, False, False, False, None, None
+            )
 
             assert mcp_host == "0.0.0.0"
             assert mcp_port == 9000
+
+    def test_load_env_var_returns_9_tuple(self) -> None:
+        base_env = {"MIST_APITOKEN": "t", "MIST_HOST": "h"}
+        with patch.dict(os.environ, base_env, clear=False):
+            result = load_env_var(
+                "stdio", None, None, False, False, False, None, None, False
+            )
+            assert len(result) == 9
+
+    def test_load_env_var_stateless_parsing(self) -> None:
+        test_cases = [
+            ("true", True),
+            ("TRUE", True),
+            ("1", True),
+            ("yes", True),
+            ("false", False),
+            ("0", False),
+            ("", False),
+        ]
+        base_env = {"MIST_APITOKEN": "t", "MIST_HOST": "h"}
+        for value, expected in test_cases:
+            env = {**base_env, "MISTMCP_STATELESS": value}
+            with patch.dict(os.environ, env, clear=False):
+                *_, stateless = load_env_var(
+                    "http", None, None, False, False, False, None, None, False
+                )
+                assert stateless == expected, f"Failed for MISTMCP_STATELESS='{value}'"
+
+    def test_load_env_var_disable_elicitation_parsing(self) -> None:
+        test_cases = [
+            ("true", True),
+            ("TRUE", True),
+            ("1", True),
+            ("yes", True),
+            ("false", False),
+            ("0", False),
+            ("", False),
+        ]
+        base_env = {"MIST_APITOKEN": "t", "MIST_HOST": "h"}
+        for value, expected in test_cases:
+            env = {**base_env, "MISTMCP_DISABLE_ELICITATION": value}
+            with patch.dict(os.environ, env, clear=False):
+                _, _, _, _, _, disable_elicitation, _, _, _ = load_env_var(
+                    "stdio", None, None, False, False, False, None, None, False
+                )
+                assert disable_elicitation == expected, (
+                    f"Failed for MISTMCP_DISABLE_ELICITATION='{value}'"
+                )

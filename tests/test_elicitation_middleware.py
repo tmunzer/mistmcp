@@ -11,9 +11,13 @@ class FakeFastMCPContext:
         self.enabled_calls: list[dict[str, set[str]]] = []
         self.disabled_calls: list[dict[str, set[str]]] = []
         self.elicit_calls: list[tuple[str, None]] = []
+        self.set_state_calls: list[tuple[str, bool, bool]] = []
 
-    async def set_state(self, key: str, value: bool) -> None:
+    async def set_state(
+        self, key: str, value: bool, *, serializable: bool = True
+    ) -> None:
         self.state[key] = value
+        self.set_state_calls.append((key, value, serializable))
 
     async def get_state(self, key: str) -> bool | None:
         return self.state.get(key)
@@ -27,7 +31,8 @@ class FakeFastMCPContext:
     async def elicit(self, message: str, response_type=None):
         self.elicit_calls.append((message, response_type))
         raise AssertionError(
-            "ctx.elicit should not be called when elicitation is disabled")
+            "ctx.elicit should not be called when elicitation is disabled"
+        )
 
 
 class FakeMiddlewareContext:
@@ -69,3 +74,46 @@ async def test_stdio_disable_elicitation_sets_state_and_skips_prompt(
 
     assert elicitation_result.action == "accept"
     assert fastmcp_context.elicit_calls == []
+
+
+async def test_on_call_tool_sets_request_scoped_state_in_stateless_danger(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(config, "stateless", True)
+    monkeypatch.setattr(config, "transport_mode", "http")
+    monkeypatch.setattr(config, "enable_write_tools", True)
+    monkeypatch.setattr(config, "disable_elicitation", True)
+
+    fastmcp_context = FakeFastMCPContext()
+    context = FakeMiddlewareContext(fastmcp_context)
+    middleware = ElicitationMiddleware()
+
+    async def call_next(_context):
+        return "tool-result"
+
+    result = await middleware.on_call_tool(context, call_next)
+
+    assert result == "tool-result"
+    assert fastmcp_context.state.get("disable_elicitation") is True
+    # request-scoped: serializable must be False
+    assert fastmcp_context.set_state_calls == [("disable_elicitation", True, False)]
+
+
+async def test_on_call_tool_noop_when_not_stateless(monkeypatch) -> None:
+    monkeypatch.setattr(config, "stateless", False)
+    monkeypatch.setattr(config, "transport_mode", "http")
+    monkeypatch.setattr(config, "enable_write_tools", True)
+    monkeypatch.setattr(config, "disable_elicitation", True)
+
+    fastmcp_context = FakeFastMCPContext()
+    context = FakeMiddlewareContext(fastmcp_context)
+    middleware = ElicitationMiddleware()
+
+    async def call_next(_context):
+        return "tool-result"
+
+    result = await middleware.on_call_tool(context, call_next)
+
+    assert result == "tool-result"
+    assert fastmcp_context.set_state_calls == []
+    assert "disable_elicitation" not in fastmcp_context.state

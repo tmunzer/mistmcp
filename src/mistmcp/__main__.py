@@ -16,9 +16,27 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from mistmcp.config import config
+from mistmcp.config import ConfigurationError, config, validate_stateless_config
 from mistmcp.logger import logger, setup_logging
 from mistmcp.server import create_mcp_server
+
+
+def _run_stateless_http(mcp_server, host: str, port: int) -> None:
+    """Serve via http_app(stateless_http=True): the SDK builds a fresh transport per
+    request, so there is no session id to go stale on a server restart. We pass no
+    event_store; in stateless mode the SDK's per-request transport uses event_store=None
+    regardless (the resumable GET stream is dropped)."""
+    import uvicorn
+
+    app = mcp_server.http_app(stateless_http=True)
+    uvicorn.run(
+        app,
+        host=host,
+        port=port,
+        lifespan="on",
+        timeout_graceful_shutdown=2,
+        ws="websockets-sansio",
+    )
 
 
 def start(
@@ -30,19 +48,22 @@ def start(
     disable_elicitation: bool = False,
     response_format: str = "json",
     log_file: str | None = None,
+    stateless: bool = False,
 ) -> None:
-    """
-    Main entry point for the Mist MCP Server
+    """Configure the global config and run the Mist MCP Server.
 
     Args:
-        transport_mode: Transport mode to use ("stdio" or "http")
-        mcp_host: Host to bind HTTP server to
-        mcp_port: Port for HTTP server
-        debug: Enable debug output
-        enable_write_tools: Enable write tools. By default, only read tools are enabled for safety. This flag enabled the full set of tools including those that can modify configuration (secured with elicitation). Use with caution!
-        disable_elicitation: DANGER ZONE!!! Disable elicitation for write tools. This will allow any AI App to modify configuration objects without confirmation. Use only for testing with non-malicious AI Apps or if you have other safeguards in place. Do NOT use this in production or with untrusted AI Apps!
-        response_format: Response format for HTTP transport ("json" or "string")
-        log_file: Optional path to write logs to a file
+        transport_mode: "stdio" or "http".
+        mcp_host / mcp_port: HTTP bind address (http transport only).
+        debug: enable debug logging.
+        enable_write_tools: expose write tools (gated by elicitation unless disabled).
+        disable_elicitation: DANGER ZONE — auto-accept write actions without prompting.
+        response_format: "json" or "string" (http transport only).
+        log_file: optional path to also write logs to.
+        stateless: http only — serve statelessly (fresh transport per request) so a
+            connected client survives a server restart. Downgraded to False on non-http
+            transport; refused at startup if it would require in-band elicitation
+            (see validate_stateless_config).
     """
     # Update global config
     config.transport_mode = transport_mode
@@ -51,8 +72,21 @@ def start(
     config.disable_elicitation = disable_elicitation
     config.response_format = response_format
     config.log_file = log_file
+    config.stateless = stateless
 
     setup_logging(debug=debug, log_file=log_file)
+
+    # stateless only applies to http
+    if config.stateless and transport_mode != "http":
+        logger.warning(
+            "MISTMCP_STATELESS / --stateless is set but transport is %s; stateless "
+            "applies only to http — ignoring.",
+            transport_mode,
+        )
+        config.stateless = False
+
+    # Refuse incompatible config BEFORE the broad try below, so it cannot be swallowed.
+    validate_stateless_config(config)
 
     logger.info("Starting Mist MCP Server — transport: %s", transport_mode)
     logger.debug("  MIST_HOST: %s", config.mist_host)
@@ -62,12 +96,23 @@ def start(
     if transport_mode == "http":
         logger.debug("  MCP_HOST: %s", mcp_host)
         logger.debug("  MCP_PORT: %s", mcp_port)
+    if config.stateless:
+        logger.info(
+            "Stateless HTTP mode active: fresh transport per request, so an "
+            "already-connected MCP client survives a server restart. Server->client "
+            "push (notifications/elicitation) is disabled; in-band elicitation is "
+            "unavailable, so destructive utility/upgrade actions require "
+            "disable_elicitation (DANGER ZONE) or are refused."
+        )
 
     try:
         mcp_server = create_mcp_server(config)
 
         if transport_mode == "http":
-            mcp_server.run(transport="http", host=mcp_host, port=mcp_port)
+            if config.stateless:
+                _run_stateless_http(mcp_server, mcp_host, mcp_port)
+            else:
+                mcp_server.run(transport="http", host=mcp_host, port=mcp_port)
         else:
             mcp_server.run()
 
@@ -112,7 +157,8 @@ def load_env_var(
     disable_elicitation: bool,
     response_format: str | None,
     log_file: str | None,
-) -> tuple[str, str, int, bool, bool, bool, str, str | None]:
+    stateless: bool = False,
+) -> tuple[str, str, int, bool, bool, bool, str, str | None, bool]:
     """Load configuration from environment variables"""
 
     if transport_mode is None:
@@ -137,6 +183,14 @@ def load_env_var(
     )
     enable_write_tools = env_enable_write_tools.lower() in ("true", "1", "yes")
 
+    env_disable_elicitation = os.getenv(
+        "MISTMCP_DISABLE_ELICITATION", str(disable_elicitation)
+    )
+    disable_elicitation = env_disable_elicitation.lower() in ("true", "1", "yes")
+
+    env_stateless = os.getenv("MISTMCP_STATELESS", str(stateless))
+    stateless = env_stateless.lower() in ("true", "1", "yes")
+
     if response_format is None:
         response_format = "json"
 
@@ -156,6 +210,7 @@ def load_env_var(
         disable_elicitation,
         response_format,
         log_file,
+        stateless,
     )
 
 
@@ -201,6 +256,13 @@ def main() -> None:
         help="DANGER ZONE!!! Disable elicitation for write tools. This will allow any AI App to modify configuration objects without confirmation. Use only for testing with non-malicious AI Apps or if you have other safeguards in place. Do NOT use this in production or with untrusted AI Apps!",
     )
     parser.add_argument(
+        "--stateless",
+        action="store_true",
+        help="Serve HTTP statelessly (fresh transport per request) so the MCP client "
+        "survives a server restart. HTTP only; incompatible with in-band elicitation. "
+        "Loses server->client push (notifications/elicitation).",
+    )
+    parser.add_argument(
         "-r",
         "--response_format",
         choices=["json", "string"],
@@ -225,6 +287,7 @@ def main() -> None:
         disable_elicitation,
         response_format,
         log_file,
+        stateless,
     ) = load_env_var(
         args.transport,
         args.host,
@@ -234,18 +297,24 @@ def main() -> None:
         args.disable_elicitation,
         args.response_format,
         args.log_file,
+        args.stateless,
     )
 
-    start(
-        transport_mode,
-        mcp_host,
-        mcp_port,
-        debug,
-        enable_write_tools,
-        disable_elicitation,
-        response_format,
-        log_file,
-    )
+    try:
+        start(
+            transport_mode,
+            mcp_host,
+            mcp_port,
+            debug,
+            enable_write_tools,
+            disable_elicitation,
+            response_format,
+            log_file,
+            stateless,
+        )
+    except ConfigurationError as exc:
+        logger.error("Invalid configuration: %s", exc)
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":
