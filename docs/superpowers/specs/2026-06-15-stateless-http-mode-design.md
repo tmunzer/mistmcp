@@ -48,7 +48,7 @@ push notifier) is dropped because none of it exists here.
 
 ### Tool / tag inventory (verified)
 
-Each of the three write-ish tools carries exactly one tag:
+Each of the four tools in the write/mutation surface carries exactly one tag:
 
 | Tag | Tool | Build-time visibility today | How a mutation is gated today |
 |---|---|---|---|
@@ -104,7 +104,7 @@ Hence folding `write_delete` into the build-time resolver is **required**, not o
 - `ElicitationMiddleware.on_call_tool` to set request-scoped `disable_elicitation` in the
   stateless DANGER-ZONE path.
 - A deterministic fail-closed guard in `config_elicitation_handler` so mutating actions
-  that reach elicitation in stateless cannot hang or behave undefined (see §5.8).
+  that reach elicitation in stateless cannot hang or behave undefined (see §5.7).
 - Observability log; README docs (this repo has no `.env.example`; the README env-var
   table is the canonical place — see §5.6).
 - Tests.
@@ -187,7 +187,7 @@ parser.add_argument(
 )
 ```
 
-`main()` converts a refused config into a **non-zero exit** (see §5.7 fatality):
+`main()` converts a refused config into a **non-zero exit** (see §5.8 fatality):
 
 ```python
 try:
@@ -338,7 +338,7 @@ README.md lines ~84–106) are the canonical reference. The README change adds r
 subsection covering the restart-survival benefit and the no-push / writes-require-DANGER-ZONE
 trade-offs. No new `.env.example` artifact is introduced.
 
-### 5.8 Deterministic fail-closed elicitation guard (`elicitation_processor.py`)
+### 5.7 Deterministic fail-closed elicitation guard (`elicitation_processor.py`)
 
 The handler must not depend on `ctx.elicit()`'s undefined behavior in stateless (it could
 block awaiting a client response that can never be correlated). Add an explicit guard
@@ -377,7 +377,7 @@ All three elicitation call sites already wrap `config_elicitation_handler` in
 behavior-neutral in stateful mode (`config.stateless` is `False`) and never reached in the
 stateless DANGER-ZONE path (the state check returns "accept" first).
 
-### 5.7 Fatality of config errors
+### 5.8 Fatality of config errors
 
 `validate_stateless_config()` is called in `start()` **before** the broad
 `try/except Exception` that wraps `create_mcp_server`/`run`, so a `ConfigurationError`
@@ -398,8 +398,8 @@ auto-accept; "fail-closed" = mutation refused with a clean `ToolError`.
 | **Stateful normal** (read-only) | hidden | hidden | visible | visible | UT mutating hard-blocked (`enable_write_tools=False`); UP mutating elicits (fails if client lacks elicitation) |
 | **Stateful elicitation-capable** (write, client supports elicit) | visible | hidden | visible | visible | W/UP/UT mutating **elicit** (user prompted) |
 | **Stateful DANGER** (write + disable_elicitation) | visible | hidden | visible | visible | W/UP/UT mutating **auto** (session state set in on_initialize) |
-| **Stateful experimental** (`?experimental=true`) | hidden | visible | visible | visible | WD/UP/UT mutating **auto** |
-| **Stateless read-only** (no write; gate passes) | hidden | hidden | visible | visible | UT mutating hard-blocked (`enable_write_tools=False`); UP mutating **fail-closed** via the §5.8 guard (ElicitationUnavailableError ⇒ ToolError, deterministic — never calls `ctx.elicit()`); WD not listed |
+| **Stateful experimental** (write + `?experimental=true`) | hidden | visible | visible | visible | WD/UP/UT mutating **auto** |
+| **Stateless read-only** (no write; gate passes) | hidden | hidden | visible | visible | UT mutating hard-blocked (`enable_write_tools=False`); UP mutating **fail-closed** via the §5.7 guard (ElicitationUnavailableError ⇒ ToolError, deterministic — never calls `ctx.elicit()`); WD not listed |
 | **Stateless DANGER** (write + disable_elicitation; gate passes) | visible | hidden | visible | visible | W/UP/UT mutating **auto** (request-scoped state set in on_call_tool); WD hidden ⇒ no delete |
 
 Note: **stateless + http + write + NOT disable_elicitation** is **refused at startup**
@@ -413,7 +413,7 @@ initialize) state — that is the behavior-neutrality the centralization preserv
 - **No server→client push in stateless.** `stateless_http=True` drops the GET route, so
   notifications and in-band elicitation are unavailable. Accepted.
 - **Destructive actions in stateless read-only fail closed.** `mist_upgrades` mutating
-  actions hit the §5.8 guard and return a clean `ToolError` (elicitation unavailable)
+  actions hit the §5.7 guard and return a clean `ToolError` (elicitation unavailable)
   deterministically, rather than relying on `ctx.elicit()` behavior; `mist_utilities`
   mutating actions are hard-blocked earlier by `enable_write_tools`. This is the safe
   default.
