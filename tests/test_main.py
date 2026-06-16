@@ -217,6 +217,13 @@ class TestMain:
 class TestStatelessStart:
     """Test stateless threading and launch path in start()"""
 
+    @pytest.fixture(autouse=True)
+    def _reset_stateless(self):
+        # start() mutates the global config singleton; restore after each test
+        # so visibility/launch state never leaks across tests.
+        yield
+        config.stateless = False
+
     @patch("mistmcp.__main__._run_stateless_http")
     @patch("mistmcp.__main__.create_mcp_server")
     def test_http_stateless_uses_stateless_launch(
@@ -236,7 +243,6 @@ class TestStatelessStart:
 
         mock_run_stateless.assert_called_once_with(mock_server, "127.0.0.1", 8000)
         mock_server.run.assert_not_called()
-        config.stateless = False  # reset global
 
     @patch("mistmcp.__main__._run_stateless_http")
     @patch("mistmcp.__main__.create_mcp_server")
@@ -261,7 +267,6 @@ class TestStatelessStart:
         captured = capsys.readouterr()
         assert "stateless applies only to http" in captured.err
         mock_server.run.assert_called_once_with()
-        config.stateless = False  # reset global
 
     def test_start_does_not_swallow_config_error(self) -> None:
         with pytest.raises(ConfigurationError):
@@ -273,7 +278,6 @@ class TestStatelessStart:
                 disable_elicitation=False,
                 stateless=True,
             )
-        config.stateless = False  # reset global
 
     @patch("uvicorn.run")
     def test_run_stateless_http_builds_stateless_app(self, mock_uvicorn_run) -> None:

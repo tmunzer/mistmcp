@@ -50,6 +50,21 @@ def start(
     log_file: str | None = None,
     stateless: bool = False,
 ) -> None:
+    """Configure the global config and run the Mist MCP Server.
+
+    Args:
+        transport_mode: "stdio" or "http".
+        mcp_host / mcp_port: HTTP bind address (http transport only).
+        debug: enable debug logging.
+        enable_write_tools: expose write tools (gated by elicitation unless disabled).
+        disable_elicitation: DANGER ZONE — auto-accept write actions without prompting.
+        response_format: "json" or "string" (http transport only).
+        log_file: optional path to also write logs to.
+        stateless: http only — serve statelessly (fresh transport per request) so a
+            connected client survives a server restart. Downgraded to False on non-http
+            transport; refused at startup if it would require in-band elicitation
+            (see validate_stateless_config).
+    """
     # Update global config
     config.transport_mode = transport_mode
     config.debug = debug
