@@ -26,6 +26,9 @@ async def config_elicitation_handler(message, ctx: Context):
     if config.stateless and config.transport_mode == "http":
         # No live session / server->client channel in stateless: in-band elicitation
         # cannot complete. Fail closed deterministically instead of calling ctx.elicit().
+        # Intentionally broader than validate_stateless_config (which also checks
+        # enable_write_tools): mist_upgrades reaches this handler without an
+        # enable_write_tools gate, so read-only stateless must fail closed here too.
         raise ElicitationUnavailableError(
             "In-band elicitation is unavailable in stateless HTTP mode; this action "
             "requires disable_elicitation (DANGER ZONE) or a stateful transport."
