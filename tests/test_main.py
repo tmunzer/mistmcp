@@ -171,7 +171,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", "127.0.0.1", 8000, False, False, False, "json", None
+            "stdio", "127.0.0.1", 8000, False, False, False, "json", None, False
         )
 
     @patch("mistmcp.__main__.start")
@@ -181,7 +181,7 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "stdio", "127.0.0.1", 8000, True, False, False, "json", None
+            "stdio", "127.0.0.1", 8000, True, False, False, "json", None, False
         )
 
     def test_main_help_exits(self) -> None:
@@ -210,8 +210,26 @@ class TestMain:
             main()
 
         mock_start.assert_called_once_with(
-            "http", "0.0.0.0", 9000, False, False, False, "json", None
+            "http", "0.0.0.0", 9000, False, False, False, "json", None, False
         )
+
+    @patch("mistmcp.__main__.start")
+    def test_main_stateless_flag(self, mock_start) -> None:
+        with patch("sys.argv", ["mistmcp", "--transport", "http", "--stateless"]):
+            main()
+        mock_start.assert_called_once_with(
+            "http", "127.0.0.1", 8000, False, False, False, "json", None, True
+        )
+
+    @patch("mistmcp.__main__.start", side_effect=ConfigurationError("bad combo"))
+    def test_main_exits_2_on_config_error(self, mock_start) -> None:
+        with patch(
+            "sys.argv",
+            ["mistmcp", "--transport", "http", "--stateless", "--enable-write-tools"],
+        ):
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+        assert exc_info.value.code == 2
 
 
 class TestStatelessStart:

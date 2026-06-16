@@ -16,7 +16,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from mistmcp.config import config, validate_stateless_config
+from mistmcp.config import ConfigurationError, config, validate_stateless_config
 from mistmcp.logger import logger, setup_logging
 from mistmcp.server import create_mcp_server
 
@@ -157,7 +157,8 @@ def load_env_var(
     disable_elicitation: bool,
     response_format: str | None,
     log_file: str | None,
-) -> tuple[str, str, int, bool, bool, bool, str, str | None]:
+    stateless: bool = False,
+) -> tuple[str, str, int, bool, bool, bool, str, str | None, bool]:
     """Load configuration from environment variables"""
 
     if transport_mode is None:
@@ -182,6 +183,14 @@ def load_env_var(
     )
     enable_write_tools = env_enable_write_tools.lower() in ("true", "1", "yes")
 
+    env_disable_elicitation = os.getenv(
+        "MISTMCP_DISABLE_ELICITATION", str(disable_elicitation)
+    )
+    disable_elicitation = env_disable_elicitation.lower() in ("true", "1", "yes")
+
+    env_stateless = os.getenv("MISTMCP_STATELESS", str(stateless))
+    stateless = env_stateless.lower() in ("true", "1", "yes")
+
     if response_format is None:
         response_format = "json"
 
@@ -201,6 +210,7 @@ def load_env_var(
         disable_elicitation,
         response_format,
         log_file,
+        stateless,
     )
 
 
@@ -246,6 +256,13 @@ def main() -> None:
         help="DANGER ZONE!!! Disable elicitation for write tools. This will allow any AI App to modify configuration objects without confirmation. Use only for testing with non-malicious AI Apps or if you have other safeguards in place. Do NOT use this in production or with untrusted AI Apps!",
     )
     parser.add_argument(
+        "--stateless",
+        action="store_true",
+        help="Serve HTTP statelessly (fresh transport per request) so the MCP client "
+        "survives a server restart. HTTP only; incompatible with in-band elicitation. "
+        "Loses server->client push (notifications/elicitation).",
+    )
+    parser.add_argument(
         "-r",
         "--response_format",
         choices=["json", "string"],
@@ -270,6 +287,7 @@ def main() -> None:
         disable_elicitation,
         response_format,
         log_file,
+        stateless,
     ) = load_env_var(
         args.transport,
         args.host,
@@ -279,18 +297,24 @@ def main() -> None:
         args.disable_elicitation,
         args.response_format,
         args.log_file,
+        args.stateless,
     )
 
-    start(
-        transport_mode,
-        mcp_host,
-        mcp_port,
-        debug,
-        enable_write_tools,
-        disable_elicitation,
-        response_format,
-        log_file,
-    )
+    try:
+        start(
+            transport_mode,
+            mcp_host,
+            mcp_port,
+            debug,
+            enable_write_tools,
+            disable_elicitation,
+            response_format,
+            log_file,
+            stateless,
+        )
+    except ConfigurationError as exc:
+        logger.error("Invalid configuration: %s", exc)
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":
