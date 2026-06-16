@@ -194,11 +194,6 @@ mcp = FastMCP(
     middleware=[NullStripMiddleware(), ElicitationMiddleware()],
 )
 
-# Write tools are disabled by default and enabled per-session by
-# ElicitationMiddleware during initialization when the client declares
-# elicitation support or explicitly sends X-Disable-Elicitation: true.
-mcp.add_transform(Visibility(False, tags={"write"}, components={"tool"}))
-
 
 def _load_tools(config: ServerConfig) -> list[str]:
     """Load all available tools into the MCP server"""
@@ -225,9 +220,39 @@ def _load_tools(config: ServerConfig) -> list[str]:
     return loaded_tools
 
 
+_PROTECTED_WRITE_TAGS = {"write", "write_delete"}
+
+
+def _write_visible_tags(config: ServerConfig) -> set[str]:
+    """Protected write tags that should be visible at build time for this config.
+
+    Authoritative in stateless mode; a behavior-neutral floor in stateful mode, where
+    ElicitationMiddleware.on_initialize re-resolves write/write_delete per session.
+    """
+    if config.enable_write_tools and config.disable_elicitation:
+        return {"write"}  # DANGER ZONE: update only, never write_delete
+    return set()  # read-only / elicitation-capable: hide both at build time
+
+
+def _configure_write_visibility(mcp_server: FastMCP, config: ServerConfig) -> None:
+    """Install a deterministic hide-all-then-show-visible transform sequence for the
+    protected write tags. FastMCP Visibility marks are later-wins, so the EFFECTIVE
+    visibility equals this call's resolution even when called repeatedly on the reused
+    module singleton (the transform list grows by 1-2 entries per call; create_mcp_server
+    runs once per process)."""
+    visible = _write_visible_tags(config)
+    mcp_server.add_transform(
+        Visibility(False, tags=_PROTECTED_WRITE_TAGS, components={"tool"})
+    )
+    if visible:
+        mcp_server.add_transform(Visibility(True, tags=visible, components={"tool"}))
+
+
 def create_mcp_server(config: ServerConfig) -> FastMCP:
     """Configure and return the MCP server with all tools loaded."""
     enabled_tools = _load_tools(config)
+
+    _configure_write_visibility(mcp, config)
 
     logger.debug("MCP Server ready with %d tools", len(enabled_tools))
 
