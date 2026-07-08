@@ -181,6 +181,9 @@ When creating a WLAN, make sure to set the `template_id` attribute in the payloa
 
 NOTE:
 - To remove a root attribute, include it in the payload with the same name prefixed by "-" and an empty string value. Example: {"-dhcpd_config": ""} removes the root attribute "dhcpd_config".
+
+WARNING:
+- when updating a nested object or list, the entire nested object or list will be replaced with the new value provided in the payload. This means that any existing values not included in the payload will be removed. To avoid accidental data loss, it is recommended to first retrieve the current configuration object using the `mist_get_configuration_objects` tool and use the retrieved object as a base for the payload, modifying only the desired attributes.
 """,
     tags={"write_delete"},
     annotations={
