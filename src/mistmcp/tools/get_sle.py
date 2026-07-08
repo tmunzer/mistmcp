@@ -10,18 +10,19 @@
 --------------------------------------------------------------------------------
 """
 
-import mistapi
-from fastmcp.exceptions import ToolError
-from mistmcp.request_processor import get_apisession
-from mistmcp.response_processor import process_response, handle_network_error
-from mistmcp.response_formatter import format_response
-from mistmcp.server import mcp
-from mistmcp.logger import logger
-
-from pydantic import Field
+from enum import Enum
 from typing import Annotated
 from uuid import UUID
-from enum import Enum
+
+import mistapi
+from fastmcp.exceptions import ToolError
+from pydantic import Field
+
+from mistmcp.logger import logger
+from mistmcp.request_processor import get_apisession
+from mistmcp.response_formatter import format_response
+from mistmcp.response_processor import handle_network_error, process_response
+from mistmcp.server import mcp
 
 
 class SleScope(Enum):
@@ -48,7 +49,6 @@ class SiteSleScope(Enum):
 
 
 class ObjectType(Enum):
-    SUMMARY = "summary"
     IMPACT_SUMMARY = "impact_summary"
     SUMMARY_TREND = "summary_trend"
     IMPACTED_APPLICATIONS = "impacted_applications"
@@ -139,10 +139,12 @@ async def get_sle(
         ),
     ],
     start: Annotated[
-        int, Field(description="""Start of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        int, Field(description="""End of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""End of time range (epoch seconds)""", default=None)
     ],
     classifier: Annotated[
         str,
@@ -296,17 +298,6 @@ async def get_sle(
                         )
 
                 match object_type:
-                    case ObjectType.SUMMARY:
-                        response = mistapi.api.v1.sites.sle.getSiteSleSummary(
-                            apisession,
-                            site_id=str(site_id),
-                            scope=scope.value,
-                            scope_id=scope_id,
-                            metric=metric,
-                            start=str(start) if start else None,
-                            end=str(end) if end else None,
-                            duration=duration if duration else None,
-                        )
                     case ObjectType.IMPACT_SUMMARY:
                         response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
                             apisession,

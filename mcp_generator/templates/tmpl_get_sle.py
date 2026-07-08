@@ -69,7 +69,6 @@ class SiteSleScope(Enum):
 
 
 class ObjectType(Enum):
-    SUMMARY = "summary"
     IMPACT_SUMMARY = "impact_summary"
     SUMMARY_TREND = "summary_trend"
     IMPACTED_APPLICATIONS = "impacted_applications"
@@ -317,17 +316,6 @@ async def get_sle(
                         )
 
                 match object_type:
-                    case ObjectType.SUMMARY:
-                        response = mistapi.api.v1.sites.sle.getSiteSleSummary(
-                            apisession,
-                            site_id=str(site_id),
-                            scope=scope.value,
-                            scope_id=scope_id,
-                            metric=metric,
-                            start=str(start) if start else None,
-                            end=str(end) if end else None,
-                            duration=duration if duration else None,
-                        )
                     case ObjectType.IMPACT_SUMMARY:
                         response = mistapi.api.v1.sites.sle.getSiteSleImpactSummary(
                             apisession,
