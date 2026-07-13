@@ -76,7 +76,11 @@ GET_CONFIGURATION_OBJECTS_OPERATION_IDS = [
     "listOrgAAMWProfiles",
     "getOrgAAMWProfile",
     "getOrgSettings",
-    "searchOrgSites"
+    "searchOrgSites",
+    "getSiteGuestAuthorization",
+    "listSiteAllGuestAuthorizations",
+    "getOrgGuestAuthorization",
+    "listOrgGuestAuthorizations"
 ]
 
 GET_CONFIGURATION_OBJECTS_TEMPLATE = '''"""
@@ -138,6 +142,7 @@ class Object_type(Enum):
     ORG_WLANTEMPLATES = "org_wlantemplates"
     ORG_WXRULES = "org_wxrules"
     ORG_WXTAGS = "org_wxtags"
+    ORG_GUEST_AUTHORIZATIONS = "org_guest_authorizations"
     SITE_INFO = "site_info"
     SITE_SETTINGS = "site_settings"
     SITE_EVPN_TOPOLOGIES = "site_evpn_topologies"
@@ -149,6 +154,7 @@ class Object_type(Enum):
     SITE_WXRULES = "site_wxrules"
     SITE_WXTAGS = "site_wxtags"
     SITE_DEVICES = "site_devices"
+    SITE_GUEST_AUTHORIZATIONS = "site_guest_authorizations"
 
 
 NETWORK_TEMPLATE_FIELDS = [
@@ -228,15 +234,22 @@ async def get_configuration_objects(
         UUID,
         Field(
             default=None,
-            description="""ID of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved""",
+            description="""ID of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved.  Not supported when `object_type` is `org_guest_authorizations` or `site_guest_authorizations`""",
         ),
     ],
     name: Annotated[
         str,
         Field(
             default=None,
-            description="""Name of the specific configuration object to retrieve. Not supported when `object_type` is `org_info`, `org_settings`, `site_info`, `site_settings` or `site_devices` (use the `mist_search_device` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
+            description="""Name of the specific configuration object to retrieve. Not supported when `object_type` is `org_info`, `org_settings`, `site_info`, `site_settings`, `site_devices`, `org_guest_authorizations` or `site_guest_authorizations` (use the `mist_search_device` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
         ),
+    ],
+    guest_mac: Annotated[
+        str,
+        Field(
+            default=None,
+            description="""MAC address of the guest to retrieve authorization records for. Only applicable when `object_type` is `org_guest_authorizations` or `site_guest_authorizations`. If not provided, all guest authorization records will be retrieved. Format is `aabbccddeeff` or `aa:bb:cc:dd:ee:ff` (case insensitive)""",
+        )
     ],
     computed: Annotated[
         bool,
@@ -284,6 +297,7 @@ async def get_configuration_objects(
                     site_id=str(site_id),
                     object_id=str(object_id) if object_id else None,
                     name=name if name else None,
+                    guest_mac=guest_mac if guest_mac else None,
                     computed=computed,
                     limit=limit if limit else 20,
                 )
@@ -295,6 +309,7 @@ async def get_configuration_objects(
                 site_id=str(site_id) if site_id else None,
                 object_id=str(object_id) if object_id else None,
                 name=name if name else None,
+                guest_mac=guest_mac if guest_mac else None,
                 limit=limit if limit else 20,
             )
 
@@ -320,14 +335,14 @@ async def _org_configuration_objects_getter(
     site_id: Optional[str] = None,
     object_id: Optional[str] = None,
     name: Optional[str] = None,
+    guest_mac: Optional[str] = None,
     computed: Optional[bool] = None,
     limit: int = 20,
 ) -> _APIResponse:
     match object_type:
         case "org_info":
             response = mistapi.api.v1.orgs.orgs.getOrg(
-                apisession, org_id=str(org_id)
-            )
+                apisession, org_id=str(org_id))
             await process_response(response)
         case "org_settings":
             response = mistapi.api.v1.orgs.setting.getOrgSettings(
@@ -933,6 +948,17 @@ async def _org_configuration_objects_getter(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
+        case "org_guest_authorization":
+            if guest_mac:
+                response = mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(
+                    apisession, org_id=str(org_id), guest_mac=str(guest_mac)
+                )
+                await process_response(response)
+            else:
+                response = mistapi.api.v1.orgs.guests.listOrgGuestAuthorizations(
+                    apisession, org_id=str(org_id)
+                )
+                await process_response(response)
         case _:
             raise ToolError(
                 {
@@ -950,6 +976,7 @@ async def _site_configuration_objects_getter(
     site_id: str,
     object_id: Optional[str] = None,
     name: Optional[str] = None,
+    guest_mac: Optional[str] = None,
     computed: Optional[bool] = None,
     limit: int = 20,
 ) -> _APIResponse:
@@ -1113,6 +1140,17 @@ async def _site_configuration_objects_getter(
             else:
                 response = mistapi.api.v1.sites.wxtags.listSiteWxTags(
                     apisession, site_id=str(site_id), limit=limit
+                )
+                await process_response(response)
+        case "site_guest_authorization":
+            if guest_mac:
+                response = mistapi.api.v1.sites.guests.getSiteGuestAuthorization(
+                    apisession, site_id=str(site_id), guest_mac=str(guest_mac)
+                )
+                await process_response(response)
+            else:
+                response = mistapi.api.v1.sites.guests.listSiteAllGuestAuthorizations(
+                    apisession, site_id=str(site_id)
                 )
                 await process_response(response)
         case _:

@@ -45,7 +45,11 @@ class Band(Enum):
     description="""Search for clients across an organization or specific site. 
 Supports searching by client type (WAN, wired, wireless, NAC), MAC address, hostname, IP address, and more.
 Use wildcards (*) for partial matches on MAC address, hostname, IP, and text fields.
-Different client types support different filter parameters - the tool will validate compatibility.""",
+Different client types support different filter parameters - the tool will validate compatibility.
+
+NOTE:
+- for Org/Site Guests, only the guest authorization records created after the "start" timestamp (default: 24h ago) and before the "end" timestamp (default: now) will be returned .
+""",
     tags={"clients"},
     annotations={
         "title": "Search client",
@@ -120,10 +124,12 @@ async def search_client(
         ),
     ],
     start: Annotated[
-        int, Field(description="""Start of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""Start of time range (epoch seconds)""", default=None)
     ],
     end: Annotated[
-        int, Field(description="""End of time range (epoch seconds)""", default=None)
+        int, Field(
+            description="""End of time range (epoch seconds)""", default=None)
     ],
     limit: Annotated[
         int, Field(description="""Max number of results per page""", default=20)
