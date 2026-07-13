@@ -48,7 +48,9 @@ Use wildcards (*) for partial matches on MAC address, hostname, IP, and text fie
 Different client types support different filter parameters - the tool will validate compatibility.
 
 NOTE:
-- for Org/Site Guests, only the guest authorization records created after the "start" timestamp (default: 24h ago) and before the "end" timestamp (default: now) will be returned .
+- For org_guest and site_guest client types, results represent CONNECTED guest sessions — clients that have actively authenticated through the captive portal within the time window (default: last 24h). This is NOT the same as guest authorizations.
+- Guest authorizations (pre-created access records that allow a specific MAC to bypass the portal, even without an active connection) must be retrieved separately using mist_get_configuration_objects with object_type='org_guest_authorizations' or 'site_guest_authorizations'.
+- For org_guest and site_guest, only sessions created after the "start" timestamp (default: 24h ago) and before the "end" timestamp (default: now) will be returned.
 """,
     tags={"clients"},
     annotations={
