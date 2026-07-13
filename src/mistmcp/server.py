@@ -105,6 +105,7 @@ Site-level takes precedence when both org and site objects of the same type exis
 | org_deviceprofiles | Device config profiles for APs or switches |
 | org_evpn_topologies | EVPN VxLAN/MP-BGP underlay topologies |
 | org_gatewaytemplates | Gateway (SSR/SRX) templates |
+| org_guest_authorizations | Wi-Fi Guest authorization records (org-level) for the captive web portal |
 | org_idpprofiles | Intrusion Detection and Prevention profiles |
 | org_mxclusters | Mist Edge cluster configs (HA/load balancing) |
 | org_mxedges | Mist Edge appliance configs |
@@ -131,6 +132,7 @@ Site-level takes precedence when both org and site objects of the same type exis
 | site_info | Site information |
 | site_settings | Site settings |
 | site_evpn_topologies | Site EVPN topologies |
+| site_guest_authorizations | Wi-Fi Guest authorization records (site-level) for the captive web portal |
 | site_maps | Site map objects |
 | site_mxedges | Mist Edge appliances at a site |
 | site_psks | Site-level Multi-PSK configs |
@@ -245,7 +247,8 @@ def _configure_write_visibility(mcp_server: FastMCP, config: ServerConfig) -> No
         Visibility(False, tags=_PROTECTED_WRITE_TAGS, components={"tool"})
     )
     if visible:
-        mcp_server.add_transform(Visibility(True, tags=visible, components={"tool"}))
+        mcp_server.add_transform(Visibility(
+            True, tags=visible, components={"tool"}))
 
 
 def create_mcp_server(config: ServerConfig) -> FastMCP:
