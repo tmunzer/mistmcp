@@ -948,7 +948,7 @@ async def _org_configuration_objects_getter(
                     apisession, org_id=str(org_id), limit=limit
                 )
                 await process_response(response)
-        case "org_guest_authorization":
+        case "org_guest_authorizations":
             if guest_mac:
                 response = mistapi.api.v1.orgs.guests.getOrgGuestAuthorization(
                     apisession, org_id=str(org_id), guest_mac=str(guest_mac)
@@ -1142,7 +1142,7 @@ async def _site_configuration_objects_getter(
                     apisession, site_id=str(site_id), limit=limit
                 )
                 await process_response(response)
-        case "site_guest_authorization":
+        case "site_guest_authorizations":
             if guest_mac:
                 response = mistapi.api.v1.sites.guests.getSiteGuestAuthorization(
                     apisession, site_id=str(site_id), guest_mac=str(guest_mac)
