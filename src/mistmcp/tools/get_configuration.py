@@ -1,21 +1,12 @@
-"""
---------------------------------------------------------------------------------
--------------------------------- Mist MCP SERVER -------------------------------
-
-    Written by: Thomas Munzer (tmunzer@juniper.net)
-    Github    : https://github.com/tmunzer/mistmcp
-
-    This package is licensed under the MIT License.
-
---------------------------------------------------------------------------------
-"""
+"""Configuration object and device-history facade tool."""
 
 from enum import Enum
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 import mistapi
 from fastmcp.exceptions import ToolError
+from fastmcp.tools import ToolResult
 from mistapi.__api_response import APIResponse as _APIResponse
 from pydantic import Field
 from requests.structures import CaseInsensitiveDict
@@ -25,6 +16,12 @@ from mistmcp.request_processor import get_apisession
 from mistmcp.response_formatter import format_response
 from mistmcp.response_processor import handle_network_error, process_response
 from mistmcp.server import mcp
+from mistmcp.tools._facade import arguments, internal_tool, run_internal_tool
+
+
+class ConfigurationOperation(Enum):
+    OBJECTS = "objects"
+    DEVICE_HISTORY = "device_history"
 
 
 class Object_type(Enum):
@@ -72,6 +69,52 @@ class Object_type(Enum):
     SITE_GUEST_AUTHORIZATIONS = "site_guest_authorizations"
 
 
+_CONFIGURATION_OBJECT_DESCRIPTIONS = {
+    "org_info": "organization identity and metadata",
+    "org_settings": "organization-wide settings",
+    "org_alarmtemplates": "alarm templates",
+    "org_wlans": "organization WLAN definitions",
+    "org_sitegroups": "site groups",
+    "org_avprofiles": "antivirus profiles",
+    "org_deviceprofiles": "device profiles",
+    "org_evpn_topologies": "organization EVPN topologies",
+    "org_gatewaytemplates": "gateway templates",
+    "org_idpprofiles": "intrusion-detection and prevention profiles",
+    "org_aamwprofiles": "advanced anti-malware profiles",
+    "org_mxclusters": "Mist Edge clusters",
+    "org_mxedges": "Mist Edge inventory and configuration",
+    "org_mxtunnels": "Mist Edge tunnels",
+    "org_nactags": "NAC tags",
+    "org_nacrules": "NAC policy rules",
+    "org_networktemplates": "switch network templates",
+    "org_networks": "organization network definitions",
+    "org_psks": "organization pre-shared keys",
+    "org_rftemplates": "RF templates",
+    "org_services": "WAN services",
+    "org_servicepolicies": "WAN service policies",
+    "org_sites": "sites in the organization; site_id selects one site",
+    "org_sitetemplates": "site templates",
+    "org_vpns": "organization VPN definitions",
+    "org_webhooks": "organization webhooks",
+    "org_wlantemplates": "WLAN templates",
+    "org_wxrules": "organization WxLAN policy rules",
+    "org_wxtags": "organization WxLAN tags",
+    "org_guest_authorizations": "pre-created organization guest authorization records, optionally selected by guest_mac",
+    "site_info": "site identity and metadata",
+    "site_settings": "site settings",
+    "site_evpn_topologies": "site EVPN topologies",
+    "site_maps": "site floor maps",
+    "site_mxedges": "Mist Edges assigned to a site",
+    "site_psks": "site pre-shared keys",
+    "site_webhooks": "site webhooks",
+    "site_wlans": "site WLANs; computed=true includes inherited organization WLANs",
+    "site_wxrules": "site WxLAN policy rules",
+    "site_wxtags": "site WxLAN tags",
+    "site_devices": "site device configuration; computed=true includes inherited settings",
+    "site_guest_authorizations": "pre-created site guest authorization records, optionally selected by guest_mac",
+}
+
+
 NETWORK_TEMPLATE_FIELDS = [
     "auto_upgrade_linecard",
     "acl_policies",
@@ -101,87 +144,56 @@ NETWORK_TEMPLATE_FIELDS = [
 ]
 
 
-@mcp.tool(
-    name="mist_get_configuration_objects",
-    description="""Use this tool to retrieve configuration objects from a specified organization or site.
-
-This tool fetches configuration objects such as WLANs, device profiles, network templates and device configurations.
-For site-level configuration objects, set `computed=true` to retrieve the computed configuration,
-which includes all configuration objects defined at the organization level and inherited by the site.
-
-You can retrieve all objects of a specified type, or filter results by:
-- `object_id`: Retrieve a single object by its ID
-- `name`: Retrieve objects by name (case-insensitive, supports wildcard matching with `*`)
-
-**Pagination Note:** Pagination is not supported when `name` is provided. Results are limited
-to the first entries up to the `limit` value (default: 20, maximum: 1000).
-
-
-Returns:
-    A dictionary, list, or string containing the retrieved configuration objects or a formatted response.
-
-Raises:
-    ToolError: If `site_id` is not provided when required, or if the API call fails.
-    """,
-    tags={"configuration"},
-    annotations={
-        "title": "Get configuration objects",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "openWorldHint": True,
-        "idempotentHint": True,
-    },
-)
 async def get_configuration_objects(
-    org_id: Annotated[UUID, Field(description="""Organization ID""")],
+    org_id: Annotated[UUID, Field(description="Organization ID")],
     object_type: Annotated[
-        Object_type, Field(description="""Type of configuration object to retrieve""")
+        Object_type, Field(
+            description="Type of configuration object to retrieve")
     ],
     site_id: Annotated[
         UUID,
         Field(
             default=None,
-            description="""ID of the site to retrieve configuration objects from. Required when object_type is starting with `site_`, optional if object_type is 'org_sites' to retrieve a single site""",
+            description="ID of the site to retrieve configuration objects from. Required when object_type is starting with `site_`, optional if object_type is 'org_sites' to retrieve a single site",
         ),
     ],
     object_id: Annotated[
         UUID,
         Field(
             default=None,
-            description="""ID of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved.  Not supported when `object_type` is `org_guest_authorizations` or `site_guest_authorizations`""",
+            description="ID of the specific configuration object to retrieve. If not provided, all objects of the specified type will be retrieved.  Not supported when `object_type` is `org_guest_authorizations` or `site_guest_authorizations`",
         ),
     ],
     name: Annotated[
         str,
         Field(
             default=None,
-            description="""Name of the specific configuration object to retrieve. Not supported when `object_type` is `org_info`, `org_settings`, `site_info`, `site_settings`, `site_devices`, `org_guest_authorizations` or `site_guest_authorizations` (use the `mist_search_device` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported""",
+            description="Name of the specific configuration object to retrieve. Not supported when `object_type` is `org_info`, `org_settings`, `site_info`, `site_settings`, `site_devices`, `org_guest_authorizations` or `site_guest_authorizations` (use the `mist_search_assets` tool if you need to find a specific device). If not provided, all objects of the specified type will be retrieved. Case insensitive. Use `prefix*` for prefix search or `*substring*` for contains search (e.g. `aabbcc*` and `*bbcc*` match `aabbccddeeff`). Suffix-only wildcards (e.g. `*bccddeeff`) are not supported",
         ),
     ],
     guest_mac: Annotated[
         str,
         Field(
             default=None,
-            description="""MAC address of the guest to retrieve authorization records for. Only applicable when `object_type` is `org_guest_authorizations` or `site_guest_authorizations`. If not provided, all guest authorization records will be retrieved. Format is `aabbccddeeff` or `aa:bb:cc:dd:ee:ff` (case insensitive)""",
+            description="MAC address of the guest to retrieve authorization records for. Only applicable when `object_type` is `org_guest_authorizations` or `site_guest_authorizations`. If not provided, all guest authorization records will be retrieved. Format is `aabbccddeeff` or `aa:bb:cc:dd:ee:ff` (case insensitive)",
         ),
     ],
     computed: Annotated[
         bool,
         Field(
             default=None,
-            description="""Whether to retrieve the computed configuration object with all inherited settings applied. Only considered when object_type is `org_sites` and `site_devices` when a single object is returned, or when object_type is `site_wlans`""",
+            description="Whether to retrieve the computed configuration object with all inherited settings applied. Only considered when object_type is `org_sites` and `site_devices` when a single object is returned, or when object_type is `site_wlans`",
         ),
     ],
     limit: Annotated[
         int,
         Field(
             default=20,
-            description="""Max number of results per page. Default is 20, Max is 1000. Not supported when `object_type` is `org_info`, `org_settings`, `site_info` or `site_settings`""",
+            description="Max number of results per page. Default is 20, Max is 1000. Not supported when `object_type` is `org_info`, `org_settings`, `site_info` or `site_settings`",
         ),
     ] = 20,
 ) -> dict | list | str:
     """Retrieve configuration objects from a specified organization or site. For the site configuration objects, set the attribute `computed` to `true` to retrieve the computed configuration including all configuration objects defined at the org level and assigned to the site. This tool allows you to retrieve a list of configuration objects (e.g. wlans, device profiles, network templates) or to filter them providing their ID."""
-
     logger.debug("Tool get_configuration_objects called")
     logger.debug(
         "Input Parameters: org_id=%s, object_type=%s, site_id=%s, object_id=%s, name=%s, computed=%s, limit=%s",
@@ -193,10 +205,8 @@ async def get_configuration_objects(
         computed,
         limit,
     )
-
     apisession, response_format = await get_apisession()
-
-    response = None
+    response
     try:
         if object_type.value.startswith("site_"):
             if not site_id:
@@ -225,13 +235,12 @@ async def get_configuration_objects(
                 name=name if name else None,
                 guest_mac=guest_mac if guest_mac else None,
                 limit=limit if limit else 20,
+                computed=computed if computed else None,
             )
-
     except ToolError:
         raise
     except Exception as _exc:
         await handle_network_error(_exc)
-
     if response is None:
         raise ToolError(
             {
@@ -246,16 +255,17 @@ async def _org_configuration_objects_getter(
     apisession: mistapi.APISession,
     object_type: str,
     org_id: str,
-    site_id: Optional[str] = None,
-    object_id: Optional[str] = None,
-    name: Optional[str] = None,
-    guest_mac: Optional[str] = None,
-    computed: Optional[bool] = None,
+    site_id: str | None,
+    object_id: str | None,
+    name: str | None,
+    guest_mac: str | None,
+    computed: bool | None,
     limit: int = 20,
 ) -> _APIResponse:
     match object_type:
         case "org_info":
-            response = mistapi.api.v1.orgs.orgs.getOrg(apisession, org_id=str(org_id))
+            response = mistapi.api.v1.orgs.orgs.getOrg(
+                apisession, org_id=str(org_id))
             await process_response(response)
         case "org_settings":
             response = mistapi.api.v1.orgs.setting.getOrgSettings(
@@ -671,7 +681,7 @@ async def _org_configuration_objects_getter(
                 )
                 await process_response(response)
             elif name:
-                response = mistapi.api.v1.orgs.networktemplates.listOrgNetworkTemplates(
+                response = mistapi.api.v1.orgs.services.listOrgServices(
                     apisession, org_id=str(org_id), limit=1000
                 )
                 data_in = mistapi.get_all(apisession, response)
@@ -887,10 +897,10 @@ async def _site_configuration_objects_getter(
     object_type: str,
     org_id: str,
     site_id: str,
-    object_id: Optional[str] = None,
-    name: Optional[str] = None,
-    guest_mac: Optional[str] = None,
-    computed: Optional[bool] = None,
+    object_id: str | None,
+    name: str | None,
+    guest_mac: str | None,
+    computed: bool,
     limit: int = 20,
 ) -> _APIResponse:
     match object_type:
@@ -1076,15 +1086,13 @@ async def _site_configuration_objects_getter(
     return response
 
 
-#############################################
-########### SITE DEVICE RELATED FUNCTIONS ############
 async def _get_site_devices(
     apisession: mistapi.APISession,
     org_id: str,
     site_id: str,
-    object_id: Optional[str] = None,
-    name: Optional[str] = None,
-    computed: Optional[bool] = None,
+    object_id: str,
+    name: str,
+    computed: bool,
     limit: int = 20,
 ) -> _APIResponse:
     if object_id:
@@ -1094,6 +1102,7 @@ async def _get_site_devices(
                 org_id=str(org_id),
                 site_id=str(site_id),
                 device_id=str(object_id),
+                device_data=None,
             )
             return response
         else:
@@ -1132,12 +1141,10 @@ async def _get_computed_device_configuration(
     apisession: mistapi.APISession,
     org_id: str,
     site_id: str,
-    device_id: str | None = None,
-    device_data: _APIResponse | None = None,
+    device_id: str | None,
+    device_data: _APIResponse | None,
 ) -> _APIResponse:
-
     logger.debug("func _get_device_configuration called")
-
     if device_id:
         device_data = mistapi.api.v1.sites.devices.getSiteDevice(
             apisession, site_id=str(site_id), device_id=str(device_id)
@@ -1158,7 +1165,6 @@ async def _get_computed_device_configuration(
                 switch_model = device_data.data.get("model", "")
                 switch_role = device_data.data.get("role", "")
                 switch_data = {}
-
                 site_config = mistapi.api.v1.sites.setting.getSiteSettingDerived(
                     apisession, site_id=str(site_id)
                 )
@@ -1171,7 +1177,6 @@ async def _get_computed_device_configuration(
                         switch_role,
                         switch_data,
                     )
-
                 for key, value in device_data.data.items():
                     if key == "port_config":
                         port_config = _process_switch_interface(value)
@@ -1179,7 +1184,8 @@ async def _get_computed_device_configuration(
                     elif isinstance(value, dict) and isinstance(
                         switch_data.get(key, {}), dict
                     ):
-                        switch_data[key] = {**switch_data.get(key, {}), **value}
+                        switch_data[key] = {
+                            **switch_data.get(key, {}), **value}
                     elif isinstance(value, list) and isinstance(
                         switch_data.get(key, []), list
                     ):
@@ -1194,7 +1200,8 @@ async def _get_computed_device_configuration(
                 )
                 await process_response(site_data)
                 if isinstance(site_data.data, dict):
-                    gateway_template_id = site_data.data.get("gatewaytemplate_id")
+                    gateway_template_id = site_data.data.get(
+                        "gatewaytemplate_id")
                     if gateway_template_id:
                         response = (
                             mistapi.api.v1.orgs.gatewaytemplates.getOrgGatewayTemplate(
@@ -1205,7 +1212,6 @@ async def _get_computed_device_configuration(
                         )
                         await process_response(response)
                         gateway_data = response.data
-
                 if isinstance(gateway_data, dict):
                     for key, value in device_data.data.items():
                         if key in NETWORK_TEMPLATE_FIELDS:
@@ -1219,23 +1225,16 @@ async def _get_computed_device_configuration(
                             elif isinstance(value, list) and isinstance(
                                 gateway_data.get(key, []), list
                             ):
-                                gateway_data[key] = gateway_data.get(key, []) + value
+                                gateway_data[key] = gateway_data.get(
+                                    key, []) + value
                             else:
                                 gateway_data[key] = value
                 device_data.data = gateway_data
-
     return device_data
 
 
-########### SWITCH RELATED FUNCTIONS ############
-
-
 def _process_switch_template(
-    template: dict,
-    switch_name: str,
-    switch_model: str,
-    switch_role: str,
-    data: dict,
+    template: dict, switch_name: str, switch_model: str, switch_role: str, data: dict
 ) -> dict:
     for key, value in template.items():
         if key in NETWORK_TEMPLATE_FIELDS:
@@ -1243,11 +1242,8 @@ def _process_switch_template(
                 continue
             elif key == "switch_matching" and value.get("enable"):
                 data = _process_switch_rule(
-                    value.get("rules", []),
-                    switch_name,
-                    switch_model,
-                    switch_role,
-                    data,
+                    value.get(
+                        "rules", []), switch_name, switch_model, switch_role, data
                 )
             elif isinstance(value, dict) and isinstance(data.get(key, {}), dict):
                 data[key] = {**data.get(key, {}), **value}
@@ -1255,21 +1251,15 @@ def _process_switch_template(
                 data[key] = data.get(key, []) + value
             else:
                 data[key] = value
-
     return data
 
 
 def _process_switch_rule(
-    rules: list,
-    switch_name: str,
-    switch_model: str,
-    switch_role: str,
-    data: dict,
+    rules: list, switch_name: str, switch_model: str, switch_role: str, data: dict
 ) -> dict:
     for rule in rules:
         rule_cleansed = rule.copy()
         del rule_cleansed["name"]
-
         match_name_true = False
         match_name_enabled = False
         match_model_true = False
@@ -1284,7 +1274,8 @@ def _process_switch_rule(
             elif k.startswith("match_model"):
                 match_model_enabled = True
                 del rule_cleansed[k]
-                match_model_true = _process_switch_rule_match(switch_model, k, v)
+                match_model_true = _process_switch_rule_match(
+                    switch_model, k, v)
             elif k == "match_role":
                 match_role_enabled = True
                 match_role_true = _process_switch_rule_match(switch_role, k, v)
@@ -1311,11 +1302,12 @@ def _process_switch_rule_match(
     switch_value: str, match_key: str, match_value: str
 ) -> bool:
     if ":" in match_key:
-        match_start, match_stop = match_key.replace("]", "").split("[")[1].split(":")
+        match_start, match_stop = match_key.replace(
+            "]", "").split("[")[1].split(":")
         try:
             if (
                 len(switch_value) > int(match_stop)
-                and switch_value[int(match_start) : int(match_stop)].lower()
+                and switch_value[int(match_start): int(match_stop)].lower()
                 == match_value.lower()
             ):
                 return True
@@ -1326,9 +1318,7 @@ def _process_switch_rule_match(
     return False
 
 
-def _process_switch_interface(
-    port_config: dict,
-) -> dict:
+def _process_switch_interface(port_config: dict) -> dict:
     port_config_tmp = {}
     for key, value in port_config.items():
         if "," in key:
@@ -1337,7 +1327,6 @@ def _process_switch_interface(
                 port_config_tmp[k] = value
         else:
             port_config_tmp[key] = value
-
     port_config_cleansed = {}
     for key, value in port_config_tmp.items():
         if key.count("-") > 1:
@@ -1357,21 +1346,16 @@ def _process_switch_interface(
                     port_config_cleansed[f"{prefix}-{fpc}/{pic}/{port_num}"] = value
         else:
             port_config_cleansed[key] = value
-
     return port_config_cleansed
-
-
-#############################################
-########### SITE WLANS FUNCTIONS ############
 
 
 async def _get_site_wlans(
     apisession: mistapi.APISession,
     org_id: str,
     site_id: str,
-    object_id: Optional[str] = None,
-    name: Optional[str] = None,
-    computed: Optional[bool] = None,
+    object_id: str,
+    name: str,
+    computed: bool,
     limit: int = 20,
 ) -> _APIResponse:
     if object_id:
@@ -1380,6 +1364,7 @@ async def _get_site_wlans(
         )
         await process_response(response)
     elif computed:
+        fetch_limit = 1000 if name else limit
         site_data = mistapi.api.v1.sites.sites.getSiteInfo(
             apisession, site_id=str(site_id)
         )
@@ -1390,9 +1375,8 @@ async def _get_site_wlans(
             sitegroup_ids = []
         assigned_template_ids = []
         assigned_wlans = []
-        # ORG TEMPLATES
         org_wlan_templates = mistapi.api.v1.orgs.templates.listOrgTemplates(
-            apisession, org_id=str(org_id), limit=limit
+            apisession, org_id=str(org_id), limit=fetch_limit
         )
         await process_response(org_wlan_templates)
         for template in org_wlan_templates.data:
@@ -1402,35 +1386,37 @@ async def _get_site_wlans(
             template_sitegroup_ids = applies.get("sitegroup_ids", []) or []
             if (
                 str(site_id) in template_site_ids
-                or (set(template_sitegroup_ids) & set(sitegroup_ids))
+                or set(template_sitegroup_ids) & set(sitegroup_ids)
                 or template_org_id == str(org_id)
             ):
                 assigned_template_ids.append(template.get("id"))
-        # ORG WLANS
         org_wlans = mistapi.api.v1.orgs.wlans.listOrgWlans(
-            apisession, org_id=str(org_id), limit=limit
+            apisession, org_id=str(org_id), limit=fetch_limit
         )
         await process_response(org_wlans)
         for wlan in org_wlans.data:
             if wlan.get("template_id") in assigned_template_ids:
                 assigned_wlans.append(wlan)
-        # SITE WLANS
         site_wlans = mistapi.api.v1.sites.wlans.listSiteWlans(
-            apisession, site_id=str(site_id), limit=limit
+            apisession, site_id=str(site_id), limit=fetch_limit
         )
         await process_response(site_wlans)
-
-        if name:
-            response = mistapi.api.v1.sites.wxtags.listSiteWxTags(
-                apisession, site_id=str(site_id), limit=1000
-            )
-            data_in = mistapi.get_all(apisession, response)
-            response = _search_object(data_in, name, "ssid", limit=limit)
-            await process_response(response)
         for wlan in site_wlans.data:
             assigned_wlans.append(wlan)
-        site_wlans.data = assigned_wlans
-        response = site_wlans
+        if name:
+            response = _search_object(
+                assigned_wlans, name, "ssid", limit=limit)
+            await process_response(response)
+        else:
+            site_wlans.data = assigned_wlans
+            response = site_wlans
+    elif name:
+        response = mistapi.api.v1.sites.wlans.listSiteWlans(
+            apisession, site_id=str(site_id), limit=1000
+        )
+        data_in = mistapi.get_all(apisession, response)
+        response = _search_object(data_in, name, "ssid", limit=limit)
+        await process_response(response)
     else:
         response = mistapi.api.v1.sites.wlans.listSiteWlans(
             apisession, site_id=str(site_id), limit=limit
@@ -1446,10 +1432,7 @@ async def _get_site_wlans(
 
 
 def _search_object(
-    data_in: list,
-    name: str,
-    attribute: str = "name",
-    limit: int = 20,
+    data_in: list, name: str, attribute: str = "name", limit: int = 20
 ) -> _APIResponse:
     data_out = []
     for entry in data_in:
@@ -1462,9 +1445,8 @@ def _search_object(
         elif name.endswith("*"):
             if entry.get(attribute, "").lower().startswith(name[:-1].lower()):
                 data_out.append(entry)
-        else:
-            if name.lower() in entry.get(attribute, "").lower():
-                data_out.append(entry)
+        elif name.lower() in entry.get(attribute, "").lower():
+            data_out.append(entry)
     response = _APIResponse(url="", response=None)
     response.data = data_out[:limit]
     response.status_code = 200
@@ -1472,3 +1454,251 @@ def _search_object(
         {"X-Page-Total": str(len(data_out)), "X-Page-Limit": str(limit)}
     )
     return response
+
+
+class Query_type(Enum):
+    HISTORY = "history"
+    LAST_CONFIGS = "last_configs"
+
+
+class Device_type(Enum):
+    AP = "ap"
+    SWITCH = "switch"
+    GATEWAY = "gateway"
+
+
+async def search_device_config_history(
+    site_id: Annotated[UUID, Field(description="Site ID")],
+    query_type: Annotated[
+        Query_type,
+        Field(
+            description="Whether to search for config history entries or just retrieve the last config entry for each device"
+        ),
+    ],
+    device_type: Annotated[
+        Device_type, Field(
+            description="Type of device to search config history for")
+    ],
+    device_mac: Annotated[
+        str,
+        Field(
+            description="MAC address of the device to search config history for",
+            default=None,
+        ),
+    ],
+    start: Annotated[
+        int, Field(
+            description="Start of time range (epoch seconds)", default=None)
+    ],
+    end: Annotated[
+        int, Field(description="End of time range (epoch seconds)", default=None)
+    ],
+    limit: Annotated[
+        int, Field(description="Max number of results per page", default=20)
+    ] = 20,
+) -> dict | list | str:
+    """Search for entries in device config history.
+    This tool can be used to track configuration changes over time, useful for troubleshooting issues that started after a config change."""
+    logger.debug("Tool search_device_config_history called")
+    logger.debug(
+        "Input Parameters: site_id: %s, query_type: %s, device_type: %s, device_mac: %s, start: %s, end: %s, limit: %s",
+        site_id,
+        query_type,
+        device_type,
+        device_mac,
+        start,
+        end,
+        limit,
+    )
+    apisession, response_format = await get_apisession()
+    try:
+        object_type = query_type
+        match object_type.value:
+            case "history":
+                response = mistapi.api.v1.sites.devices.searchSiteDeviceConfigHistory(
+                    apisession,
+                    site_id=str(site_id),
+                    type=device_type.value if device_type else None,
+                    mac=str(device_mac) if device_mac else None,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    limit=limit,
+                )
+                await process_response(response)
+            case "last_configs":
+                response = mistapi.api.v1.sites.devices.searchSiteDeviceLastConfigs(
+                    apisession,
+                    site_id=str(site_id),
+                    device_type=device_type.value if device_type else None,
+                    mac=str(device_mac) if device_mac else None,
+                    start=str(start) if start else None,
+                    end=str(end) if end else None,
+                    limit=limit,
+                )
+                await process_response(response)
+            case _:
+                raise ToolError(
+                    {
+                        "status_code": 400,
+                        "message": f"Invalid object_type: {object_type.value}. Valid values are: {[e.value for e in Query_type]}",
+                    }
+                )
+    except ToolError:
+        raise
+    except Exception as _exc:
+        await handle_network_error(_exc)
+    return format_response(response, response_format)
+
+
+ConfigurationObjectType = Object_type
+HistoryDeviceType = Device_type
+HistoryQueryType = Query_type
+
+_GET_CONFIGURATION_OBJECTS = internal_tool(get_configuration_objects)
+_SEARCH_DEVICE_CONFIG_HISTORY = internal_tool(search_device_config_history)
+
+
+_CONFIGURATION_OBJECT_VALUES = ", ".join(
+    item.value for item in ConfigurationObjectType)
+_CONFIGURATION_OBJECT_GUIDANCE = "\n".join(
+    f"* `{name}`: {description}"
+    for name, description in _CONFIGURATION_OBJECT_DESCRIPTIONS.items()
+)
+
+
+@mcp.tool(
+    name="mist_get_configuration",
+    description=f"""Read Mist configuration or inspect device configuration history.
+
+For `operation=objects`, provide `org_id` and `object_type`. Object types beginning
+with `site_` also require `site_id`. Use `object_id` for one exact object or `name`
+for a case-insensitive wildcard search (`prefix*` or `*substring*`). Name filtering
+does not support pagination and is unavailable for info/settings, site devices, and
+guest authorizations. `object_id` is also unavailable for guest authorizations. Use
+`guest_mac` for those records. `site_id` may select one site with `org_sites`. Set
+`computed=true` to include inherited configuration where supported.
+
+Supported configuration objects:
+{_CONFIGURATION_OBJECT_GUIDANCE}
+
+For list operations, `limit` defaults to 20 and has a maximum of 1000; paginated
+responses may return `next`.
+
+For `operation=device_history`, provide `site_id`, `query_type`, and `device_type`.
+Use `history` for change entries or `last_configs` for the latest configuration per
+device, optionally filtered by `device_mac`, `start`, and `end`.
+
+The `object_type`, `query_type`, and `device_type` input schemas contain the complete
+lists of supported values.""",
+    tags={"configuration"},
+    annotations={
+        "title": "Get configuration",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+        "idempotentHint": True,
+    },
+)
+async def get_configuration(
+    operation: Annotated[
+        ConfigurationOperation, Field(
+            description="Configuration query to run.")
+    ],
+    org_id: Annotated[
+        UUID,
+        Field(description="Organization ID for object queries.", default=None),
+    ],
+    site_id: Annotated[
+        UUID, Field(
+            description="Site ID when required by the query.", default=None)
+    ],
+    object_type: Annotated[
+        ConfigurationObjectType,
+        Field(
+            description=f"Configuration object type. Supported values: {_CONFIGURATION_OBJECT_VALUES}.",
+            default=None,
+        ),
+    ],
+    object_id: Annotated[
+        UUID, Field(
+            description="Specific configuration object ID.", default=None)
+    ],
+    name: Annotated[
+        str,
+        Field(
+            description="Case-insensitive name filter. Supports prefix* and *substring* wildcards; suffix-only wildcards are unsupported.",
+            default=None,
+        ),
+    ],
+    guest_mac: Annotated[
+        str,
+        Field(
+            description="Guest MAC for org_guest_authorizations or site_guest_authorizations.",
+            default=None,
+        ),
+    ],
+    query_type: Annotated[
+        HistoryQueryType,
+        Field(description="History query: history or last_configs.", default=None),
+    ],
+    device_type: Annotated[
+        HistoryDeviceType,
+        Field(description="History device type: ap, switch, or gateway.", default=None),
+    ],
+    device_mac: Annotated[
+        str, Field(description="Device MAC for history queries.", default=None)
+    ],
+    start: Annotated[
+        int, Field(description="History start time.", default=None)
+    ],
+    end: Annotated[int, Field(description="History end time.", default=None)],
+    computed: Annotated[
+        bool,
+        Field(
+            description="Include inherited settings where supported: a single org_sites or site_devices result, or site_wlans.",
+            default=None,
+        ),
+    ],
+    limit: Annotated[
+        int, Field(description="Maximum results per page.", default=20)
+    ] = 20,
+) -> ToolResult:
+    if operation is ConfigurationOperation.OBJECTS:
+        if org_id is None or object_type is None:
+            raise ToolError(
+                "org_id and object_type are required for operation='objects'. "
+                f"Supported object_type values: {_CONFIGURATION_OBJECT_VALUES}."
+            )
+        return await run_internal_tool(
+            _GET_CONFIGURATION_OBJECTS,
+            arguments(
+                {
+                    "org_id": org_id,
+                    "site_id": site_id,
+                    "object_type": object_type,
+                    "object_id": object_id,
+                    "name": name,
+                    "guest_mac": guest_mac,
+                    "computed": computed,
+                    "limit": limit,
+                }
+            ),
+        )
+    if site_id is None or query_type is None or device_type is None:
+        raise ToolError(
+            "site_id, query_type, and device_type are required for operation='device_history'."
+        )
+    return await run_internal_tool(
+        _SEARCH_DEVICE_CONFIG_HISTORY,
+        arguments(
+            {
+                "site_id": site_id,
+                "query_type": query_type,
+                "device_type": device_type,
+                "device_mac": device_mac,
+                "start": start,
+                "end": end,
+                "limit": limit,
+            }
+        ),
+    )

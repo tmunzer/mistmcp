@@ -750,7 +750,7 @@ troubleshoot:
   type: tool_consolidation
   tags: [marvis]
   description: |-
-    Troubleshoot sites, devices, clients, and wired clients for maximum of last 7 days from current time. Use the `mist_search_client` tool to find a client MAC Address. Use the `mist_search_device` tool to find device MAC Address. **NOTE**: requires Marvis subscription license
+    Troubleshoot sites, devices, clients, and wired clients for a maximum of the last 7 days. Use `mist_search_assets` with the appropriate `asset_type` to resolve client or device MAC addresses first. Requires a Marvis subscription license.
   read_only_hint: true
   destructive_hint: false
   parameters:

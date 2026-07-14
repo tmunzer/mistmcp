@@ -96,6 +96,46 @@ async def _visible_names(m: FastMCP) -> set[str]:
     return {t.name for t in tools}
 
 
+_FACADE_TOOL_NAMES = {
+    "mist_get_account",
+    "mist_describe",
+    "mist_search_assets",
+    "mist_get_configuration",
+    "mist_search_activity",
+    "mist_search_security",
+    "mist_get_site_insights",
+}
+
+_REMOVED_TOOL_NAMES = {
+    "mist_get_self",
+    "mist_get_org_licenses",
+    "mist_get_constants",
+    "mist_get_configuration_object_schema",
+    "mist_search_device",
+    "mist_search_client",
+    "mist_get_configuration_objects",
+    "mist_search_device_config_history",
+    "mist_search_events",
+    "mist_search_audit_logs",
+    "mist_search_nac_user_macs",
+    "mist_list_rogue_devices",
+    "mist_get_insight_metrics",
+    "mist_get_site_rrm_info",
+}
+
+
+class TestFacadeCatalog:
+    async def test_actual_catalog_has_expected_tools(self) -> None:
+        configured = create_mcp_server(ServerConfig())
+        visible = await _visible_names(configured)
+
+        assert len(visible) == 14
+        assert _FACADE_TOOL_NAMES <= visible
+        assert "mist_get_next_page" in visible
+        assert "mist_topology" in visible
+        assert not (_REMOVED_TOOL_NAMES & visible)
+
+
 class TestWriteVisibleTags:
     def test_protected_tags_are_write_and_write_delete(self) -> None:
         assert _PROTECTED_WRITE_TAGS == {"write", "write_delete"}

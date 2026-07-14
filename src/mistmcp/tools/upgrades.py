@@ -397,70 +397,70 @@ async def upgrades(
         UpgradeActionType,
         Field(description=ACTION_TYPE_DESCRIPTION),
     ],
+    ctx: Context,
     org_id: Annotated[
-        UUID | None,
+        UUID,
         Field(
             description="""Organization ID. Required for org-scoped actions.""",
             default=None,
         ),
-    ],
+    ] = None,
     site_id: Annotated[
-        UUID | None,
+        UUID,
         Field(
             description="""Site ID. Required for site-scoped actions.""",
             default=None,
         ),
-    ],
+    ] = None,
     upgrade_id: Annotated[
-        UUID | None,
+        UUID,
         Field(
             description="""Upgrade job ID. Required for get/cancel actions on a specific upgrade.""",
             default=None,
         ),
-    ],
+    ] = None,
     payload: Annotated[
-        dict[str, Any] | list[Any] | None,
+        dict[str, Any] | list[Any],
         Field(
             description=PAYLOAD_DESCRIPTION,
             default=None,
         ),
-    ],
+    ] = None,
     firmware_type: Annotated[
-        FirmwareType | None,
+        FirmwareType,
         Field(
             description="""Firmware type filter (ap, switch, gateway). Only for list_org_available_device_versions and list_site_available_device_versions.""",
             default=None,
         ),
-    ],
+    ] = None,
     model: Annotated[
-        str | None,
+        str,
         Field(
             description="""Model filter for available device versions listing.""",
             default=None,
         ),
-    ],
+    ] = None,
     channel: Annotated[
-        Channel | None,
+        Channel,
         Field(
             description="""SSR release channel for list_org_available_ssr_versions. Defaults to stable if omitted.""",
             default=None,
         ),
-    ],
+    ] = None,
     mac: Annotated[
-        str | None,
+        str,
         Field(
             description="""MAC filter for list_org_available_ssr_versions.""",
             default=None,
         ),
-    ],
+    ] = None,
     status: Annotated[
-        str | None,
+        str,
         Field(
             description="""Status filter for list_site_device_upgrades.""",
             default=None,
         ),
-    ],
-    ctx: Context,
+    ] = None,
 ) -> dict | list | str:
     """Manage all upgrade-related operations."""
 

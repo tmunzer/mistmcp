@@ -19,14 +19,36 @@ The server exposes a focused set of tools grouped by workflow. This is the quick
 
 | Workflow | Main tools | What they are used for |
 | - | - | - |
-| Account and navigation | `mist_get_self`, `mist_get_next_page`, `mist_get_constants` | Resolve account details, discover IDs, follow pagination, and look up fixed Mist constants before making deeper queries. |
-| Device and client lookup | `mist_search_device`, `mist_search_client`, `mist_search_nac_user_macs` | Find devices, clients, guest authorizations, and NAC-related client entries by name, MAC, IP, serial, model, or other filters. |
-| Configuration read | `mist_get_configuration_objects`, `mist_get_configuration_object_schema`, `mist_search_device_config_history` | Inspect org or site configuration, discover valid schema fields, and review recent configuration history on devices. |
+| Account and navigation | `mist_get_account`, `mist_describe`, `mist_get_next_page` | Resolve account details, discover IDs, follow pagination, and look up fixed Mist constants or configuration schemas. |
+| Device and client lookup | `mist_search_assets` | Find devices and clients by name, MAC, IP, serial, model, or other filters. |
+| Configuration read | `mist_get_configuration` | Inspect org or site configuration and review recent device configuration history. |
 | Configuration changes | `mist_update_configuration_objects`, `mist_change_configuration_objects` | Create, update, and delete supported configuration objects. These tools require `--enable-write-tools`. |
-| Monitoring and events | `mist_search_events`, `mist_search_audit_logs`, `mist_get_stats` | Investigate events, audit history, alarms, and operational statistics across organizations, sites, devices, clients, and ports. |
-| Assurance and AI insights | `mist_get_sle`, `mist_get_insight_metrics`, `mist_get_site_rrm_info`, `mist_troubleshoot` | Explore SLEs, Mist AI insight metrics, radio resource management state, and Marvis troubleshooting output. |
-| Device operations | `mist_utilities`, `mist_list_upgrades` | Run device-side diagnostics and maintenance helpers or inspect upgrade information. Call `mist_utilities` with only `device_type` to list the supported platform-specific utilities. Some state-changing utility actions require write tools, and the disruptive ones also trigger elicitation. |
-| Inventory and security context | `mist_get_org_licenses`, `mist_list_rogue_devices` | Review organization license usage and detect or inspect rogue AP activity seen by a site. |
+| Monitoring and events | `mist_search_activity`, `mist_get_stats` | Investigate events, audit history, alarms, and operational statistics across organizations, sites, devices, clients, and ports. |
+| Network topology | `mist_topology` | Build evidence-aware site or WAN topology and find candidate physical adjacency paths. Site actions require both `org_id` and `site_id`. |
+| Assurance and AI insights | `mist_get_sle`, `mist_get_site_insights`, `mist_troubleshoot` | Explore SLEs, Mist AI insight metrics, radio resource management state, and Marvis troubleshooting output. |
+| Device operations | `mist_utilities`, `mist_upgrades` | Run device-side diagnostics and maintenance helpers or inspect upgrade information. Call `mist_utilities` with only `device_type` to list the supported platform-specific utilities. Some state-changing utility actions require write tools, and the disruptive ones also trigger elicitation. |
+| Inventory and security context | `mist_get_account`, `mist_search_security` | Review organization license usage, NAC user MACs, and rogue devices. |
+
+### Workflow-oriented catalog
+
+The server exposes seven workflow-oriented facade tools in place of fourteen
+endpoint-oriented tools. `mist_topology` and `mist_get_next_page` remain independent,
+and pagination behavior is unchanged.
+
+| Workflow tool | Covers |
+| - | - |
+| `mist_get_account` | Current account information and organization licenses |
+| `mist_describe` | Mist constants and configuration schemas |
+| `mist_search_assets` | Devices and clients |
+| `mist_get_configuration` | Configuration objects and device configuration history |
+| `mist_search_activity` | Events, alarms, and audit logs |
+| `mist_search_security` | NAC user MACs and rogue devices |
+| `mist_get_site_insights` | Site insight metrics and RRM information |
+
+Each workflow module contains its own validation and Mist API implementation; the
+replaced endpoint-tool modules are no longer retained. `make generate` preserves the
+workflow source files, removes any regenerated replaced modules, and rebuilds
+`tool_helper.py` with only the workflow-oriented public catalog.
 
 ## Installation
 
@@ -118,10 +140,11 @@ already-connected MCP client survives a server restart without reconnecting.
 Trade-offs:
 
 - **No server→client push.** Notifications and in-band elicitation are disabled.
-- **Writes require the DANGER ZONE.** Because elicitation can't prompt, write tools are
-  only available with `--enable-write-tools` **and** `--disable-elicitation` (or
-  `MISTMCP_DISABLE_ELICITATION=true`), which auto-accepts. Starting stateless + http +
-  `--enable-write-tools` without `--disable-elicitation` is refused at startup.
+- **Writes require an explicit DANGER ZONE.** Because elicitation can't prompt, the
+  standard update tool is only available with `--enable-write-tools` **and**
+  `--disable-elicitation` (or `MISTMCP_DISABLE_ELICITATION=true`), which auto-accepts.
+  Starting stateless + http + `--enable-write-tools` without `--disable-elicitation` is
+  refused at startup. The delete-capable change tool remains hidden.
 - **Read-only stays safe.** Without write tools, destructive upgrade/utility actions
   fail closed with a clear error.
 

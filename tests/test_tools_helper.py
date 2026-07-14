@@ -10,14 +10,13 @@ class TestMcpToolsCategory:
 
     def test_enum_values_exist(self) -> None:
         """Test that key enum values exist"""
-        assert McpToolsCategory.ORGS.value == "orgs"
+        assert McpToolsCategory.CONFIGURATION.value == "configuration"
         assert McpToolsCategory.SITES_INSIGHTS.value == "sites_insights"
 
     def test_enum_from_string(self) -> None:
         """Test creating enum from string values"""
-        assert McpToolsCategory("orgs") == McpToolsCategory.ORGS
-        assert McpToolsCategory(
-            "sites_insights") == McpToolsCategory.SITES_INSIGHTS
+        assert McpToolsCategory("configuration") == McpToolsCategory.CONFIGURATION
+        assert McpToolsCategory("sites_insights") == McpToolsCategory.SITES_INSIGHTS
 
     def test_enum_invalid_value(self) -> None:
         """Test that invalid enum values raise ValueError"""
@@ -27,22 +26,22 @@ class TestMcpToolsCategory:
     def test_enum_case_sensitivity(self) -> None:
         """Test that enum values are case sensitive"""
         with pytest.raises(ValueError):
-            McpToolsCategory("ORGS")  # Should be lowercase
+            McpToolsCategory("CONFIGURATION")  # Should be lowercase
 
     def test_enum_iteration(self) -> None:
         """Test that enum can be iterated"""
         categories = list(McpToolsCategory)
         assert len(categories) > 0
-        assert McpToolsCategory.ORGS in categories
+        assert McpToolsCategory.CONFIGURATION in categories
         assert McpToolsCategory.SITES_INSIGHTS in categories
 
     def test_enum_membership(self) -> None:
         """Test enum membership operations"""
-        assert McpToolsCategory.ORGS in McpToolsCategory
+        assert McpToolsCategory.CONFIGURATION in McpToolsCategory
 
         # Test value membership
         values = [cat.value for cat in McpToolsCategory]
-        assert "orgs" in values
+        assert "configuration" in values
         assert "sites_insights" in values
         assert "invalid" not in values
 
@@ -57,13 +56,8 @@ class TestToolsData:
     def test_tools_has_expected_categories(self) -> None:
         """Test that TOOLS contains expected categories"""
         # These should exist based on the enum
-        expected_categories = ["orgs", "sites_insights", "events"]
-
-        for category in expected_categories:
-            if category in [cat.value for cat in McpToolsCategory]:
-                # Only test if the category is actually defined in the enum
-                # Some may not be in TOOLS if they're not implemented yet
-                pass
+        expected_categories = {"configuration", "sites_insights", "events"}
+        assert expected_categories <= TOOLS.keys()
 
     def test_tools_structure(self) -> None:
         """Test the structure of TOOLS data"""

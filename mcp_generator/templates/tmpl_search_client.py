@@ -263,7 +263,7 @@ async def search_client(
                     org_id=str(org_id),
                     site_id=str(site_id) if site_id else None,
                     ap=str(device_mac) if device_mac else None,
-                    band=str(band) if band else None,
+                    band=band.value if band else None,
                     ssid=str(ssid) if ssid else None,
                     mac=str(mac) if mac else None,
                     hostname=str(hostname) if hostname else None,

@@ -311,6 +311,7 @@ async def get_configuration_objects(
                 name=name if name else None,
                 guest_mac=guest_mac if guest_mac else None,
                 limit=limit if limit else 20,
+                computed=computed if computed else None,
             )
 
     except ToolError:
@@ -758,7 +759,7 @@ async def _org_configuration_objects_getter(
                 )
                 await process_response(response)
             elif name:
-                response = mistapi.api.v1.orgs.networktemplates.listOrgNetworkTemplates(
+                response = mistapi.api.v1.orgs.services.listOrgServices(
                     apisession, org_id=str(org_id), limit=1000
                 )
                 data_in = mistapi.get_all(apisession, response)
@@ -1472,6 +1473,7 @@ async def _get_site_wlans(
         )
         await process_response(response)
     elif computed:
+        fetch_limit = 1000 if name else limit
         site_data = mistapi.api.v1.sites.sites.getSiteInfo(
             apisession, site_id=str(site_id)
         )
@@ -1484,7 +1486,7 @@ async def _get_site_wlans(
         assigned_wlans = []
         # ORG TEMPLATES
         org_wlan_templates = mistapi.api.v1.orgs.templates.listOrgTemplates(
-            apisession, org_id=str(org_id), limit=limit
+            apisession, org_id=str(org_id), limit=fetch_limit
         )
         await process_response(org_wlan_templates)
         for template in org_wlan_templates.data:
@@ -1500,7 +1502,7 @@ async def _get_site_wlans(
                 assigned_template_ids.append(template.get("id"))
         # ORG WLANS
         org_wlans = mistapi.api.v1.orgs.wlans.listOrgWlans(
-            apisession, org_id=str(org_id), limit=limit
+            apisession, org_id=str(org_id), limit=fetch_limit
         )
         await process_response(org_wlans)
         for wlan in org_wlans.data:
@@ -1508,21 +1510,25 @@ async def _get_site_wlans(
                 assigned_wlans.append(wlan)
         # SITE WLANS
         site_wlans = mistapi.api.v1.sites.wlans.listSiteWlans(
-            apisession, site_id=str(site_id), limit=limit
+            apisession, site_id=str(site_id), limit=fetch_limit
         )
         await process_response(site_wlans)
 
-        if name:
-            response = mistapi.api.v1.sites.wxtags.listSiteWxTags(
-                apisession, site_id=str(site_id), limit=1000
-            )
-            data_in = mistapi.get_all(apisession, response)
-            response = _search_object(data_in, name, "ssid", limit=limit)
-            await process_response(response)
         for wlan in site_wlans.data:
             assigned_wlans.append(wlan)
-        site_wlans.data = assigned_wlans
-        response = site_wlans
+        if name:
+            response = _search_object(assigned_wlans, name, "ssid", limit=limit)
+            await process_response(response)
+        else:
+            site_wlans.data = assigned_wlans
+            response = site_wlans
+    elif name:
+        response = mistapi.api.v1.sites.wlans.listSiteWlans(
+            apisession, site_id=str(site_id), limit=1000
+        )
+        data_in = mistapi.get_all(apisession, response)
+        response = _search_object(data_in, name, "ssid", limit=limit)
+        await process_response(response)
     else:
         response = mistapi.api.v1.sites.wlans.listSiteWlans(
             apisession, site_id=str(site_id), limit=limit

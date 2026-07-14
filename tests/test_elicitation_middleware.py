@@ -36,9 +36,14 @@ class FakeFastMCPContext:
 
 
 class FakeMiddlewareContext:
-    def __init__(self, fastmcp_context: FakeFastMCPContext) -> None:
+    def __init__(
+        self,
+        fastmcp_context: FakeFastMCPContext,
+        tool_name: str = "mist_change_configuration_objects",
+    ) -> None:
         self.fastmcp_context = fastmcp_context
         self.message = SimpleNamespace(
+            name=tool_name,
             params=SimpleNamespace(
                 capabilities=SimpleNamespace(elicitation=None),
             )
@@ -117,3 +122,59 @@ async def test_on_call_tool_noop_when_not_stateless(monkeypatch) -> None:
     assert result == "tool-result"
     assert fastmcp_context.set_state_calls == []
     assert "disable_elicitation" not in fastmcp_context.state
+
+
+async def test_stateless_experimental_query_cannot_enable_write_tools(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(config, "stateless", True)
+    monkeypatch.setattr(config, "transport_mode", "http")
+    monkeypatch.setattr(config, "enable_write_tools", False)
+    monkeypatch.setattr(config, "disable_elicitation", False)
+    monkeypatch.setattr(
+        "fastmcp.server.dependencies.get_http_request",
+        lambda: SimpleNamespace(query_params={"experimental": "true"}),
+    )
+
+    fastmcp_context = FakeFastMCPContext()
+    context = FakeMiddlewareContext(fastmcp_context)
+    middleware = ElicitationMiddleware()
+
+    async def call_next(_context):
+        return "tool-result"
+
+    result = await middleware.on_call_tool(context, call_next)
+
+    assert result == "tool-result"
+    assert fastmcp_context.enabled_calls == []
+    assert fastmcp_context.disabled_calls == []
+    assert fastmcp_context.set_state_calls == []
+
+
+async def test_experimental_query_is_ignored_during_initialize(monkeypatch) -> None:
+    monkeypatch.setattr(config, "stateless", True)
+    monkeypatch.setattr(config, "transport_mode", "http")
+    monkeypatch.setattr(config, "enable_write_tools", True)
+    monkeypatch.setattr(config, "disable_elicitation", False)
+    monkeypatch.setattr(
+        "fastmcp.server.dependencies.get_http_request",
+        lambda: SimpleNamespace(
+            headers={}, query_params={"experimental": "true"}
+        ),
+    )
+
+    fastmcp_context = FakeFastMCPContext()
+    context = FakeMiddlewareContext(fastmcp_context)
+    middleware = ElicitationMiddleware()
+
+    async def call_next(_context):
+        return "initialized"
+
+    result = await middleware.on_initialize(context, call_next)
+
+    assert result == "initialized"
+    assert fastmcp_context.enabled_calls == []
+    assert fastmcp_context.disabled_calls == [
+        {"tags": {"write", "write_delete"}, "components": {"tool"}}
+    ]
+    assert fastmcp_context.set_state_calls == []

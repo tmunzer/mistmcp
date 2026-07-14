@@ -49,7 +49,9 @@ ActionName = Annotated[
 ]
 OrgId = Annotated[
     UUID,
-    Field(description="Mist organization ID. Resolve it with mist_get_self first."),
+    Field(
+        description="Mist organization ID. Resolve it with mist_get_account(information=account_info) first."
+    ),
 ]
 SiteId = Annotated[
     UUID | None,

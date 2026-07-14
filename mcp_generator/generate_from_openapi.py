@@ -27,7 +27,6 @@ License: MIT License
 # IMPORTS AND CONSTANTS
 # ---------------------------------------------------------------------------
 
-
 import argparse
 import json
 import os
@@ -42,7 +41,7 @@ import yaml
 # - running as script: `python mcp_generator/generate_from_openapi.py`
 # - running as module: `python -m mcp_generator.generate_from_openapi`
 try:
-    from templates.tmpl_search_client import (
+    from mcp_generator.templates.tmpl_search_client import (
         SEARCH_CLIENT_OPERATION_IDS,
         SEARCH_CLIENT_TEMPLATE,
     )
@@ -139,8 +138,7 @@ OPENAPI_PATH = (
 )
 SCHEMAS_CONFIG_PATH = Path(os.path.join(DIR_PATH, "schemas_config.yaml"))
 SCHEMAS_DATA_OUTPUT_PATH = Path(
-    os.path.join(
-        DIR_PATH, "../src/mistmcp/tools/schemas_data.py")
+    os.path.join(DIR_PATH, "../src/mistmcp/tools/schemas_data.py")
 )
 # List of custom tools to generate (not directly from OpenAPI)
 CUSTOM_TOOLS = [
@@ -148,25 +146,25 @@ CUSTOM_TOOLS = [
         "name": "search_device",
         "template": TOOL_TEMPLATE_SEARCH_DEVICE,
         "tag": "devices",
-        "operation_ids": ["searchOrgInventory"]
+        "operation_ids": ["searchOrgInventory"],
     },
     {
         "name": "get_configuration_objects",
         "template": GET_CONFIGURATION_OBJECTS_TEMPLATE,
         "tag": "configuration",
-        "operation_ids": GET_CONFIGURATION_OBJECTS_OPERATION_IDS
+        "operation_ids": GET_CONFIGURATION_OBJECTS_OPERATION_IDS,
     },
     {
         "name": "get_configuration_object_schema",
         "template": GET_CONFIGURATION_OBJECT_SCHEMA_TEMPLATE,
         "tag": "configuration",
-        "operation_ids": []
+        "operation_ids": [],
     },
     {
         "name": "get_next_page",
         "template": GET_NEXT_PAGE_TEMPLATE,
         "tag": "info",
-        "operation_ids": []
+        "operation_ids": [],
     },
     {
         "name": "change_configuration_objects",
@@ -211,6 +209,64 @@ CUSTOM_TOOLS = [
         "operation_ids": UPGRADE_OPERATIONS,
     },
 ]
+
+# Workflow facade tools are handwritten because they compose several generated
+# handlers. ``make generate`` preserves their source files and rewrites the public
+# catalog so only these facades, not their internal handlers, are exposed.
+FACADE_TOOLS = [
+    {
+        "name": "mist_get_account",
+        "tag": "self_account",
+        "replaces": {"mist_get_self", "mist_get_org_licenses"},
+    },
+    {
+        "name": "mist_describe",
+        "tag": "constants",
+        "replaces": {
+            "mist_get_constants",
+            "mist_get_configuration_object_schema",
+        },
+    },
+    {
+        "name": "mist_search_assets",
+        "tag": "devices",
+        "replaces": {"mist_search_device", "mist_search_client"},
+    },
+    {
+        "name": "mist_get_configuration",
+        "tag": "configuration",
+        "replaces": {
+            "mist_get_configuration_objects",
+            "mist_search_device_config_history",
+        },
+    },
+    {
+        "name": "mist_search_activity",
+        "tag": "events",
+        "replaces": {"mist_search_events", "mist_search_audit_logs"},
+    },
+    {
+        "name": "mist_search_security",
+        "tag": "orgs_nac",
+        "replaces": {"mist_search_nac_user_macs", "mist_list_rogue_devices"},
+    },
+    {
+        "name": "mist_get_site_insights",
+        "tag": "sites_insights",
+        "replaces": {"mist_get_insight_metrics", "mist_get_site_rrm_info"},
+    },
+]
+
+PRESERVED_TOOL_FILES = {
+    "_facade.py",
+    "describe.py",
+    "get_account.py",
+    "get_configuration.py",
+    "get_site_insights.py",
+    "search_activity.py",
+    "search_assets.py",
+    "search_security.py",
+}
 # Global read-only hint for tool generation
 READ_ONLY_HINT = True
 
@@ -227,6 +283,61 @@ TOOLS_HELPER_FILE = Path(
     os.path.join(DIR_PATH, "../src/mistmcp/tool_helper.py")
 )
 
+
+def _read_preserved_tool_files() -> dict[str, str]:
+    """Read handwritten facade sources before the generated directory is replaced."""
+    preserved: dict[str, str] = {}
+    for filename in PRESERVED_TOOL_FILES:
+        path = OUTPUT_DIR / filename
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"Required handwritten tool file is missing: {path}. "
+                "Restore it before running generation."
+            )
+        preserved[filename] = path.read_text(encoding="utf-8")
+    return preserved
+
+
+def _restore_preserved_tool_files(preserved: dict[str, str]) -> None:
+    """Restore handwritten facade sources after generated files are recreated."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for filename, source in preserved.items():
+        (OUTPUT_DIR / filename).write_text(source, encoding="utf-8")
+
+
+def _replaced_tool_names() -> set[str]:
+    """Names of endpoint tools fully absorbed by workflow modules."""
+    return set().union(*(facade["replaces"] for facade in FACADE_TOOLS))
+
+
+def _remove_replaced_tool_files() -> None:
+    """Remove endpoint modules whose implementations now live in workflow modules."""
+    for tool_name in _replaced_tool_names():
+        filename = f"{tool_name.removeprefix('mist_')}.py"
+        (OUTPUT_DIR / filename).unlink(missing_ok=True)
+
+
+def _apply_facade_catalog(root_tag_defs: dict) -> None:
+    """Replace generated handler names with their public workflow facades."""
+    replaced_tool_names = _replaced_tool_names()
+    for tag_data in root_tag_defs.values():
+        tag_data["tools"] = [
+            tool_name
+            for tool_name in tag_data.get("tools", [])
+            if tool_name not in replaced_tool_names
+        ]
+    for facade in FACADE_TOOLS:
+        tag_data = root_tag_defs.setdefault(
+            facade["tag"],
+            {
+                "tools": [],
+                "description": f"Workflow tools for {facade['tag'].replace('_', ' ')}.",
+            },
+        )
+        if facade["name"] not in tag_data["tools"]:
+            tag_data["tools"].append(facade["name"])
+
+
 # ---------------------------------------------------------------------------
 # LOAD EXCLUSION AND CUSTOMIZATION CONFIGS
 # ---------------------------------------------------------------------------
@@ -236,8 +347,9 @@ TOOLS_HELPER_FILE = Path(
 with open(os.path.join(DIR_PATH, "excluded_tags.yaml"), "r", encoding="utf-8") as f:
     EXCLUDED_TAGS = yaml.safe_load(f)
 
-with open(os.path.join(DIR_PATH, "excluded_operation_ids.yaml"), "r", encoding="utf-8"
-          ) as f:
+with open(
+    os.path.join(DIR_PATH, "excluded_operation_ids.yaml"), "r", encoding="utf-8"
+) as f:
     EXCLUDED_OPERATION_IDS = yaml.safe_load(f)
 
 with open(os.path.join(DIR_PATH, "custom_tags_def.yaml"), "r", encoding="utf-8") as f:
@@ -293,14 +405,15 @@ COMMON_PARAM_SHORT_DESCRIPTIONS = {
 def snake_case(s: str) -> str:
     return s.lower().replace(" ", "_").replace("-", "_")
 
+
 # ---------------------------------------------------------------------------
 # PARAMETER PROCESSING FUNCTIONS
 # ---------------------------------------------------------------------------
 
 
 def camel_to_snake(name):
-    s1 = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+    s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
 def _enum_member_name(value: str) -> str:
@@ -404,7 +517,9 @@ def _process_params(
 
         # Apply short description for well-known common parameters
         if tmp_param["name"] in COMMON_PARAM_SHORT_DESCRIPTIONS:
-            tmp_param["description"] = COMMON_PARAM_SHORT_DESCRIPTIONS[tmp_param["name"]]
+            tmp_param["description"] = COMMON_PARAM_SHORT_DESCRIPTIONS[
+                tmp_param["name"]
+            ]
 
         # Add description and validation annotations
         if tmp_param["description"]:
@@ -415,8 +530,7 @@ def _process_params(
             r_tmp = re.findall(r, description)
             if r_tmp:
                 description = re.sub(r, f"`{r_tmp[0]}`", description)
-            cleaned_description = description.replace(
-                '"', "'")  # .replace("\n", " ")
+            cleaned_description = description.replace('"', "'")  # .replace("\n", " ")
             annotations.append(f'description="""{cleaned_description}"""')
         elif tmp_param["name"].endswith("_id"):
             _add_import(imports, "pydantic", "Field")
@@ -479,9 +593,7 @@ def _process_params(
                     tmp_default = (
                         f" = {tmp_param['name'].capitalize()}.{default_member}"
                     )
-                    tmp_mistapi_parameters = (
-                        f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else {tmp_param['name'].capitalize()}.{default_member}.value,\n"
-                    )
+                    tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else {tmp_param['name'].capitalize()}.{default_member}.value,\n"
                 elif force_default:
                     # tmp_default = f" = {tmp_param['name'].capitalize()}.NONE"
                     tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']}.value if {tmp_param['name']} else None,\n"
@@ -526,7 +638,7 @@ def _process_params(
                 _add_import(imports, "pydantic", "Field")
                 _add_import(imports, "typing", "Annotated")
                 annotations.append("default=None")
-             #   tmp_default = " = None"
+            #   tmp_default = " = None"
         # When tmp_default is already set (e.g. enum with default), no Optional
         # wrapper is needed — the existing default already makes the param optional.
 
@@ -539,10 +651,14 @@ def _process_params(
         # Build mistapi parameter assignment
         if not tmp_mistapi_parameters:
             if tmp_param["required"]:
-                tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']},\n"
+                tmp_mistapi_parameters = (
+                    f"            {tmp_param['name']}={tmp_param['name']},\n"
+                )
             elif tmp_param["default"] is not None:
                 # Param has an explicit default — always pass it through (never None)
-                tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']},\n"
+                tmp_mistapi_parameters = (
+                    f"            {tmp_param['name']}={tmp_param['name']},\n"
+                )
             else:
                 tmp_mistapi_parameters = f"            {tmp_param['name']}={tmp_param['name']} if {tmp_param['name']} else None,\n"
 
@@ -670,7 +786,7 @@ def _gen_tools_custom(
     root_tools_import: dict,
     root_enums: list,
     root_functions: dict,
-    root_tag_defs: dict
+    root_tag_defs: dict,
 ):
     func_name = func_data["name"]
     func_tmpl = func_data["template"]
@@ -704,17 +820,18 @@ def _gen_tools_custom(
         f"{snake_case(func_name)}.add_tool()"
     )
     # root_tag_defs
-    root_tag_defs[snake_case(snake_case(func_tag))
-                  ]["tools"].append(f"mist_{func_name}")
+    root_tag_defs[snake_case(snake_case(func_tag))]["tools"].append(f"mist_{func_name}")
 
 
 def _gen_tools_additional_required_parameters(parameters: list) -> str:
     additional_parameters = ""
     for param in parameters:
         param_name = param.get("name")
-        for required_if_match_name, required_if_values in param.get("required_if", {}).items():
+        for required_if_match_name, required_if_values in param.get(
+            "required_if", {}
+        ).items():
             for value in required_if_values:
-                additional_parameters += f"\n    if object_type.value == \"{value}\":\n"
+                additional_parameters += f'\n    if object_type.value == "{value}":\n'
                 additional_parameters += f"        if not {param_name}:\n"
                 additional_parameters += "            raise ToolError(\n"
                 additional_parameters += "                {\n"
@@ -726,10 +843,11 @@ def _gen_tools_additional_required_parameters(parameters: list) -> str:
             only_if_values_str = ""
             if isinstance(only_if_values, list):
                 if len(only_if_values) == 1:
-                    only_if_values_str = f"is \"{only_if_values[0]}\""
+                    only_if_values_str = f'is "{only_if_values[0]}"'
                 else:
-                    only_if_values_str = "is in " + \
-                        ", ".join([f'"{v}"' for v in only_if_values])
+                    only_if_values_str = "is in " + ", ".join(
+                        [f'"{v}"' for v in only_if_values]
+                    )
             additional_parameters += f"\n    if {param_name} and {only_if_match_name}.value not in {only_if_values}:\n"
             additional_parameters += "        raise ToolError(\n"
             additional_parameters += "            {\n"
@@ -746,7 +864,7 @@ def _build_input_parameters_log(parameters: list) -> str:
         for param_name in (param.get("name") for param in parameters)
         if param_name
     ]
-    input_parameters = "\"Input Parameters: "
+    input_parameters = '"Input Parameters: '
 
     for i, param_name in enumerate(param_names):
         if i > 0:
@@ -754,9 +872,9 @@ def _build_input_parameters_log(parameters: list) -> str:
         input_parameters += f"{param_name}: %s"
 
     if param_names:
-        input_parameters += f"\", {', '.join(param_names)}"
+        input_parameters += f'", {", ".join(param_names)}'
     else:
-        input_parameters += "\""
+        input_parameters += '"'
 
     return input_parameters
 
@@ -767,14 +885,14 @@ def _gen_tool_replacement(details: dict, processed_operation_ids: list) -> str:
         f"    response = {details.get('function', '')}\n"
         f"    await process_response(response)\n"
     )
-    processed_operation_ids.append(
-        details.get("operationId", "").lower()
-    )
+    processed_operation_ids.append(details.get("operationId", "").lower())
 
     return request
 
 
-def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: list) -> str:
+def _gen_tools_read(
+    details: dict, func_data: dict, processed_operation_ids: list
+) -> str:
     request = ""
     if details.get("get") or details.get("list"):
         if details.get("get") and details.get("list"):
@@ -798,8 +916,7 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
             )
         if details.get("list") and details.get("list", {}).get("reduce", False):
             # Reduce case: build a name→id dict — pagination metadata not applicable
-            reduce_attribute = details["list"].get(
-                "reduce_attribute", "name")
+            reduce_attribute = details["list"].get("reduce_attribute", "name")
             request += (
                 f"                response = {details['list'].get('function', '')}\n"
                 f"                await process_response(response)\n"
@@ -856,7 +973,9 @@ def _gen_tools_read(details: dict, func_data: dict, processed_operation_ids: lis
     return request
 
 
-def _gen_tools_write(details: dict, func_data: dict, processed_operation_ids: list) -> str:
+def _gen_tools_write(
+    details: dict, func_data: dict, processed_operation_ids: list
+) -> str:
     request = ""
     i = 0
     for _, value in details.items():
@@ -866,68 +985,60 @@ def _gen_tools_write(details: dict, func_data: dict, processed_operation_ids: li
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
             )
-            processed_operation_ids.append(
-                value.get("operationId", "").lower()
-            )
+            processed_operation_ids.append(value.get("operationId", "").lower())
         else:
             request += (
                 f"            else:\n"
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
             )
-            processed_operation_ids.append(
-                value.get("operationId", "").lower()
-            )
+            processed_operation_ids.append(value.get("operationId", "").lower())
         i += 1
     return request
 
 
-def _gen_tools_write_delete(details: dict, func_data: dict, processed_operation_ids: list) -> str:
+def _gen_tools_write_delete(
+    details: dict, func_data: dict, processed_operation_ids: list
+) -> str:
     request = ""
     i = 0
     for key, value in details.items():
         if i == 0:
             request += (
-                f"            if {func_data.get('if_filter', 'action_type')}.value == \"{key}\":\n"
+                f'            if {func_data.get("if_filter", "action_type")}.value == "{key}":\n'
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
             )
-            processed_operation_ids.append(
-                value.get("operationId", "").lower()
-            )
+            processed_operation_ids.append(value.get("operationId", "").lower())
         elif i == len(details) - 1:
             request += (
                 f"            else:\n"
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
             )
-            processed_operation_ids.append(
-                value.get("operationId", "").lower()
-            )
+            processed_operation_ids.append(value.get("operationId", "").lower())
         else:
             request += (
-                f"            elif {func_data.get('if_filter', 'action_type')}.value == \"{key}\":\n"
+                f'            elif {func_data.get("if_filter", "action_type")}.value == "{key}":\n'
                 f"                response = {value.get('function', '')}\n"
                 f"                await process_response(response)\n"
             )
-            processed_operation_ids.append(
-                value.get("operationId", "").lower()
-            )
+            processed_operation_ids.append(value.get("operationId", "").lower())
         i += 1
     return request
 
 
 def _gen_tools_optim(
-        func_name: str,
-        func_data: dict,
-        openapi_parameters: dict,
-        openapi_schemas: dict,
-        tag_to_tools: dict,
-        root_tools_import: dict,
-        root_enums: list,
-        root_functions: dict,
-        root_tag_defs: dict,
-        processed_operation_ids: list
+    func_name: str,
+    func_data: dict,
+    openapi_parameters: dict,
+    openapi_schemas: dict,
+    tag_to_tools: dict,
+    root_tools_import: dict,
+    root_enums: list,
+    root_functions: dict,
+    root_tag_defs: dict,
+    processed_operation_ids: list,
 ):
     if func_data.get("skip", False):
         return
@@ -936,21 +1047,23 @@ def _gen_tools_optim(
     description = ""
     tag = "untagged"
     match_name = None
-    if (func_data.get("type") == "tool_replacement"):
+    if func_data.get("type") == "tool_replacement":
         description = func_data.get("description", "")  # Tool description
         tag = func_data.get("tags", [])[0]  # Tool tag/category
         enums_optim = []  # Will collect enum values for object_type
         request = "\n"  # Start request code block
-        request += _gen_tool_replacement(func_data.get("request", {}),
-                                         processed_operation_ids)
+        request += _gen_tool_replacement(
+            func_data.get("request", {}), processed_operation_ids
+        )
     # Only proceed if this is a tool consolidation and read_only_hint is True or global READ_ONLY_HINT is False
-    if (func_data.get("type") == "tool_consolidation") and (func_data.get("read_only_hint") is True or READ_ONLY_HINT is False):
+    if (func_data.get("type") == "tool_consolidation") and (
+        func_data.get("read_only_hint") is True or READ_ONLY_HINT is False
+    ):
         description = func_data.get("description", "")  # Tool description
         tag = func_data.get("tags", [])[0]  # Tool tag/category
         enums_optim = []  # Will collect enum values for object_type
         request = "\n"  # Start request code block
-        match_name = func_data.get(
-            "match_name", "object_type")  # Parameter to match on
+        match_name = func_data.get("match_name", "object_type")  # Parameter to match on
 
         # If match_name is specified, set up object_type and required parameter checks
         if func_data.get("match_name"):
@@ -958,20 +1071,29 @@ def _gen_tools_optim(
                 request += f"    object_type = {func_data.get('match_name')}\n"
             # Add code to check for additional required parameters
             request += _gen_tools_additional_required_parameters(
-                func_data.get("parameters", []))
+                func_data.get("parameters", [])
+            )
         if len(func_data.get("requests", {}).keys()) == 1:
             # Single case optimization: no need for match-case, just execute the single request
-            single_request_details = next(
-                iter(func_data.get("requests", {}).values()))
+            single_request_details = next(iter(func_data.get("requests", {}).values()))
             if func_data.get("read_only_hint") is True:
-                request += _gen_tools_read(single_request_details,
-                                           func_data, processed_operation_ids)
-            elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is False:
-                request += _gen_tools_write(single_request_details,
-                                            func_data, processed_operation_ids)
-            elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is True:
-                request += _gen_tools_write_delete(single_request_details,
-                                                   func_data, processed_operation_ids)
+                request += _gen_tools_read(
+                    single_request_details, func_data, processed_operation_ids
+                )
+            elif (
+                func_data.get("read_only_hint") is False
+                and func_data.get("destructive_hint") is False
+            ):
+                request += _gen_tools_write(
+                    single_request_details, func_data, processed_operation_ids
+                )
+            elif (
+                func_data.get("read_only_hint") is False
+                and func_data.get("destructive_hint") is True
+            ):
+                request += _gen_tools_write_delete(
+                    single_request_details, func_data, processed_operation_ids
+                )
         else:
             # Start match-case block for object_type
             request += "    match object_type.value:\n"
@@ -981,14 +1103,23 @@ def _gen_tools_optim(
                 enums_optim.append(object_type)  # Collect enum value
                 request += f"        case '{object_type}':\n"
                 if func_data.get("read_only_hint") is True:
-                    request += _gen_tools_read(details,
-                                               func_data, processed_operation_ids)
-                elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is False:
-                    request += _gen_tools_write(details,
-                                                func_data, processed_operation_ids)
-                elif func_data.get("read_only_hint") is False and func_data.get("destructive_hint") is True:
-                    request += _gen_tools_write_delete(details,
-                                                       func_data, processed_operation_ids)
+                    request += _gen_tools_read(
+                        details, func_data, processed_operation_ids
+                    )
+                elif (
+                    func_data.get("read_only_hint") is False
+                    and func_data.get("destructive_hint") is False
+                ):
+                    request += _gen_tools_write(
+                        details, func_data, processed_operation_ids
+                    )
+                elif (
+                    func_data.get("read_only_hint") is False
+                    and func_data.get("destructive_hint") is True
+                ):
+                    request += _gen_tools_write_delete(
+                        details, func_data, processed_operation_ids
+                    )
 
             # Add default case for invalid object_type
             request += f"""
@@ -1011,7 +1142,8 @@ def _gen_tools_optim(
         )
         request = (
             "\n    try:\n"
-            + indented + "\n"
+            + indented
+            + "\n"
             + "    except ToolError:\n"
             + "        raise\n"
             + "    except Exception as _exc:\n"
@@ -1019,19 +1151,15 @@ def _gen_tools_optim(
         )
 
         # Generate parameter and import code for the tool
-        imports, models, enums, parameters, _ = (
-            gen_endpoint_parameters(
-                openapi_parameters,
-                openapi_schemas,
-                func_data.get("parameters", []),
-                {},
-                None,
-            )
+        imports, models, enums, parameters, _ = gen_endpoint_parameters(
+            openapi_parameters,
+            openapi_schemas,
+            func_data.get("parameters", []),
+            {},
+            None,
         )
 
-        input_parameters = _build_input_parameters_log(
-            func_data.get("parameters", [])
-        )
+        input_parameters = _build_input_parameters_log(func_data.get("parameters", []))
 
         # Select the template based on hints
         if func_data.get("read_only_hint") is True:
@@ -1112,8 +1240,7 @@ def _gen_tools_optim(
             f"TOOL_REMOVE_FCT.append({snake_case(func_name)}.remove_tool)"
         )
         # Add tool to tag definition
-        root_tag_defs[snake_case(snake_case(tag))
-                      ]["tools"].append(f"mist_{func_name}")
+        root_tag_defs[snake_case(snake_case(tag))]["tools"].append(f"mist_{func_name}")
 
 
 def _gen_tools_openapi(
@@ -1127,7 +1254,7 @@ def _gen_tools_openapi(
     root_enums: list,
     root_functions: dict,
     root_tag_defs: dict,
-    processed_operation_ids: list
+    processed_operation_ids: list,
 ):
     for method, details in methods.items():
         if method.lower() == "get":
@@ -1223,9 +1350,7 @@ def _gen_tools_openapi(
         else:
             request = REQ_TEMPLATE.format(request=mistapi_request)
 
-        input_parameters = _build_input_parameters_log(
-            methods.get("parameters", [])
-        )
+        input_parameters = _build_input_parameters_log(methods.get("parameters", []))
 
         tool_code = TOOL_TEMPLATE_READ.format(
             imports=imports,
@@ -1274,7 +1399,8 @@ def _gen_tools_openapi(
         )
         # root_tag_defs
         root_tag_defs[snake_case(tag)]["tools"].append(
-            f"mist_{camel_to_snake(operation_id)}")
+            f"mist_{camel_to_snake(operation_id)}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1293,7 +1419,8 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     # Generate custom tools (not from OpenAPI)
     for func in CUSTOM_TOOLS:
         processed_operation_ids.extend(
-            [op_id.lower() for op_id in func["operation_ids"]])
+            [op_id.lower() for op_id in func["operation_ids"]]
+        )
         _gen_tools_custom(
             func,
             tag_to_tools,
@@ -1315,15 +1442,19 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
             root_enums,
             root_functions,
             root_tag_defs,
-            processed_operation_ids,)
+            processed_operation_ids,
+        )
 
     # Generate tools for each OpenAPI endpoint
     for path, methods in openapi_paths.items():
         _gen_tools_openapi(
             methods,
             path,
-            details=methods.get("get") or methods.get(
-                "post") or methods.get("put") or methods.get("delete") or {},
+            details=methods.get("get")
+            or methods.get("post")
+            or methods.get("put")
+            or methods.get("delete")
+            or {},
             openapi_parameters=openapi_parameters,
             openapi_schemas=openapi_schemas,
             tag_to_tools=tag_to_tools,
@@ -1337,6 +1468,18 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
     # -------------------------------
     # SUMMARY AND FINAL FILE GENERATION
     # -------------------------------
+    _apply_facade_catalog(root_tag_defs)
+    _remove_replaced_tool_files()
+    replaced_filenames = {
+        f"{name.removeprefix('mist_')}.py" for name in _replaced_tool_names()
+    }
+    for tag in tag_to_tools:
+        tag_to_tools[tag] = [
+            filename
+            for filename in tag_to_tools[tag]
+            if Path(filename).name not in replaced_filenames
+        ]
+
     final_tag_tools = {}
     for tag_name, tag_data in root_tag_defs.items():
         if tag_data.get("tools"):
@@ -1360,14 +1503,19 @@ def main(openapi_paths, openapi_tags, openapi_parameters, openapi_schemas) -> No
         f_init.write(
             INIT_TEMPLATE.format(
                 # tools_import=_gen_tools_init(root_tools_import))
-                tools_import="")
+                tools_import=""
+            )
         )
 
     # Write tool_helper.py with enums and tag summary
     with open(TOOLS_HELPER_FILE, "w", encoding="utf-8") as f_tool:
+        final_enums = [
+            f'    {snake_case(tag).upper()} = "{snake_case(tag).lower()}"'
+            for tag in final_tag_tools
+        ]
         f_tool.write(
             TOOLS_HELPER.format(
-                enums="\n".join(root_enums),
+                enums="\n".join(final_enums),
                 tools=json.dumps(final_tag_tools, indent=4, sort_keys=True),
             )
         )
@@ -1442,8 +1590,11 @@ def _resolve_schema_for_generator(
                 if ref_schema is not None:
                     resolved.update(
                         _resolve_schema_for_generator(
-                            ref_schema, all_schemas, visited | {
-                                ref_name}, depth + 1, max_depth
+                            ref_schema,
+                            all_schemas,
+                            visited | {ref_name},
+                            depth + 1,
+                            max_depth,
                         )
                     )
                     continue
@@ -1453,13 +1604,15 @@ def _resolve_schema_for_generator(
         elif key == "properties" and isinstance(value, dict):
             resolved[key] = {
                 k: _resolve_schema_for_generator(
-                    v, all_schemas, visited, depth + 1, max_depth)
+                    v, all_schemas, visited, depth + 1, max_depth
+                )
                 for k, v in value.items()
             }
         elif key in ("allOf", "anyOf", "oneOf") and isinstance(value, list):
             resolved[key] = [
                 _resolve_schema_for_generator(
-                    item, all_schemas, visited, depth + 1, max_depth)
+                    item, all_schemas, visited, depth + 1, max_depth
+                )
                 for item in value
             ]
         elif key in ("items", "additionalProperties") and isinstance(value, dict):
@@ -1482,8 +1635,7 @@ def generate_schemas_data(all_schemas: dict) -> None:
     module containing a single SCHEMAS_DATA dict that can be imported with zero
     I/O overhead at runtime.
     """
-    raw_config = yaml.safe_load(
-        SCHEMAS_CONFIG_PATH.read_text(encoding="utf-8")) or {}
+    raw_config = yaml.safe_load(SCHEMAS_CONFIG_PATH.read_text(encoding="utf-8")) or {}
     # raw_config: {enum_name: oas_schema_name | None, ...}
 
     # Cache resolved schemas by OAS name to avoid redundant work.
@@ -1494,7 +1646,8 @@ def generate_schemas_data(all_schemas: dict) -> None:
             raw_schema = all_schemas.get(schema_name)
             if raw_schema is None:
                 print(
-                    f"  WARNING: schema '{schema_name}' not found in OAS — stored as empty dict")
+                    f"  WARNING: schema '{schema_name}' not found in OAS — stored as empty dict"
+                )
                 resolved_cache[schema_name] = {}
             else:
                 resolved_cache[schema_name] = _resolve_schema_for_generator(
@@ -1504,7 +1657,7 @@ def generate_schemas_data(all_schemas: dict) -> None:
 
     schemas_data: Dict[str, dict] = {}
     for enum_name, oas_name in raw_config.items():
-        oas_name = oas_name or enum_name   # bare YAML key → fall back to key itself
+        oas_name = oas_name or enum_name  # bare YAML key → fall back to key itself
         schemas_data[enum_name] = {
             "schema": get_resolved(oas_name),
             "_schema_name": oas_name,
@@ -1518,8 +1671,7 @@ def generate_schemas_data(all_schemas: dict) -> None:
     SCHEMAS_DATA_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     SCHEMAS_DATA_OUTPUT_PATH.write_text(content, encoding="utf-8")
     size_kb = SCHEMAS_DATA_OUTPUT_PATH.stat().st_size // 1024
-    print(
-        f"schemas_data.py written: {len(schemas_data)} entries, ~{size_kb} KB")
+    print(f"schemas_data.py written: {len(schemas_data)} entries, ~{size_kb} KB")
 
 
 # ---------------------------------------------------------------------------
@@ -1528,11 +1680,21 @@ def generate_schemas_data(all_schemas: dict) -> None:
 if __name__ == "__main__":
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
-        description="Generate tools from OpenAPI specification.")
-    parser.add_argument("--openapi", type=str, default=OPENAPI_PATH,
-                        help="Path to the OpenAPI specification file.")
-    parser.add_argument("-r", "--read_only", type=str,
-                        help="Set read_only_hint to True for all tools.", default=True)
+        description="Generate tools from OpenAPI specification."
+    )
+    parser.add_argument(
+        "--openapi",
+        type=str,
+        default=OPENAPI_PATH,
+        help="Path to the OpenAPI specification file.",
+    )
+    parser.add_argument(
+        "-r",
+        "--read_only",
+        type=str,
+        help="Set read_only_hint to True for all tools.",
+        default=True,
+    )
     parser.add_argument("--version", action="version", version="%(prog)s 1.0")
     args = parser.parse_args()
 
@@ -1540,21 +1702,33 @@ if __name__ == "__main__":
     if str(args.read_only).lower() in ["false", "0", "no"]:
         READ_ONLY_HINT = False
 
-    # Clean up existing tools directory before regeneration
-    if os.path.exists(OUTPUT_DIR):
-        shutil.rmtree(OUTPUT_DIR)
+    # Preserve handwritten workflow facades before replacing generated handlers.
+    preserved_tool_files = _read_preserved_tool_files()
 
-    # Load and parse the OpenAPI specification
-    with open(args.openapi, "r", encoding="utf-8") as f:
-        openapi_json = yaml.safe_load(f)
-    OPENAPI_PATHS = openapi_json.get("paths")
-    OPENAPI_TAGS = openapi_json.get("tags")
-    OPENAPI_PARAMETERS = openapi_json.get("components", {}).get("parameters")
-    OPENAPI_SCHEMAS = openapi_json.get("components", {}).get("schemas")
+    try:
+        # Clean up existing tools directory before regeneration
+        if os.path.exists(OUTPUT_DIR):
+            shutil.rmtree(OUTPUT_DIR)
 
-    # Run main generation logic
-    main(OPENAPI_PATHS, OPENAPI_TAGS, OPENAPI_PARAMETERS, OPENAPI_SCHEMAS)
-    print("Tool generation completed successfully. READ_ONLY_HINT is set to", READ_ONLY_HINT)
+        # Load and parse the OpenAPI specification
+        with open(args.openapi, "r", encoding="utf-8") as f:
+            openapi_json = yaml.safe_load(f)
+        OPENAPI_PATHS = openapi_json.get("paths")
+        OPENAPI_TAGS = openapi_json.get("tags")
+        OPENAPI_PARAMETERS = openapi_json.get("components", {}).get("parameters")
+        OPENAPI_SCHEMAS = openapi_json.get("components", {}).get("schemas")
+
+        # Run main generation logic
+        main(OPENAPI_PATHS, OPENAPI_TAGS, OPENAPI_PARAMETERS, OPENAPI_SCHEMAS)
+    finally:
+        # A failed generation must neither restore replaced endpoint modules nor
+        # delete the handwritten public workflow tools.
+        _remove_replaced_tool_files()
+        _restore_preserved_tool_files(preserved_tool_files)
+    print(
+        "Tool generation completed successfully. READ_ONLY_HINT is set to",
+        READ_ONLY_HINT,
+    )
     print(args.read_only)
 
     # Generate schemas_data.py for pre-resolved schemas

@@ -53,7 +53,7 @@ Each of the four tools in the write/mutation surface carries exactly one tag:
 | Tag | Tool | Build-time visibility today | How a mutation is gated today |
 |---|---|---|---|
 | `write` | `mist_update_configuration_objects` | **hidden** (server.py:200) | shown per session by middleware when write enabled |
-| `write_delete` | `mist_change_configuration_objects` (incl. DELETE) | **visible** | hidden per session by middleware unless `?experimental=true`; mutation always elicits |
+| `write_delete` | `mist_change_configuration_objects` (incl. DELETE) | **hidden** | URL query parameters never expose it; mutation always elicits when otherwise enabled |
 | `utilities_upgrade` | `mist_upgrades` | **visible, never touched** | mutating actions elicit only — **no `enable_write_tools` check** |
 | `utilities` | `mist_utilities` | visible (`utilities` tag) | mutating utilities hard-gated by `enable_write_tools` (`utilities.py:838`) **and** then elicit |
 
@@ -304,8 +304,11 @@ server-level transform (this is exactly how `write` already works today). `utili
 
 ### 5.5 Request-scoped elicitation state (`elicitation_middleware.py`)
 
-Add an `on_call_tool` handler so the DANGER-ZONE auto-accept works in stateless, where
-state set in `on_initialize` does not carry to the tool-call request:
+Add request hooks so stateless requests can establish their per-request policy before
+FastMCP applies visibility transforms.
+
+First, `on_call_tool` makes the DANGER-ZONE auto-accept work in stateless, where state
+set in `on_initialize` does not carry to the tool-call request:
 
 ```python
 async def on_call_tool(self, context, call_next):
@@ -326,6 +329,9 @@ async def on_call_tool(self, context, call_next):
 
 Gated on `config.stateless` so the stateful code path is literally unchanged (stateful
 DANGER ZONE already sets the flag in `on_initialize`).
+
+URL query parameters do not alter write-tool visibility or bypass elicitation. In
+particular, `experimental=true` has no special meaning.
 
 ### 5.6 Observability and documentation
 
@@ -398,7 +404,6 @@ auto-accept; "fail-closed" = mutation refused with a clean `ToolError`.
 | **Stateful normal** (read-only) | hidden | hidden | visible | visible | UT mutating hard-blocked (`enable_write_tools=False`); UP mutating elicits (fails if client lacks elicitation) |
 | **Stateful elicitation-capable** (write, client supports elicit) | visible | hidden | visible | visible | W/UP/UT mutating **elicit** (user prompted) |
 | **Stateful DANGER** (write + disable_elicitation) | visible | hidden | visible | visible | W/UP/UT mutating **auto** (session state set in on_initialize) |
-| **Stateful experimental** (write + `?experimental=true`) | hidden | visible | visible | visible | WD/UP/UT mutating **auto** |
 | **Stateless read-only** (no write; gate passes) | hidden | hidden | visible | visible | UT mutating hard-blocked (`enable_write_tools=False`); UP mutating **fail-closed** via the §5.7 guard (ElicitationUnavailableError ⇒ ToolError, deterministic — never calls `ctx.elicit()`); WD not listed |
 | **Stateless DANGER** (write + disable_elicitation; gate passes) | visible | hidden | visible | visible | W/UP/UT mutating **auto** (request-scoped state set in on_call_tool); WD hidden ⇒ no delete |
 
@@ -417,9 +422,8 @@ initialize) state — that is the behavior-neutrality the centralization preserv
   deterministically, rather than relying on `ctx.elicit()` behavior; `mist_utilities`
   mutating actions are hard-blocked earlier by `enable_write_tools`. This is the safe
   default.
-- **Write in stateless requires DANGER ZONE.** The only way to perform writes in stateless
-  is `enable_write_tools=True` + `disable_elicitation=True` (auto-accept). This is explicit
-  and logged loudly.
+- **Write in stateless requires explicit configuration.** Standard update writes
+  require `enable_write_tools=True` + `disable_elicitation=True` (auto-accept).
 
 ## 8. Testing strategy
 
@@ -443,8 +447,9 @@ initialize) state — that is the behavior-neutrality the centralization preserv
   `event_store` kwarg; assert uvicorn args `(host, port, lifespan="on",
   timeout_graceful_shutdown=2, ws="websockets-sansio")`.
 - **Middleware** (`test_elicitation_middleware.py`): `on_call_tool` sets request-scoped
-  (`serializable=False`) `disable_elicitation` only in stateless DANGER ZONE; no-op
-  otherwise; existing `on_initialize` tests stay green under the new build-time floor.
+  (`serializable=False`) `disable_elicitation` only in stateless DANGER ZONE; URL query
+  parameters cannot enable write tools; existing `on_initialize` tests stay green under
+  the new build-time floor.
 - **Elicitation guard** (`test_elicitation_processor.py` or similar): `config_elicitation_handler`
   returns `accept` when `disable_elicitation` state is `True`; raises
   `ElicitationUnavailableError` when `config.stateless and config.transport_mode == "http"`

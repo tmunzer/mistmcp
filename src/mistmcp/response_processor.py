@@ -42,7 +42,7 @@ async def process_response(response: APIResponse):
         raise ToolError(
             {
                 "status_code": 403,
-                "message": "Permission Denied. This usually means the you are trying to use a tool with an invalid id (e.g. `org_id`, `site_id`, ...). Do not assume the ids, make sure to retrieve them from another tool (e.g. use the `mist_get_self` tool to retrieve the correct `org_id`)",
+                "message": "Permission Denied. This usually means the you are trying to use a tool with an invalid id (e.g. `org_id`, `site_id`, ...). Do not assume the ids, make sure to retrieve them from another tool (e.g. use `mist_get_account(information=account_info)` to retrieve the correct `org_id`)",
             }
         )
     elif response.data:

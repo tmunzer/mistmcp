@@ -126,14 +126,14 @@ async def get_sle(
     metric: Annotated[
         str,
         Field(
-            description="""SLE metric name. Required when sle_scope is `org`, `site`, or `site_classifiers`. For site-level queries, use `sle_scope=site_metrics` to discover metric names for the selected `scope` and `scope_id`. For org-level queries, use `mist_get_insight_metrics` or `mist_get_constants` with `object_type=insight_metrics` to discover available values""",
+            description="""SLE metric name. Required when sle_scope is `org`, `site`, or `site_classifiers`. For site-level queries, use `sle_scope=site_metrics` to discover metric names for the selected `scope` and `scope_id`. For org-level queries, use `mist_describe(subject=constant, name=insight_metrics)` to discover available values""",
             default=None,
         ),
     ],
     sle: Annotated[
         str,
         Field(
-            description="""SLE type. When sle_scope is `org`: SLE name to filter on (use `mist_get_insight_metrics` to discover available values). When sle_scope is `org_sites`: must be `wifi`, `wired`, or `wan`""",
+            description="""SLE type. When sle_scope is `org`: SLE name to filter on (use `mist_describe(subject=constant, name=insight_metrics)` to discover available values). When sle_scope is `org_sites`: must be `wifi`, `wired`, or `wan`""",
             default=None,
         ),
     ],

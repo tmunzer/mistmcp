@@ -471,7 +471,7 @@ def describe_supported_device_utilities(
         "device_type": device_type.value,
         "usage": {
             "site_id": "Required when executing a utility.",
-            "device_id": "Required when executing a utility. Retrieve it with mist_search_device.",
+            "device_id": "Required when executing a utility. Retrieve it with mist_search_assets(asset_type=device).",
             "parameters": "Pass utility-specific arguments as a JSON object.",
             "timeout_seconds": "Optional. Overrides the underlying device/WebSocket idle timeout when supported; high values can delay completed=true.",
             "wait_seconds": "Optional. Controls how long the MCP foreground request waits for streaming output before returning partial output.",
@@ -1057,7 +1057,7 @@ async def utilities(
     device_id: Annotated[
         UUID,
         Field(
-            description="""Device ID of the target device. Required when `utility` is set. Retrieve it with `mist_search_device`.""",
+            description="""Device ID of the target device. Required when `utility` is set. Retrieve it with `mist_search_assets(asset_type=device)`.""",
             default=None,
         ),
     ],
