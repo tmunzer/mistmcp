@@ -159,22 +159,6 @@ async def get_site_rrm_info(
                 }
             )
 
-        if limit and rrm_info_type.value not in ["events"]:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": '`limit` parameter can only be used when `rrm_info_type` is "events".',
-                }
-            )
-
-        if page and rrm_info_type.value not in ["events"]:
-            raise ToolError(
-                {
-                    "status_code": 400,
-                    "message": '`page` parameter can only be used when `rrm_info_type` is "events".',
-                }
-            )
-
         match object_type.value:
             case "channel_scores":
                 response = mistapi.api.v1.sites.rrm.getSiteChannelScores(
