@@ -88,11 +88,11 @@ async def get_site_rrm_info(
         Field(description="""Time range duration (e.g. 1d, 1h, 10m)""", default=None),
     ],
     limit: Annotated[
-        int, Field(description="""Max number of results per page""", default=200)
-    ] = 200,
+        int, Field(description="""Max number of results per page""", default=None)
+    ],
     page: Annotated[
-        int, Field(description="""Page number for pagination""", default=1)
-    ] = 1,
+        int, Field(description="""Page number for pagination""", default=None)
+    ],
 ) -> dict | list | str:
     """Retrieve Radio Resource Management (RRM) information for a site. Use current_channel_planning to get the current channel plan, current_rrm_considerations to get RRM considerations for a specific device and band, current_rrm_neighbors to list current RRM neighbor APs for a band, or events to list RRM change events over a time range."""
 
@@ -159,6 +159,22 @@ async def get_site_rrm_info(
                 }
             )
 
+        if limit and rrm_info_type.value not in ["events"]:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": '`limit` parameter can only be used when `rrm_info_type` is "events".',
+                }
+            )
+
+        if page and rrm_info_type.value not in ["events"]:
+            raise ToolError(
+                {
+                    "status_code": 400,
+                    "message": '`page` parameter can only be used when `rrm_info_type` is "events".',
+                }
+            )
+            
         match object_type.value:
             case "channel_scores":
                 response = mistapi.api.v1.sites.rrm.getSiteChannelScores(
@@ -188,6 +204,10 @@ async def get_site_rrm_info(
                 )
                 await process_response(response)
             case "events":
+                if not limit:
+                    limit = 200
+                if not page:
+                    page = 1
                 response = mistapi.api.v1.sites.rrm.listSiteRrmEvents(
                     apisession,
                     site_id=str(site_id),
