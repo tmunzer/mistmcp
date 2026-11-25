@@ -1,4 +1,11 @@
 > [!IMPORTANT]
+> Unofficial Community Project
+>
+> This is not an officially supported product of HPE. It is provided as-is, with no warranty or guarantee of fitness for any purpose.
+> - Review your organization's corporate device and data policies before connecting this server to any AI assistant.
+> - Never share credentials (API secrets, API keys) with AI model providers unless your security policy explicitly permits it.
+> - All read operations query live data from your HPE Mist instance. Recommended to test MCP server use in non-production or lab environments where possible before running on production.
+> 
 > This MCP server is mostly used as a sandbox to explore the MCP protocol. For a more stable and optimized Mist MCP Server, please refer to the [Official Mist MCP Server](https://www.juniper.net/documentation/us/en/software/mist/mist-aiops/shared-content/topics/concept/juniper-mist-mcp-claude.html)
 
 # Mist MCP Server
