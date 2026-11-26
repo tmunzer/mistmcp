@@ -1,5 +1,6 @@
 """Tests for mistmcp __main__ module"""
 
+import os
 from unittest.mock import Mock, patch
 
 import pytest
@@ -163,6 +164,14 @@ class TestStart:
 
 class TestMain:
     """Test main function"""
+
+    @pytest.fixture(autouse=True)
+    def _isolate_env(self, monkeypatch):
+        """Keep a developer's local .env / MIST* env vars from overriding CLI defaults"""
+        for key in list(os.environ):
+            if key.startswith(("MIST_", "MISTMCP_")):
+                monkeypatch.delenv(key)
+        monkeypatch.setattr("mistmcp.__main__.load_env_file", lambda *_a, **_k: None)
 
     @patch("mistmcp.__main__.start")
     def test_main_default_args(self, mock_start) -> None:
